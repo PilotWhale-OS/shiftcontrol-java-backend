@@ -2,8 +2,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd;">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>at.expertenpfuscher</groupId>
-    <artifactId>shiftcontrol</artifactId>
+    <groupId>at.shiftcontrol</groupId>
+    <artifactId>shiftcontrol-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>ShiftControl Parent</name>
@@ -21,6 +21,7 @@
 
     <modules>
         <module>shiftsystem</module>
+        <module>shiftcontrol-lib</module>
     </modules>
 
     <build>

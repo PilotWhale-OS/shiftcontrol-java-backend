@@ -1,4 +1,4 @@
-package at.expertenpfuscher.shiftcontrol.shiftsystem;
+package at.shiftcontrol.shiftsystem;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
