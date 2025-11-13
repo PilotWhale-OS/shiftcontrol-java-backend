@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * }</pre>
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class PartiallyNotFoundException extends RuntimeException {
+public class PartiallyNotFoundException extends Exception {
 
     private final String context;
     private final Map<String, Collection<?>> missingEntities;
@@ -126,7 +126,7 @@ public class PartiallyNotFoundException extends RuntimeException {
         /**
          * Throws a {@link PartiallyNotFoundException} if any missing entries were registered.
          */
-        public void throwIfMissing() {
+        public void throwIfMissing() throws PartiallyNotFoundException {
             if (hasMissing()) {
                 throw build();
             }
