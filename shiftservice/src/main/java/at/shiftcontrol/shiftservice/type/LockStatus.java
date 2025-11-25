@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftsystem.type;
+package at.shiftcontrol.shiftservice.type;
 
 public enum LockStatus {
     SELF_ASSIGNABLE,

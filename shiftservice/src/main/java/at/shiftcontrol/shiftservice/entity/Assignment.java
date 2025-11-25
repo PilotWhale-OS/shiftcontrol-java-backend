@@ -1,6 +1,6 @@
-package at.shiftcontrol.shiftsystem.entity;
+package at.shiftcontrol.shiftservice.entity;
 
-import at.shiftcontrol.shiftsystem.type.AssignmentStatus;
+import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;

@@ -1,23 +1,23 @@
-package at.shiftcontrol.shiftsystem.entity;
+package at.shiftcontrol.shiftservice.entity;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
-import java.util.Map;
+import java.util.Collection;
 
 @Data
 @Builder
 @EqualsAndHashCode
-public class Location {
+public class Activity {
     private long id;
     @NonNull
     private Event event;
 
     private String name;
     private String description;
-    private String url;
 
-    private Map<String, Object> additionalProperties;
+    private Collection<Shift> shifts;
+    private Location location;
 }

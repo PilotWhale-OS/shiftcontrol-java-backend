@@ -1,7 +1,7 @@
-package at.shiftcontrol.shiftsystem.service.impl;
+package at.shiftcontrol.shiftservice.service.impl;
 
-import at.shiftcontrol.shiftsystem.dao.ShiftDao;
-import at.shiftcontrol.shiftsystem.service.ShiftService;
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
+import at.shiftcontrol.shiftservice.service.ShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

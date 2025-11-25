@@ -1,6 +1,6 @@
-package at.shiftcontrol.shiftsystem.entity;
+package at.shiftcontrol.shiftservice.entity;
 
-import at.shiftcontrol.shiftsystem.type.AssignmentSwitchRequestStatus;
+import at.shiftcontrol.shiftservice.type.AssignmentSwitchRequestStatus;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

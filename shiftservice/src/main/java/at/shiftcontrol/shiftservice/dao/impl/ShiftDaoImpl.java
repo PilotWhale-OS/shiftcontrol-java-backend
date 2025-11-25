@@ -1,6 +1,6 @@
-package at.shiftcontrol.shiftsystem.dao.impl;
+package at.shiftcontrol.shiftservice.dao.impl;
 
-import at.shiftcontrol.shiftsystem.dao.ShiftDao;
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import org.springframework.stereotype.Component;
 
 @Component

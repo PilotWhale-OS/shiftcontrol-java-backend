@@ -1,6 +1,6 @@
-package at.shiftcontrol.shiftsystem.entity;
+package at.shiftcontrol.shiftservice.entity;
 
-import at.shiftcontrol.shiftsystem.type.AttendanceStatus;
+import at.shiftcontrol.shiftservice.type.AttendanceStatus;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
