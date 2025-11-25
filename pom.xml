@@ -20,7 +20,7 @@
     </properties>
 
     <modules>
-        <module>shiftsystem</module>
+        <module>shiftservice</module>
         <module>shiftcontrol-lib</module>
     </modules>
 
