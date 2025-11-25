@@ -1,2 +1,2 @@
 include:
-  - shiftsystem/compose.yml
+  - shiftservice/compose.yml
