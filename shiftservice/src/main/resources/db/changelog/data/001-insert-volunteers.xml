@@ -1,0 +1,10 @@
+<changeSet id="001-insert-volunteers" author="paul" context="dev">
+    <insert tableName="volunteer">
+        <column name="name" value="alice"/>
+        <column name="email" value="alice@example.com"/>
+    </insert>
+    <insert tableName="volunteer">
+        <column name="name" value="bob"/>
+        <column name="email" value="bob@example.com"/>
+    </insert>
+</changeSet>
