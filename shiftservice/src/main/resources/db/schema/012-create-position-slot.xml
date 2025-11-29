@@ -1,0 +1,22 @@
+<changeSet id="012-create-position-slot" author="paul">
+    <createTable tableName="position_slot">
+
+        <column name="id" type="BIGINT">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+
+        <column name="shift_id" type="BIGINT">
+            <constraints nullable="false" foreignKeyName="fk_position_slot_shift" references="shift(id)"/>
+        </column>
+
+        <column name="role_id" type="BIGINT">
+            <constraints nullable="false" foreignKeyName="fk_position_slot_role" references="role(id)"/>
+        </column>
+
+        <column name="count" type="INT">
+            <constraints nullable="false"/>
+        </column>
+
+    </createTable>
+
+</changeSet>

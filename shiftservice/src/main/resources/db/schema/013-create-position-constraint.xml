@@ -1,0 +1,24 @@
+<changeSet id="013-create-position-constraint" author="paul">
+    <createTable tableName="position_constraint">
+
+        <column name="position_id" type="BIGINT">
+            <constraints nullable="false"/>
+        </column>
+
+    </createTable>
+
+    <!-- Primary key on position_id -->
+    <addPrimaryKey
+            tableName="position_constraint"
+            columnNames="position_id"
+            constraintName="pk_position_constraint"/>
+
+    <!-- Foreign key to PositionSlot -->
+    <addForeignKeyConstraint
+            baseTableName="position_constraint"
+            baseColumnNames="position_id"
+            referencedTableName="position_slot"
+            referencedColumnNames="id"
+            constraintName="fk_position_constraint_position"/>
+
+</changeSet>

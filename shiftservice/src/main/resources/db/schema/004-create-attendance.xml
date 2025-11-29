@@ -1,0 +1,41 @@
+<changeSet id="004-create-attendance" author="paul">
+
+    <createTable tableName="attendance">
+
+        <column name="volunteer_id" type="BIGINT">
+            <constraints nullable="false"/>
+        </column>
+
+        <column name="event_id" type="BIGINT">
+            <constraints nullable="false"/>
+        </column>
+
+        <column name="status" type="VARCHAR(50)">
+            <constraints nullable="false"/>
+        </column>
+
+    </createTable>
+
+    <!-- Composite primary key -->
+    <addPrimaryKey
+            tableName="attendance"
+            columnNames="volunteer_id, event_id"
+            constraintName="pk_attendance"/>
+
+    <!-- Foreign key to volunteer -->
+    <addForeignKeyConstraint
+            baseTableName="attendance"
+            baseColumnNames="volunteer_id"
+            referencedTableName="volunteer"
+            referencedColumnNames="id"
+            constraintName="fk_attendance_volunteer"/>
+
+    <!-- Foreign key to event -->
+    <addForeignKeyConstraint
+            baseTableName="attendance"
+            baseColumnNames="event_id"
+            referencedTableName="event"
+            referencedColumnNames="id"
+            constraintName="fk_attendance_event"/>
+
+</changeSet>

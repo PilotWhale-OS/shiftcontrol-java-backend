@@ -1,0 +1,22 @@
+<changeSet id="006-create-location" author="paul">
+    <createTable tableName="location">
+
+        <column name="id" type="BIGINT">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+
+        <column name="event_id" type="BIGINT">
+            <constraints nullable="false" foreignKeyName="fk_location_event" references="event(id)"/>
+        </column>
+
+        <column name="name" type="VARCHAR(255)">
+            <constraints nullable="false"/>
+        </column>
+
+        <column name="description" type="TEXT"/>
+        <column name="url" type="VARCHAR(1024)"/>
+        <column name="additional_properties" type="TEXT"/>
+
+    </createTable>
+
+</changeSet>

@@ -1,0 +1,14 @@
+<changeSet id="003-create-event" author="paul">
+
+    <createTable tableName="event">
+
+        <column name="id" type="BIGINT">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+
+        <column name="name" type="VARCHAR(255)">
+            <constraints nullable="false"/>
+        </column>
+
+    </createTable>
+</changeSet>
