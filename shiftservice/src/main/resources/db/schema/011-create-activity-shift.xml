@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Create ACTIVITY-SHIFT Join Table -->
+    <changeSet id="008-create-activity-shift" author="paul">
+
+        <createTable tableName="activity_shift">
+
+            <column name="activity_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="shift_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addPrimaryKey
+                tableName="activity_shift"
+                columnNames="activity_id, shift_id"
+                constraintName="pk_activity_shift"/>
+
+        <addForeignKeyConstraint
+                baseTableName="activity_shift"
+                baseColumnNames="activity_id"
+                constraintName="fk_activity_shift_activity"
+                referencedTableName="activity"
+                referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                baseTableName="activity_shift"
+                baseColumnNames="shift_id"
+                constraintName="fk_activity_shift_shift"
+                referencedTableName="shift"
+                referencedColumnNames="id"/>
+
+    </changeSet>
+
+</databaseChangeLog>

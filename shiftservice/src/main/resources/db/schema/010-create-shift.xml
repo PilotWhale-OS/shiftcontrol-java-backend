@@ -5,24 +5,26 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="006-create-location" author="paul">
-        <createTable tableName="location">
+    <changeSet id="011-create-shift" author="paul">
+        <createTable tableName="shift">
 
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
-            <column name="event_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_location_event" references="event(id)"/>
+            <column name="shiftplan_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_shift_shiftplan" references="shift_plan(id)"/>
             </column>
 
             <column name="name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
 
             <column name="description" type="VARCHAR(1024)"/>
-            <column name="url" type="VARCHAR(1024)"/>
-            <column name="additional_properties" type="TEXT"/>
+
+            <column name="lock_status" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
 
         </createTable>
 

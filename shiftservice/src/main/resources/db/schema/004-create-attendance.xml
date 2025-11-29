@@ -1,41 +1,50 @@
-<changeSet id="004-create-attendance" author="paul">
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <createTable tableName="attendance">
+    <changeSet id="004-create-attendance" author="paul">
 
-        <column name="volunteer_id" type="BIGINT">
-            <constraints nullable="false"/>
-        </column>
+        <createTable tableName="attendance">
 
-        <column name="event_id" type="BIGINT">
-            <constraints nullable="false"/>
-        </column>
+            <column name="volunteer_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
-        <column name="status" type="VARCHAR(50)">
-            <constraints nullable="false"/>
-        </column>
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
-    </createTable>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
 
-    <!-- Composite primary key -->
-    <addPrimaryKey
-            tableName="attendance"
-            columnNames="volunteer_id, event_id"
-            constraintName="pk_attendance"/>
+        </createTable>
 
-    <!-- Foreign key to volunteer -->
-    <addForeignKeyConstraint
-            baseTableName="attendance"
-            baseColumnNames="volunteer_id"
-            referencedTableName="volunteer"
-            referencedColumnNames="id"
-            constraintName="fk_attendance_volunteer"/>
+        <!-- Composite primary key -->
+        <addPrimaryKey
+                tableName="attendance"
+                columnNames="volunteer_id, event_id"
+                constraintName="pk_attendance"/>
 
-    <!-- Foreign key to event -->
-    <addForeignKeyConstraint
-            baseTableName="attendance"
-            baseColumnNames="event_id"
-            referencedTableName="event"
-            referencedColumnNames="id"
-            constraintName="fk_attendance_event"/>
+        <!-- Foreign key to volunteer -->
+        <addForeignKeyConstraint
+                baseTableName="attendance"
+                baseColumnNames="volunteer_id"
+                referencedTableName="volunteer"
+                referencedColumnNames="id"
+                constraintName="fk_attendance_volunteer"/>
 
-</changeSet>
+        <!-- Foreign key to event -->
+        <addForeignKeyConstraint
+                baseTableName="attendance"
+                baseColumnNames="event_id"
+                referencedTableName="event"
+                referencedColumnNames="id"
+                constraintName="fk_attendance_event"/>
+
+    </changeSet>
+
+</databaseChangeLog>

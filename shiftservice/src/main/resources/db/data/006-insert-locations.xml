@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="006-insert-locations" author="paul" context="dev">
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="1"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="name" value="Main Hall"/>
+            <column name="description" value="Primary conference hall for keynote sessions"/>
+            <column name="url" value="https://maps.example.com/mainhall"/>
+            <column name="additional_properties" value='{"capacity":500,"floor":"1"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="2"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="name" value="Workshop Room A"/>
+            <column name="description" value="Room for technical workshops"/>
+            <column name="url" value="https://maps.example.com/workshopA"/>
+            <column name="additional_properties" value='{"capacity":50,"floor":"2"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="3"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="name" value="Exhibition Hall"/>
+            <column name="description" value="Area for sponsors and exhibitors"/>
+            <column name="url" value="https://maps.example.com/exhibition"/>
+            <column name="additional_properties" value='{"capacity":300,"floor":"1"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="4"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="name" value="Breakout Room 1"/>
+            <column name="description" value="Room for smaller group sessions"/>
+            <column name="url" value="https://maps.example.com/breakout1"/>
+            <column name="additional_properties" value='{"capacity":40,"floor":"2"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="5"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="name" value="Auditorium"/>
+            <column name="description" value="Large auditorium for talks and panels"/>
+            <column name="url" value="https://maps.example.com/auditorium"/>
+            <column name="additional_properties" value='{"capacity":200,"floor":"1"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="6"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="name" value="Workshop Room B"/>
+            <column name="description" value="Room for hands-on sessions"/>
+            <column name="url" value="https://maps.example.com/workshopB"/>
+            <column name="additional_properties" value='{"capacity":30,"floor":"2"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="7"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="name" value="Main Conference Hall"/>
+            <column name="description" value="Hall for plenary sessions"/>
+            <column name="url" value="https://maps.example.com/mainconferencehall"/>
+            <column name="additional_properties" value='{"capacity":400,"floor":"1"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="8"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="name" value="Workshop Room C"/>
+            <column name="description" value="Room for specialized workshops"/>
+            <column name="url" value="https://maps.example.com/workshopC"/>
+            <column name="additional_properties" value='{"capacity":35,"floor":"2"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="9"/>
+            <column name="event_id" valueNumeric="5"/>
+            <column name="name" value="Expo Hall"/>
+            <column name="description" value="Exposition area for cloud computing exhibitors"/>
+            <column name="url" value="https://maps.example.com/expohall"/>
+            <column name="additional_properties" value='{"capacity":250,"floor":"1"}'/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="10"/>
+            <column name="event_id" valueNumeric="5"/>
+            <column name="name" value="Breakout Room D"/>
+            <column name="description" value="Room for workshops and panels"/>
+            <column name="url" value="https://maps.example.com/breakoutD"/>
+            <column name="additional_properties" value='{"capacity":45,"floor":"2"}'/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

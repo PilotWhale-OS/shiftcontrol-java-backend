@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="014-insert-assignments" author="paul" context="dev">
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="1"/>
+            <column name="volunteer_id" valueNumeric="1"/>
+            <column name="status" value="ACCEPTED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="2"/>
+            <column name="volunteer_id" valueNumeric="2"/>
+            <column name="status" value="PENDING_MANUAL_ASSIGNED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="3"/>
+            <column name="volunteer_id" valueNumeric="3"/>
+            <column name="status" value="PENDING_AUTO_ASSIGNED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="4"/>
+            <column name="volunteer_id" valueNumeric="4"/>
+            <column name="status" value="ACCEPTED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="5"/>
+            <column name="volunteer_id" valueNumeric="5"/>
+            <column name="status" value="AUCTION"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="6"/>
+            <column name="volunteer_id" valueNumeric="6"/>
+            <column name="status" value="AUCTION_SWAP_PENDING"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="7"/>
+            <column name="volunteer_id" valueNumeric="7"/>
+            <column name="status" value="SWAP_PENDING"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="8"/>
+            <column name="volunteer_id" valueNumeric="8"/>
+            <column name="status" value="ACCEPTED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="9"/>
+            <column name="volunteer_id" valueNumeric="9"/>
+            <column name="status" value="PENDING_MANUAL_ASSIGNED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="10"/>
+            <column name="volunteer_id" valueNumeric="10"/>
+            <column name="status" value="PENDING_AUTO_ASSIGNED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="11"/>
+            <column name="volunteer_id" valueNumeric="1"/>
+            <column name="status" value="AUCTION"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="12"/>
+            <column name="volunteer_id" valueNumeric="2"/>
+            <column name="status" value="ACCEPTED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="13"/>
+            <column name="volunteer_id" valueNumeric="3"/>
+            <column name="status" value="PENDING_MANUAL_ASSIGNED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="14"/>
+            <column name="volunteer_id" valueNumeric="4"/>
+            <column name="status" value="AUCTION_SWAP_PENDING"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="15"/>
+            <column name="volunteer_id" valueNumeric="5"/>
+            <column name="status" value="SWAP_PENDING"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="16"/>
+            <column name="volunteer_id" valueNumeric="6"/>
+            <column name="status" value="ACCEPTED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="17"/>
+            <column name="volunteer_id" valueNumeric="7"/>
+            <column name="status" value="PENDING_AUTO_ASSIGNED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="18"/>
+            <column name="volunteer_id" valueNumeric="8"/>
+            <column name="status" value="AUCTION"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="19"/>
+            <column name="volunteer_id" valueNumeric="9"/>
+            <column name="status" value="PENDING_MANUAL_ASSIGNED"/>
+        </insert>
+
+        <insert tableName="assignment">
+            <column name="position_slot_id" valueNumeric="20"/>
+            <column name="volunteer_id" valueNumeric="10"/>
+            <column name="status" value="ACCEPTED"/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

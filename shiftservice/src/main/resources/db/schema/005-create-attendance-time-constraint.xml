@@ -1,28 +1,37 @@
-<changeSet id="005-create-attendance-time-constraint" author="paul">
-    <createTable tableName="attendance_time_constraint">
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-        <column name="attendance_volunteer_id" type="BIGINT">
-            <constraints nullable="false"/>
-        </column>
+    <changeSet id="005-create-attendance-time-constraint" author="paul">
+        <createTable tableName="attendance_time_constraint">
 
-        <column name="attendance_event_id" type="BIGINT">
-            <constraints nullable="false"/>
-        </column>
+            <column name="attendance_volunteer_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
-    </createTable>
+            <column name="attendance_event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
-    <!-- Composite primary key -->
-    <addPrimaryKey
-            tableName="attendance_time_constraint"
-            columnNames="attendance_volunteer_id, attendance_event_id"
-            constraintName="pk_attendance_time_constraint"/>
+        </createTable>
 
-    <!-- Foreign key to attendance (composite FK) -->
-    <addForeignKeyConstraint
-            baseTableName="attendance_time_constraint"
-            baseColumnNames="attendance_volunteer_id, attendance_event_id"
-            referencedTableName="attendance"
-            referencedColumnNames="volunteer_id, event_id"
-            constraintName="fk_atc_attendance"/>
+        <!-- Composite primary key -->
+        <addPrimaryKey
+                tableName="attendance_time_constraint"
+                columnNames="attendance_volunteer_id, attendance_event_id"
+                constraintName="pk_attendance_time_constraint"/>
 
-</changeSet>
+        <!-- Foreign key to attendance (composite FK) -->
+        <addForeignKeyConstraint
+                baseTableName="attendance_time_constraint"
+                baseColumnNames="attendance_volunteer_id, attendance_event_id"
+                referencedTableName="attendance"
+                referencedColumnNames="volunteer_id, event_id"
+                constraintName="fk_atc_attendance"/>
+
+    </changeSet>
+
+</databaseChangeLog>

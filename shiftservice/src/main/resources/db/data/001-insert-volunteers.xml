@@ -1,10 +1,70 @@
-<changeSet id="001-insert-volunteers" author="paul" context="dev">
-    <insert tableName="volunteer">
-        <column name="name" value="alice"/>
-        <column name="email" value="alice@example.com"/>
-    </insert>
-    <insert tableName="volunteer">
-        <column name="name" value="bob"/>
-        <column name="email" value="bob@example.com"/>
-    </insert>
-</changeSet>
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="001-insert-volunteers" author="paul" context="dev">
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="1"/>
+            <column name="name" value="Alice Johnson"/>
+            <column name="email" value="alice.johnson@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="2"/>
+            <column name="name" value="Brian Smith"/>
+            <column name="email" value="brian.smith@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="3"/>
+            <column name="name" value="Carla Mendes"/>
+            <column name="email" value="carla.mendes@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="4"/>
+            <column name="name" value="David Lee"/>
+            <column name="email" value="david.lee@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="5"/>
+            <column name="name" value="Elena Garcia"/>
+            <column name="email" value="elena.garcia@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="6"/>
+            <column name="name" value="Filip Novak"/>
+            <column name="email" value="filip.novak@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="7"/>
+            <column name="name" value="Grace Liu"/>
+            <column name="email" value="grace.liu@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="8"/>
+            <column name="name" value="Hannah Brown"/>
+            <column name="email" value="hannah.brown@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="9"/>
+            <column name="name" value="Igor Petrov"/>
+            <column name="email" value="igor.petrov@example.com"/>
+        </insert>
+
+        <insert tableName="volunteer">
+            <column name="id" valueNumeric="10"/>
+            <column name="name" value="Julia Santos"/>
+            <column name="email" value="julia.santos@example.com"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
