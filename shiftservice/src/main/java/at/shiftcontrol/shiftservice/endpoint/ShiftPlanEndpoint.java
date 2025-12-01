@@ -1,10 +1,10 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanDetails",
         description = "Get detailed information about a specific shift plan of an event"
     )
-    public ShiftPlan getShiftPlanDetails(@PathVariable String shiftPlanId) {
+    public ShiftPlanDto getShiftPlanDetails(@PathVariable String shiftPlanId) {
         return null; // TODO: implement
     }
 
@@ -56,7 +56,7 @@ public class ShiftPlanEndpoint {
         operationId = "joinShiftPlan",
         description = "Join a shift plan using an invite code"
     )
-    public ShiftPlan joinShiftPlan(@PathVariable String shiftPlanId, @RequestBody ShiftPlanJoinRequestDto requestDto) {
+    public ShiftPlanDto joinShiftPlan(@PathVariable String shiftPlanId, @RequestBody ShiftPlanJoinRequestDto requestDto) {
         return null; // TODO: implement
     }
 }
