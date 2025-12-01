@@ -33,6 +33,9 @@ public class ShiftDto {
     @NotNull
     private Collection<ActivityDto> relatedActivities;
 
+    @NotNull
+    private Collection<PositionSlotDto> positionSlots;
+
     private LockStatus lockStatus;
 
     private boolean tradeOpen;

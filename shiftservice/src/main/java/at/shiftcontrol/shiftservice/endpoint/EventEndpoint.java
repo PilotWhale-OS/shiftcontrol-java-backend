@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.endpoint;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.EventOverviewDto;
 import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,6 +58,16 @@ public class EventEndpoint {
         description = "Get (volunteer related) schedule data for a specific shift plan of an event"
     )
     public ShiftPlanScheduleDto getShiftPlanSchedule(@PathVariable String eventId, @PathVariable String shiftPlanId, ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto) {
+        return null; // TODO: implement
+    }
+
+    @GetMapping("/{eventId}/shift-plans/{shiftPlanId}/shifts/{shiftId}/details")
+    // TODO Security
+    @Operation(
+        operationId = "getShiftDetails",
+        description = "Get details for a specific shift of a shift plan"
+    )
+    public ShiftDetailsDto getShiftDetails(@PathVariable String eventId, @PathVariable String shiftPlanId, @PathVariable String shiftId) {
         return null; // TODO: implement
     }
 }

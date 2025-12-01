@@ -16,7 +16,7 @@ public class ShiftPlanScheduleSearchDto {
 
     // additional filter params
     private Collection<ScheduleViewType> scheduleViewTypes;
-    private Collection<String> roleIds;
+    private Collection<String> roleNames;
     private Collection<String> locations;
     private Collection<String> tags;
 
