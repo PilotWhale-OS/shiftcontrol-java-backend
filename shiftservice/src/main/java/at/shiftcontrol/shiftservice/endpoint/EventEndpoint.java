@@ -3,6 +3,8 @@ package at.shiftcontrol.shiftservice.endpoint;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.EventOverviewDto;
 import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.util.Collection;
-import java.util.Collections;
 
 @Slf4j
 @RestController
@@ -29,7 +29,7 @@ public class EventEndpoint {
     public Collection<EventOverviewDto> findAllEvents() {
         return null; // TODO: implement
     }
-    
+
     @GetMapping("/{eventId}/shift-plans")
     // TODO Security
     @Operation(
@@ -43,10 +43,20 @@ public class EventEndpoint {
     @GetMapping("/{eventId}/shift-plans/{shiftPlanId}/dashboard")
     // TODO Security
     @Operation(
-        operationId = "getShiftPlanDashboardData",
-        description = "Get dashboard data for a specific shift plan of an event"
+        operationId = "getShiftPlanDashboard",
+        description = "Get (volunteer related) dashboard data for a specific shift plan of an event"
     )
-    public DashboardOverviewDto getShiftPlanDashboardData(@PathVariable String eventId, @PathVariable String shiftPlanId) {
+    public DashboardOverviewDto getShiftPlanDashboard(@PathVariable String eventId, @PathVariable String shiftPlanId) {
+        return null; // TODO: implement
+    }
+
+    @GetMapping("/{eventId}/shift-plans/{shiftPlanId}/schedule")
+    // TODO Security
+    @Operation(
+        operationId = "getShiftPlanSchedule",
+        description = "Get (volunteer related) schedule data for a specific shift plan of an event"
+    )
+    public ShiftPlanScheduleDto getShiftPlanSchedule(@PathVariable String eventId, @PathVariable String shiftPlanId, ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto) {
         return null; // TODO: implement
     }
 }
