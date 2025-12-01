@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import at.shiftcontrol.shiftservice.type.AssignmentSwitchRequestStatus;
+import at.shiftcontrol.shiftservice.type.TradeStatus;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,7 +17,7 @@ public class AssignmentSwitchRequest {
     @NonNull
     private Assignment requestedAssignment;
     @NonNull
-    private AssignmentSwitchRequestStatus status;
+    private TradeStatus status;
 
     private String reason;
 }

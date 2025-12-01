@@ -1,0 +1,25 @@
+package at.shiftcontrol.shiftservice.dto;
+
+import at.shiftcontrol.shiftservice.type.TradeStatus;
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class TradeDto {
+    @NotNull
+    private String id;
+
+    @NotNull
+    private ShiftDto offeredShift;
+
+    @NotNull
+    private ShiftDto requestedShift;
+
+    @NotNull
+    private String offeredByUserId; // TODO or use displayName here?
+
+    @NotNull
+    private TradeStatus status;
+}

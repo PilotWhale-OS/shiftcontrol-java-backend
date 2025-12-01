@@ -8,28 +8,14 @@ import java.time.Instant;
 
 @Data
 @Builder
-public class ShiftDto {
+public class ShiftPlanDto {
     @NotNull
     private String id;
-    
+
     @NotNull
     private String name;
     
     private String shortDescription;
     
     private String longDescription;
-    
-    @NotNull
-    private Instant startTime;
-    
-    @NotNull
-    private Instant endTime;
-    
-    @NotNull
-    private String locationName;
-    
-    private boolean tradeOpen;
-    
-    private boolean auctionOpen;
-    
 }

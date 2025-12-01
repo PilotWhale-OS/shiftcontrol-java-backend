@@ -3,33 +3,24 @@ package at.shiftcontrol.shiftservice.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 
 @Data
 @Builder
-public class ShiftDto {
+public class EventOverviewDto {
     @NotNull
     private String id;
-    
+
     @NotNull
     private String name;
     
     private String shortDescription;
-    
-    private String longDescription;
-    
+
     @NotNull
     private Instant startTime;
-    
+
     @NotNull
     private Instant endTime;
-    
-    @NotNull
-    private String locationName;
-    
-    private boolean tradeOpen;
-    
-    private boolean auctionOpen;
-    
 }

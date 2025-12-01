@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.type;
 
-public enum AssignmentSwitchRequestStatus {
+public enum TradeStatus {
     OPEN,
     ACCEPTED,
     REJECTED,
