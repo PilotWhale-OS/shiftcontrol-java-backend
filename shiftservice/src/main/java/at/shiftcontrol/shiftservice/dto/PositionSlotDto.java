@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Collection;
+
 @Data
 @Builder
 public class PositionSlotDto {
@@ -13,5 +15,8 @@ public class PositionSlotDto {
     @NotNull
     private RoleDto role;
 
-    private int count;
+    @NotNull
+    private Collection<VolunteerDto> assignedVolunteers;
+
+    private int desiredVolunteerCount;
 }

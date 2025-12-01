@@ -1,22 +1,18 @@
 package at.shiftcontrol.shiftservice.dto;
 
-import at.shiftcontrol.shiftservice.type.AuctionStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class AuctionDto {
+public class VolunteerDto {
     @NotNull
     private String id;
 
     @NotNull
-    private ShiftDto shift;
+    private String name;
 
     @NotNull
-    private VolunteerDto ownerVolunteer;
-
-    @NotNull
-    private AuctionStatus status;
+    private String email;
 }
