@@ -28,6 +28,7 @@ public class ShiftAuctionEndpoint {
     }
 
     @DeleteMapping()
+    // TODO Security
     @Operation(
         operationId = "cancelAuction",
         description = "Cancel an active auction (shift owner only)"
