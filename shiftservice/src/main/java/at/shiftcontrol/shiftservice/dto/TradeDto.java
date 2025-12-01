@@ -18,7 +18,7 @@ public class TradeDto {
     private ShiftDto requestedShift;
 
     @NotNull
-    private String offeredByUserId; // TODO or use displayName here?
+    private VolunteerDto offeringVolunteer;
 
     @NotNull
     private TradeStatus status;
