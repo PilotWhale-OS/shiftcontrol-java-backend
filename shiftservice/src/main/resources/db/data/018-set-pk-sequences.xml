@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="018-set-pk-sequences" author="paul" context="dev">
+
+        <sql>ALTER TABLE volunteer ALTER COLUMN id RESTART WITH 100;</sql>
+
+        <sql>ALTER TABLE role ALTER COLUMN id RESTART WITH 100;</sql>
+
+        <sql>ALTER TABLE event ALTER COLUMN id RESTART WITH 100;</sql>
+
+        <sql>ALTER TABLE attendance_time_constraint ALTER COLUMN id RESTART WITH 100;</sql>
+
+        <sql>ALTER TABLE location ALTER COLUMN id RESTART WITH 100;</sql>
+
+        <sql>ALTER TABLE activity ALTER COLUMN id RESTART WITH 100;</sql>
+
+        <sql>ALTER TABLE shift_plan ALTER COLUMN id RESTART WITH 100;</sql>
+
+        <sql>ALTER TABLE shift ALTER COLUMN id RESTART WITH 100;</sql>
+
+        <sql>ALTER TABLE position_slot ALTER COLUMN id RESTART WITH 100;</sql>
+
+
+    </changeSet>
+
+</databaseChangeLog>

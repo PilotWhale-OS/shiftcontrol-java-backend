@@ -3,6 +3,8 @@ package at.shiftcontrol.shiftservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collection;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,4 +22,12 @@ public class Volunteer {
 
     @Column(nullable = false)
     private String email;
+
+    @ManyToMany
+    @JoinTable(
+            name = "volunteer_role",
+            joinColumns = @JoinColumn(name = "volunteer_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Collection<Role> roles;
 }

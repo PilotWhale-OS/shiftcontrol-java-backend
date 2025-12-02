@@ -32,6 +32,6 @@ public class Location {
     private String url;
 
     @Convert(converter = JsonMapConverter.class)
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "CLOB")
     private Map<String, Object> additionalProperties;
 }
