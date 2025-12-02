@@ -14,7 +14,7 @@ public class Assignment {
     @NonNull
     private PositionSlot positionSlot;
     @NonNull
-    private Volunteer volunteer;
+    private Volunteer assignedVolunteer;
 
     private AssignmentStatus status;
 

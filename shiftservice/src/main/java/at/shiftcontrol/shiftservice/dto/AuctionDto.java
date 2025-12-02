@@ -14,10 +14,7 @@ public class AuctionDto {
     private String id;
 
     @NotNull
-    private ShiftDto shift;
-
-    @NotNull
-    private VolunteerDto ownerVolunteer;
+    private AssignmentDto offeringAssignment;
 
     @NotNull
     private AuctionStatus status;

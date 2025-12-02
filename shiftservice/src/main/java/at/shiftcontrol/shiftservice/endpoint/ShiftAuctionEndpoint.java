@@ -32,7 +32,7 @@ public class ShiftAuctionEndpoint {
     // TODO Security
     @Operation(
         operationId = "claimAuction",
-        description = "Claim an auctioned shift"
+        description = "Claim an auctioned position slot in a shift"
     )
     public AuctionDto claimAuction(@PathVariable String auctionId) {
         return null; // TODO: implement
@@ -42,7 +42,8 @@ public class ShiftAuctionEndpoint {
     // TODO Security
     @Operation(
         operationId = "cancelAuction",
-        description = "Cancel an active auction (shift owner only)"
+        description = "Cancel an active auction for a position slot in a shift " +
+            "(only possible by the auction creator / position slot owner)"
     )
     public void cancelAuction(@PathVariable String auctionId) {
         // TODO: implement 

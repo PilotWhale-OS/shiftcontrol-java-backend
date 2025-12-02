@@ -14,6 +14,9 @@ public class PositionSlotDto {
     private String id;
 
     @NotNull
+    private String associatedShiftId;
+
+    @NotNull
     private RoleDto role;
 
     private Collection<VolunteerDto> assignedVolunteers;

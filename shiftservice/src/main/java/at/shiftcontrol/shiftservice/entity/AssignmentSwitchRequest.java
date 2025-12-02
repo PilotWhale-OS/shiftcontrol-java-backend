@@ -15,7 +15,7 @@ public class AssignmentSwitchRequest {
     private long id;
 
     @NonNull
-    private Assignment requesterAssignment;
+    private Assignment offeringAssignment;
     @NonNull
     private Assignment requestedAssignment;
     @NonNull

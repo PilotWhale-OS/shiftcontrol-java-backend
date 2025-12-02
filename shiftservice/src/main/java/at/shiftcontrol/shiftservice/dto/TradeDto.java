@@ -14,15 +14,10 @@ public class TradeDto {
     private String id;
 
     @NotNull
-    private ShiftDto offeredShift;
+    private AssignmentDto offeringAssignment;
 
     @NotNull
-    private ShiftDto requestedShift;
-
-    @NotNull
-    private VolunteerDto offeringVolunteer;
-
-    private VolunteerDto requestedVolunteer;
+    private AssignmentDto requestedAssignment;
 
     @NotNull
     private TradeStatus status;

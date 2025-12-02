@@ -32,7 +32,7 @@ public class ShiftTradeEndpoint {
     // TODO Security
     @Operation(
         operationId = "createShiftTrade",
-        description = "Create a shift trade request"
+        description = "Create trade request for a specific position slot in a shift"
     )
     public TradeDto createShiftTrade(@RequestBody TradeCreateDto tradeCreateDto) {
         return null; // TODO Implement
@@ -42,7 +42,7 @@ public class ShiftTradeEndpoint {
     // TODO Security
     @Operation(
         operationId = "acceptShiftTrade",
-        description = "Accept a shift trade request"
+        description = "Accept a trade request for a specific position slot in a shift"
     )
     public TradeDto acceptShiftTrade(@PathVariable String tradeId) {
         return null; // TODO Implement
@@ -52,7 +52,7 @@ public class ShiftTradeEndpoint {
     // TODO Security
     @Operation(
         operationId = "declineShiftTrade",
-        description = "Decline a shift trade request"
+        description = "Decline a trade request for a specific position slot in a shift"
     )
     public TradeDto declineShiftTrade(@PathVariable String tradeId) {
         return null; // TODO Implement
@@ -62,7 +62,7 @@ public class ShiftTradeEndpoint {
     // TODO Security
     @Operation(
         operationId = "cancelShiftTrade",
-        description = "Cancel a trade request (requester only)"
+        description = "Cancel a request for a specific position slot in a shift"
     )
     public void cancelShiftTrade(@PathVariable String tradeId) {
         // TODO Implement
