@@ -17,4 +17,6 @@ public class UserProfileDto {
 
     @NotNull
     private Collection<UnavailabilityDto> unavailabilityDates;
+
+    private Collection<RoleDto> assignedRoles;
 }
