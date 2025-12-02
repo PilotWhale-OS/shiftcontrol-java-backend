@@ -6,9 +6,10 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="007-create-activity" author="paul">
+
         <createTable tableName="activity">
 
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
@@ -27,6 +28,7 @@
             <column name="description" type="VARCHAR(1024)"/>
 
         </createTable>
+
     </changeSet>
 
 </databaseChangeLog>

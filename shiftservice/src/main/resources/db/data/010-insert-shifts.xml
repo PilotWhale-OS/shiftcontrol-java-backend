@@ -9,14 +9,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="1"/>
-            <column name="shiftplan_id" valueNumeric="1"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
             <column name="name" value="Registration Morning"/>
             <column name="description" value="Morning registration desk shift"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="2"/>
-            <column name="shiftplan_id" valueNumeric="1"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
             <column name="name" value="Entrance Assistance"/>
             <column name="description" value="Assist attendees at the entrance"/>
             <column name="lock_status" value="LOCKED"/>
@@ -24,14 +24,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="3"/>
-            <column name="shiftplan_id" valueNumeric="2"/>
+            <column name="shift_plan_id" valueNumeric="2"/>
             <column name="name" value="Registration Afternoon"/>
             <column name="description" value="Afternoon registration desk shift"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="4"/>
-            <column name="shiftplan_id" valueNumeric="2"/>
+            <column name="shift_plan_id" valueNumeric="2"/>
             <column name="name" value="Workshop Assistance"/>
             <column name="description" value="Help set up Workshop Room A"/>
             <column name="lock_status" value="LOCKED"/>
@@ -39,14 +39,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="5"/>
-            <column name="shiftplan_id" valueNumeric="3"/>
+            <column name="shift_plan_id" valueNumeric="3"/>
             <column name="name" value="Evening Registration"/>
             <column name="description" value="Evening registration desk shift"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="6"/>
-            <column name="shiftplan_id" valueNumeric="3"/>
+            <column name="shift_plan_id" valueNumeric="3"/>
             <column name="name" value="Exhibition Monitoring"/>
             <column name="description" value="Monitor exhibition hall during evening"/>
             <column name="lock_status" value="LOCKED"/>
@@ -54,14 +54,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="7"/>
-            <column name="shiftplan_id" valueNumeric="4"/>
+            <column name="shift_plan_id" valueNumeric="4"/>
             <column name="name" value="Morning Room Assistance"/>
             <column name="description" value="Support breakout rooms in the morning"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="8"/>
-            <column name="shiftplan_id" valueNumeric="4"/>
+            <column name="shift_plan_id" valueNumeric="4"/>
             <column name="name" value="Audio/Video Setup"/>
             <column name="description" value="Assist with AV setup for sessions"/>
             <column name="lock_status" value="LOCKED"/>
@@ -69,14 +69,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="9"/>
-            <column name="shiftplan_id" valueNumeric="5"/>
+            <column name="shift_plan_id" valueNumeric="5"/>
             <column name="name" value="Morning Registration"/>
             <column name="description" value="Registration desk morning shift"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="10"/>
-            <column name="shiftplan_id" valueNumeric="5"/>
+            <column name="shift_plan_id" valueNumeric="5"/>
             <column name="name" value="Exhibition Assistance"/>
             <column name="description" value="Help exhibitors and manage visitor flow"/>
             <column name="lock_status" value="LOCKED"/>
@@ -84,14 +84,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="11"/>
-            <column name="shiftplan_id" valueNumeric="6"/>
+            <column name="shift_plan_id" valueNumeric="6"/>
             <column name="name" value="Workshop Morning"/>
             <column name="description" value="Assist workshops in morning sessions"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="12"/>
-            <column name="shiftplan_id" valueNumeric="6"/>
+            <column name="shift_plan_id" valueNumeric="6"/>
             <column name="name" value="Lighting Control"/>
             <column name="description" value="Manage lighting for workshops"/>
             <column name="lock_status" value="LOCKED"/>
@@ -99,14 +99,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="13"/>
-            <column name="shiftplan_id" valueNumeric="7"/>
+            <column name="shift_plan_id" valueNumeric="7"/>
             <column name="name" value="Afternoon Workshop"/>
             <column name="description" value="Support afternoon workshops"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="14"/>
-            <column name="shiftplan_id" valueNumeric="7"/>
+            <column name="shift_plan_id" valueNumeric="7"/>
             <column name="name" value="Stage Assistance"/>
             <column name="description" value="Help manage speaker transitions"/>
             <column name="lock_status" value="LOCKED"/>
@@ -114,14 +114,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="15"/>
-            <column name="shiftplan_id" valueNumeric="8"/>
+            <column name="shift_plan_id" valueNumeric="8"/>
             <column name="name" value="Morning Workshop"/>
             <column name="description" value="Assist workshops in morning sessions"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="16"/>
-            <column name="shiftplan_id" valueNumeric="8"/>
+            <column name="shift_plan_id" valueNumeric="8"/>
             <column name="name" value="Equipment Setup"/>
             <column name="description" value="Prepare equipment for sessions"/>
             <column name="lock_status" value="LOCKED"/>
@@ -129,14 +129,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="17"/>
-            <column name="shiftplan_id" valueNumeric="9"/>
+            <column name="shift_plan_id" valueNumeric="9"/>
             <column name="name" value="Afternoon Sessions"/>
             <column name="description" value="Support afternoon sessions"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="18"/>
-            <column name="shiftplan_id" valueNumeric="9"/>
+            <column name="shift_plan_id" valueNumeric="9"/>
             <column name="name" value="Room Cleanup"/>
             <column name="description" value="Cleanup and organize rooms"/>
             <column name="lock_status" value="LOCKED"/>
@@ -144,14 +144,14 @@
 
         <insert tableName="shift">
             <column name="id" valueNumeric="19"/>
-            <column name="shiftplan_id" valueNumeric="10"/>
+            <column name="shift_plan_id" valueNumeric="10"/>
             <column name="name" value="Morning Registration"/>
             <column name="description" value="Morning registration desk shift"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
         <insert tableName="shift">
             <column name="id" valueNumeric="20"/>
-            <column name="shiftplan_id" valueNumeric="10"/>
+            <column name="shift_plan_id" valueNumeric="10"/>
             <column name="name" value="Exhibition Hall Support"/>
             <column name="description" value="Assist exhibitors and manage visitor flow"/>
             <column name="lock_status" value="LOCKED"/>

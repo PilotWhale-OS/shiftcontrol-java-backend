@@ -1,25 +1,40 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Collection;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@EqualsAndHashCode
+@Entity
+@Table(name = "shift_plan")
 public class ShiftPlan {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @NonNull
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = true)
     private String description;
 
+    @OneToMany(mappedBy = "shiftPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Shift> shifts;
-    private Collection<Volunteer> participatingVolunteers;
 
-    //Todo: Join url, and join shiftplanner URL etc.
+    @ManyToMany
+    @JoinTable(
+            name = "shift_plan_volunteer",
+            joinColumns = @JoinColumn(name = "shift_plan_id"),
+            inverseJoinColumns = @JoinColumn(name = "volunteer_id")
+    )
+    private Collection<Volunteer> participatingVolunteers;
 }

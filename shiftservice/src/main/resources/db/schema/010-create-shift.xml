@@ -8,11 +8,11 @@
     <changeSet id="011-create-shift" author="paul">
         <createTable tableName="shift">
 
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
-            <column name="shiftplan_id" type="BIGINT">
+            <column name="shift_plan_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_shift_shiftplan" references="shift_plan(id)"/>
             </column>
 

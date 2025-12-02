@@ -1,19 +1,28 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@EqualsAndHashCode
+@Entity
+@Table(name = "position_slot")
 public class PositionSlot {
-    @NonNull
-    private Shift shift;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NonNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "shift_id", nullable = false)
+    private Shift shift;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @Column(nullable = false)
     private int count;
 }

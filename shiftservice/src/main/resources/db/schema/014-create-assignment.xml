@@ -6,6 +6,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="014-create-assignment" author="paul">
+
         <createTable tableName="assignment">
 
             <column name="position_slot_id" type="BIGINT">

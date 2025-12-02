@@ -6,11 +6,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="015-create-assignment-switch-request" author="paul">
-        <createTable tableName="assignment_switch_request">
 
-            <column name="id" type="BIGINT">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
+        <createTable tableName="assignment_switch_request">
 
             <!-- Requester Assignment -->
             <column name="requester_position_slot_id" type="BIGINT">
@@ -33,22 +30,27 @@
             </column>
 
             <column name="reason" type="VARCHAR(255)"/>
+
         </createTable>
 
-        <!-- Foreign keys to Assignment (composite) -->
+        <addPrimaryKey
+                tableName="assignment_switch_request"
+                columnNames="requester_position_slot_id, requester_volunteer_id, requested_position_slot_id, requested_volunteer_id"
+                constraintName="pk_assignment_switch_request"/>
+
         <addForeignKeyConstraint
                 baseTableName="assignment_switch_request"
                 baseColumnNames="requester_position_slot_id, requester_volunteer_id"
                 referencedTableName="assignment"
                 referencedColumnNames="position_slot_id, volunteer_id"
-                constraintName="fk_asr_requester_assignment"/>
+                constraintName="fk_switch_request_requester_assignment"/>
 
         <addForeignKeyConstraint
                 baseTableName="assignment_switch_request"
                 baseColumnNames="requested_position_slot_id, requested_volunteer_id"
                 referencedTableName="assignment"
                 referencedColumnNames="position_slot_id, volunteer_id"
-                constraintName="fk_asr_requested_assignment"/>
+                constraintName="fk_switch_request_requested_assignment"/>
 
     </changeSet>
 

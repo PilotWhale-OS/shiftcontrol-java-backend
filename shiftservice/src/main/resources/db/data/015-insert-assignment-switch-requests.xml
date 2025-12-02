@@ -8,7 +8,6 @@
     <changeSet id="015-insert-assignment-switch-requests" author="paul" context="dev">
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="1"/>
             <column name="requester_position_slot_id" valueNumeric="1"/>
             <column name="requester_volunteer_id" valueNumeric="1"/>
             <column name="requested_position_slot_id" valueNumeric="2"/>
@@ -18,7 +17,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="2"/>
             <column name="requester_position_slot_id" valueNumeric="3"/>
             <column name="requester_volunteer_id" valueNumeric="3"/>
             <column name="requested_position_slot_id" valueNumeric="4"/>
@@ -28,7 +26,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="3"/>
             <column name="requester_position_slot_id" valueNumeric="5"/>
             <column name="requester_volunteer_id" valueNumeric="5"/>
             <column name="requested_position_slot_id" valueNumeric="6"/>
@@ -38,7 +35,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="4"/>
             <column name="requester_position_slot_id" valueNumeric="7"/>
             <column name="requester_volunteer_id" valueNumeric="7"/>
             <column name="requested_position_slot_id" valueNumeric="8"/>
@@ -48,7 +44,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="5"/>
             <column name="requester_position_slot_id" valueNumeric="9"/>
             <column name="requester_volunteer_id" valueNumeric="9"/>
             <column name="requested_position_slot_id" valueNumeric="10"/>
@@ -58,7 +53,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="6"/>
             <column name="requester_position_slot_id" valueNumeric="11"/>
             <column name="requester_volunteer_id" valueNumeric="1"/>
             <column name="requested_position_slot_id" valueNumeric="12"/>
@@ -68,7 +62,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="7"/>
             <column name="requester_position_slot_id" valueNumeric="13"/>
             <column name="requester_volunteer_id" valueNumeric="3"/>
             <column name="requested_position_slot_id" valueNumeric="14"/>
@@ -78,7 +71,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="8"/>
             <column name="requester_position_slot_id" valueNumeric="15"/>
             <column name="requester_volunteer_id" valueNumeric="5"/>
             <column name="requested_position_slot_id" valueNumeric="16"/>
@@ -88,7 +80,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="9"/>
             <column name="requester_position_slot_id" valueNumeric="17"/>
             <column name="requester_volunteer_id" valueNumeric="7"/>
             <column name="requested_position_slot_id" valueNumeric="18"/>
@@ -98,7 +89,6 @@
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="id" valueNumeric="10"/>
             <column name="requester_position_slot_id" valueNumeric="19"/>
             <column name="requester_volunteer_id" valueNumeric="9"/>
             <column name="requested_position_slot_id" valueNumeric="20"/>

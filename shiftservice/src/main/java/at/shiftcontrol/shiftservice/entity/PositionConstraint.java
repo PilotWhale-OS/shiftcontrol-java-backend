@@ -1,16 +1,28 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@EqualsAndHashCode
+@Entity
+@Table(name = "position_constraint")
 public class PositionConstraint {
-    @NonNull
-    private PositionSlot position;
 
-    //Todo: Add constraint details
+    @EmbeddedId
+    private PositionConstraintId id;
+
+    @MapsId("sourcePositionSlotId")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "source_position_slot_id", referencedColumnName = "id", nullable = false)
+    private PositionSlot source;
+
+    @MapsId("targetPositionSlotId")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "target_position_slot_id", referencedColumnName = "id", nullable = false)
+    private PositionSlot target;
+
+    // TODO: Add constraint details here
 }

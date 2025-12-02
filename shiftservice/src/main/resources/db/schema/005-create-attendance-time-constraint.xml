@@ -8,6 +8,10 @@
     <changeSet id="005-create-attendance-time-constraint" author="paul">
         <createTable tableName="attendance_time_constraint">
 
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
             <column name="attendance_volunteer_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -17,12 +21,6 @@
             </column>
 
         </createTable>
-
-        <!-- Composite primary key -->
-        <addPrimaryKey
-                tableName="attendance_time_constraint"
-                columnNames="attendance_volunteer_id, attendance_event_id"
-                constraintName="pk_attendance_time_constraint"/>
 
         <!-- Foreign key to attendance (composite FK) -->
         <addForeignKeyConstraint

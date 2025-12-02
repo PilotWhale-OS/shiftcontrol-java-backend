@@ -1,23 +1,40 @@
 package at.shiftcontrol.shiftservice.entity;
 
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import jakarta.annotation.Nullable;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@EqualsAndHashCode
+@Entity
+@Table(name = "assignment")
 public class Assignment {
-    @NonNull
+
+    @EmbeddedId
+    private AssignmentId id;
+
+    // positionSlotId from PK → FK
+    @MapsId("positionSlotId")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "position_slot_id", nullable = false)
     private PositionSlot positionSlot;
-    @NonNull
+
+    // volunteerId from PK → FK
+    @MapsId("volunteerId")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "volunteer_id", nullable = false)
     private Volunteer volunteer;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
     private AssignmentStatus status;
 
-    @Nullable
-    private AssignmentSwitchRequest switchRequest;
+    @OneToMany(mappedBy = "requesterAssignment")
+    private java.util.Collection<AssignmentSwitchRequest> outgoingSwitchRequests;
+
+    @OneToMany(mappedBy = "requestedAssignment")
+    private java.util.Collection<AssignmentSwitchRequest> incomingSwitchRequests;
+
 }

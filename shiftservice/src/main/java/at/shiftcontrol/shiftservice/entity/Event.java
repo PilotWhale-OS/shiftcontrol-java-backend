@@ -1,22 +1,33 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Collection;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@EqualsAndHashCode
+@Entity
+@Table(name = "event")
 public class Event {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(nullable = true)
     private String name;
 
     //StartDate, endDate
 
-    Collection<Location> locations;
-    Collection<Attendance> attendances;
-    Collection<ShiftPlan> shiftPlans;
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<Location> locations;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<Attendance> attendances;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<ShiftPlan> shiftPlans;
 }
