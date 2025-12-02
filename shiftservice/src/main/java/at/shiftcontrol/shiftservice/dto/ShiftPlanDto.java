@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.Instant;
-
 @Data
 @Builder
 public class ShiftPlanDto {
@@ -14,8 +12,8 @@ public class ShiftPlanDto {
 
     @NotNull
     private String name;
-    
+
     private String shortDescription;
-    
+
     private String longDescription;
 }

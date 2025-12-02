@@ -15,6 +15,7 @@ public class ShiftPlanScheduleSearchDto {
     private Instant startTime; // only query param required 
 
     // additional filter params
+    private String shiftName;
     private Collection<ScheduleViewType> scheduleViewTypes;
     private Collection<String> roleNames;
     private Collection<String> locations;

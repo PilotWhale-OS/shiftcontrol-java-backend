@@ -12,6 +12,5 @@ public class ShiftDetailsDto {
 
     @NotNull
     private UserPreferenceDto preference;
-
     // TODO additional info needed for trade/auction?
 }

@@ -38,8 +38,8 @@ public class ShiftDto {
 
     private LockStatus lockStatus;
 
-    private boolean tradeOpen;
+    private TradeInfoDto tradeInfo;
 
-    private boolean auctionOpen;
+    private AuctionInfoDto auctionInfo;
 
 }

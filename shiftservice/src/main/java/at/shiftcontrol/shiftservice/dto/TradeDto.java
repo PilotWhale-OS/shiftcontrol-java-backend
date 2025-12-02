@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 @Builder
 public class TradeDto {
@@ -22,4 +24,7 @@ public class TradeDto {
 
     @NotNull
     private TradeStatus status;
+
+    @NotNull
+    private Instant createdAt;
 }

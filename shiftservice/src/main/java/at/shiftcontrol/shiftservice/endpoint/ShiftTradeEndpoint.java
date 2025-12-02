@@ -1,7 +1,7 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
+import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
-import at.shiftcontrol.shiftservice.dto.TradeRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class ShiftTradeEndpoint {
         operationId = "createShiftTrade",
         description = "Create a shift trade request"
     )
-    public TradeDto createShiftTrade(@RequestBody TradeRequestDto tradeRequestDto) {
+    public TradeDto createShiftTrade(@RequestBody TradeCreateDto tradeCreateDto) {
         return null; // TODO Implement
     }
 

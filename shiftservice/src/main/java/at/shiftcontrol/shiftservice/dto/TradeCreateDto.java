@@ -6,10 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TradeRequestDto {
-    @NotNull
-    private String id;
-
+public class TradeCreateDto {
     @NotNull
     private String offeredShiftId;
 
@@ -17,5 +14,5 @@ public class TradeRequestDto {
     private String requestedShiftId;
 
     @NotNull
-    private String volunteerId;
+    private VolunteerDto offeringVolunteer;
 }
