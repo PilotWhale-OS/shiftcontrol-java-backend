@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 @Builder
 public class AuctionDto {
@@ -12,11 +14,11 @@ public class AuctionDto {
     private String id;
 
     @NotNull
-    private ShiftDto shift;
-
-    @NotNull
-    private VolunteerDto ownerVolunteer;
+    private AssignmentDto offeringAssignment;
 
     @NotNull
     private AuctionStatus status;
+
+    @NotNull
+    private Instant createdAt;
 }

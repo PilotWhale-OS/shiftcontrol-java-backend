@@ -3,7 +3,6 @@ package at.shiftcontrol.shiftservice.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 
@@ -15,8 +14,10 @@ public class EventOverviewDto {
 
     @NotNull
     private String name;
-    
+
     private String shortDescription;
+
+    private String longDescription;
 
     @NotNull
     private Instant startTime;

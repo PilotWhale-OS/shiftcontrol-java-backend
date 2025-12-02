@@ -6,11 +6,10 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ShiftDetailsDto {
+public class AssignmentDto {
     @NotNull
-    private ShiftDto shift;
+    private PositionSlotDto positionSlot;
 
     @NotNull
-    private UserPreferenceDto preference;
-    // TODO additional info needed for trade/auction?
+    private VolunteerDto assignedVolunteer;
 }

@@ -25,7 +25,10 @@ public class ShiftPlan {
     private String name;
 
     @Column(nullable = true)
-    private String description;
+    private String shortDescription;
+
+    @Column(nullable = true)
+    private String longDescription;
 
     @OneToMany(mappedBy = "shiftPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Shift> shifts;

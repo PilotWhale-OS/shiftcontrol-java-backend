@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.Collection;
 
 @Data
@@ -19,14 +20,16 @@ public class Event {
 
     @Column(nullable = true)
     private String name;
-
-    //StartDate, endDate
+    private String shortDescription;
+    private String longDescription;
+    private Instant startTime;
+    private Instant endTime;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Location> locations;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<Attendance> attendances;
+    private Collection<Attendance> attendances;  // TODO only relevant for magament view (not for volunteer) --> not included in volunteer DTOs
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<ShiftPlan> shiftPlans;

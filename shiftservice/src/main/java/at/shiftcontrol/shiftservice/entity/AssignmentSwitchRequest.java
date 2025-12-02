@@ -4,6 +4,8 @@ import at.shiftcontrol.shiftservice.type.TradeStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,13 +17,13 @@ public class AssignmentSwitchRequest {
     @EmbeddedId
     private AssignmentSwitchRequestId id;
 
-    @MapsId("requester")
+    @MapsId("offering")
     @ManyToOne(optional = false)
     @JoinColumns({
-            @JoinColumn(name = "requester_position_slot_id", referencedColumnName = "position_slot_id"),
-            @JoinColumn(name = "requester_volunteer_id", referencedColumnName = "volunteer_id")
+            @JoinColumn(name = "offeringAssignment_position_slot_id", referencedColumnName = "position_slot_id"),
+            @JoinColumn(name = "offeringAssignment_volunteer_id", referencedColumnName = "volunteer_id")
     })
-    private Assignment requesterAssignment;
+    private Assignment offeringAssignment;
 
     @MapsId("requested")
     @ManyToOne(optional = false)
@@ -36,5 +38,5 @@ public class AssignmentSwitchRequest {
     private TradeStatus status;
 
     @Column(nullable = true)
-    private String reason;
+    private Instant createdAt;
 }

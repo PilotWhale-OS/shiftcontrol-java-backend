@@ -35,7 +35,7 @@ public class ShiftEndpoint {
     // TODO Security
     @Operation(
         operationId = "auctionShift",
-        description = "Auction a specific shift to available users"
+        description = "Auction a specific position slot in a shift"
     )
     public AuctionDto auctionShift(@PathVariable String shiftId) {
         return null; // TODO: implement

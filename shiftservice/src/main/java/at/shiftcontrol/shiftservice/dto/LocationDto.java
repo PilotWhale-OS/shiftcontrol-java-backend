@@ -12,7 +12,9 @@ public class LocationDto {
 
     @NotNull
     private String name;
-    
+
     private String description;
     private String url;
+
+    // TODO add additionalProperties?
 }

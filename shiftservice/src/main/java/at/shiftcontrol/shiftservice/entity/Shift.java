@@ -4,6 +4,7 @@ import at.shiftcontrol.shiftservice.type.LockStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.Collection;
 
 @Data
@@ -22,13 +23,20 @@ public class Shift {
     @JoinColumn(name = "shift_plan_id", nullable = false)
     private ShiftPlan shiftPlan;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = true)
-    private String description;
+    private String shortDescription;
 
-    // startDate/endDate
+    @Column(nullable = true)
+    private String longDescription;
+
+    @Column(nullable = false)
+    private Instant startTime;
+
+    @Column(nullable = false)
+    private Instant endTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "lock_status", nullable = true)
@@ -40,7 +48,7 @@ public class Shift {
             joinColumns = @JoinColumn(name = "shift_id"),
             inverseJoinColumns = @JoinColumn(name = "location_id")
     )
-    private Collection<Location> locations;
+    private Collection<Location> locations; // TODO flo patrick remove if locations are moved to PositionSlot
 
     @ManyToMany
     @JoinTable(

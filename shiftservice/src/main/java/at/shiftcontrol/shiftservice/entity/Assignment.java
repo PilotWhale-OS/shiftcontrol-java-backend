@@ -25,7 +25,7 @@ public class Assignment {
     @MapsId("volunteerId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "volunteer_id", nullable = false)
-    private Volunteer volunteer;
+    private Volunteer assignedVolunteer;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)

@@ -6,16 +6,13 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TradeRequestDto {
+public class TradeCreateDto {
     @NotNull
-    private String id;
+    private String offeredPositionSlotId;
 
     @NotNull
-    private String offeredShiftId;
+    private String requestedPositionSlotId;
 
     @NotNull
-    private String requestedShiftId;
-
-    @NotNull
-    private String volunteerId;
+    private VolunteerDto offeringVolunteer;
 }

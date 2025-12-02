@@ -28,9 +28,6 @@ public class ShiftDto {
     private Instant endTime;
 
     @NotNull
-    private Collection<LocationDto> locations;
-
-    @NotNull
     private Collection<ActivityDto> relatedActivities;
 
     @NotNull
@@ -38,8 +35,8 @@ public class ShiftDto {
 
     private LockStatus lockStatus;
 
-    private boolean tradeOpen;
+    private TradeInfoDto tradeInfo;
 
-    private boolean auctionOpen;
+    private AuctionInfoDto auctionInfo;
 
 }
