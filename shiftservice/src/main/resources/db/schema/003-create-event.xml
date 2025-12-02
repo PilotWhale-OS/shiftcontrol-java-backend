@@ -17,6 +17,22 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="short_description" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="long_description" type="VARCHAR(1024)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="start_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="end_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
         </createTable>
 
     </changeSet>

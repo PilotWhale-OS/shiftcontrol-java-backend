@@ -7,94 +7,96 @@
 
     <changeSet id="015-insert-assignment-switch-requests" author="paul" context="dev">
 
+        <!-- TODO vary timestamps -->
+
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="1"/>
-            <column name="requester_volunteer_id" valueNumeric="1"/>
+            <column name="offering_position_slot_id" valueNumeric="1"/>
+            <column name="offering_volunteer_id" valueNumeric="1"/>
             <column name="requested_position_slot_id" valueNumeric="2"/>
             <column name="requested_volunteer_id" valueNumeric="2"/>
             <column name="status" value="OPEN"/>
-            <column name="reason" value="Scheduling conflict in morning"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="3"/>
-            <column name="requester_volunteer_id" valueNumeric="3"/>
+            <column name="offering_position_slot_id" valueNumeric="3"/>
+            <column name="offering_volunteer_id" valueNumeric="3"/>
             <column name="requested_position_slot_id" valueNumeric="4"/>
             <column name="requested_volunteer_id" valueNumeric="4"/>
             <column name="status" value="ACCEPTED"/>
-            <column name="reason" value="Prefer afternoon slot"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="5"/>
-            <column name="requester_volunteer_id" valueNumeric="5"/>
+            <column name="offering_position_slot_id" valueNumeric="5"/>
+            <column name="offering_volunteer_id" valueNumeric="5"/>
             <column name="requested_position_slot_id" valueNumeric="6"/>
             <column name="requested_volunteer_id" valueNumeric="6"/>
             <column name="status" value="REJECTED"/>
-            <column name="reason" value="Skill mismatch"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="7"/>
-            <column name="requester_volunteer_id" valueNumeric="7"/>
+            <column name="offering_position_slot_id" valueNumeric="7"/>
+            <column name="offering_volunteer_id" valueNumeric="7"/>
             <column name="requested_position_slot_id" valueNumeric="8"/>
             <column name="requested_volunteer_id" valueNumeric="8"/>
             <column name="status" value="CANCELED"/>
-            <column name="reason" value="No longer available"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="9"/>
-            <column name="requester_volunteer_id" valueNumeric="9"/>
+            <column name="offering_position_slot_id" valueNumeric="9"/>
+            <column name="offering_volunteer_id" valueNumeric="9"/>
             <column name="requested_position_slot_id" valueNumeric="10"/>
             <column name="requested_volunteer_id" valueNumeric="10"/>
             <column name="status" value="OPEN"/>
-            <column name="reason" value="Prefer earlier shift"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="11"/>
-            <column name="requester_volunteer_id" valueNumeric="1"/>
+            <column name="offering_position_slot_id" valueNumeric="11"/>
+            <column name="offering_volunteer_id" valueNumeric="1"/>
             <column name="requested_position_slot_id" valueNumeric="12"/>
             <column name="requested_volunteer_id" valueNumeric="2"/>
             <column name="status" value="ACCEPTED"/>
-            <column name="reason" value="Swap for personal convenience"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="13"/>
-            <column name="requester_volunteer_id" valueNumeric="3"/>
+            <column name="offering_position_slot_id" valueNumeric="13"/>
+            <column name="offering_volunteer_id" valueNumeric="3"/>
             <column name="requested_position_slot_id" valueNumeric="14"/>
             <column name="requested_volunteer_id" valueNumeric="4"/>
             <column name="status" value="OPEN"/>
-            <column name="reason" value="Morning conflict"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="15"/>
-            <column name="requester_volunteer_id" valueNumeric="5"/>
+            <column name="offering_position_slot_id" valueNumeric="15"/>
+            <column name="offering_volunteer_id" valueNumeric="5"/>
             <column name="requested_position_slot_id" valueNumeric="16"/>
             <column name="requested_volunteer_id" valueNumeric="6"/>
             <column name="status" value="REJECTED"/>
-            <column name="reason" value="Volunteer unavailable"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="17"/>
-            <column name="requester_volunteer_id" valueNumeric="7"/>
+            <column name="offering_position_slot_id" valueNumeric="17"/>
+            <column name="offering_volunteer_id" valueNumeric="7"/>
             <column name="requested_position_slot_id" valueNumeric="18"/>
             <column name="requested_volunteer_id" valueNumeric="8"/>
             <column name="status" value="OPEN"/>
-            <column name="reason" value="Personal preference"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
         <insert tableName="assignment_switch_request">
-            <column name="requester_position_slot_id" valueNumeric="19"/>
-            <column name="requester_volunteer_id" valueNumeric="9"/>
+            <column name="offering_position_slot_id" valueNumeric="19"/>
+            <column name="offering_volunteer_id" valueNumeric="9"/>
             <column name="requested_position_slot_id" valueNumeric="20"/>
             <column name="requested_volunteer_id" valueNumeric="10"/>
             <column name="status" value="CANCELED"/>
-            <column name="reason" value="No longer attending"/>
+            <column name="created_at" value="2025-12-18T23:59:59.907Z"/>
         </insert>
 
     </changeSet>

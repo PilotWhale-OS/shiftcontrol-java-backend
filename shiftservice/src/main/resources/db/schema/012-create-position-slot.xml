@@ -21,7 +21,7 @@
                 <constraints nullable="false" foreignKeyName="fk_position_slot_role" references="role(id)"/>
             </column>
 
-            <column name="count" type="INT">
+            <column name="desired_volunteer_count" type="INT">
                 <constraints nullable="false"/>
             </column>
 

@@ -10,10 +10,10 @@
         <createTable tableName="assignment_switch_request">
 
             <!-- Requester Assignment -->
-            <column name="requester_position_slot_id" type="BIGINT">
+            <column name="offering_position_slot_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="requester_volunteer_id" type="BIGINT">
+            <column name="offering_volunteer_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
 
@@ -29,27 +29,27 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="reason" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP"/>
 
         </createTable>
 
         <addPrimaryKey
                 tableName="assignment_switch_request"
-                columnNames="requester_position_slot_id, requester_volunteer_id, requested_position_slot_id, requested_volunteer_id"
+                columnNames="offering_position_slot_id, offering_volunteer_id, requested_position_slot_id, requested_volunteer_id"
                 constraintName="pk_assignment_switch_request"/>
 
         <addForeignKeyConstraint
                 baseTableName="assignment_switch_request"
-                baseColumnNames="requester_position_slot_id, requester_volunteer_id"
+                baseColumnNames="offering_position_slot_id, offering_volunteer_id"
                 referencedTableName="assignment"
-                referencedColumnNames="position_slot_id, volunteer_id"
+                referencedColumnNames="position_slot_id, assigned_volunteer_id"
                 constraintName="fk_switch_request_requester_assignment"/>
 
         <addForeignKeyConstraint
                 baseTableName="assignment_switch_request"
                 baseColumnNames="requested_position_slot_id, requested_volunteer_id"
                 referencedTableName="assignment"
-                referencedColumnNames="position_slot_id, volunteer_id"
+                referencedColumnNames="position_slot_id, assigned_volunteer_id"
                 constraintName="fk_switch_request_requested_assignment"/>
 
     </changeSet>

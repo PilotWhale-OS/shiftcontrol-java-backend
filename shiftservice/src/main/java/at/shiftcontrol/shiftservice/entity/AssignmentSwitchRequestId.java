@@ -18,7 +18,7 @@ public class AssignmentSwitchRequestId implements Serializable {
             @AttributeOverride(name = "positionSlotId", column = @Column(name = "requester_position_slot_id")),
             @AttributeOverride(name = "volunteerId", column = @Column(name = "requester_volunteer_id"))
     })
-    private AssignmentId requester;
+    private AssignmentId offering;
 
     @AttributeOverrides({
             @AttributeOverride(name = "positionSlotId", column = @Column(name = "requested_position_slot_id")),

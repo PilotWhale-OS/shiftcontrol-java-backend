@@ -18,11 +18,19 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = true)
     private String shortDescription;
+
+    @Column(nullable = true)
     private String longDescription;
+
+    @Column(nullable = false)
     private Instant startTime;
+
+    @Column(nullable = false)
     private Instant endTime;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -24,14 +24,14 @@ public class Assignment {
     // volunteerId from PK → FK
     @MapsId("volunteerId")
     @ManyToOne(optional = false)
-    @JoinColumn(name = "volunteer_id", nullable = false)
+    @JoinColumn(name = "assigned_volunteer_id", nullable = false)
     private Volunteer assignedVolunteer;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
     private AssignmentStatus status;
 
-    @OneToMany(mappedBy = "requesterAssignment")
+    @OneToMany(mappedBy = "offeringAssignment")
     private java.util.Collection<AssignmentSwitchRequest> outgoingSwitchRequests;
 
     @OneToMany(mappedBy = "requestedAssignment")

@@ -20,8 +20,8 @@ public class AssignmentSwitchRequest {
     @MapsId("offering")
     @ManyToOne(optional = false)
     @JoinColumns({
-            @JoinColumn(name = "offeringAssignment_position_slot_id", referencedColumnName = "position_slot_id"),
-            @JoinColumn(name = "offeringAssignment_volunteer_id", referencedColumnName = "volunteer_id")
+            @JoinColumn(name = "offering_position_slot_id", referencedColumnName = "position_slot_id"),
+            @JoinColumn(name = "offering_volunteer_id", referencedColumnName = "assigned_volunteer_id")
     })
     private Assignment offeringAssignment;
 
@@ -29,7 +29,7 @@ public class AssignmentSwitchRequest {
     @ManyToOne(optional = false)
     @JoinColumns({
             @JoinColumn(name = "requested_position_slot_id", referencedColumnName = "position_slot_id"),
-            @JoinColumn(name = "requested_volunteer_id", referencedColumnName = "volunteer_id")
+            @JoinColumn(name = "requested_volunteer_id", referencedColumnName = "assigned_volunteer_id")
     })
     private Assignment requestedAssignment;
 
@@ -37,6 +37,6 @@ public class AssignmentSwitchRequest {
     @Column(nullable = false)
     private TradeStatus status;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Instant createdAt;
 }
