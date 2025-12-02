@@ -40,16 +40,6 @@ public class ShiftPlanEndpoint {
         return null; // TODO: implement
     }
 
-    @GetMapping("/details")
-    // TODO Security
-    @Operation(
-        operationId = "getShiftPlanDetails",
-        description = "Get detailed information about a specific shift plan of an event"
-    )
-    public ShiftPlanDto getShiftPlanDetails(@PathVariable String shiftPlanId) {
-        return null; // TODO: implement
-    }
-
     @PostMapping("/join")
     // TODO Security
     @Operation(
