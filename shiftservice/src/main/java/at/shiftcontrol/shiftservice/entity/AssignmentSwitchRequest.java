@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
+import java.time.Instant;
+
 @Data
 @Builder
 @EqualsAndHashCode
@@ -18,6 +20,6 @@ public class AssignmentSwitchRequest {
     private Assignment requestedAssignment;
     @NonNull
     private TradeStatus status;
-
-    private String reason;
+    @NonNull
+    private Instant createdAt;
 }

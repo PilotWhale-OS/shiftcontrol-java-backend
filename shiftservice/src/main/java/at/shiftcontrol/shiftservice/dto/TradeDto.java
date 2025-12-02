@@ -22,6 +22,8 @@ public class TradeDto {
     @NotNull
     private VolunteerDto offeringVolunteer;
 
+    private VolunteerDto requestedVolunteer;
+
     @NotNull
     private TradeStatus status;
 

@@ -28,9 +28,6 @@ public class ShiftDto {
     private Instant endTime;
 
     @NotNull
-    private Collection<LocationDto> locations;
-
-    @NotNull
     private Collection<ActivityDto> relatedActivities;
 
     @NotNull

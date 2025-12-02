@@ -16,8 +16,10 @@ public class PositionSlotDto {
     @NotNull
     private RoleDto role;
 
-    @NotNull
     private Collection<VolunteerDto> assignedVolunteers;
+
+    @NotNull
+    private LocationDto locations;
 
     @NotNull
     private SignupState signupState;

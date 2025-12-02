@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
+import java.time.Instant;
 import java.util.Collection;
 
 @Data
@@ -17,13 +18,15 @@ public class Shift {
     private ShiftPlan shiftPlan;
 
     private String name;
-    private String description;
 
-    // startDate, endDate
+    private String shortDescription;
+    private String longDescription;
+
+    private Instant startTime;
+    private Instant endTime;
 
     private LockStatus lockStatus;
 
-    private Collection<Location> locations;
     private Collection<Activity> relatedActivities;
     private Collection<PositionSlot> slots;
 }

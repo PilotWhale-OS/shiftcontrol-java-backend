@@ -16,7 +16,9 @@ public class ShiftPlan {
     private Event event;
 
     private String name;
-    private String description;
+
+    private String shortDescription;
+    private String longDescription;
 
     private Collection<Shift> shifts;
     private Collection<Volunteer> participatingVolunteers;
