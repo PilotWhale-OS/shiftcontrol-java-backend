@@ -17,7 +17,7 @@
             </column>
 
             <column name="name" type="VARCHAR(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
 
             <column name="short_description" type="VARCHAR(255)">
@@ -37,7 +37,7 @@
             </column>
 
             <column name="lock_status" type="VARCHAR(50)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
 
         </createTable>

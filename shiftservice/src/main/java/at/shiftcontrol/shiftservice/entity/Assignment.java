@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.entity;
 
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -15,20 +16,21 @@ public class Assignment {
     @EmbeddedId
     private AssignmentId id;
 
-    // positionSlotId from PK → FK
+    @NotNull
     @MapsId("positionSlotId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "position_slot_id", nullable = false)
     private PositionSlot positionSlot;
 
-    // volunteerId from PK → FK
+    @NotNull
     @MapsId("volunteerId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "assigned_volunteer_id", nullable = false)
     private Volunteer assignedVolunteer;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = false)
     private AssignmentStatus status;
 
     @OneToMany(mappedBy = "offeringAssignment")

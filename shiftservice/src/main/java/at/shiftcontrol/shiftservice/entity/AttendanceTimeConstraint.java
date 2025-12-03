@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ public class AttendanceTimeConstraint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumns({
             @JoinColumn(name = "attendance_volunteer_id", referencedColumnName = "volunteer_id"),

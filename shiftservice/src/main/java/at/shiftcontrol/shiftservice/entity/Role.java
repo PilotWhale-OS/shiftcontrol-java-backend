@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Data
@@ -15,10 +17,13 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
+    @NotNull
+    @Size(max = 255)
+    @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(nullable = true)
+    @Size(max = 1024)
+    @Column(nullable = true, length = 1024)
     private String description;
 
     //Todo: openForSelfAssignment indicates whether users can assign this role to themselves

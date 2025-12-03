@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.Instant;
@@ -18,18 +20,24 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
+    @NotNull
+    @Size(max = 255)
+    @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(nullable = true)
+    @Size(max = 255)
+    @Column(nullable = true, length = 255)
     private String shortDescription;
 
-    @Column(nullable = true)
+    @Size(max = 1025)
+    @Column(nullable = true, length = 1024)
     private String longDescription;
 
+    @NotNull
     @Column(nullable = false)
     private Instant startTime;
 
+    @NotNull
     @Column(nullable = false)
     private Instant endTime;
 

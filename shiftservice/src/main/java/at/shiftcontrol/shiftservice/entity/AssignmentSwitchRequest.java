@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.entity;
 
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.Instant;
@@ -17,6 +18,7 @@ public class AssignmentSwitchRequest {
     @EmbeddedId
     private AssignmentSwitchRequestId id;
 
+    @NotNull
     @MapsId("offering")
     @ManyToOne(optional = false)
     @JoinColumns({
@@ -25,6 +27,7 @@ public class AssignmentSwitchRequest {
     })
     private Assignment offeringAssignment;
 
+    @NotNull
     @MapsId("requested")
     @ManyToOne(optional = false)
     @JoinColumns({
@@ -33,10 +36,12 @@ public class AssignmentSwitchRequest {
     })
     private Assignment requestedAssignment;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TradeStatus status;
 
+    @NotNull
     @Column(nullable = false)
     private Instant createdAt;
 }

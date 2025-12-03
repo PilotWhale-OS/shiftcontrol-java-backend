@@ -18,7 +18,7 @@
             </column>
 
             <column name="status" type="VARCHAR(50)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
 
         </createTable>

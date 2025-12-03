@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.Collection;
@@ -17,10 +19,14 @@ public class Volunteer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
+    @NotNull
+    @Size(max = 255)
+    @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(nullable = false)
+    @NotNull
+    @Size(max = 255)
+    @Column(nullable = false, length = 255, unique = true)
     private String email;
 
     @ManyToMany

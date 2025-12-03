@@ -11,6 +11,7 @@ import java.io.Serializable;
 @Builder
 @Embeddable
 public class PositionConstraintId implements Serializable {
+
     private long sourcePositionSlotId;
     private long targetPositionSlotId;
 }

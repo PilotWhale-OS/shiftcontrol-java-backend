@@ -2,6 +2,8 @@ package at.shiftcontrol.shiftservice.entity;
 
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.Instant;
@@ -19,27 +21,35 @@ public class Shift {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "shift_plan_id", nullable = false)
     private ShiftPlan shiftPlan;
 
-    @Column(nullable = false)
+    @NotNull
+    @Size(max = 255)
+    @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(nullable = true)
+    @Size(max = 255)
+    @Column(nullable = true, length = 255)
     private String shortDescription;
 
-    @Column(nullable = true)
+    @Size(max = 1024)
+    @Column(nullable = true, length = 1024)
     private String longDescription;
 
+    @NotNull
     @Column(nullable = false)
     private Instant startTime;
 
+    @NotNull
     @Column(nullable = false)
     private Instant endTime;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "lock_status", nullable = true)
+    @Column(name = "lock_status", nullable = false)
     private LockStatus lockStatus;
 
     @ManyToMany
