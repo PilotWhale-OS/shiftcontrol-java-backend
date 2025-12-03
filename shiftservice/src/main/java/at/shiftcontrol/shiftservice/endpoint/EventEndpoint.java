@@ -1,16 +1,18 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
-import at.shiftcontrol.shiftservice.dto.EventOverviewDto;
-import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
-import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collection;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.shiftservice.dto.EventOverviewDto;
+import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 
 @Slf4j
 @RestController
@@ -18,7 +20,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class EventEndpoint {
     @GetMapping()
-// TODO:    @Secured({"planner.event.read", "volunteer.event.read"})
+    // TODO:    @Secured({"planner.event.read", "volunteer.event.read"})
     @Operation(
         operationId = "findAllEvents",
         description = "Find all (volunteer related) events"

@@ -1,19 +1,20 @@
 package at.shiftcontrol.shiftservice.repo;
 
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import config.TestConfig;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
-import java.util.List;
+import config.TestConfig;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import at.shiftcontrol.shiftservice.entity.Assignment;
 
 @DataJpaTest
 @Import({TestConfig.class})
 public class AssignmentRepositoryTest {
-
     @Autowired
     private AssignmentRepository assignmentRepository;
 
@@ -22,5 +23,4 @@ public class AssignmentRepositoryTest {
         List<Assignment> assignments = assignmentRepository.findAll();
         Assertions.assertFalse(assignments.isEmpty());
     }
-
 }

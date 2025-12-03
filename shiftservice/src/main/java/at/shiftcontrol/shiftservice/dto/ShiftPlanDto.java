@@ -9,11 +9,8 @@ import lombok.Data;
 public class ShiftPlanDto {
     @NotNull
     private String id;
-
     @NotNull
     private String name;
-
     private String shortDescription;
-
     private String longDescription;
 }

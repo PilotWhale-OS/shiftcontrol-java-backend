@@ -1,64 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="
             http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="013-insert-position-constraints" author="paul" context="dev">
+  <changeSet id="013-insert-position-constraints" author="paul" context="dev">
 
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="1"/>
-            <column name="target_position_slot_id" valueNumeric="2"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="1"/>
+      <column name="target_position_slot_id" valueNumeric="2"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="2"/>
-            <column name="target_position_slot_id" valueNumeric="3"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="2"/>
+      <column name="target_position_slot_id" valueNumeric="3"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="2"/>
-            <column name="target_position_slot_id" valueNumeric="4"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="2"/>
+      <column name="target_position_slot_id" valueNumeric="4"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="4"/>
-            <column name="target_position_slot_id" valueNumeric="2"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="4"/>
+      <column name="target_position_slot_id" valueNumeric="2"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="1"/>
-            <column name="target_position_slot_id" valueNumeric="6"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="1"/>
+      <column name="target_position_slot_id" valueNumeric="6"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="6"/>
-            <column name="target_position_slot_id" valueNumeric="10"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="6"/>
+      <column name="target_position_slot_id" valueNumeric="10"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="10"/>
-            <column name="target_position_slot_id" valueNumeric="8"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="10"/>
+      <column name="target_position_slot_id" valueNumeric="8"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="5"/>
-            <column name="target_position_slot_id" valueNumeric="9"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="5"/>
+      <column name="target_position_slot_id" valueNumeric="9"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="2"/>
-            <column name="target_position_slot_id" valueNumeric="10"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="2"/>
+      <column name="target_position_slot_id" valueNumeric="10"/>
+    </insert>
 
-        <insert tableName="position_constraint">
-            <column name="source_position_slot_id" valueNumeric="7"/>
-            <column name="target_position_slot_id" valueNumeric="10"/>
-        </insert>
+    <insert tableName="position_constraint">
+      <column name="source_position_slot_id" valueNumeric="7"/>
+      <column name="target_position_slot_id" valueNumeric="10"/>
+    </insert>
 
-    </changeSet>
+  </changeSet>
 
 </databaseChangeLog>

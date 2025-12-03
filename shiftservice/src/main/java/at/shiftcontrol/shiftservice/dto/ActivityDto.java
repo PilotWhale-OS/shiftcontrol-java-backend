@@ -9,10 +9,8 @@ import lombok.Data;
 public class ActivityDto {
     @NotNull
     private long id;
-
     @NotNull
     private String name;
-
     private String description;
     private LocationDto location;
 }

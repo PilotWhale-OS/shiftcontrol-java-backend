@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="014-create-assignment" author="paul">
+  <changeSet id="014-create-assignment" author="paul">
 
-        <createTable tableName="assignment">
+    <createTable tableName="assignment">
 
-            <column name="position_slot_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+      <column name="position_slot_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
 
-            <column name="assigned_volunteer_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+      <column name="assigned_volunteer_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
 
-            <column name="status" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
+      <column name="status" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
 
-        </createTable>
+    </createTable>
 
-        <!-- Composite primary key -->
-        <addPrimaryKey
-                tableName="assignment"
-                columnNames="position_slot_id, assigned_volunteer_id"
-                constraintName="pk_assignment"/>
+    <!-- Composite primary key -->
+    <addPrimaryKey
+      tableName="assignment"
+      columnNames="position_slot_id, assigned_volunteer_id"
+      constraintName="pk_assignment"/>
 
-        <!-- Foreign key to PositionSlot -->
-        <addForeignKeyConstraint
-                baseTableName="assignment"
-                baseColumnNames="position_slot_id"
-                referencedTableName="position_slot"
-                referencedColumnNames="id"
-                constraintName="fk_assignment_position_slot"/>
+    <!-- Foreign key to PositionSlot -->
+    <addForeignKeyConstraint
+      baseTableName="assignment"
+      baseColumnNames="position_slot_id"
+      referencedTableName="position_slot"
+      referencedColumnNames="id"
+      constraintName="fk_assignment_position_slot"/>
 
-        <!-- Foreign key to Volunteer -->
-        <addForeignKeyConstraint
-                baseTableName="assignment"
-                baseColumnNames="assigned_volunteer_id"
-                referencedTableName="volunteer"
-                referencedColumnNames="id"
-                constraintName="fk_assignment_volunteer"/>
+    <!-- Foreign key to Volunteer -->
+    <addForeignKeyConstraint
+      baseTableName="assignment"
+      baseColumnNames="assigned_volunteer_id"
+      referencedTableName="volunteer"
+      referencedColumnNames="id"
+      constraintName="fk_assignment_volunteer"/>
 
-    </changeSet>
+  </changeSet>
 
 </databaseChangeLog>

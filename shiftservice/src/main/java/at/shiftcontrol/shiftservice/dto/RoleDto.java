@@ -9,9 +9,7 @@ import lombok.Data;
 public class RoleDto {
     @NotNull
     private String id;
-
     @NotNull
     private String name;
-
     private String description;
 }

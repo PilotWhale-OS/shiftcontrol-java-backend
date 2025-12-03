@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Create ShiftPlan-Volunteer Join Table -->
-    <changeSet id="010- create-shiftplan-volunteer" author="paul">
+  <!-- Create ShiftPlan-Volunteer Join Table -->
+  <changeSet id="010- create-shiftplan-volunteer" author="paul">
 
-        <createTable tableName="shift_plan_volunteer">
+    <createTable tableName="shift_plan_volunteer">
 
-            <column name="shift_plan_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+      <column name="shift_plan_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
 
-            <column name="volunteer_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+      <column name="volunteer_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
 
-        </createTable>
+    </createTable>
 
-        <addPrimaryKey
-                tableName="shift_plan_volunteer"
-                columnNames="shift_plan_id, volunteer_id"
-                constraintName="pk_shift_plan_volunteer"/>
+    <addPrimaryKey
+      tableName="shift_plan_volunteer"
+      columnNames="shift_plan_id, volunteer_id"
+      constraintName="pk_shift_plan_volunteer"/>
 
-        <addForeignKeyConstraint
-                baseTableName="shift_plan_volunteer"
-                baseColumnNames="shift_plan_id"
-                referencedTableName="shift_plan"
-                referencedColumnNames="id"
-                constraintName="fk_shift_plan_volunteer_shiftplan"/>
+    <addForeignKeyConstraint
+      baseTableName="shift_plan_volunteer"
+      baseColumnNames="shift_plan_id"
+      referencedTableName="shift_plan"
+      referencedColumnNames="id"
+      constraintName="fk_shift_plan_volunteer_shiftplan"/>
 
-        <addForeignKeyConstraint
-                baseTableName="shift_plan_volunteer"
-                baseColumnNames="volunteer_id"
-                referencedTableName="volunteer"
-                referencedColumnNames="id"
-                constraintName="fk_shift_plan_volunteer_volunteer"/>
+    <addForeignKeyConstraint
+      baseTableName="shift_plan_volunteer"
+      baseColumnNames="volunteer_id"
+      referencedTableName="volunteer"
+      referencedColumnNames="id"
+      constraintName="fk_shift_plan_volunteer_volunteer"/>
 
-    </changeSet>
+  </changeSet>
 
 </databaseChangeLog>

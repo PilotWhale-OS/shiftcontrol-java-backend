@@ -9,10 +9,8 @@ import lombok.Data;
 public class VolunteerDto {
     @NotNull
     private String id;
-
     @NotNull
     private String name;
-
     @NotNull
     private String email;
 }

@@ -9,10 +9,8 @@ import lombok.Data;
 public class TradeCreateDto {
     @NotNull
     private String offeredPositionSlotId;
-
     @NotNull
     private String requestedPositionSlotId;
-
     @NotNull
     private VolunteerDto offeringVolunteer;
 }

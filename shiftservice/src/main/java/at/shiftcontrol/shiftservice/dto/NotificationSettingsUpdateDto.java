@@ -1,11 +1,12 @@
 package at.shiftcontrol.shiftservice.dto;
 
-import at.shiftcontrol.shiftservice.type.NotificationChannel;
-import at.shiftcontrol.shiftservice.type.NotificationType;
+import java.util.Set;
+
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Set;
+import at.shiftcontrol.shiftservice.type.NotificationChannel;
+import at.shiftcontrol.shiftservice.type.NotificationType;
 
 @Data
 @Builder

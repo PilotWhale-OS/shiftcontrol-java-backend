@@ -1,61 +1,74 @@
 package at.shiftcontrol.shiftservice.util;
 
-import at.shiftcontrol.shiftservice.entity.*;
-import at.shiftcontrol.shiftservice.repo.*;
-import org.apache.commons.lang3.NotImplementedException;
+import java.time.Instant;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
+import org.apache.commons.lang3.NotImplementedException;
+
+import at.shiftcontrol.shiftservice.entity.Activity;
+import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.shiftservice.entity.Attendance;
+import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
+import at.shiftcontrol.shiftservice.entity.Event;
+import at.shiftcontrol.shiftservice.entity.Location;
+import at.shiftcontrol.shiftservice.entity.PositionConstraint;
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.entity.Role;
+import at.shiftcontrol.shiftservice.entity.Shift;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.repo.ActivityRepository;
+import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
+import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
+import at.shiftcontrol.shiftservice.repo.AttendanceRepository;
+import at.shiftcontrol.shiftservice.repo.AttendanceTimeConstraintRepository;
+import at.shiftcontrol.shiftservice.repo.EventRepository;
+import at.shiftcontrol.shiftservice.repo.LocationRepository;
+import at.shiftcontrol.shiftservice.repo.PositionConstraintRepository;
+import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
+import at.shiftcontrol.shiftservice.repo.RoleRepository;
+import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
+import at.shiftcontrol.shiftservice.repo.ShiftRepository;
+import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 
 @Component
 public class TestEntityFactory {
-
     @Autowired
     private EventRepository eventRepository;
-
     @Autowired
     private ShiftPlanRepository shiftPlanRepository;
-
     @Autowired
     private ShiftRepository shiftRepository;
-
     @Autowired
     private ActivityRepository activityRepository;
-
     @Autowired
     private LocationRepository locationRepository;
-
     @Autowired
     private AttendanceRepository attendanceRepository;
-
     @Autowired
     private AttendanceTimeConstraintRepository attendanceTimeConstraintRepository;
-
     @Autowired
     private VolunteerRepository volunteerRepository;
-
     @Autowired
     private RoleRepository roleRepository;
-
     @Autowired
     private PositionSlotRepository positionSlotRepository;
-
     @Autowired
     private PositionConstraintRepository positionConstraintRepository;
-
     @Autowired
     private AssignmentRepository assignmentRepository;
-
     @Autowired
     private AssignmentSwitchRequestRepository assignmentSwitchRequestRepository;
 
     public Event createPersistedEvent() {
         Event event = Event.builder()
-                .name("eventName")
-                .startTime(Instant.now())
-                .endTime(Instant.now())
-                .build();
+            .name("eventName")
+            .startTime(Instant.now())
+            .endTime(Instant.now())
+            .build();
         // TODO add other fields
         return eventRepository.save(event);
     }
@@ -70,10 +83,10 @@ public class TestEntityFactory {
 
     public Activity createPersistedActivity() {
         Activity activity = Activity.builder()
-                .name("activityName")
-                .description("activityDescription")
-                .event(createPersistedEvent())
-                .build();
+            .name("activityName")
+            .description("activityDescription")
+            .event(createPersistedEvent())
+            .build();
         return activityRepository.save(activity);
     }
 
@@ -95,9 +108,9 @@ public class TestEntityFactory {
 
     public Role createPersistedRole() {
         Role role = Role.builder()
-                .name("testRole")
-                .description("This is a role description.")
-                .build();
+            .name("testRole")
+            .description("This is a role description.")
+            .build();
         return roleRepository.save(role);
     }
 
@@ -116,5 +129,4 @@ public class TestEntityFactory {
     public AssignmentSwitchRequest createPersistedAssignmentSwitchRequest() {
         throw new NotImplementedException();
     }
-
 }

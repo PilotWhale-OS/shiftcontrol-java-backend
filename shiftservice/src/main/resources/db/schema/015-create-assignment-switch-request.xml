@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="015-create-assignment-switch-request" author="paul">
+  <changeSet id="015-create-assignment-switch-request" author="paul">
 
-        <createTable tableName="assignment_switch_request">
+    <createTable tableName="assignment_switch_request">
 
-            <!-- Requester Assignment -->
-            <column name="offering_position_slot_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="offering_volunteer_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+      <!-- Requester Assignment -->
+      <column name="offering_position_slot_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="offering_volunteer_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
 
-            <!-- Requested Assignment -->
-            <column name="requested_position_slot_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="requested_volunteer_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+      <!-- Requested Assignment -->
+      <column name="requested_position_slot_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="requested_volunteer_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
 
-            <column name="status" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
+      <column name="status" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
 
-            <column name="created_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
+      <column name="created_at" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
 
-        </createTable>
+    </createTable>
 
-        <addPrimaryKey
-                tableName="assignment_switch_request"
-                columnNames="offering_position_slot_id, offering_volunteer_id, requested_position_slot_id, requested_volunteer_id"
-                constraintName="pk_assignment_switch_request"/>
+    <addPrimaryKey
+      tableName="assignment_switch_request"
+      columnNames="offering_position_slot_id, offering_volunteer_id, requested_position_slot_id, requested_volunteer_id"
+      constraintName="pk_assignment_switch_request"/>
 
-        <addForeignKeyConstraint
-                baseTableName="assignment_switch_request"
-                baseColumnNames="offering_position_slot_id, offering_volunteer_id"
-                referencedTableName="assignment"
-                referencedColumnNames="position_slot_id, assigned_volunteer_id"
-                constraintName="fk_switch_request_requester_assignment"/>
+    <addForeignKeyConstraint
+      baseTableName="assignment_switch_request"
+      baseColumnNames="offering_position_slot_id, offering_volunteer_id"
+      referencedTableName="assignment"
+      referencedColumnNames="position_slot_id, assigned_volunteer_id"
+      constraintName="fk_switch_request_requester_assignment"/>
 
-        <addForeignKeyConstraint
-                baseTableName="assignment_switch_request"
-                baseColumnNames="requested_position_slot_id, requested_volunteer_id"
-                referencedTableName="assignment"
-                referencedColumnNames="position_slot_id, assigned_volunteer_id"
-                constraintName="fk_switch_request_requested_assignment"/>
+    <addForeignKeyConstraint
+      baseTableName="assignment_switch_request"
+      baseColumnNames="requested_position_slot_id, requested_volunteer_id"
+      referencedTableName="assignment"
+      referencedColumnNames="position_slot_id, assigned_volunteer_id"
+      constraintName="fk_switch_request_requested_assignment"/>
 
-    </changeSet>
+  </changeSet>
 
 </databaseChangeLog>

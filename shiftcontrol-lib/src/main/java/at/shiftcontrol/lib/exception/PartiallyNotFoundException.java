@@ -1,13 +1,20 @@
 package at.shiftcontrol.lib.exception;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
  * Exception indicating that some, but not all, required entities could not be resolved.
+ *
  * <p>
  * Usage pattern:
  *
@@ -22,7 +29,6 @@ import java.util.stream.Collectors;
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class PartiallyNotFoundException extends Exception {
-
     private final String context;
     private final Map<String, Collection<?>> missingEntities;
 
@@ -32,6 +38,66 @@ public class PartiallyNotFoundException extends Exception {
         this.missingEntities = Collections.unmodifiableMap(missingEntities);
     }
 
+    private static String buildMessage(String context, Map<String, Collection<?>> missingEntities) {
+        if (missingEntities == null || missingEntities.isEmpty()) {
+            return (context == null || context.isBlank())
+                ? "Some required entities were not found."
+                : context + " failed due to missing entities.";
+        }
+        StringBuilder sb = new StringBuilder();
+        if (context != null && !context.isBlank()) {
+            sb.append(context).append(" failed. ");
+        }
+        sb.append("Missing entities:\n");
+        missingEntities.forEach((type, values) -> {
+            String joined = values.stream()
+                .map(Objects::toString)
+                .collect(Collectors.joining(", "));
+            sb.append(" - ").append(type).append(": ").append(joined).append("\n");
+        });
+        return sb.toString().trim();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static <T> PartiallyNotFoundException of(String entityType, Collection<T> unresolved) {
+        return PartiallyNotFoundException.builder()
+            .missing(entityType, unresolved)
+            .build();
+    }
+    // === BUILDER ===
+
+    @SafeVarargs
+    public static <T> PartiallyNotFoundException of(String entityType, T... unresolved) {
+        return PartiallyNotFoundException.builder()
+            .missing(entityType, unresolved)
+            .build();
+    }
+
+    /**
+     * Merge multiple {@link PartiallyNotFoundException}s into one,
+     * useful when resolving in separate layers or steps.
+     */
+    public static PartiallyNotFoundException combine(PartiallyNotFoundException... exceptions) {
+        Builder builder = builder();
+        for (PartiallyNotFoundException e : exceptions) {
+            if (e == null) {
+                continue;
+            }
+            if (e.context != null && !e.context.isBlank()) {
+                // naive: keep first non-empty context
+                if (builder.context == null || builder.context.isBlank()) {
+                    builder.context(e.context);
+                }
+            }
+            e.getMissingEntities().forEach(builder::missing);
+        }
+        return builder.build();
+    }
+    // === CONVENIENCE FACTORIES ===
+
     public String getContext() {
         return context;
     }
@@ -40,40 +106,9 @@ public class PartiallyNotFoundException extends Exception {
         return missingEntities;
     }
 
-    private static String buildMessage(String context, Map<String, Collection<?>> missingEntities) {
-        if (missingEntities == null || missingEntities.isEmpty()) {
-            return (context == null || context.isBlank())
-                    ? "Some required entities were not found."
-                    : context + " failed due to missing entities.";
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        if (context != null && !context.isBlank()) {
-            sb.append(context).append(" failed. ");
-        }
-
-        sb.append("Missing entities:\n");
-
-        missingEntities.forEach((type, values) -> {
-            String joined = values.stream()
-                    .map(Objects::toString)
-                    .collect(Collectors.joining(", "));
-            sb.append(" - ").append(type).append(": ").append(joined).append("\n");
-        });
-
-        return sb.toString().trim();
-    }
-
-    // === BUILDER ===
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public static class Builder {
-        private String context;
         private final Map<String, Collection<?>> missing = new LinkedHashMap<>();
+        private String context;
 
         /**
          * High-level description of what you were doing when resolution failed.
@@ -97,12 +132,11 @@ public class PartiallyNotFoundException extends Exception {
             if (unresolved != null && !unresolved.isEmpty()) {
                 // Safe cast via Object to avoid wildcard capture issue
                 Collection<Object> target = (Collection<Object>)
-                        missing.computeIfAbsent(entityType, k -> new ArrayList<>());
+                    missing.computeIfAbsent(entityType, k -> new ArrayList<>());
                 target.addAll(unresolved.stream().map(obj -> (Object) obj).toList());
             }
             return this;
         }
-
 
         /**
          * Varargs convenience for {@link #missing(String, Collection)}.
@@ -131,39 +165,5 @@ public class PartiallyNotFoundException extends Exception {
                 throw build();
             }
         }
-    }
-
-    // === CONVENIENCE FACTORIES ===
-
-    public static <T> PartiallyNotFoundException of(String entityType, Collection<T> unresolved) {
-        return PartiallyNotFoundException.builder()
-                .missing(entityType, unresolved)
-                .build();
-    }
-
-    @SafeVarargs
-    public static <T> PartiallyNotFoundException of(String entityType, T... unresolved) {
-        return PartiallyNotFoundException.builder()
-                .missing(entityType, unresolved)
-                .build();
-    }
-
-    /**
-     * Merge multiple {@link PartiallyNotFoundException}s into one,
-     * useful when resolving in separate layers or steps.
-     */
-    public static PartiallyNotFoundException combine(PartiallyNotFoundException... exceptions) {
-        Builder builder = builder();
-        for (PartiallyNotFoundException e : exceptions) {
-            if (e == null) continue;
-            if (e.context != null && !e.context.isBlank()) {
-                // naive: keep first non-empty context
-                if (builder.context == null || builder.context.isBlank()) {
-                    builder.context(e.context);
-                }
-            }
-            e.getMissingEntities().forEach(builder::missing);
-        }
-        return builder.build();
     }
 }

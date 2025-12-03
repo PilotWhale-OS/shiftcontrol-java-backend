@@ -1,10 +1,11 @@
 package at.shiftcontrol.shiftservice.dto;
 
-import at.shiftcontrol.shiftservice.type.AuctionStatus;
+import java.time.Instant;
+
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.Instant;
+import at.shiftcontrol.shiftservice.type.AuctionStatus;
 
 @Data
 @Builder

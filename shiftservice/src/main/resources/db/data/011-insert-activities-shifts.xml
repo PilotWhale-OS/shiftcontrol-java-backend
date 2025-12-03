@@ -1,102 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="008-insert-activities-shifts" author="paul" context="dev">
+  <changeSet id="008-insert-activities-shifts" author="paul" context="dev">
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="1"/>
-            <column name="shift_id" valueNumeric="1"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="1"/>
-            <column name="shift_id" valueNumeric="2"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="1"/>
+      <column name="shift_id" valueNumeric="1"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="1"/>
+      <column name="shift_id" valueNumeric="2"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="2"/>
-            <column name="shift_id" valueNumeric="2"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="2"/>
-            <column name="shift_id" valueNumeric="3"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="2"/>
+      <column name="shift_id" valueNumeric="2"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="2"/>
+      <column name="shift_id" valueNumeric="3"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="3"/>
-            <column name="shift_id" valueNumeric="1"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="3"/>
-            <column name="shift_id" valueNumeric="3"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="3"/>
+      <column name="shift_id" valueNumeric="1"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="3"/>
+      <column name="shift_id" valueNumeric="3"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="4"/>
-            <column name="shift_id" valueNumeric="1"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="4"/>
-            <column name="shift_id" valueNumeric="2"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="4"/>
+      <column name="shift_id" valueNumeric="1"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="4"/>
+      <column name="shift_id" valueNumeric="2"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="5"/>
-            <column name="shift_id" valueNumeric="3"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="5"/>
-            <column name="shift_id" valueNumeric="4"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="5"/>
+      <column name="shift_id" valueNumeric="3"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="5"/>
+      <column name="shift_id" valueNumeric="4"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="6"/>
-            <column name="shift_id" valueNumeric="1"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="6"/>
-            <column name="shift_id" valueNumeric="2"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="6"/>
+      <column name="shift_id" valueNumeric="1"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="6"/>
+      <column name="shift_id" valueNumeric="2"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="7"/>
-            <column name="shift_id" valueNumeric="2"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="7"/>
-            <column name="shift_id" valueNumeric="3"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="7"/>
+      <column name="shift_id" valueNumeric="2"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="7"/>
+      <column name="shift_id" valueNumeric="3"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="8"/>
-            <column name="shift_id" valueNumeric="1"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="8"/>
-            <column name="shift_id" valueNumeric="4"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="8"/>
+      <column name="shift_id" valueNumeric="1"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="8"/>
+      <column name="shift_id" valueNumeric="4"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="9"/>
-            <column name="shift_id" valueNumeric="3"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="9"/>
-            <column name="shift_id" valueNumeric="5"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="9"/>
+      <column name="shift_id" valueNumeric="3"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="9"/>
+      <column name="shift_id" valueNumeric="5"/>
+    </insert>
 
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="10"/>
-            <column name="shift_id" valueNumeric="2"/>
-        </insert>
-        <insert tableName="activity_shift">
-            <column name="activity_id" valueNumeric="10"/>
-            <column name="shift_id" valueNumeric="4"/>
-        </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="10"/>
+      <column name="shift_id" valueNumeric="2"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="10"/>
+      <column name="shift_id" valueNumeric="4"/>
+    </insert>
 
-    </changeSet>
+  </changeSet>
 
 </databaseChangeLog>

@@ -7,6 +7,5 @@ import lombok.Data;
 @Builder
 public class UserPreferenceUpdateDto {
     private int preferenceValue;
-
     // TODO additional fields like setting blockers, etc?
 }

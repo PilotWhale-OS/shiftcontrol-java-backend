@@ -1,9 +1,12 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import jakarta.persistence.Embeddable;
-import lombok.*;
-
 import java.io.Serializable;
+
+import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -11,7 +14,6 @@ import java.io.Serializable;
 @Builder
 @Embeddable
 public class AttendanceId implements Serializable {
-
     private long volunteerId;
     private long eventId;
 }

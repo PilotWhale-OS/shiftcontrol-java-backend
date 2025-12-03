@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="013-create-position-constraint" author="paul">
+  <changeSet id="013-create-position-constraint" author="paul">
 
-        <createTable tableName="position_constraint">
+    <createTable tableName="position_constraint">
 
-            <column name="source_position_slot_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+      <column name="source_position_slot_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
 
-            <column name="target_position_slot_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+      <column name="target_position_slot_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
 
-        </createTable>
+    </createTable>
 
-        <addPrimaryKey
-                tableName="position_constraint"
-                columnNames="source_position_slot_id, target_position_slot_id"
-                constraintName="pk_position_constraint"/>
+    <addPrimaryKey
+      tableName="position_constraint"
+      columnNames="source_position_slot_id, target_position_slot_id"
+      constraintName="pk_position_constraint"/>
 
-        <addForeignKeyConstraint
-                baseTableName="position_constraint"
-                baseColumnNames="source_position_slot_id"
-                referencedTableName="position_slot"
-                referencedColumnNames="id"
-                constraintName="fk_position_constraint_source"/>
+    <addForeignKeyConstraint
+      baseTableName="position_constraint"
+      baseColumnNames="source_position_slot_id"
+      referencedTableName="position_slot"
+      referencedColumnNames="id"
+      constraintName="fk_position_constraint_source"/>
 
-        <addForeignKeyConstraint
-                baseTableName="position_constraint"
-                baseColumnNames="target_position_slot_id"
-                referencedTableName="position_slot"
-                referencedColumnNames="id"
-                constraintName="fk_position_constraint_target"/>
+    <addForeignKeyConstraint
+      baseTableName="position_constraint"
+      baseColumnNames="target_position_slot_id"
+      referencedTableName="position_slot"
+      referencedColumnNames="id"
+      constraintName="fk_position_constraint_target"/>
 
-    </changeSet>
+  </changeSet>
 
 </databaseChangeLog>

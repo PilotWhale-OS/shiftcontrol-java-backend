@@ -9,12 +9,9 @@ import lombok.Data;
 public class LocationDto {
     @NotNull
     private long id;
-
     @NotNull
     private String name;
-
     private String description;
     private String url;
-
     // TODO add additionalProperties?
 }

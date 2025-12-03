@@ -1,12 +1,24 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import jakarta.persistence.*;
+import java.util.Map;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
-import at.shiftcontrol.shiftservice.util.JsonMapConverter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import at.shiftcontrol.shiftservice.util.JsonMapConverter;
 
 @Data
 @NoArgsConstructor
@@ -15,29 +27,23 @@ import java.util.Map;
 @Entity
 @Table(name = "location")
 public class Location {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
-
     @NotNull
     @Size(max = 255)
     @Column(nullable = false, length = 255)
     private String name;
-
     @Size(max = 1024)
     @Column(nullable = true, length = 1024)
     private String description;
-
     @Size(max = 1024)
     @Column(nullable = true, length = 1024)
     private String url;
-
     @Convert(converter = JsonMapConverter.class)
     @Column(columnDefinition = "CLOB")
     private Map<String, Object> additionalProperties;

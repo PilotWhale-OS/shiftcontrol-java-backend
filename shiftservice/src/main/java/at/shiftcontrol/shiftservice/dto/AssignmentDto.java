@@ -9,7 +9,6 @@ import lombok.Data;
 public class AssignmentDto {
     @NotNull
     private PositionSlotDto positionSlot;
-
     @NotNull
     private VolunteerDto assignedVolunteer;
 }

@@ -9,13 +9,10 @@ import lombok.Data;
 public class AccountInfoDto {
     @NotNull
     private String id;
-
     @NotNull
     private String firstName; // TODO check if this needs to be tracked here
-
     @NotNull
     private String lastName;
-
     @NotNull
     private String email;
 }

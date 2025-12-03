@@ -1,12 +1,12 @@
 package at.shiftcontrol.lib.util;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TimeUtil {
