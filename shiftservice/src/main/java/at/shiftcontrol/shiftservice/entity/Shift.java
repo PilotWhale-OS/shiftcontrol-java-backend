@@ -58,7 +58,7 @@ public class Shift {
             joinColumns = @JoinColumn(name = "shift_id"),
             inverseJoinColumns = @JoinColumn(name = "location_id")
     )
-    private Collection<Location> locations; // TODO flo patrick remove if locations are moved to PositionSlot
+    private Collection<Location> locations;
 
     @ManyToMany
     @JoinTable(
