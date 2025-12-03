@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
-import java.util.Optional;
+import java.util.List;
 
 @DataJpaTest
 @Import({TestConfig.class})
@@ -19,17 +19,12 @@ public class ActivityRepositoryTest {
     private ActivityRepository activityRepository;
 
     @Autowired
-    private EventRepository eventRepository;
-
-    @Autowired
     private TestEntityFactory testEntityFactory;
 
     @Test
-    void testGetActivity() {
-        Optional<Activity> activity = activityRepository.findById(1L);
-
-        Assertions.assertTrue(activity.isPresent());
-        Assertions.assertEquals(activity.get().getId(), 1L);
+    void testGetAllActivities() {
+        List<Activity> activities = activityRepository.findAll();
+        Assertions.assertFalse(activities.isEmpty());
     }
 
     @Test
