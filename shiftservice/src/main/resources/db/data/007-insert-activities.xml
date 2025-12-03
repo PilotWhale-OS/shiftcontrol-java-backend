@@ -37,7 +37,6 @@
             <column name="event_id" valueNumeric="2"/>
             <column name="location_id" valueNumeric="3"/>
             <column name="name" value="Exhibition Hall Support"/>
-            <column name="description" value="Assist exhibitors and manage exhibition area"/>
         </insert>
 
         <insert tableName="activity">
@@ -61,7 +60,6 @@
             <column name="event_id" valueNumeric="3"/>
             <column name="location_id" valueNumeric="6"/>
             <column name="name" value="Workshop Assistance"/>
-            <column name="description" value="Help participants and speakers in Workshop Room B"/>
         </insert>
 
         <insert tableName="activity">

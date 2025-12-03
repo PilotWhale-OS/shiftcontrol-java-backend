@@ -57,13 +57,11 @@
         <insert tableName="role">
             <column name="id" valueNumeric="9"/>
             <column name="name" value="EXHIBITOR_SUPPORT"/>
-            <column name="description" value="Assists exhibitors with logistics and booth setup"/>
         </insert>
 
         <insert tableName="role">
             <column name="id" valueNumeric="10"/>
             <column name="name" value="HOSPITALITY"/>
-            <column name="description" value="Provides attendee assistance and general information"/>
         </insert>
     </changeSet>
 
