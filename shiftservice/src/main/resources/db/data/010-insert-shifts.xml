@@ -7,26 +7,25 @@
 
     <changeSet id="011-insert-shifts" author="paul" context="dev">
 
-        <!-- TODO vary timestamps -->
-
         <insert tableName="shift">
             <column name="id" valueNumeric="1"/>
             <column name="shift_plan_id" valueNumeric="1"/>
             <column name="name" value="Registration Morning"/>
             <column name="short_description" value="Morning registration desk shift"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-09-12T08:00:00Z"/>
+            <column name="end_time" value="2025-09-12T12:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="2"/>
             <column name="shift_plan_id" valueNumeric="1"/>
             <column name="name" value="Entrance Assistance"/>
             <column name="short_description" value="Assist attendees at the entrance"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-09-13T08:00:00Z"/>
+            <column name="end_time" value="2025-09-13T12:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
 
@@ -36,18 +35,19 @@
             <column name="name" value="Registration Afternoon"/>
             <column name="short_description" value="Afternoon registration desk shift"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-09-12T13:00:00Z"/>
+            <column name="end_time" value="2025-09-12T17:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="4"/>
             <column name="shift_plan_id" valueNumeric="2"/>
             <column name="name" value="Workshop Assistance"/>
             <column name="short_description" value="Help set up Workshop Room A"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-09-14T13:00:00Z"/>
+            <column name="end_time" value="2025-09-14T17:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
 
@@ -57,20 +57,22 @@
             <column name="name" value="Evening Registration"/>
             <column name="short_description" value="Evening registration desk shift"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-09-12T17:30:00Z"/>
+            <column name="end_time" value="2025-09-12T21:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="6"/>
             <column name="shift_plan_id" valueNumeric="3"/>
             <column name="name" value="Exhibition Monitoring"/>
             <column name="short_description" value="Monitor exhibition hall during evening"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-09-13T17:30:00Z"/>
+            <column name="end_time" value="2025-09-13T21:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
+
 
         <insert tableName="shift">
             <column name="id" valueNumeric="7"/>
@@ -78,18 +80,19 @@
             <column name="name" value="Morning Room Assistance"/>
             <column name="short_description" value="Support breakout rooms in the morning"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-10-03T08:00:00Z"/>
+            <column name="end_time" value="2025-10-03T12:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="8"/>
             <column name="shift_plan_id" valueNumeric="4"/>
             <column name="name" value="Audio/Video Setup"/>
             <column name="short_description" value="Assist with AV setup for sessions"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-10-04T08:00:00Z"/>
+            <column name="end_time" value="2025-10-04T12:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
 
@@ -99,20 +102,22 @@
             <column name="name" value="Morning Registration"/>
             <column name="short_description" value="Registration desk morning shift"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-10-05T08:00:00Z"/>
+            <column name="end_time" value="2025-10-05T12:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="10"/>
             <column name="shift_plan_id" valueNumeric="5"/>
             <column name="name" value="Exhibition Assistance"/>
             <column name="short_description" value="Help exhibitors and manage visitor flow"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-10-06T13:00:00Z"/>
+            <column name="end_time" value="2025-10-06T17:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
+
 
         <insert tableName="shift">
             <column name="id" valueNumeric="11"/>
@@ -120,18 +125,19 @@
             <column name="name" value="Workshop Morning"/>
             <column name="short_description" value="Assist workshops in morning sessions"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-11-15T08:00:00Z"/>
+            <column name="end_time" value="2025-11-15T12:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="12"/>
             <column name="shift_plan_id" valueNumeric="6"/>
             <column name="name" value="Lighting Control"/>
             <column name="short_description" value="Manage lighting for workshops"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-11-16T08:00:00Z"/>
+            <column name="end_time" value="2025-11-16T12:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
 
@@ -141,20 +147,22 @@
             <column name="name" value="Afternoon Workshop"/>
             <column name="short_description" value="Support afternoon workshops"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-11-15T13:00:00Z"/>
+            <column name="end_time" value="2025-11-15T17:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="14"/>
             <column name="shift_plan_id" valueNumeric="7"/>
             <column name="name" value="Stage Assistance"/>
             <column name="short_description" value="Help manage speaker transitions"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-11-16T13:00:00Z"/>
+            <column name="end_time" value="2025-11-16T17:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
+
 
         <insert tableName="shift">
             <column name="id" valueNumeric="15"/>
@@ -162,18 +170,19 @@
             <column name="name" value="Morning Workshop"/>
             <column name="short_description" value="Assist workshops in morning sessions"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-12-10T08:00:00Z"/>
+            <column name="end_time" value="2025-12-10T12:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="16"/>
             <column name="shift_plan_id" valueNumeric="8"/>
             <column name="name" value="Equipment Setup"/>
             <column name="short_description" value="Prepare equipment for sessions"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-12-11T08:00:00Z"/>
+            <column name="end_time" value="2025-12-11T12:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
 
@@ -183,20 +192,22 @@
             <column name="name" value="Afternoon Sessions"/>
             <column name="short_description" value="Support afternoon sessions"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-12-12T13:00:00Z"/>
+            <column name="end_time" value="2025-12-12T17:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="18"/>
             <column name="shift_plan_id" valueNumeric="9"/>
             <column name="name" value="Room Cleanup"/>
             <column name="short_description" value="Cleanup and organize rooms"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2025-12-10T17:00:00Z"/>
+            <column name="end_time" value="2025-12-10T20:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
+
 
         <insert tableName="shift">
             <column name="id" valueNumeric="19"/>
@@ -204,18 +215,19 @@
             <column name="name" value="Morning Registration"/>
             <column name="short_description" value="Morning registration desk shift"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2026-01-20T08:00:00Z"/>
+            <column name="end_time" value="2026-01-20T12:00:00Z"/>
             <column name="lock_status" value="SELF_ASSIGNABLE"/>
         </insert>
+
         <insert tableName="shift">
             <column name="id" valueNumeric="20"/>
             <column name="shift_plan_id" valueNumeric="10"/>
             <column name="name" value="Exhibition Hall Support"/>
             <column name="short_description" value="Assist exhibitors and manage visitor flow"/>
             <column name="long_description" value="Shift long description"/>
-            <column name="start_time" value="2025-12-01T00:00:00.007Z"/>
-            <column name="end_time" value="2025-12-18T23:59:59.907Z"/>
+            <column name="start_time" value="2026-01-21T13:00:00Z"/>
+            <column name="end_time" value="2026-01-21T17:00:00Z"/>
             <column name="lock_status" value="LOCKED"/>
         </insert>
 
