@@ -1,4 +1,6 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface LocationDao {
+import at.shiftcontrol.shiftservice.entity.Location;
+
+public interface LocationDao extends BasicDao<Location, Long> {
 }

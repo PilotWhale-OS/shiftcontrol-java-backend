@@ -1,4 +1,7 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface PositionConstraintDao {
+import at.shiftcontrol.shiftservice.entity.PositionConstraint;
+import at.shiftcontrol.shiftservice.entity.PositionConstraintId;
+
+public interface PositionConstraintDao extends BasicDao<PositionConstraint, PositionConstraintId> {
 }

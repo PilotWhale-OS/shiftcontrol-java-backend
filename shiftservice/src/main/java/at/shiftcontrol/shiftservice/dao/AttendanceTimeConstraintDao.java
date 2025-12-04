@@ -1,4 +1,6 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface AttendanceTimeConstraintDao {
+import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
+
+public interface AttendanceTimeConstraintDao extends BasicDao<AttendanceTimeConstraint, Long> {
 }

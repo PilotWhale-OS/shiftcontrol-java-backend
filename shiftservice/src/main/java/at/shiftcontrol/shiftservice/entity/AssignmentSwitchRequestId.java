@@ -7,10 +7,12 @@ import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
@@ -25,4 +27,11 @@ public class AssignmentSwitchRequestId implements Serializable {
         @AttributeOverride(name = "volunteerId", column = @Column(name = "requested_volunteer_id"))
     })
     private AssignmentId requested;
+
+    public static AssignmentSwitchRequestId of(AssignmentId offering, AssignmentId requested) {
+        return AssignmentSwitchRequestId.builder()
+                .offering(offering)
+                .requested(requested)
+                .build();
+    }
 }

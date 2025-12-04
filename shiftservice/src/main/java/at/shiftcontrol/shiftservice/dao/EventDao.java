@@ -1,4 +1,6 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface EventDao {
+import at.shiftcontrol.shiftservice.entity.Event;
+
+public interface EventDao extends  BasicDao<Event, Long> {
 }

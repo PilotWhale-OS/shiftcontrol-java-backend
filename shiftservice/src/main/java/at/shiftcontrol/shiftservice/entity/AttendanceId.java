@@ -16,4 +16,11 @@ import lombok.NoArgsConstructor;
 public class AttendanceId implements Serializable {
     private long volunteerId;
     private long eventId;
+
+    public static AttendanceId of(long volunteerId, long eventId) {
+        return AttendanceId.builder()
+                .volunteerId(volunteerId)
+                .eventId(eventId)
+                .build();
+    }
 }
