@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 
 @RequiredArgsConstructor
@@ -18,15 +17,16 @@ public class VolunteerDaoImpl implements VolunteerDao {
 
     @Override
     public Optional<Volunteer> findById(Long id) {
-        return Optional.empty();
+        return volunteerRepository.findById(id);
     }
 
     @Override
     public Volunteer save(Volunteer entity) {
-        return null;
+        return volunteerRepository.save(entity);
     }
 
     @Override
     public void delete(Volunteer entity) {
+        volunteerRepository.delete(entity);
     }
 }

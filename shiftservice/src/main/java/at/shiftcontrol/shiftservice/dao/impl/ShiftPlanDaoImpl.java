@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 
 @RequiredArgsConstructor
@@ -18,15 +17,16 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
 
     @Override
     public Optional<ShiftPlan> findById(Long id) {
-        return Optional.empty();
+        return shiftPlanRepository.findById(id);
     }
 
     @Override
     public ShiftPlan save(ShiftPlan entity) {
-        return null;
+        return shiftPlanRepository.save(entity);
     }
 
     @Override
     public void delete(ShiftPlan entity) {
+        shiftPlanRepository.delete(entity);
     }
 }

@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.Location;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.LocationDao;
+import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
 
 @RequiredArgsConstructor
@@ -18,15 +17,16 @@ public class LocationDaoImpl implements LocationDao {
 
     @Override
     public Optional<Location> findById(Long id) {
-        return Optional.empty();
+        return locationRepository.findById(id);
     }
 
     @Override
     public Location save(Location entity) {
-        return null;
+        return locationRepository.save(entity);
     }
 
     @Override
     public void delete(Location entity) {
+        locationRepository.delete(entity);
     }
 }

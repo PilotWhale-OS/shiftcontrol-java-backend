@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.Shift;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
+import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 
 @RequiredArgsConstructor
@@ -18,15 +17,16 @@ public class ShiftDaoImpl implements ShiftDao {
 
     @Override
     public Optional<Shift> findById(Long id) {
-        return Optional.empty();
+        return shiftRepository.findById(id);
     }
 
     @Override
     public Shift save(Shift entity) {
-        return null;
+        return shiftRepository.save(entity);
     }
 
     @Override
     public void delete(Shift entity) {
+        shiftRepository.delete(entity);
     }
 }
