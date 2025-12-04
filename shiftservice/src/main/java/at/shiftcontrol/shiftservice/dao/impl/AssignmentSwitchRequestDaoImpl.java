@@ -4,12 +4,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
 
 @RequiredArgsConstructor
@@ -19,15 +18,16 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
 
     @Override
     public Optional<AssignmentSwitchRequest> findById(AssignmentSwitchRequestId id) {
-        return Optional.empty();
+        return assignmentSwitchRequestRepository.findById(id);
     }
 
     @Override
     public AssignmentSwitchRequest save(AssignmentSwitchRequest entity) {
-        return null;
+        return assignmentSwitchRequestRepository.save(entity);
     }
 
     @Override
     public void delete(AssignmentSwitchRequest entity) {
+        assignmentSwitchRequestRepository.delete(entity);
     }
 }

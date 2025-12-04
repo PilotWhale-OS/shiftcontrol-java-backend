@@ -4,12 +4,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 
 @RequiredArgsConstructor
@@ -19,15 +18,16 @@ public class AssignmentDaoImpl implements AssignmentDao {
 
     @Override
     public Optional<Assignment> findById(AssignmentId id) {
-        return Optional.empty();
+        return assignmentRepository.findById(id);
     }
 
     @Override
     public Assignment save(Assignment entity) {
-        return null;
+        return assignmentRepository.save(entity);
     }
 
     @Override
     public void delete(Assignment entity) {
+        assignmentRepository.delete(entity);
     }
 }

@@ -4,12 +4,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.PositionConstraint;
-import at.shiftcontrol.shiftservice.entity.PositionConstraintId;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.PositionConstraintDao;
+import at.shiftcontrol.shiftservice.entity.PositionConstraint;
+import at.shiftcontrol.shiftservice.entity.PositionConstraintId;
 import at.shiftcontrol.shiftservice.repo.PositionConstraintRepository;
 
 @RequiredArgsConstructor
@@ -19,15 +18,16 @@ public class PositionConstraintDaoImpl implements PositionConstraintDao {
 
     @Override
     public Optional<PositionConstraint> findById(PositionConstraintId id) {
-        return Optional.empty();
+        return positionConstraintRepository.findById(id);
     }
 
     @Override
     public PositionConstraint save(PositionConstraint entity) {
-        return null;
+        return positionConstraintRepository.save(entity);
     }
 
     @Override
     public void delete(PositionConstraint entity) {
+        positionConstraintRepository.delete(entity);
     }
 }

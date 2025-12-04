@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.AttendanceTimeConstraintDao;
+import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
 import at.shiftcontrol.shiftservice.repo.AttendanceTimeConstraintRepository;
 
 @RequiredArgsConstructor
@@ -18,15 +17,16 @@ public class AttendanceTimeConstraintDaoImpl implements AttendanceTimeConstraint
 
     @Override
     public Optional<AttendanceTimeConstraint> findById(Long id) {
-        return Optional.empty();
+        return attendanceTimeConstraintRepository.findById(id);
     }
 
     @Override
     public AttendanceTimeConstraint save(AttendanceTimeConstraint entity) {
-        return null;
+        return attendanceTimeConstraintRepository.save(entity);
     }
 
     @Override
     public void delete(AttendanceTimeConstraint entity) {
+        attendanceTimeConstraintRepository.delete(entity);
     }
 }

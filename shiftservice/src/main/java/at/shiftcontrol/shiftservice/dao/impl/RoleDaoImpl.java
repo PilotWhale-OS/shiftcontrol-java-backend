@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.Role;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.RoleDao;
+import at.shiftcontrol.shiftservice.entity.Role;
 import at.shiftcontrol.shiftservice.repo.RoleRepository;
 
 @RequiredArgsConstructor
@@ -18,15 +17,16 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     public Optional<Role> findById(Long id) {
-        return Optional.empty();
+        return roleRepository.findById(id);
     }
 
     @Override
     public Role save(Role entity) {
-        return null;
+        return roleRepository.save(entity);
     }
 
     @Override
     public void delete(Role entity) {
+        roleRepository.delete(entity);
     }
 }

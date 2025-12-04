@@ -4,12 +4,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import at.shiftcontrol.shiftservice.entity.Attendance;
-import at.shiftcontrol.shiftservice.entity.AttendanceId;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.AttendanceDao;
+import at.shiftcontrol.shiftservice.entity.Attendance;
+import at.shiftcontrol.shiftservice.entity.AttendanceId;
 import at.shiftcontrol.shiftservice.repo.AttendanceRepository;
 
 @RequiredArgsConstructor
@@ -19,15 +18,16 @@ public class AttendanceDaoImpl implements AttendanceDao {
 
     @Override
     public Optional<Attendance> findById(AttendanceId id) {
-        return Optional.empty();
+        return attendanceRepository.findById(id);
     }
 
     @Override
     public Attendance save(Attendance entity) {
-        return null;
+        return attendanceRepository.save(entity);
     }
 
     @Override
     public void delete(Attendance entity) {
+        attendanceRepository.delete(entity);
     }
 }
