@@ -1,4 +1,6 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface PositionSlotDao {
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
+
+public interface PositionSlotDao extends BasicDao<PositionSlot, Long> {
 }

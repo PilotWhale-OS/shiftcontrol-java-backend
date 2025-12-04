@@ -1,4 +1,6 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface RoleDao {
+import at.shiftcontrol.shiftservice.entity.Role;
+
+public interface RoleDao extends  BasicDao<Role, Long> {
 }

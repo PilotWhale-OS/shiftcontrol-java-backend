@@ -16,4 +16,11 @@ import lombok.NoArgsConstructor;
 public class PositionConstraintId implements Serializable {
     private long sourcePositionSlotId;
     private long targetPositionSlotId;
+
+    public static PositionConstraintId of(long sourcePositionSlotId, long targetPositionSlotId) {
+        return PositionConstraintId.builder()
+                .sourcePositionSlotId(sourcePositionSlotId)
+                .targetPositionSlotId(targetPositionSlotId)
+                .build();
+    }
 }

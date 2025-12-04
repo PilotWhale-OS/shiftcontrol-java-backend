@@ -1,4 +1,6 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface VolunteerDao {
+import at.shiftcontrol.shiftservice.entity.Volunteer;
+
+public interface VolunteerDao extends BasicDao<Volunteer, Long> {
 }

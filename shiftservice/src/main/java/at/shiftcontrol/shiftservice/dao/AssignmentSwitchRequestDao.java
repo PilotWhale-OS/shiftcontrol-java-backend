@@ -1,4 +1,7 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface AssignmentSwitchRequestDao {
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
+
+public interface AssignmentSwitchRequestDao extends  BasicDao<AssignmentSwitchRequest, AssignmentSwitchRequestId> {
 }

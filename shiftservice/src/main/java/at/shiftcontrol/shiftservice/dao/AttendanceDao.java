@@ -1,4 +1,7 @@
 package at.shiftcontrol.shiftservice.dao;
 
-public interface AttendanceDao {
+import at.shiftcontrol.shiftservice.entity.Attendance;
+import at.shiftcontrol.shiftservice.entity.AttendanceId;
+
+public interface AttendanceDao extends BasicDao<Attendance, AttendanceId> {
 }
