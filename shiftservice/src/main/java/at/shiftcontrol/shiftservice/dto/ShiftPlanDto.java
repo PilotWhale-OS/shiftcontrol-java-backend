@@ -7,8 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ShiftPlanDto {
-    @NotNull
-    private String id;
+    private long id;
     @NotNull
     private String name;
     private String shortDescription;

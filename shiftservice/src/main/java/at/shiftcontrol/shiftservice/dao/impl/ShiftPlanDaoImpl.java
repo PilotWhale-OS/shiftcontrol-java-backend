@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -28,5 +29,10 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     @Override
     public void delete(ShiftPlan entity) {
         shiftPlanRepository.delete(entity);
+    }
+
+    @Override
+    public Collection<ShiftPlan> findByEventId(Long eventId) {
+        return shiftPlanRepository.findByEventId(eventId);
     }
 }
