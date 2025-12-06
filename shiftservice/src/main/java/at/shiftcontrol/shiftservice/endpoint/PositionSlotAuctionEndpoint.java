@@ -17,8 +17,8 @@ import at.shiftcontrol.shiftservice.dto.AuctionDto;
 @RestController
 @RequestMapping(value = "api/v1/auctions/{auctionId}/")
 @RequiredArgsConstructor
-public class ShiftAuctionEndpoint {
-    // create endpoint is located in ShiftEndpoint
+public class PositionSlotAuctionEndpoint {
+    // create endpoint is located in PositionSlotEndpoint
 
     @GetMapping()
     // TODO Security

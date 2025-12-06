@@ -19,7 +19,7 @@ import at.shiftcontrol.shiftservice.dto.TradeDto;
 @RestController
 @RequestMapping(value = "api/v1/trades")
 @RequiredArgsConstructor
-public class ShiftTradeEndpoint {
+public class PositionSlotTradeEndpoint {
     @GetMapping("/{tradeId}")
     // TODO Security
     @Operation(
