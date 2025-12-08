@@ -8,8 +8,10 @@ import lombok.Data;
 
 import at.shiftcontrol.shiftservice.type.AuctionStatus;
 
+//Todo: What is this? Auction is basically just an Assignment with an auction AssignmentStatus
 @Data
 @Builder
+@Deprecated
 public class AuctionDto {
     @NotNull
     private String id;
