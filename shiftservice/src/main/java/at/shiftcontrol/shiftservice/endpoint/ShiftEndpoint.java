@@ -12,25 +12,31 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.AuctionDto;
 import at.shiftcontrol.shiftservice.dto.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.dto.ShiftDto;
-import at.shiftcontrol.shiftservice.dto.UserPreferenceDto;
 import at.shiftcontrol.shiftservice.dto.UserPreferenceUpdateDto;
+import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
+import at.shiftcontrol.shiftservice.service.ShiftService;
 
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/shifts/{shiftId}")
 @RequiredArgsConstructor
 public class ShiftEndpoint {
+    private final ShiftService shiftService;
+
     @GetMapping("/details")
     // TODO Security
     @Operation(
         operationId = "getShiftDetails",
         description = "Get details for a specific shift of a shift plan"
     )
-    public ShiftDetailsDto getShiftDetails(@PathVariable String shiftId) {
-        return null; // TODO: implement
+    public ShiftDetailsDto getShiftDetails(@PathVariable String shiftId) throws NotFoundException {
+        //Todo: pass user id from security context
+        return shiftService.getShiftDetails(ConvertUtil.idToLong(shiftId), -1);
     }
 
     @PostMapping("/auction")
@@ -59,7 +65,7 @@ public class ShiftEndpoint {
         operationId = "setShiftPreference",
         description = "Set preference for a specific shift"
     )
-    public UserPreferenceDto setShiftPreference(@PathVariable String shiftId, @RequestBody UserPreferenceUpdateDto preferenceUpdateDto) {
+    public UserShiftPreferenceDto setShiftPreference(@PathVariable String shiftId, @RequestBody UserPreferenceUpdateDto preferenceUpdateDto) {
         return null; // TODO: implement
     }
 }

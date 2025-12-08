@@ -4,12 +4,16 @@ import java.time.Instant;
 import java.util.Collection;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.shiftservice.type.LockStatus;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ShiftDto {
     @NotNull
