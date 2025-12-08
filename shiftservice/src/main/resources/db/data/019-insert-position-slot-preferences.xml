@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="019-insert-position-slot-preferences" author="paul" context="dev">
+
+    <insert tableName="position_slot_preference">
+      <column name="volunteer_id" valueNumeric="1"/>
+      <column name="position_slot_id" valueNumeric="1"/>
+      <column name="preference_level" valueNumeric="0"/>
+    </insert>
+
+    <insert tableName="position_slot_preference">
+      <column name="volunteer_id" valueNumeric="2"/>
+      <column name="position_slot_id" valueNumeric="3"/>
+      <column name="preference_level" valueNumeric="4"/>
+    </insert>
+
+    <insert tableName="position_slot_preference">
+      <column name="volunteer_id" valueNumeric="2"/>
+      <column name="position_slot_id" valueNumeric="2"/>
+      <column name="preference_level" valueNumeric="-3"/>
+    </insert>
+
+    <insert tableName="position_slot_preference">
+      <column name="volunteer_id" valueNumeric="10"/>
+      <column name="position_slot_id" valueNumeric="19"/>
+      <column name="preference_level" valueNumeric="10"/>
+    </insert>
+
+    <insert tableName="position_slot_preference">
+      <column name="volunteer_id" valueNumeric="10"/>
+      <column name="position_slot_id" valueNumeric="20"/>
+      <column name="preference_level" valueNumeric="-10"/>
+    </insert>
+
+  </changeSet>
+
+</databaseChangeLog>

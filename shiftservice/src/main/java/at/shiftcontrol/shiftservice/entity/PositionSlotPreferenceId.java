@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @Embeddable
 public class PositionSlotPreferenceId implements Serializable {
-    private String volunteerId;
-    private String positionSlotId;
+    private long volunteerId;
+    private long positionSlotId;
 
-    public static PositionSlotPreferenceId of(String volunteerId, String positionSlotId) {
+    public static PositionSlotPreferenceId of(long volunteerId, long positionSlotId) {
         return PositionSlotPreferenceId.builder()
                 .volunteerId(volunteerId)
                 .positionSlotId(positionSlotId)
