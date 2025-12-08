@@ -13,14 +13,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Embeddable
-public class VolunteerShiftPreferenceId implements Serializable {
+public class PositionSlotPreferenceId implements Serializable {
     private String volunteerId;
-    private String shiftId;
+    private String positionSlotId;
 
-    public static VolunteerShiftPreferenceId of(String volunteerId, String shiftId) {
-        return VolunteerShiftPreferenceId.builder()
+    public static PositionSlotPreferenceId of(String volunteerId, String positionSlotId) {
+        return PositionSlotPreferenceId.builder()
                 .volunteerId(volunteerId)
-                .shiftId(shiftId)
+                .positionSlotId(positionSlotId)
                 .build();
     }
 }

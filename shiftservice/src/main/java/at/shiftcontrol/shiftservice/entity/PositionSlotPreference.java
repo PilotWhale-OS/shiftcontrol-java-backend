@@ -2,9 +2,9 @@ package at.shiftcontrol.shiftservice.entity;
 
 import jakarta.persistence.EmbeddedId;
 
-public class VolunteerShiftPreference {
+public class PositionSlotPreference {
     @EmbeddedId
-    private VolunteerShiftPreferenceId id;
+    private PositionSlotPreferenceId id;
 
     private int preferenceLevel;
 }
