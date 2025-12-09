@@ -23,7 +23,7 @@ public class ShiftPlanEventServiceImpl implements ShiftPlanEventService {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
         var shiftPlans = shiftPlanDao.findByEventId(eventId);
 
-        var eventOverviewDto = EventMapper.eventToEventOverviewDto(event);
+        var eventOverviewDto = EventMapper.toEventOverviewDto(event);
         var shiftPlanDtos = shiftPlans.stream()
                 .map(ShiftPlanMapper::shiftPlanToShiftPlanDto)
                 .toList();

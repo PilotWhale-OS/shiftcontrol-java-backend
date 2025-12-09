@@ -9,7 +9,7 @@ import at.shiftcontrol.shiftservice.entity.Event;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EventMapper {
-    public static EventOverviewDto eventToEventOverviewDto(Event event) {
+    public static EventOverviewDto toEventOverviewDto(Event event) {
         return EventOverviewDto.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -18,9 +18,9 @@ public class EventMapper {
                 .build();
     }
 
-    public static List<EventOverviewDto> eventToEventOverviewDto(List<Event> events) {
+    public static List<EventOverviewDto> toEventOverviewDto(List<Event> events) {
         return events.stream()
-                .map(EventMapper::eventToEventOverviewDto)
+                .map(EventMapper::toEventOverviewDto)
                 .toList();
     }
 }

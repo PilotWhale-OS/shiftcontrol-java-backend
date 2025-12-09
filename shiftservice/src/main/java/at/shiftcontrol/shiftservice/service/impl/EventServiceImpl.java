@@ -22,7 +22,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventOverviewDto> search(EventSearchDto searchDto) {
-        return EventMapper.eventToEventOverviewDto(eventDao.search(searchDto));
+        return EventMapper.toEventOverviewDto(eventDao.search(searchDto));
     }
 
     @Override
@@ -30,7 +30,7 @@ public class EventServiceImpl implements EventService {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found"));
 
         //Todo: implement reward points and statistics
-        return new EventShiftPlansOverviewDto(EventMapper.eventToEventOverviewDto(event),
+        return new EventShiftPlansOverviewDto(EventMapper.toEventOverviewDto(event),
             null,
             null,
             -1,
