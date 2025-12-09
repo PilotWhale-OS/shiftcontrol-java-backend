@@ -1,7 +1,12 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import at.shiftcontrol.shiftservice.type.NotificationType;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,7 +15,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.shiftservice.type.NotificationChannel;
-import at.shiftcontrol.shiftservice.type.NotificationType;
 
 @Data
 @NoArgsConstructor
@@ -19,10 +23,14 @@ import at.shiftcontrol.shiftservice.type.NotificationType;
 @Entity
 @Table(name = "volunteer_notification_assignment")
 public class VolunteerNotificationAssignment {
-    @Id
-    private long volunteerId;
+    @EmbeddedId
+    VolunteerNotificationAssignmentId volunteerNotificationAssignmentId;
     @NotNull
-    private NotificationType notificationType;
-    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private NotificationChannel notificationChannel;
+
+    public NotificationType getNotificationType() {
+        return this.volunteerNotificationAssignmentId.getNotificationType();
+    }
 }

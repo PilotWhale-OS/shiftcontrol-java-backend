@@ -8,61 +8,61 @@
   <changeSet id="001-insert-volunteers" author="paul" context="dev">
     <insert tableName="volunteer">
       <column name="id" valueNumeric="1"/>
-      <column name="name" value="Alice Johnson"/>
+      <column name="username" value="Alice Johnson"/>
       <column name="email" value="alice.johnson@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="2"/>
-      <column name="name" value="Brian Smith"/>
+      <column name="username" value="Brian Smith"/>
       <column name="email" value="brian.smith@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="3"/>
-      <column name="name" value="Carla Mendes"/>
+      <column name="username" value="Carla Mendes"/>
       <column name="email" value="carla.mendes@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="4"/>
-      <column name="name" value="David Lee"/>
+      <column name="username" value="David Lee"/>
       <column name="email" value="david.lee@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="5"/>
-      <column name="name" value="Elena Garcia"/>
+      <column name="username" value="Elena Garcia"/>
       <column name="email" value="elena.garcia@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="6"/>
-      <column name="name" value="Filip Novak"/>
+      <column name="username" value="Filip Novak"/>
       <column name="email" value="filip.novak@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="7"/>
-      <column name="name" value="Grace Liu"/>
+      <column name="username" value="Grace Liu"/>
       <column name="email" value="grace.liu@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="8"/>
-      <column name="name" value="Hannah Brown"/>
+      <column name="username" value="Hannah Brown"/>
       <column name="email" value="hannah.brown@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="9"/>
-      <column name="name" value="Igor Petrov"/>
+      <column name="username" value="Igor Petrov"/>
       <column name="email" value="igor.petrov@example.com"/>
     </insert>
 
     <insert tableName="volunteer">
       <column name="id" valueNumeric="10"/>
-      <column name="name" value="Julia Santos"/>
+      <column name="username" value="Julia Santos"/>
       <column name="email" value="julia.santos@example.com"/>
     </insert>
   </changeSet>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="020-insert-volunteer_notification_assignment" author="paul" context="dev">
+
+    <insert tableName="volunteer_notification_assignment">
+      <column name="volunteer_id" valueNumeric="1"/>
+      <column name="notification_type" value="AUTO_ASSIGNED"/>
+      <column name="notification_channel" value="EMAIL"/>
+    </insert>
+
+    <insert tableName="volunteer_notification_assignment">
+      <column name="volunteer_id" valueNumeric="2"/>
+      <column name="notification_type" value="TRADE_REQUESTED"/>
+      <column name="notification_channel" value="PUSH"/>
+    </insert>
+
+    <insert tableName="volunteer_notification_assignment">
+      <column name="volunteer_id" valueNumeric="2"/>
+      <column name="notification_type" value="TRADE_ACCEPTED_DECLINED"/>
+      <column name="notification_channel" value="NONE"/>
+    </insert>
+
+    <insert tableName="volunteer_notification_assignment">
+      <column name="volunteer_id" valueNumeric="10"/>
+      <column name="notification_type" value="SHIFT_REMINDER"/>
+      <column name="notification_channel" value="EMAIL"/>
+    </insert>
+
+    <insert tableName="volunteer_notification_assignment">
+      <column name="volunteer_id" valueNumeric="10"/>
+      <column name="notification_type" value="TRADE_REQUESTED"/>
+      <column name="notification_channel" value="PUSH"/>
+    </insert>
+
+  </changeSet>
+
+</databaseChangeLog>
