@@ -31,7 +31,7 @@ public class Volunteer {
     @NotNull
     @Size(max = 255)
     @Column(nullable = false, length = 255)
-    private String name;
+    private String username;
     @NotNull
     @Size(max = 255)
     @Column(nullable = false, length = 255, unique = true)
@@ -43,4 +43,7 @@ public class Volunteer {
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Collection<Role> roles;
+
+    @ManyToMany //TODO: Properly configure me
+    private Collection<VolunteerNotificationAssignment> notificationAssignments;
 }

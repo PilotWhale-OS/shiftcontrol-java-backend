@@ -15,17 +15,22 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.NotificationSettingsUpdateDto;
 import at.shiftcontrol.shiftservice.dto.UnavailabilityCreateDto;
 import at.shiftcontrol.shiftservice.dto.UnavailabilityDto;
 import at.shiftcontrol.shiftservice.dto.UserProfileDto;
+import at.shiftcontrol.shiftservice.service.UserProfileService;
 
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/me")
 @RequiredArgsConstructor
 public class UserProfileEndpoint {
+    private final ApplicationUserProvider userProvider;
+    private final UserProfileService userProfileService;
+
     @GetMapping("/profile")
     // TODO Security
     @Operation(
@@ -33,7 +38,9 @@ public class UserProfileEndpoint {
         description = "Get profile data of the current user (account, notifications, unavailability)"
     )
     public UserProfileDto getCurrentUserProfile() {
-        return null; // TODO: implement
+        return userProfileService.getUserProfile(
+            userProvider.getCurrentUser().getUserId()
+        ); // TODO: implement
     }
 
     @PutMapping("/profile/notifications")
