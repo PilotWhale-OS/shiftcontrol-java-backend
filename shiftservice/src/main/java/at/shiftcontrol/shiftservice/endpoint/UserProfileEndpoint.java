@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.NotificationSettingsUpdateDto;
@@ -37,10 +38,8 @@ public class UserProfileEndpoint {
         operationId = "getCurrentUserProfile",
         description = "Get profile data of the current user (account, notifications, unavailability)"
     )
-    public UserProfileDto getCurrentUserProfile() {
-        return userProfileService.getUserProfile(
-            userProvider.getCurrentUser().getUserId()
-        ); // TODO: implement
+    public UserProfileDto getCurrentUserProfile() throws NotFoundException {
+        return userProfileService.getUserProfile(userProvider.getCurrentUser().getUserId());
     }
 
     @PutMapping("/profile/notifications")
