@@ -3,4 +3,4 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: <keycloak-uri-here/realms/<realm-name-here>
+          issuer-uri: http://keycloak.127.0.0.1.nip.io/realms/dev
