@@ -32,5 +32,4 @@ public class ShiftDto {
     private Collection<PositionSlotDto> positionSlots;
     private LockStatus lockStatus;
     private TradeInfoDto tradeInfo;
-    private AuctionInfoDto auctionInfo;
 }
