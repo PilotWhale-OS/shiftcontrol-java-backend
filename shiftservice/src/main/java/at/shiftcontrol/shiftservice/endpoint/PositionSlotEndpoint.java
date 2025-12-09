@@ -1,5 +1,8 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
+import java.util.Collection;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,7 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.shiftservice.dto.AuctionDto;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.UserPreferenceUpdateDto;
 import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
@@ -21,13 +24,13 @@ import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
 @RequestMapping(value = "api/v1/position-slots/{positionSlotId}")
 @RequiredArgsConstructor
 public class PositionSlotEndpoint {
-    @PostMapping("/auction")
+    @GetMapping
     // TODO Security
     @Operation(
-        operationId = "auctionPositionSlot",
-        description = "Auction a specific position slot in a shift"
+        operationId = "getPositionSlot",
+        description = "Get details for a specific position slot in a shift"
     )
-    public AuctionDto auctionPositionSlot(@PathVariable String positionSlotId) {
+    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) {
         return null; // TODO: implement
     }
 
@@ -48,6 +51,16 @@ public class PositionSlotEndpoint {
         description = "Set preference for a specific position slot"
     )
     public UserShiftPreferenceDto setPositionSlotPreference(@PathVariable String positionSlotId, @RequestBody UserPreferenceUpdateDto preferenceUpdateDto) {
+        return null; // TODO: implement
+    }
+
+    @GetMapping("/assignments")
+    // TODO Security
+    @Operation(
+        operationId = "getPositionSlotAssignments",
+        description = "Get assignments for a specific position slot"
+    )
+    public Collection<AssignmentDto> getPositionSlotAssignments(@PathVariable String positionSlotId) {
         return null; // TODO: implement
     }
 }

@@ -19,13 +19,16 @@ public class PositionSlotDto {
     private String id;
     @NotNull
     private String associatedShiftId;
+
     @NotNull
     private RoleDto role;
-    private Collection<VolunteerDto> assignedVolunteers;
-    //Todo: I thought we discussed that we dont need location per position slot? ~Patrick
-//     @NotNull
-//     private LocationDto locations;
+
+    private Collection<String> assignedVolunteerUsernames;
+    private int desiredVolunteerCount;
+
+    /**
+     *  Specific for the current user's signup state for this position slot.
+     */
     @NotNull
     private SignupState signupState;
-    private int desiredVolunteerCount;
 }

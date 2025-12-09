@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EventOverviewDto {
+public class EventDto {
     @NotNull
     private long id;
     @NotNull

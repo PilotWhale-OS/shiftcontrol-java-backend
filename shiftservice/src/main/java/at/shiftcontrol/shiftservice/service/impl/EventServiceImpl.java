@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dto.EventOverviewDto;
+import at.shiftcontrol.shiftservice.dto.EventDto;
 import at.shiftcontrol.shiftservice.dto.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
@@ -21,7 +21,7 @@ public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
 
     @Override
-    public List<EventOverviewDto> search(EventSearchDto searchDto) {
+    public List<EventDto> search(EventSearchDto searchDto) {
         return EventMapper.toEventOverviewDto(eventDao.search(searchDto));
     }
 

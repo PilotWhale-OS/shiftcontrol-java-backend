@@ -12,13 +12,16 @@ public class DashboardOverviewDto {
     @NotNull
     private ShiftPlanDto shiftPlan;
     @NotNull
-    private EventOverviewDto eventOverview;
+    private EventDto eventOverview;
+
     @NotNull
     private OwnShiftPlanStatisticsDto ownShiftPlanStatistics;
     @NotNull
     private OverallShiftPlanStatisticsDto overallShiftPlanStatistics;
     private int rewardPoints;
+
     private Collection<ShiftDto> shifts;
+
     private Collection<TradeDto> trades;
-    private Collection<AuctionDto> auctions;
+    private Collection<ShiftDto> auctions;
 }

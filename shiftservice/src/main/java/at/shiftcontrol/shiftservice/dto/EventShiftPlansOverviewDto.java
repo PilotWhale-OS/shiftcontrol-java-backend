@@ -14,11 +14,13 @@ import lombok.NoArgsConstructor;
 @Builder
 public class EventShiftPlansOverviewDto {
     @NotNull
-    private EventOverviewDto eventOverview;
+    private EventDto eventOverview;
+
     @NotNull
     private OwnShiftPlanStatisticsDto ownShiftPlanStatistics;
     @NotNull
     private OverallShiftPlanStatisticsDto overallShiftPlanStatistics;
     private int rewardPoints;
+
     private Collection<ShiftPlanDto> shiftPlans;
 }
