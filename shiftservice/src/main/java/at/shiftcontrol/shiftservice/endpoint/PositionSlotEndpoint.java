@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.shiftservice.dto.AuctionDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
-import at.shiftcontrol.shiftservice.dto.UserPreferenceDto;
 import at.shiftcontrol.shiftservice.dto.UserPreferenceUpdateDto;
+import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
 
 @Slf4j
 @RestController
@@ -47,7 +47,7 @@ public class PositionSlotEndpoint {
         operationId = "setPositionSlotPreference",
         description = "Set preference for a specific position slot"
     )
-    public UserPreferenceDto setPositionSlotPreference(@PathVariable String positionSlotId, @RequestBody UserPreferenceUpdateDto preferenceUpdateDto) {
+    public UserShiftPreferenceDto setPositionSlotPreference(@PathVariable String positionSlotId, @RequestBody UserPreferenceUpdateDto preferenceUpdateDto) {
         return null; // TODO: implement
     }
 }

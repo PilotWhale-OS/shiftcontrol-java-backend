@@ -1,14 +1,15 @@
 package at.shiftcontrol.shiftservice.auth;
 
-import at.shiftcontrol.lib.auth.ApplicationUser;
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
-import at.shiftcontrol.shiftservice.auth.user.ShiftPlannerUser;
-import at.shiftcontrol.shiftservice.auth.user.VolunteerUser;
+import java.util.List;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import at.shiftcontrol.lib.auth.ApplicationUser;
+import at.shiftcontrol.shiftservice.auth.user.AdminUser;
+import at.shiftcontrol.shiftservice.auth.user.ShiftPlannerUser;
+import at.shiftcontrol.shiftservice.auth.user.VolunteerUser;
 
 @Component
 public class ApplicationUserFactory {
@@ -20,18 +21,19 @@ public class ApplicationUserFactory {
         var userType = userTypeString == null ? UserType.VOLUNTEER : UserType.valueOf(userTypeString);
 
         var username = jwt.getClaimAsString("preferred_username");
+        var userIdString = jwt.getClaimAsString("user_id");
+        var userId = userIdString == null ? -1L : Long.parseLong(userIdString);
 
         return switch (userType) {
-            case VOLUNTEER -> new VolunteerUser(authorities, username);
-            case SHIFT_PLANNER -> new ShiftPlannerUser(authorities, username);
-            case ADMIN -> new AdminUser(authorities, username);
+            case VOLUNTEER -> new VolunteerUser(authorities, username, userId);
+            case SHIFT_PLANNER -> new ShiftPlannerUser(authorities, username, userId);
+            case ADMIN -> new AdminUser(authorities, username, userId);
         };
     }
 
     public List<SimpleGrantedAuthority> filterAndTransformRoles(List<String> roles) {
         return roles.stream()
                 .filter(role -> !role.startsWith("ui_"))
-                .map(role -> role.replaceFirst("sb_", ""))
                 .map(SimpleGrantedAuthority::new).toList();
     }
 }

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.EventOverviewDto;
 import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.service.EventService;
@@ -22,6 +23,7 @@ import at.shiftcontrol.shiftservice.service.EventService;
 @RequestMapping(value = "api/v1/events")
 @RequiredArgsConstructor
 public class EventEndpoint {
+    private final ApplicationUserProvider userProvider;
     private final EventService eventService;
 
     @GetMapping()
@@ -41,7 +43,6 @@ public class EventEndpoint {
         description = "Find all (volunteer related) shift plans of an event"
     )
     public EventShiftPlansOverviewDto findAllShiftPlansOfEvent(@PathVariable String eventId) throws NotFoundException {
-        //Todo: pass user id from security context
-        return eventService.getEventShiftPlansOverview(ConvertUtil.idToLong(eventId), -1);
+        return eventService.getEventShiftPlansOverview(ConvertUtil.idToLong(eventId), userProvider.getCurrentUser().getUserId());
     }
 }
