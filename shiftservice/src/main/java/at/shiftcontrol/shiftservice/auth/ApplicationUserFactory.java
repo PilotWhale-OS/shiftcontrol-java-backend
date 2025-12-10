@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.auth;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,7 +33,7 @@ public class ApplicationUserFactory {
     }
 
     public List<SimpleGrantedAuthority> filterAndTransformRoles(List<String> roles) {
-        return roles.stream()
+        return roles == null ? Collections.emptyList() : roles.stream()
                 .filter(role -> !role.startsWith("ui_"))
                 .map(SimpleGrantedAuthority::new).toList();
     }

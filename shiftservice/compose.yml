@@ -13,6 +13,8 @@ services:
       - traefik.http.routers.shiftservice.entrypoints=web
       - traefik.http.routers.shiftservice.rule=Host(`shiftservice.127.0.0.1.nip.io`)
       - traefik.http.services.shiftservice.loadbalancer.server.port=8080
+    volumes:
+      - ./config/docker.application.yml:/app/application.yml
     networks:
       - shiftcontrol
 
