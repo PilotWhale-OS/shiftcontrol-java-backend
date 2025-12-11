@@ -16,6 +16,7 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 @RequestMapping(value = "api/v1/position-slots/{positionSlotId}/assignments/{volunteerId}")
 @RequiredArgsConstructor
 public class AssignmentEndpoint {
+    @Deprecated
     @PostMapping("/auction")
     // TODO Security
     @Operation(
