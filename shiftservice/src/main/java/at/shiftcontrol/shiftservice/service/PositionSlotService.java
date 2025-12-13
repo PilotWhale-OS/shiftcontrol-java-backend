@@ -14,5 +14,5 @@ public interface PositionSlotService {
 
     void leave(Long positionSlotId, Long userId);
 
-    Collection<AssignmentDto> getAssignments(Long positionSlotId);
+    Collection<AssignmentDto> getAssignments(Long positionSlotId) throws NotFoundException;
 }

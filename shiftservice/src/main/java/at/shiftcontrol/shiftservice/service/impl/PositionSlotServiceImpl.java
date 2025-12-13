@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,7 @@ import at.shiftcontrol.shiftservice.dao.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
+import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
@@ -66,15 +66,21 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
         //Todo: Implement actual joining logic
 
+
+        //Todo: Send Eventbus event
         return null;
     }
 
     @Override
     public void leave(Long positionSlotId, Long userId) {
+        //Todo: Checks are needed if the user can leave
     }
 
     @Override
-    public Collection<AssignmentDto> getAssignments(Long positionSlotId) {
-        return List.of();
+    public Collection<AssignmentDto> getAssignments(Long positionSlotId) throws NotFoundException {
+        var positionSlot = positionSlotDao.findById(positionSlotId)
+            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+
+        return AssignmentMapper.toDto(positionSlot.getAssignments());
     }
 }
