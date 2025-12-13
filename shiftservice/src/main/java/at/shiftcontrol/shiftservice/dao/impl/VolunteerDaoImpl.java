@@ -29,4 +29,9 @@ public class VolunteerDaoImpl implements VolunteerDao {
     public void delete(Volunteer entity) {
         volunteerRepository.delete(entity);
     }
+
+    @Override
+    public Optional<Volunteer> findByUserId(Long userId) {
+        return findById(userId); //Todo: Check if this is correct
+    }
 }

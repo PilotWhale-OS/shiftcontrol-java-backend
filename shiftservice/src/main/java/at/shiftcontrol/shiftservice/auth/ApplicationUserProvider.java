@@ -10,4 +10,9 @@ public class ApplicationUserProvider extends UserProviderImpl {
     public <T extends VolunteerUser> T getCurrentUser() {
         return (T) getApplicationUser();
     }
+
+    public boolean currentUserHasAuthority(String authority) {
+        return getCurrentUser().getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
+    }
 }

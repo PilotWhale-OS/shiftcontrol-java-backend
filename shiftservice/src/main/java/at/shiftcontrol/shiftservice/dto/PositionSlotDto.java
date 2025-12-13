@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.type.SignupState;
+import at.shiftcontrol.shiftservice.type.PositionSignupState;
 
 @Data
 @NoArgsConstructor
@@ -16,9 +16,9 @@ import at.shiftcontrol.shiftservice.type.SignupState;
 @Builder
 public class PositionSlotDto {
     @NotNull
-    private String id;
+    private long id;
     @NotNull
-    private String associatedShiftId;
+    private long associatedShiftId;
 
     @NotNull
     private RoleDto role;
@@ -30,5 +30,5 @@ public class PositionSlotDto {
      *  Specific for the current user's signup state for this position slot.
      */
     @NotNull
-    private SignupState signupState;
+    private PositionSignupState positionSignupState;
 }
