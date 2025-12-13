@@ -7,17 +7,17 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
-import static at.shiftcontrol.shiftservice.type.PositionSignupState.LOCKED;
-import static at.shiftcontrol.shiftservice.type.PositionSignupState.NOT_ELIGIBLE;
 
 @RequiredArgsConstructor
 @Service
@@ -37,7 +37,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto join(Long positionSlotId, Long userId) throws NotFoundException {
+    public AssignmentDto join(Long positionSlotId, Long userId) throws NotFoundException, ConflictException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         var volunteer = volunteerDao.findByUserId(userId)
@@ -45,34 +45,26 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         var signupState = eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer);
 
-        //Todo: Handle bad states properly, if bad case return other DTO with 409 conflict
         switch (signupState) {
             case SIGNED_UP:
-                // User is already signed up
-                return null;
+                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
             case FULL:
                 // Position is full
-                return null;
+                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
             case LOCKED, NOT_ELIGIBLE:
                 if (!userProvider.currentUserHasAuthority("shiftcontrol.shiftservice.manage.positions")) {
                     // User is not allowed to join
-                    return null;
+                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
                 }
+                // All good, proceed with signup
+                break;
+            case SIGNUP_POSSIBLE:
+                // All good, proceed with signup
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + signupState);
         }
-
-
-        if ((signupState == LOCKED || signupState == NOT_ELIGIBLE) && !userProvider.currentUserHasAuthority("shiftcontrol.shiftservice.manage.positions")) {
-            // User is not allowed to join
-            //Todo: Handle accordingly
-            return null;
-        }
-
-
-
-
+        //Todo: Implement actual joining logic
 
         return null;
     }

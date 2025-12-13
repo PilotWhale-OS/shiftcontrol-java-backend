@@ -11,11 +11,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.dto.UserPreferenceUpdateDto;
 import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
 
@@ -38,9 +42,25 @@ public class PositionSlotEndpoint {
     // TODO Security
     @Operation(
         operationId = "joinPositionSlot",
-        description = "Join a specific position slot"
+        description = "Join a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully joined the position slot",
+                content = @Content(
+                    schema = @Schema(implementation = AssignmentDto.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "409",
+                description = "Conflict - e.g., position slot is already full",
+                content = @Content(
+                    schema = @Schema(implementation = PositionSlotJoinErrorDto.class)
+                )
+            )
+        }
     )
-    public PositionSlotDto joinPositionSlot(@PathVariable String positionSlotId) {
+    public AssignmentDto joinPositionSlot(@PathVariable String positionSlotId) {
         return null; // TODO: implement
     }
 
