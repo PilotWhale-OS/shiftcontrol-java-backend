@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
@@ -52,7 +53,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 // Position is full
                 throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
             case LOCKED, NOT_ELIGIBLE:
-                if (!userProvider.currentUserHasAuthority("shiftcontrol.shiftservice.manage.positions")) {
+                if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
                     // User is not allowed to join
                     throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
                 }
