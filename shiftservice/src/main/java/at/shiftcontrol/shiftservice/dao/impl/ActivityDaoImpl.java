@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -30,10 +28,5 @@ public class ActivityDaoImpl implements ActivityDao {
     @Override
     public void delete(Activity entity) {
         activityRepository.delete(entity);
-    }
-
-    @Override
-    public Collection<Activity> getRelatedActivities(long shiftId) {
-        return List.of();
     }
 }
