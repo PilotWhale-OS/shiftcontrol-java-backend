@@ -44,6 +44,12 @@
     </insert>
 
     <insert tableName="assignment">
+      <column name="position_slot_id" valueNumeric="7"/>
+      <column name="assigned_volunteer_id" valueNumeric="7"/>
+      <column name="status" value="ACCEPTED"/>
+    </insert>
+
+    <insert tableName="assignment">
       <column name="position_slot_id" valueNumeric="8"/>
       <column name="assigned_volunteer_id" valueNumeric="8"/>
       <column name="status" value="ACCEPTED"/>
