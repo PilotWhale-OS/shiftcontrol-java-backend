@@ -43,8 +43,9 @@ public class EventDaoImpl implements EventDao {
             var predicates = criteriaBuilder.conjunction();
 
             if (searchDto.getName() != null && !searchDto.getName().isEmpty()) {
+                var nameLower = searchDto.getName().toLowerCase();
                 predicates = criteriaBuilder.and(predicates,
-                        criteriaBuilder.like(root.get("name"), "%" + searchDto.getName() + "%"));
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + nameLower + "%"));
             }
 
             return predicates;
