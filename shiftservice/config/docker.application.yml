@@ -6,5 +6,4 @@ spring:
           issuer-uri: http://keycloak:8080/realms/dev
 logging:
   level:
-    org.springframework.security: DEBUG
-    org.springframework.web.filter.DelegatingFilterProxy: TRACE
+    root: WARN

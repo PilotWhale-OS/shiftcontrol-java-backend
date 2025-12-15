@@ -68,7 +68,8 @@ public class JwtSecurityConfig {
                 .requestMatchers("/v3/api-docs*/**")
                 .permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**")
-                .permitAll()) // Permit all OPTIONS requests (preflight))
+                .permitAll() // Permit all OPTIONS requests (preflight))
+                .anyRequest().authenticated())
 
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
