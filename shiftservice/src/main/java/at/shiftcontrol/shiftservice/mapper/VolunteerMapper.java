@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.mapper;
 
+import java.util.Collection;
+
 import at.shiftcontrol.shiftservice.dto.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 
@@ -10,5 +12,9 @@ public class VolunteerMapper {
             volunteer.getUsername(),
             volunteer.getEmail()
         );
+    }
+
+    public static Collection<VolunteerDto> toDto(java.util.Collection<Volunteer> volunteers) {
+        return volunteers.stream().map(VolunteerMapper::toDto).toList();
     }
 }
