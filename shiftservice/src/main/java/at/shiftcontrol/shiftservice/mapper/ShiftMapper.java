@@ -1,5 +1,8 @@
 package at.shiftcontrol.shiftservice.mapper;
 
+import java.util.Collection;
+import java.util.List;
+
 import at.shiftcontrol.shiftservice.dto.ShiftDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 
@@ -16,5 +19,11 @@ public class ShiftMapper {
             shift.getLockStatus(),
             null //Todo: implement when trades are available
         );
+    }
+
+    public static List<ShiftDto> toShiftDto(Collection<Shift> shifts) {
+        return shifts.stream()
+            .map(ShiftMapper::toShiftDto)
+            .toList();
     }
 }
