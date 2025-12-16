@@ -28,24 +28,27 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
-
+        var userShifts = shiftPlan.getShifts().stream()
+            .filter(shift -> shift.getSlots().stream()
+                .anyMatch(slot -> slot.getAssignments().stream()
+                    .anyMatch(assignment -> assignment.getAssignedVolunteer() != null && assignment.getAssignedVolunteer().getId() == userId)))
+            .toList();
 
         return DashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .eventOverview(EventMapper.toEventOverviewDto(event))
-            .ownShiftPlanStatistics(statisticService.getOwnShiftPlanStatistics(shiftPlanId, userId))
+            .ownShiftPlanStatistics(statisticService.getOwnShiftPlanStatistics(userShifts)) // directly pass user shifts here to avoid redundant filtering
             .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlanId))
-            .rewardPoints(0) // TODO
-            .shifts(ShiftMapper.toShiftDto(shiftPlan.getShifts()))
-            .trades(null) // TODO
+            .rewardPoints(-1) // TODO
+            .shifts(ShiftMapper.toShiftDto(userShifts))
+            .trades(null) // TODO implement when trades are available
             .auctions(null) // TODO
             .build();
     }
 
     @Override
     public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, long userId, ShiftPlanScheduleSearchDto searchDto) {
-        return null;
-        // TOOD use static mapper
+
     }
 
     @Override

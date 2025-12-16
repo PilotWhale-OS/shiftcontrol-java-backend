@@ -7,6 +7,7 @@ import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.ShiftPlanEventService;
+import at.shiftcontrol.shiftservice.service.StatisticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class ShiftPlanEventServiceImpl implements ShiftPlanEventService {
     private final ShiftPlanDao shiftPlanDao;
     private final EventDao eventDao;
+    private final StatisticService statisticService;
 
     @Override
     public EventShiftPlansOverviewDto getShiftPlansOverview(long eventId) throws NotFoundException {
@@ -22,17 +24,19 @@ public class ShiftPlanEventServiceImpl implements ShiftPlanEventService {
         var shiftPlans = shiftPlanDao.findByEventId(eventId);
 
         var eventOverviewDto = EventMapper.toEventOverviewDto(event);
+
+        // TODO only show shift plans that are relevant to the user (e.g. public shift plans or ones the user is assigned to (based on roles/permissions))
         var shiftPlanDtos = shiftPlans.stream()
             .map(ShiftPlanMapper::toShiftPlanDto)
             .toList();
 
-        //Todo: implement reward points and statistics
+        //Todo: implement reward points
         return EventShiftPlansOverviewDto.builder()
             .eventOverview(eventOverviewDto)
             .shiftPlans(shiftPlanDtos)
             .rewardPoints(-1)
-            .ownShiftPlanStatistics(null)
-            .overallShiftPlanStatistics(null)
+            .ownEventStatistics(statisticService.getOwnEventStatistics(eventId, -1)) // Todo: pass user id
+            .overallEventStatistics(statisticService.getOverallEventStatistics(eventId))
             .build();
     }
 }
