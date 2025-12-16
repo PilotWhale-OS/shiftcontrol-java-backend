@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
@@ -29,5 +31,11 @@ public class ShiftMapper {
             null, //Todo: implement when trades are available,
             LocationMapper.toLocationDto(shift.getLocation())
         );
+    }
+
+    public static List<ShiftDto> toShiftDto(Collection<Shift> shifts) {
+        return shifts.stream()
+            .map(ShiftMapper::toShiftDto)
+            .toList();
     }
 }
