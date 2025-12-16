@@ -1,14 +1,14 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -28,5 +28,10 @@ public class ShiftDaoImpl implements ShiftDao {
     @Override
     public void delete(Shift entity) {
         shiftRepository.delete(entity);
+    }
+
+    @Override
+    public List<Shift> search(ShiftPlanScheduleSearchDto searchDto) {
+        return List.of(); // TODO implement
     }
 }
