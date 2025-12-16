@@ -1,9 +1,5 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -11,6 +7,8 @@ import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.ShiftPlanEventService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +23,8 @@ public class ShiftPlanEventServiceImpl implements ShiftPlanEventService {
 
         var eventOverviewDto = EventMapper.toEventOverviewDto(event);
         var shiftPlanDtos = shiftPlans.stream()
-                .map(ShiftPlanMapper::shiftPlanToShiftPlanDto)
-                .toList();
+            .map(ShiftPlanMapper::toShiftPlanDto)
+            .toList();
 
         //Todo: implement reward points and statistics
         return EventShiftPlansOverviewDto.builder()
