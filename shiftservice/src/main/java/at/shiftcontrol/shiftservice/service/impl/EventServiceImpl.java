@@ -2,10 +2,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.EventDto;
@@ -14,6 +10,8 @@ import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +32,6 @@ public class EventServiceImpl implements EventService {
             null,
             null,
             -1,
-            ShiftPlanMapper.shiftPlansToShiftPlanDtos(event.getShiftPlans()));
+            ShiftPlanMapper.toShiftPlanDto(event.getShiftPlans()));
     }
 }
