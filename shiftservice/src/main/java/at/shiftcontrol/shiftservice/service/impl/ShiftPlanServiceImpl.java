@@ -7,7 +7,7 @@ import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
@@ -95,7 +95,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto) {
+    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto) {
         return null;
 
         // TOOD use static mapper
