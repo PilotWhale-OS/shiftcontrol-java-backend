@@ -10,7 +10,7 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 public interface ShiftPlanService {
     DashboardOverviewDto getDashboardOverview(long shiftPlanId, long userId) throws NotFoundException;
 
-    ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, long userId, ShiftPlanScheduleSearchDto searchDto);
+    ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, long userId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException;
 
     ShiftPlanDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto);
 }
