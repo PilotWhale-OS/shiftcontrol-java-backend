@@ -43,7 +43,8 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanSchedule",
         description = "Get (volunteer related) schedule data for a specific shift plan of an event"
     )
-    public ShiftPlanScheduleDto getShiftPlanSchedule(@PathVariable String shiftPlanId, ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto) {
+    public ShiftPlanScheduleDto getShiftPlanSchedule(@PathVariable String shiftPlanId, ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto)
+        throws NotFoundException {
         return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), userProvider.getCurrentUser().getUserId(), shiftPlanScheduleSearchDto);
     }
 
