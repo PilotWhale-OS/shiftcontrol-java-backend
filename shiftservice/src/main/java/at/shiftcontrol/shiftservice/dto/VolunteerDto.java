@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class VolunteerDto {
     @NotNull
-    private long id;
+    private String id;
     @NotNull
     private String username;
     @NotNull

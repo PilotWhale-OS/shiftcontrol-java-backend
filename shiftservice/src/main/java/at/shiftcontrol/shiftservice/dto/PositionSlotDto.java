@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PositionSlotDto {
     @NotNull
-    private long id;
+    private String id;
     @NotNull
-    private long associatedShiftId;
+    private String associatedShiftId;
 
     @NotNull
     private RoleDto role;

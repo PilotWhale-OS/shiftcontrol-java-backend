@@ -11,8 +11,8 @@ public class PositionSlotMapper {
         var volunteers = positionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
 
         return new PositionSlotDto(
-            positionSlot.getId(),
-            positionSlot.getShift().getId(),
+            String.valueOf(positionSlot.getId()),
+            String.valueOf(positionSlot.getShift().getId()),
             RoleMapper.toRoleDto(positionSlot.getRole()),
             VolunteerMapper.toDto(volunteers),
             positionSlot.getDesiredVolunteerCount(),

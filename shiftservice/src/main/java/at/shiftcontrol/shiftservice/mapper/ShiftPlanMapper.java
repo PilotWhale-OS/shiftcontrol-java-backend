@@ -3,25 +3,24 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.List;
 
-import lombok.NoArgsConstructor;
-
 import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class ShiftPlanMapper {
     public static ShiftPlanDto shiftPlanToShiftPlanDto(ShiftPlan shiftPlan) {
         return ShiftPlanDto.builder()
-                .id(shiftPlan.getId())
-                .name(shiftPlan.getName())
-                .shortDescription(shiftPlan.getShortDescription())
-                .longDescription(shiftPlan.getLongDescription())
-                .build();
+            .id(String.valueOf(shiftPlan.getId()))
+            .name(shiftPlan.getName())
+            .shortDescription(shiftPlan.getShortDescription())
+            .longDescription(shiftPlan.getLongDescription())
+            .build();
     }
 
     public static List<ShiftPlanDto> shiftPlansToShiftPlanDtos(Collection<ShiftPlan> shiftPlans) {
         return shiftPlans.stream()
-                .map(ShiftPlanMapper::shiftPlanToShiftPlanDto)
-                .toList();
+            .map(ShiftPlanMapper::shiftPlanToShiftPlanDto)
+            .toList();
     }
 }

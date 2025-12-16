@@ -6,14 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- *  Todo: This needs to be changed according to tobeh's new requirement or another DTO needs to be created
+ * Todo: This needs to be changed according to tobeh's new requirement or another DTO needs to be created
  */
 @Data
 @Builder
 public class ShiftPlanScheduleDto {
     private Collection<ShiftDto> shifts;
     // pagination info
-    private long totalElements;
+    private int totalElements; // TODO int sufficient?
     private int pageNumber;
     private int pageSize;
     // schedule summary info

@@ -8,7 +8,7 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 public class VolunteerMapper {
     public static VolunteerDto toDto(Volunteer volunteer) {
         return new VolunteerDto(
-            volunteer.getId(),
+            String.valueOf(volunteer.getId()),
             volunteer.getUsername(),
             volunteer.getEmail()
         );
