@@ -33,8 +33,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         return DashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .eventOverview(EventMapper.toEventOverviewDto(event))
-            .ownShiftPlanStatistics(null) // TODO
-            .overallShiftPlanStatistics(null) // TODO
+            .ownShiftPlanStatistics(statisticService.getOwnShiftPlanStatistics(shiftPlanId, userId))
+            .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlanId))
             .rewardPoints(0) // TODO
             .shifts(ShiftMapper.toShiftDto(shiftPlan.getShifts()))
             .trades(null) // TODO

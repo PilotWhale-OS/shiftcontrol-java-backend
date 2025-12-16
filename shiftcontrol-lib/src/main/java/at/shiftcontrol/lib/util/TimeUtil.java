@@ -1,6 +1,8 @@
 package at.shiftcontrol.lib.util;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +31,21 @@ public class TimeUtil {
      */
     public static Instant createViennaTimeInUtc(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         return ZonedDateTime.of(year, month, dayOfMonth, hour, minute, second, 0, VIENNA_ZONE_ID).withZoneSameInstant(UTC_ZONE_ID).toInstant();
+    }
+
+    public static LocalDate convertToUtcLocalDate(Instant instant) {
+        if (instant == null) {
+            return null;
+        }
+        return LocalDateTime.ofInstant(instant, UTC_ZONE_ID).toLocalDate();
+    }
+
+    public static long calculateDurationInMinutes(Instant startInstant, Instant endInstant) {
+        if (startInstant == null || endInstant == null) {
+            return 0;
+        }
+        long durationInMillis = endInstant.toEpochMilli() - startInstant.toEpochMilli();
+        return durationInMillis / (1000 * 60);
     }
 
     /**
