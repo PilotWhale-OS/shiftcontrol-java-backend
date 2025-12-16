@@ -12,10 +12,6 @@ import lombok.Data;
 @Builder
 public class ShiftPlanScheduleDto {
     private Collection<ShiftDto> shifts;
-    // pagination info
-    private int totalElements; // TODO int sufficient?
-    private int pageNumber;
-    private int pageSize;
     // schedule summary info
     private int totalShifts;
     private double totalHours;
