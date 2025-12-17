@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.assembler.PositionSlotDtoAssembler;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -12,7 +13,6 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
-import at.shiftcontrol.shiftservice.mapper.PositionSlotMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +26,13 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     private final ApplicationUserProvider userProvider;
     private final EligibilityService eligibilityService;
+    private final PositionSlotDtoAssembler positionSlotDtoAssembler;
 
     @Override
     //Todo: Calculate SignUpState
     public PositionSlotDto findById(Long id) throws NotFoundException {
         return positionSlotDao.findById(id)
-            .map(positionSlot -> PositionSlotMapper.toDto(positionSlot, null))
+            .map(positionSlotDtoAssembler::assemble)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
     }
 

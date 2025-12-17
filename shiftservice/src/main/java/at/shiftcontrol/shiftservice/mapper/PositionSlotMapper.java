@@ -7,7 +7,8 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import lombok.NonNull;
 
 public class PositionSlotMapper {
-    public static PositionSlotDto toDto(@NonNull PositionSlot positionSlot, PositionSignupState positionSignupState) {
+    // use PositionSlotDtoAssembler to entities and collections to dtos and compute PositionSignupState
+    public static PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState) {
         var volunteers = positionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
 
         return new PositionSlotDto(

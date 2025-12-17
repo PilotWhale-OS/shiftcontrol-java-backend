@@ -1,10 +1,15 @@
 package at.shiftcontrol.shiftservice.mapper;
 
+import java.util.Collection;
+
+import lombok.NonNull;
+
+import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.ShiftDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 
 public class ShiftMapper {
-    public static ShiftDto toShiftDto(Shift shift) {
+    public static ShiftDto toDto(@NonNull Shift shift, Collection<PositionSlotDto> positionSlots) {
         return new ShiftDto(String.valueOf(shift.getId()),
             shift.getName(),
             shift.getShortDescription(),
@@ -12,7 +17,7 @@ public class ShiftMapper {
             shift.getStartTime(),
             shift.getEndTime(),
             ActivityMapper.toActivityDto(shift.getRelatedActivities()),
-            null, //Todo: implement when position slots are available
+            positionSlots,
             shift.getLockStatus(),
             null //Todo: implement when trades are available
         );
