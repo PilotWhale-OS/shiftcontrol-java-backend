@@ -6,8 +6,8 @@ import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import lombok.NonNull;
 
+// use PositionSlotDtoAssembler to convert entities and collections to dtos and compute their PositionSignupState
 public class PositionSlotMapper {
-    // use PositionSlotDtoAssembler to entities and collections to dtos and compute PositionSignupState
     public static PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState) {
         var volunteers = positionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
 
@@ -17,7 +17,7 @@ public class PositionSlotMapper {
             RoleMapper.toRoleDto(positionSlot.getRole()),
             VolunteerMapper.toDto(volunteers),
             positionSlot.getDesiredVolunteerCount(),
-            -1, // TODO: Add rewardPoints in entity and add correct mapping
+            positionSlot.getRewardPoints(),
             positionSignupState);
     }
 }
