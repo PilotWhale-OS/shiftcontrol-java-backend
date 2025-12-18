@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import at.shiftcontrol.shiftservice.dto.UserProfile.VolunteerDto;
+
 @Data
 @Builder
 public class TradeCreateDto {

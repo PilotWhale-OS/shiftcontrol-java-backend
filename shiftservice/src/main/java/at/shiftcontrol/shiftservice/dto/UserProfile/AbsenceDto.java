@@ -1,4 +1,6 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.UserProfile;
+
+import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,11 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VolunteerDto {
+public class AbsenceDto {
     @NotNull
-    private long id;
+    Long userId;
     @NotNull
-    private String username;
+    LocalDate from;
     @NotNull
-    private String email;
+    LocalDate to;
 }

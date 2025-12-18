@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.UserProfile;
 
 import java.util.Collection;
 
@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
+import at.shiftcontrol.shiftservice.dto.RoleDto;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,8 +18,12 @@ import lombok.NoArgsConstructor;
 public class UserProfileDto {
     @NotNull
     private AccountInfoDto account; // fetched from keycloak
+
     @NotNull
     private NotificationSettingsDto notifications;
+
+    private Collection<AbsenceDto> absences;
+
     private Collection<RoleDto> assignedRoles;
 
     //Todo: move to be dependent on event context
