@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -23,6 +25,11 @@ public class VolunteerDaoImpl implements VolunteerDao {
     @Override
     public Volunteer save(Volunteer entity) {
         return volunteerRepository.save(entity);
+    }
+
+    @Override
+    public Collection<Volunteer> saveAll(Collection<Volunteer> entities) {
+        return volunteerRepository.saveAll(entities);
     }
 
     @Override
