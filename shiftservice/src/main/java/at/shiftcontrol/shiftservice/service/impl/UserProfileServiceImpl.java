@@ -39,6 +39,8 @@ public class UserProfileServiceImpl implements UserProfileService {
         account.setUserType(userType);
         account.setId(user.getId());
         account.setUsername(user.getUsername());
+        account.setFistName(user.getFirstName());
+        account.setLastName(user.getLastName());
         account.setEmail(user.getEmail());
         profile.setAccount(account);
 

@@ -18,6 +18,10 @@ public class AccountInfoDto {
     @NotNull
     private String username;
     @NotNull
+    private String fistName;
+    @NotNull
+    private String lastName;
+    @NotNull
     private String email;
     @NotNull
     private UserType userType;
