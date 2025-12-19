@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -36,5 +35,10 @@ public class AssignmentDaoImpl implements AssignmentDao {
     @Override
     public void delete(Assignment entity) {
         assignmentRepository.delete(entity);
+    }
+
+    @Override
+    public Collection<Assignment> findAuctionsByShiftPlanId(long shiftPlanId) {
+        return assignmentRepository.findAuctionsByShiftPlanId(shiftPlanId);
     }
 }

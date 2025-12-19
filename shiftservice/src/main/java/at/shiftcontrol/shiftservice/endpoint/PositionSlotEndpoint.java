@@ -88,4 +88,14 @@ public class PositionSlotEndpoint {
     public Collection<AssignmentDto> getPositionSlotAssignments(@PathVariable String positionSlotId) {
         return null; // TODO: implement
     }
+
+    @PutMapping("/auction")
+    // TODO Security
+    @Operation(
+        operationId = "auctionAssignment",
+        description = "Put the logged in users assignment for the PositionSlot up for auction"
+    )
+    public AssignmentDto auctionAssignment(@PathVariable String positionSlotId) throws NotFoundException {
+        return positionSlotService.auction(ConvertUtil.idToLong(positionSlotId));
+    }
 }
