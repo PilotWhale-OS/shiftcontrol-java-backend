@@ -4,6 +4,7 @@ import java.util.List;
 
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 
 public interface StatisticService {
@@ -14,4 +15,6 @@ public interface StatisticService {
     OwnStatisticsDto getOwnEventStatistics(long eventId, long userId);
 
     OverallStatisticsDto getOverallEventStatistics(long eventId);
+
+    ScheduleStatisticsDto getShiftPlanScheduleStatistics(List<Shift> shifts);
 }

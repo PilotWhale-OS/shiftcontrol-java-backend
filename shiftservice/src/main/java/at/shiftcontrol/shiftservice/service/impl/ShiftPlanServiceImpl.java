@@ -9,13 +9,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
-import at.shiftcontrol.shiftservice.dto.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
@@ -84,7 +82,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(entry -> buildLocationSchedule(entry.getKey(), entry.getValue()))
             .toList();
 
-        var stats = calculateStatistics(queriedShifts);
+        var stats = statisticService.getShiftPlanScheduleStatistics(queriedShifts);
 
         return ShiftPlanScheduleDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
@@ -151,27 +149,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
         return -1;
     }
-
-    private ScheduleStatisticsDto calculateStatistics(List<Shift> shifts) {
-        int totalShifts = shifts.size();
-
-        double totalHours = shifts.stream()
-            .mapToDouble(s -> TimeUtil.calculateDurationInMinutes(s.getStartTime(), s.getEndTime()))
-            .sum() / 60.0;
-
-        long unassignedCount = shifts.stream()
-            .flatMap(s -> s.getSlots() == null ? Stream.empty() : s.getSlots().stream())
-            .flatMap(slot -> slot.getAssignments() == null ? Stream.empty() : slot.getAssignments().stream())
-            .filter(a -> a.getAssignedVolunteer() == null)
-            .count();
-
-        return ScheduleStatisticsDto.builder()
-            .totalShifts(totalShifts)
-            .totalHours(totalHours)
-            .unassignedCount((int) unassignedCount)
-            .build();
-    }
-
 
     @Override
     public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto) {
