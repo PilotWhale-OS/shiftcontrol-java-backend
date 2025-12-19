@@ -22,7 +22,7 @@
 **/charts
 **/docker-compose*
 **/compose*
-#**/target
+**/target
 **/Dockerfile*
 **/node_modules
 **/npm-debug.log
@@ -32,3 +32,4 @@
 **/vendor
 LICENSE
 README.md
+config

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ShiftPlanMapper {
     public static ShiftPlanDto toShiftPlanDto(ShiftPlan shiftPlan) {
         return ShiftPlanDto.builder()
-            .id(shiftPlan.getId())
+            .id(String.valueOf(shiftPlan.getId()))
             .name(shiftPlan.getName())
             .shortDescription(shiftPlan.getShortDescription())
             .longDescription(shiftPlan.getLongDescription())
