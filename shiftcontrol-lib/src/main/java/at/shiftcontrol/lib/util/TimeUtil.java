@@ -40,6 +40,20 @@ public class TimeUtil {
         return LocalDateTime.ofInstant(instant, UTC_ZONE_ID).toLocalDate();
     }
 
+    public static Instant convertToStartOfUtcDayInstant(LocalDate localDate) {
+        if (localDate == null) {
+            return null;
+        }
+        return localDate.atStartOfDay(UTC_ZONE_ID).toInstant();
+    }
+
+    public static Instant convertToEndOfUtcDayInstant(LocalDate localDate) {
+        if (localDate == null) {
+            return null;
+        }
+        return localDate.atTime(23, 59, 59, 999_999_999).atZone(UTC_ZONE_ID).toInstant();
+    }
+
     public static long calculateDurationInMinutes(Instant startInstant, Instant endInstant) {
         if (startInstant == null || endInstant == null) {
             return 0;
