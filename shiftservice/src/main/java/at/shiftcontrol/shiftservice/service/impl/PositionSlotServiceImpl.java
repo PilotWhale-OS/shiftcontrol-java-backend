@@ -2,6 +2,10 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.assembler.PositionSlotDtoAssembler;
@@ -15,8 +19,6 @@ import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -29,7 +31,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final PositionSlotDtoAssembler positionSlotDtoAssembler;
 
     @Override
-    //Todo: Calculate SignUpState
     public PositionSlotDto findById(Long id) throws NotFoundException {
         return positionSlotDao.findById(id)
             .map(positionSlotDtoAssembler::assemble)

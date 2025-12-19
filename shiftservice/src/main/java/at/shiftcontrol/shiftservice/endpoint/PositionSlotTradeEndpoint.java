@@ -1,8 +1,9 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
+import java.util.Collection;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,22 +13,28 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
+import at.shiftcontrol.shiftservice.mapper.TradeMapper;
+import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/trades")
 @RequiredArgsConstructor
 public class PositionSlotTradeEndpoint {
-    @GetMapping("/{tradeId}")
+    private final AssignmentSwitchRequestService assignmentSwitchRequestService;
+
+    @GetMapping()
     // TODO Security
     @Operation(
         operationId = "getTradeById",
         description = "Get trade by id"
     )
-    public TradeDto getTradeById(@PathVariable String tradeId) {
-        return null; // TODO Implement
+    // TODO change body to params ?
+    public TradeDto getTradeById(@RequestBody TradeDto tradeDto) throws NotFoundException {
+        return assignmentSwitchRequestService.getTradeById(TradeMapper.toEntityId(tradeDto));
     }
 
     @PostMapping()
@@ -36,37 +43,37 @@ public class PositionSlotTradeEndpoint {
         operationId = "createShiftTrade",
         description = "Create trade request for a specific position slot in a shift"
     )
-    public TradeDto createShiftTrade(@RequestBody TradeCreateDto tradeCreateDto) {
-        return null; // TODO Implement
+    public Collection<TradeDto> createShiftTrade(@RequestBody TradeCreateDto tradeCreateDto) throws NotFoundException {
+        return assignmentSwitchRequestService.createShiftTrade(tradeCreateDto);
     }
 
-    @PostMapping("/{tradeId}/accept")
+    @PostMapping("/accept")
     // TODO Security
     @Operation(
         operationId = "acceptShiftTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptShiftTrade(@PathVariable String tradeId) {
-        return null; // TODO Implement
+    public TradeDto acceptShiftTrade(@RequestBody TradeDto tradeDto) throws NotFoundException {
+        return assignmentSwitchRequestService.acceptShiftTrade(TradeMapper.toEntityId(tradeDto));
     }
 
-    @PostMapping("/{tradeId}/decline")
+    @PostMapping("/decline")
     // TODO Security
     @Operation(
         operationId = "declineShiftTrade",
         description = "Decline a trade request for a specific position slot in a shift"
     )
-    public TradeDto declineShiftTrade(@PathVariable String tradeId) {
-        return null; // TODO Implement
+    public TradeDto declineShiftTrade(@RequestBody TradeDto tradeDto) throws NotFoundException {
+        return assignmentSwitchRequestService.declineShiftTrade(TradeMapper.toEntityId(tradeDto));
     }
 
-    @DeleteMapping("/{tradeId}")
+    @DeleteMapping()
     // TODO Security
     @Operation(
         operationId = "cancelShiftTrade",
         description = "Cancel a request for a specific position slot in a shift"
     )
-    public void cancelShiftTrade(@PathVariable String tradeId) {
-        // TODO Implement
+    public void cancelShiftTrade(@RequestBody TradeDto tradeDto) throws NotFoundException {
+        assignmentSwitchRequestService.cancelShiftTrade(TradeMapper.toEntityId(tradeDto));
     }
 }

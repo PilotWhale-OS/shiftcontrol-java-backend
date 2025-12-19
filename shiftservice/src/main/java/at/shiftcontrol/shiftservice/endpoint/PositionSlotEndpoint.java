@@ -17,25 +17,30 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.dto.UserPreferenceUpdateDto;
 import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
+import at.shiftcontrol.shiftservice.service.PositionSlotService;
 
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/position-slots/{positionSlotId}")
 @RequiredArgsConstructor
 public class PositionSlotEndpoint {
+    private final PositionSlotService positionSlotService;
+
     @GetMapping
     // TODO Security
     @Operation(
         operationId = "getPositionSlot",
         description = "Get details for a specific position slot in a shift"
     )
-    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) {
-        return null; // TODO: implement
+    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException {
+        return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
 
     @PostMapping("/join")
