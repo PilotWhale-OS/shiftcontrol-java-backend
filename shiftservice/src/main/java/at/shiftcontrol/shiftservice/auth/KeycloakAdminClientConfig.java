@@ -14,25 +14,19 @@ public class KeycloakAdminClientConfig {
     @Bean
     public Keycloak keycloakAdminClient(
         @Value("${keycloak.auth-server-url}") String serverUrl,
-        @Value("${keycloak.realm}") String realm,
-        @Value("${keycloak.client-id}") String clientId,
-        @Value("${keycloak.client-secret}") String clientSecret
+        @Value("${keycloak.client.realm}") String clientRealm,
+        @Value("${keycloak.client.id}") String clientId,
+        @Value("${keycloak.client.username}") String clientUsername,
+        @Value("${keycloak.client.password}") String clientPassword
     ) {
+
         return KeycloakBuilder.builder()
             .serverUrl(serverUrl)
-            .realm(realm)
-            .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-            .clientId(clientId)          // <-- should be "backend"
-            .clientSecret(clientSecret)  // <-- your static secret
+            .realm(clientRealm)
+            .clientId(clientId)
+            .grantType(OAuth2Constants.PASSWORD)
+            .username(clientUsername)
+            .password(clientPassword)
             .build();
-
-//         return KeycloakBuilder.builder()
-//             .serverUrl(serverUrl)
-//             .realm(realm)
-//             .clientId("admin-cli")
-//             .grantType(OAuth2Constants.PASSWORD)
-//             .username("cli-admin")
-//             .password("admin")
-//             .build();
     }
 }
