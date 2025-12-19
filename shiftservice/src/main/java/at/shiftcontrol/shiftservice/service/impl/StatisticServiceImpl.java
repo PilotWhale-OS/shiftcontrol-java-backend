@@ -3,12 +3,14 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.service.StatisticService;
@@ -100,6 +102,25 @@ public class StatisticServiceImpl implements StatisticService {
             .totalHours(totalHours)
             .totalShifts(totalShifts)
             .volunteerCount(volunteerCount)
+            .build();
+    }
+
+    @Override
+    public ScheduleStatisticsDto getShiftPlanScheduleStatistics(List<Shift> shifts) {
+        double totalHours = shifts.stream()
+            .mapToDouble(s -> TimeUtil.calculateDurationInMinutes(s.getStartTime(), s.getEndTime()))
+            .sum() / 60.0;
+
+        long unassignedCount = shifts.stream()
+            .flatMap(s -> s.getSlots() == null ? Stream.empty() : s.getSlots().stream())
+            .flatMap(slot -> slot.getAssignments() == null ? Stream.empty() : slot.getAssignments().stream())
+            .filter(a -> a.getAssignedVolunteer() == null)
+            .count();
+
+        return ScheduleStatisticsDto.builder()
+            .totalShifts(shifts.size())
+            .totalHours(totalHours)
+            .unassignedCount((int) unassignedCount)
             .build();
     }
 
