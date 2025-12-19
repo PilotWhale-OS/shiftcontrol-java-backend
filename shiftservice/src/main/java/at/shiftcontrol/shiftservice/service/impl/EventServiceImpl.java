@@ -10,6 +10,7 @@ import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
+import at.shiftcontrol.shiftservice.service.StatisticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
+    private final StatisticService statisticService;
 
     @Override
     public List<EventDto> search(EventSearchDto searchDto) {
@@ -25,13 +27,23 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, long userId) throws NotFoundException {
-        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found"));
+        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        var shiftPlans = event.getShiftPlans();
 
-        //Todo: implement reward points and statistics
-        return new EventShiftPlansOverviewDto(EventMapper.toEventOverviewDto(event),
-            null,
-            null,
-            -1,
-            ShiftPlanMapper.toShiftPlanDto(event.getShiftPlans()));
+        var eventOverviewDto = EventMapper.toEventOverviewDto(event);
+
+        // TODO only show shift plans that are relevant to the user (e.g. public shift plans or ones the user is assigned to (based on roles/permissions))
+        var shiftPlanDtos = shiftPlans.stream()
+            .map(ShiftPlanMapper::toShiftPlanDto)
+            .toList();
+
+        //Todo: implement reward points
+        return EventShiftPlansOverviewDto.builder()
+            .eventOverview(eventOverviewDto)
+            .shiftPlans(shiftPlanDtos)
+            .rewardPoints(-1)
+            .ownEventStatistics(statisticService.getOwnEventStatistics(eventId, userId))
+            .overallEventStatistics(statisticService.getOverallEventStatistics(eventId))
+            .build();
     }
 }
