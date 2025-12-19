@@ -16,5 +16,4 @@ public class ShiftPlanScheduleSearchDto {
     private Collection<ScheduleViewType> scheduleViewTypes;
     private Collection<String> roleNames;
     private Collection<String> locations;
-    private Collection<String> tags;
 }
