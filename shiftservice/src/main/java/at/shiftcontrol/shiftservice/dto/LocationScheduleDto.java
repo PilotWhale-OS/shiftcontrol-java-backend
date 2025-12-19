@@ -24,7 +24,4 @@ public class LocationScheduleDto {
 
     @NotNull
     private Collection<ShiftColumnDto> shiftColumns;
-
-    @NotNull
-    private ScheduleStatisticsDto scheduleStatistics;
 }

@@ -71,9 +71,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         userId = 1;
         var queriedShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId, searchDto);
 
-        // TODO implement logic for ScheduleViewType
-
-
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
         for (var shift : queriedShifts) {
             if (shift.getLocations() == null || shift.getLocations().isEmpty()) {
@@ -89,9 +86,12 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(entry -> buildLocationSchedule(entry.getKey(), entry.getValue()))
             .toList();
 
+        var stats = calculateStatistics(queriedShifts);
+
         return ShiftPlanScheduleDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
             .locations(locationSchedules)
+            .scheduleStatistics(stats)
             .build();
     }
 
@@ -113,14 +113,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(ActivityMapper::toActivityDto)
             .toList();
 
-        var stats = calculateStatistics(shifts);
-
         return LocationScheduleDto.builder()
             .location(LocationMapper.toLocationDto(location))
             .activities(activities)
             .requiredShiftColumns(requiredShiftColumns)
             .shiftColumns(shiftColumns)
-            .scheduleStatistics(stats)
             .build();
     }
 
