@@ -53,13 +53,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public OwnStatisticsDto getOwnEventStatistics(long eventId, long userId) {
-        var event = eventDao.findById(eventId).get(); // no validation needed since this is done in calling service method
-        var userShiftPlans = event.getShiftPlans().stream()
-            .filter(shiftPlan -> shiftPlan.getShifts().stream()
-                .anyMatch(shift -> shift.getSlots().stream()
-                    .anyMatch(slot -> slot.getAssignments().stream()
-                        .anyMatch(assignment -> assignment.getAssignedVolunteer() != null && assignment.getAssignedVolunteer().getId() == userId))))
-            .toList();
+        var userShiftPlans = shiftPlanDao.findUserRelatedShiftPlansInEvent(eventId, userId);
 
         var totalHours = userShiftPlans.stream()
             .mapToDouble(shiftPlan ->
