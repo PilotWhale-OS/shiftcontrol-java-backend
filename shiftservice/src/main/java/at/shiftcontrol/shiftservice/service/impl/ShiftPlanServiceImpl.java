@@ -3,7 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.List;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
@@ -50,38 +49,39 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @Override
     public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, long userId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException {
         // TODO: do this + filtering in dao layer (date, shiftName, scheduleViewTypes, roleNames, locations, tags) --> Also maybe in other methods where user related shifts are fetched
-        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
-        var userShifts = getUserRelatedShifts(shiftPlan, userId);
-
-        int pageNumber = searchDto.getPageNumber() != null && searchDto.getPageNumber() >= 0
-            ? searchDto.getPageNumber()
-            : 0;
-        int pageSize = searchDto.getPageSize() != null && searchDto.getPageSize() > 0
-            ? searchDto.getPageSize()
-            : 20;
-        int totalElements = userShifts.size();
-
-        List<Shift> pagedShifts = applyPagination(userShifts, pageNumber, pageSize, totalElements);
-
-        double totalHours = userShifts.stream()
-            .mapToDouble(shift -> TimeUtil.calculateDurationInMinutes(shift.getStartTime(), shift.getEndTime()))
-            .sum() / 60.0;
-
-        int unassignedCount = (int) userShifts.stream()
-            .flatMap(shift -> shift.getSlots().stream())
-            .flatMap(slot -> slot.getAssignments().stream())
-            .filter(assignment -> assignment.getAssignedVolunteer() == null)
-            .count();
-
-        return ShiftPlanScheduleDto.builder()
-            .shifts(ShiftMapper.toShiftDto(pagedShifts)) // TODO use filtered and paged shifts here
-            .totalElements(totalElements)
-            .pageNumber(pageNumber)
-            .pageSize(pageSize)
-            .totalShifts(totalElements)
-            .totalHours(totalHours)
-            .unassignedCount(unassignedCount)
-            .build();
+//        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+//        var userShifts = getUserRelatedShifts(shiftPlan, userId);
+//
+//        int pageNumber = searchDto.getPageNumber() != null && searchDto.getPageNumber() >= 0
+//            ? searchDto.getPageNumber()
+//            : 0;
+//        int pageSize = searchDto.getPageSize() != null && searchDto.getPageSize() > 0
+//            ? searchDto.getPageSize()
+//            : 20;
+//        int totalElements = userShifts.size();
+//
+//        List<Shift> pagedShifts = applyPagination(userShifts, pageNumber, pageSize, totalElements);
+//
+//        double totalHours = userShifts.stream()
+//            .mapToDouble(shift -> TimeUtil.calculateDurationInMinutes(shift.getStartTime(), shift.getEndTime()))
+//            .sum() / 60.0;
+//
+//        int unassignedCount = (int) userShifts.stream()
+//            .flatMap(shift -> shift.getSlots().stream())
+//            .flatMap(slot -> slot.getAssignments().stream())
+//            .filter(assignment -> assignment.getAssignedVolunteer() == null)
+//            .count();
+//
+//        return ShiftPlanScheduleDto.builder()
+//            .shifts(ShiftMapper.toShiftDto(pagedShifts)) // TODO use filtered and paged shifts here
+//            .totalElements(totalElements)
+//            .pageNumber(pageNumber)
+//            .pageSize(pageSize)
+//            .totalShifts(totalElements)
+//            .totalHours(totalHours)
+//            .unassignedCount(unassignedCount)
+//            .build();
+        return null;
     }
 
     private List<Shift> applyPagination(List<Shift> shifts, int pageNumber, int pageSize, int totalElements) {
