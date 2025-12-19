@@ -44,10 +44,12 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     public DashboardOverviewDto getDashboardOverview(long shiftPlanId, long userId) throws NotFoundException {
+        // TODO: ONLY TESTING PURPOSES - REMOVE LATER - DONT COMMIT
+        userId = 1;
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
-        var userShifts = getUserRelatedShifts(shiftPlan, userId);
+        var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
 
         return DashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
