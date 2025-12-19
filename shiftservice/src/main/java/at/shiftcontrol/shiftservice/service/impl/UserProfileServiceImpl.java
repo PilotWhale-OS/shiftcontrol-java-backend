@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import at.shiftcontrol.shiftservice.auth.UserType;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,10 @@ public class UserProfileServiceImpl implements UserProfileService {
         var profile = new UserProfileDto();
         var account = new AccountInfoDto();
 
+        var userTypeAttr = user.firstAttribute("userType");
+        var userType = userTypeAttr == null ? UserType.ASSIGNED : UserType.valueOf(userTypeAttr);
+
+        account.setUserType(userType);
         account.setId(user.getId());
         account.setUsername(user.getUsername());
         account.setEmail(user.getEmail());
