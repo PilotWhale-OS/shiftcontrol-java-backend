@@ -1,10 +1,22 @@
 package at.shiftcontrol.shiftservice.mapper;
 
+import java.util.ArrayList;
+import java.util.function.Function;
+
+import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.ShiftDto;
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
+import at.shiftcontrol.shiftservice.type.PositionSignupState;
 
 public class ShiftMapper {
-    public static ShiftDto toShiftDto(Shift shift) {
+    public static ShiftDto toShiftDto(Shift shift, Function<PositionSlot, PositionSignupState> positionSlotSignupStateResolver) {
+        var slots = new ArrayList<PositionSlotDto>();
+        for (var slot : shift.getSlots()) {
+            var signupState = positionSlotSignupStateResolver.apply(slot);
+            slots.add(PositionSlotMapper.toDto(slot, signupState));
+        }
+
         return new ShiftDto(String.valueOf(shift.getId()),
             shift.getName(),
             shift.getShortDescription(),
@@ -12,9 +24,10 @@ public class ShiftMapper {
             shift.getStartTime(),
             shift.getEndTime(),
             ActivityMapper.toActivityDto(shift.getRelatedActivities()),
-            null, //Todo: implement when position slots are available
+            slots,
             shift.getLockStatus(),
-            null //Todo: implement when trades are available
+            null, //Todo: implement when trades are available,
+            LocationMapper.toLocationDto(shift.getLocation())
         );
     }
 }
