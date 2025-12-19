@@ -44,8 +44,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     public DashboardOverviewDto getDashboardOverview(long shiftPlanId, long userId) throws NotFoundException {
-        // TODO: ONLY TESTING PURPOSES - REMOVE LATER - DONT COMMIT
-        userId = 1;
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
@@ -63,12 +61,12 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
+    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
+        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+    }
+
     @Override
     public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, long userId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException {
-
-
-        // TODO: ONLY TESTING PURPOSES - REMOVE LATER - DONT COMMIT
-        userId = 1;
         var queriedShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId, searchDto);
 
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
@@ -179,20 +177,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto) {
         return null;
 
-        // TOOD use static mapper
+        // TODO
     }
-
-    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
-        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
-    }
-
-    // TODO maybe do this in the dao layer with a query for performance reasons
-    private List<Shift> getUserRelatedShifts(ShiftPlan shiftPlan, long userId) throws NotFoundException {
-        return shiftPlan.getShifts().stream()
-            .filter(shift -> shift.getSlots().stream()
-                .anyMatch(slot -> slot.getAssignments().stream()
-                    .anyMatch(assignment -> assignment.getAssignedVolunteer() != null && assignment.getAssignedVolunteer().getId() == userId)))
-            .toList();
-    }
-
 }
