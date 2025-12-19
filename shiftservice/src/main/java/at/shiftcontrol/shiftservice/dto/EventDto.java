@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 public class EventDto {
     @NotNull
-    private long id;
+    private String id;
     @NotNull
     private String name;
     private String shortDescription;

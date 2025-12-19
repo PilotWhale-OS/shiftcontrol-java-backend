@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ActivityDto {
     @NotNull
-    private long id;
+    private String id;
     @NotNull
     private String name;
     private String description;

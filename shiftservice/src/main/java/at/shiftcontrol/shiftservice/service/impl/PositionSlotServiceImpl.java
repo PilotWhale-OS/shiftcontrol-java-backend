@@ -2,10 +2,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -19,6 +15,8 @@ import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -52,7 +50,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             case FULL:
                 // Position is full
                 throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-            case LOCKED, NOT_ELIGIBLE:
+            case NOT_ELIGIBLE:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
                     // User is not allowed to join
                     throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
