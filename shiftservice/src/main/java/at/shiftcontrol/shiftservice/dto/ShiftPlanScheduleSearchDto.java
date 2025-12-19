@@ -13,7 +13,7 @@ public class ShiftPlanScheduleSearchDto {
     private LocalDate date; // if not provided, all dates should be fetched
     // additional filter params
     private String shiftName;
-    private Collection<ScheduleViewType> scheduleViewTypes;
+    private ScheduleViewType scheduleViewType;
     private Collection<String> roleNames;
     private Collection<String> locations;
 }
