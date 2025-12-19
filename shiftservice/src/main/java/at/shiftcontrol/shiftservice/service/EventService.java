@@ -10,5 +10,5 @@ import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 public interface EventService {
     List<EventDto> search(EventSearchDto searchDto);
 
-    EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, long userId) throws NotFoundException;
+    EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId) throws NotFoundException;
 }

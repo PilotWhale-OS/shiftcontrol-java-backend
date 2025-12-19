@@ -6,6 +6,8 @@ import jakarta.ws.rs.NotFoundException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
 
+import java.io.Console;
+
 @Service
 public class KeycloakUserService {
     private final Keycloak keycloak;
@@ -16,51 +18,12 @@ public class KeycloakUserService {
         this.realm = "dev";
     }
 
-    public UserRepresentation getUserById(Long userId) {
+    public UserRepresentation getUserById(String userId) {
         return keycloak
             .realm(realm)
             .users()
-            .get(userId.toString())
+            .get(userId)
             .toRepresentation();
-    }
-
-    public UserRepresentation getVolunteerById(Long userId) throws NotFoundException {
-        //TODO implement role check
-        try {
-            return keycloak
-                .realm(realm)
-                .users()
-                .get(userId.toString())
-                .toRepresentation();
-        } catch (NotFoundException nfe) {
-            throw new NotFoundException("Volunteer with ID %d not found".formatted(userId));
-        }
-    }
-
-    public UserRepresentation getShiftPlanerById(Long userId) throws NotFoundException {
-        //TODO implement role check
-        try {
-            return keycloak
-                .realm(realm)
-                .users()
-                .get(userId.toString())
-                .toRepresentation();
-        } catch (NotFoundException nfe) {
-            throw new NotFoundException("Shiftplaner with ID %d not found".formatted(userId));
-        }
-    }
-
-    public UserRepresentation getAdminById(Long userId) throws NotFoundException {
-        //TODO implement role check
-        try {
-            return keycloak
-                .realm(realm)
-                .users()
-                .get(userId.toString())
-                .toRepresentation();
-        } catch (NotFoundException nfe) {
-            throw new NotFoundException("Admin with ID %d not found".formatted(userId));
-        }
     }
 
 }

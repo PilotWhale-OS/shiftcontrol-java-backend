@@ -4,5 +4,5 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.UserProfile.UserProfileDto;
 
 public interface UserProfileService {
-    UserProfileDto getUserProfile(Long userId) throws NotFoundException;
+    UserProfileDto getUserProfile(String userId) throws NotFoundException;
 }

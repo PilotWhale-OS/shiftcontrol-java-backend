@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.user.VolunteerUser;
+import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dto.UserProfile.UserProfileDto;
 import at.shiftcontrol.shiftservice.service.UserProfileService;
 import static org.mockito.Mockito.mock;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 public class UserProfileEndpointTest {
-    private static final long CURRENT_USER_ID = 123456789;
+    private static final String CURRENT_USER_ID = "123456789";
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
     @Mock
@@ -44,7 +44,7 @@ public class UserProfileEndpointTest {
     @Test
     void getCurrentUserProfile_ShouldReturnUserProfileDto() throws Exception {
         // mock the user object
-        var currentUser = mock(VolunteerUser.class);
+        var currentUser = mock(ShiftControlUser.class);
         when(userProvider.getCurrentUser()).thenReturn(currentUser);
         when(currentUser.getUserId()).thenReturn(CURRENT_USER_ID);
 

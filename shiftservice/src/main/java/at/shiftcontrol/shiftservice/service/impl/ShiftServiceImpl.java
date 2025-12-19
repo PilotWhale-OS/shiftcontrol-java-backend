@@ -18,7 +18,7 @@ public class ShiftServiceImpl implements ShiftService {
     private final UserPreferenceService userPreferenceService;
 
     @Override
-    public ShiftDetailsDto getShiftDetails(long shiftId, long userId) throws NotFoundException {
+    public ShiftDetailsDto getShiftDetails(long shiftId, String userId) throws NotFoundException {
         var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
         var userPref = userPreferenceService.getUserPreference(userId, shiftId);
 

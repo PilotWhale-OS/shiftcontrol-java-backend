@@ -26,7 +26,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, long userId) throws NotFoundException {
+    public EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId) throws NotFoundException {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found"));
 
         //Todo: implement reward points and statistics
