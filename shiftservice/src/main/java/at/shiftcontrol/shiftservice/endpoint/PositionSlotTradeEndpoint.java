@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
@@ -43,7 +44,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "createShiftTrade",
         description = "Create trade request for a specific position slot in a shift"
     )
-    public Collection<TradeDto> createShiftTrade(@RequestBody TradeCreateDto tradeCreateDto) throws NotFoundException {
+    public Collection<TradeDto> createShiftTrade(@RequestBody TradeCreateDto tradeCreateDto) throws NotFoundException, ConflictException {
         return assignmentSwitchRequestService.createShiftTrade(tradeCreateDto);
     }
 
@@ -53,7 +54,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "acceptShiftTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptShiftTrade(@RequestBody TradeDto tradeDto) throws NotFoundException {
+    public TradeDto acceptShiftTrade(@RequestBody TradeDto tradeDto) throws NotFoundException, ConflictException {
         return assignmentSwitchRequestService.acceptShiftTrade(TradeMapper.toEntityId(tradeDto));
     }
 
@@ -67,7 +68,7 @@ public class PositionSlotTradeEndpoint {
         return assignmentSwitchRequestService.declineShiftTrade(TradeMapper.toEntityId(tradeDto));
     }
 
-    @DeleteMapping()
+    @DeleteMapping() // TODO trade does not get deleted ?
     // TODO Security
     @Operation(
         operationId = "cancelShiftTrade",

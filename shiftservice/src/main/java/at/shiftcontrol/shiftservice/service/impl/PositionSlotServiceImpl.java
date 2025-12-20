@@ -9,14 +9,11 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.assembler.PositionSlotDtoAssembler;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
@@ -30,7 +27,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final VolunteerDao volunteerDao;
     private final AssignmentDao assignmentDao;
 
-    private final ApplicationUserProvider userProvider;
     private final EligibilityService eligibilityService;
     private final PositionSlotDtoAssembler positionSlotDtoAssembler;
 
@@ -48,29 +44,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         var volunteer = volunteerDao.findByUserId(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
-        var signupState = eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer);
-
-        switch (signupState) {
-            case SIGNED_UP:
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-            case FULL:
-                // Position is full
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-            case NOT_ELIGIBLE:
-                if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
-                    // User is not allowed to join
-                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-                }
-                // All good, proceed with signup
-                break;
-            case SIGNUP_POSSIBLE:
-                // All good, proceed with signup
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + signupState);
-        }
+        eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
+        eligibilityService.validateHasConflictingAssignments(
+            userId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
         //Todo: Implement actual joining logic
-
 
         //Todo: Send Eventbus event
         return null;
