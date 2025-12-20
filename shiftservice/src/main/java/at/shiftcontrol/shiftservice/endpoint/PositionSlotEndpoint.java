@@ -98,4 +98,10 @@ public class PositionSlotEndpoint {
     public AssignmentDto auctionAssignment(@PathVariable String positionSlotId) throws NotFoundException {
         return positionSlotService.auction(ConvertUtil.idToLong(positionSlotId));
     }
+
+    // TODO claim auction
+    // TODO cancle auction
+    // TODO positionSlot unassign
+    // TODO positionSlot request unassign
+    // TODO positionSlot request signup
 }
