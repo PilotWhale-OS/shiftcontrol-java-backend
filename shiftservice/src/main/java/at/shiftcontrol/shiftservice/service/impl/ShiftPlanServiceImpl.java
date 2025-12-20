@@ -8,10 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.dao.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
@@ -27,18 +32,19 @@ import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
+import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final StatisticService statisticService;
+    private final EligibilityService eligibilityService;
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftDao shiftDao;
     private final EventDao eventDao;
+    private final VolunteerDao volunteerDao;
 
     @Override
     public DashboardOverviewDto getDashboardOverview(long shiftPlanId, long userId) throws NotFoundException {
@@ -46,6 +52,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
+        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
 
         return DashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
@@ -53,7 +60,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .ownShiftPlanStatistics(statisticService.getOwnShiftPlanStatistics(userShifts)) // directly pass user shifts here to avoid redundant filtering
             .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlanId))
             .rewardPoints(-1) // TODO
-            .shifts(ShiftMapper.toShiftDto(userShifts))
+            .shifts(ShiftMapper.toShiftDto(userShifts, slot -> eligibilityService.getSignupStateForPositionSlot(slot, volunteer)))
             .trades(null) // TODO implement when trades are available
             .auctions(null) // TODO
             .build();
@@ -133,7 +140,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
             result.add(ShiftColumnDto.builder()
                 .columnIndex(columnIndex)
-                .shiftDto(ShiftMapper.toShiftDto(shift))
+                .shiftDto(ShiftMapper.toShiftDto(shift)) //Todo: Fix me HELP
                 .build());
         }
 

@@ -33,9 +33,9 @@ public class ShiftMapper {
         );
     }
 
-    public static List<ShiftDto> toShiftDto(Collection<Shift> shifts) {
+    public static List<ShiftDto> toShiftDto(Collection<Shift> shifts, Function<PositionSlot, PositionSignupState> positionSlotSignupStateResolver) {
         return shifts.stream()
-            .map(ShiftMapper::toShiftDto)
+            .map(shift -> toShiftDto(shift, positionSlotSignupStateResolver))
             .toList();
     }
 }
