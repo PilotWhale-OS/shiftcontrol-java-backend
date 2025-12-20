@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.auth.UserType;
-import at.shiftcontrol.shiftservice.dao.userprofile.UserProfileDao;
 import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
@@ -23,7 +22,6 @@ import at.shiftcontrol.shiftservice.type.NotificationType;
 @Service
 @RequiredArgsConstructor
 public class UserProfileServiceImpl implements UserProfileService {
-    private final UserProfileDao dao;
     private final KeycloakUserService kcService;
 
     @Override

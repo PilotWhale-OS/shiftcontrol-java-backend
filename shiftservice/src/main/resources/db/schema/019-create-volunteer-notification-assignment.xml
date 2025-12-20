@@ -7,9 +7,6 @@
 
 
   <changeSet id="019-create-volunteer-notification-assignment" author="paul">
-
-    <renameColumn tableName="volunteer" oldColumnName="name" newColumnName="username"/>
-
     <createTable tableName="volunteer_notification_assignment">
 
       <column name="volunteer_id" type="BIGINT">
