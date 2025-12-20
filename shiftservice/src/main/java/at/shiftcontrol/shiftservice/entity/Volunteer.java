@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.util.Collection;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,8 +11,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,14 +26,7 @@ public class Volunteer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @NotNull
-    @Size(max = 255)
-    @Column(nullable = false, length = 255)
-    private String username;
-    @NotNull
-    @Size(max = 255)
-    @Column(nullable = false, length = 255, unique = true)
-    private String email;
+
     @ManyToMany
     @JoinTable(
         name = "volunteer_role",
@@ -47,4 +37,19 @@ public class Volunteer {
 
     @OneToMany(mappedBy = "volunteerNotificationAssignmentId.volunteerId")
     private Collection<VolunteerNotificationAssignment> notificationAssignments;
+
+    @ManyToMany
+    @JoinTable(
+        name = "volunteer_volunteering_shift_plan",
+        joinColumns = @JoinColumn(name = "volunteer_id"),
+        inverseJoinColumns = @JoinColumn(name = "shift_plan_id")
+    )
+    private Collection<ShiftPlan> volunteeringPlans;
+    @ManyToMany
+    @JoinTable(
+        name = "volunteer_planning_shift_plan",
+        joinColumns = @JoinColumn(name = "volunteer_id"),
+        inverseJoinColumns = @JoinColumn(name = "shift_plan_id")
+    )
+    private Collection<ShiftPlan> planningPlans;
 }
