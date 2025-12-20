@@ -21,6 +21,7 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.entity.Location;
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
@@ -32,6 +33,10 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.type.AssignmentStatus;
+import at.shiftcontrol.shiftservice.type.PositionSignupState;
+import at.shiftcontrol.shiftservice.type.ScheduleViewType;
+import at.shiftcontrol.shiftservice.type.TradeStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -73,6 +78,19 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, long userId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException {
         var queriedShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId, searchDto);
 
+        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+
+        // Get user related shifts via dao if MY_SHIFTS view is requested
+        // Get shifts with signup possible if SIGNUP_POSSIBLE view is requested; This filtering is done here because it depends on business logic
+        // and it wouldn't make sense to implement this existing logic in the DAO layer (which would be quite complex)
+        if (searchDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
+            queriedShifts = queriedShifts.stream()
+                .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
+                    isSignupPossible(slot, volunteer)
+                ))
+                .toList();
+        }
+
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
         for (var shift : queriedShifts) {
             if (shift.getLocation() == null) {
@@ -81,8 +99,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             shiftsByLocation.computeIfAbsent(shift.getLocation(), k -> new ArrayList<>()).add(shift);
 
         }
-
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
 
         // Build location DTOs
         var locationSchedules = shiftsByLocation.entrySet().stream()
@@ -97,6 +113,44 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .scheduleStatistics(stats)
             .build();
     }
+
+    private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
+        var state = eligibilityService.getSignupStateForPositionSlot(slot, volunteer);
+
+        if (state == PositionSignupState.NOT_ELIGIBLE) {
+            return false;
+        }
+
+        boolean freeAndEligible = state == PositionSignupState.SIGNUP_POSSIBLE;
+
+        // TODO this logic could be moved to EligibilityService
+        boolean hasOpenTrade = slot.getAssignments().stream().anyMatch(offeringAssignment ->
+            offeringAssignment.getOutgoingSwitchRequests().stream().anyMatch(req ->
+                req.getStatus() == TradeStatus.OPEN
+                    && req.getRequestedAssignment() != null
+                    && req.getRequestedAssignment().getAssignedVolunteer() != null
+                    && req.getRequestedAssignment().getAssignedVolunteer().getId() == volunteer.getId()
+            )
+        );
+
+        boolean hasAuction = slot.getAssignments().stream().anyMatch(a ->
+            a.getStatus() == AssignmentStatus.AUCTION
+        );
+
+        return freeAndEligible || hasOpenTrade || hasAuction;
+    }
+
+    private boolean hasOpenTrade(PositionSlot slot, long userId) {
+        return slot.getAssignments().stream().anyMatch(offeringAssignment ->
+            offeringAssignment.getOutgoingSwitchRequests().stream().anyMatch(req ->
+                req.getStatus() == TradeStatus.OPEN
+                    && req.getRequestedAssignment() != null
+                    && req.getRequestedAssignment().getAssignedVolunteer() != null
+                    && req.getRequestedAssignment().getAssignedVolunteer().getId() == userId
+            )
+        );
+    }
+
 
     private LocationScheduleDto buildLocationSchedule(Location location, List<Shift> shifts, Volunteer volunteer) {
         // sort for deterministic column placement

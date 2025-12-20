@@ -8,6 +8,7 @@ import at.shiftcontrol.shiftservice.dao.impl.specification.ShiftSpecifications;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
+import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -47,11 +48,8 @@ public class ShiftDaoImpl implements ShiftDao {
             ShiftSpecifications.inShiftPlan(shiftPlanId)
                 .and(ShiftSpecifications.matchesSearchDto(searchDto)); // your other filters
 
-        if (searchDto != null && searchDto.getScheduleViewType() != null) {
-            spec = switch (searchDto.getScheduleViewType()) {
-                case MY_SHIFTS -> spec.and(ShiftSpecifications.assignedToUser(userId));
-                case SIGNUP_POSSIBLE -> spec.and(ShiftSpecifications.signupPossibleForUser(userId));
-            };
+        if (searchDto != null && searchDto.getScheduleViewType() == ScheduleViewType.MY_SHIFTS) {
+            spec = spec.and(ShiftSpecifications.assignedToUser(userId));
         }
 
         return shiftRepository.findAll(spec);
