@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.UserProfile;
+package at.shiftcontrol.shiftservice.dto.userprofile;
 
 import java.time.LocalDate;
 

@@ -1,6 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.UserProfile;
-
-import at.shiftcontrol.shiftservice.auth.UserType;
+package at.shiftcontrol.shiftservice.dto.userprofile;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -12,17 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountInfoDto {
+public class VolunteerDto {
     @NotNull
     private String id;
     @NotNull
     private String username;
     @NotNull
-    private String fistName;
-    @NotNull
-    private String lastName;
-    @NotNull
     private String email;
-    @NotNull
-    private UserType userType;
 }

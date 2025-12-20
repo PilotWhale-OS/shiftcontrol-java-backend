@@ -5,18 +5,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import at.shiftcontrol.shiftservice.auth.UserType;
-
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
-import at.shiftcontrol.shiftservice.dao.UserProfile.UserProfileDao;
+import at.shiftcontrol.shiftservice.auth.UserType;
+import at.shiftcontrol.shiftservice.dao.userprofile.UserProfileDao;
 import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.dto.UserProfile.AccountInfoDto;
-import at.shiftcontrol.shiftservice.dto.UserProfile.UserProfileDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 import at.shiftcontrol.shiftservice.service.UserProfileService;
 import at.shiftcontrol.shiftservice.type.NotificationChannel;
 import at.shiftcontrol.shiftservice.type.NotificationType;
@@ -30,7 +29,6 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public UserProfileDto getUserProfile(String userId) throws NotFoundException {
         var user = kcService.getUserById(userId);
-        var profile = new UserProfileDto();
         var account = new AccountInfoDto();
 
         var userTypeAttr = user.firstAttribute("userType");
@@ -42,6 +40,8 @@ public class UserProfileServiceImpl implements UserProfileService {
         account.setFistName(user.getFirstName());
         account.setLastName(user.getLastName());
         account.setEmail(user.getEmail());
+        
+        var profile = new UserProfileDto();
         profile.setAccount(account);
 
         NotificationSettingsDto notificationsDummy = new NotificationSettingsDto();

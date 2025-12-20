@@ -14,7 +14,7 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.NotificationSettingsUpdateDto;
-import at.shiftcontrol.shiftservice.dto.UserProfile.UserProfileDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 import at.shiftcontrol.shiftservice.service.UserProfileService;
 
 @Slf4j
@@ -44,5 +44,4 @@ public class UserProfileEndpoint {
     public NotificationSettingsDto updateNotificationSettings(@RequestBody NotificationSettingsUpdateDto updateDto) {
         return null; // TODO: implement
     }
-
 }

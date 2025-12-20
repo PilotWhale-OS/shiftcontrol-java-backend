@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dao.UserProfile.impl;
+package at.shiftcontrol.shiftservice.dao.userprofile.impl;
 
 import java.util.Optional;
 
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dao.UserProfile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 

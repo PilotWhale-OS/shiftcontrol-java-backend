@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.UserProfile.VolunteerDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 public class VolunteerMapper {
