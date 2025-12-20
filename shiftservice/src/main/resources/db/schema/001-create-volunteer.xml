@@ -12,11 +12,7 @@
         <constraints primaryKey="true" nullable="false"/>
       </column>
 
-      <column name="name" type="VARCHAR(255)">
-        <constraints nullable="false" unique="false"/>
-      </column>
-
-      <column name="email" type="VARCHAR(255)">
+      <column name="userid" type="VARCHAR(255)">
         <constraints nullable="false" unique="true"/>
       </column>
 
