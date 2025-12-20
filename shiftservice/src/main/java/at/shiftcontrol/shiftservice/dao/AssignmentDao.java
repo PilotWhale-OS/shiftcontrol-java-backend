@@ -7,4 +7,6 @@ import at.shiftcontrol.shiftservice.entity.AssignmentId;
 
 public interface AssignmentDao extends BasicDao<Assignment, AssignmentId> {
     Collection<Assignment> findAuctionsByShiftPlanId(long shiftPlanId);
+
+    Assignment findAssignmentForPositionSlotAndUser(long positionSlotId, long userId);
 }

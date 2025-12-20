@@ -60,26 +60,19 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public Collection<AssignmentDto> getAssignments(Long positionSlotId) throws NotFoundException {
-        return AssignmentMapper.toDto(getAssignmentEntites(positionSlotId));
+        var positionSlot = positionSlotDao.findById(positionSlotId)
+            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        return AssignmentMapper.toDto(positionSlot.getAssignments());
     }
 
     @Override
     public AssignmentDto auction(Long positionSlotId) throws NotFoundException {
-        var assignments = getAssignmentEntites(positionSlotId);
-
-        // get users assignment
         // TODO use current user
-        Assignment assignment = assignments.stream().filter(a -> a.getAssignedVolunteer().getId() == 1L).findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("not assigned to position slot"));
+        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, 1L);
+        if (assignment == null) throw new IllegalArgumentException("not assigned to position slot");
 
         //Todo: Checks are needed if the user can auction
         assignment.setStatus(AssignmentStatus.AUCTION);
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
-    }
-
-    private Collection<Assignment> getAssignmentEntites(Long positionSlotId) throws NotFoundException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        return positionSlot.getAssignments();
     }
 }

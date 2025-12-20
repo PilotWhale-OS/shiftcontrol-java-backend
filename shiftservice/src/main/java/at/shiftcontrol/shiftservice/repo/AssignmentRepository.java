@@ -29,4 +29,7 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Assignme
         + "AND a.positionSlot.shift.startTime < :endTime")
     Collection<Assignment> getConflictingAssignmentsExcludingSlot(long volunteerId, Instant startTime, Instant endTime, long positionSlotId);
 
+    @Query("SELECT a FROM Assignment a "
+        + "WHERE a.positionSlot.id = :positionSlotId AND a.assignedVolunteer.id = :userId")
+    Assignment findAssignmentForPositionSlotAndUser(long positionSlotId, long userId);
 }

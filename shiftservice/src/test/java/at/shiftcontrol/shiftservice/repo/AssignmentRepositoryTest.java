@@ -54,6 +54,12 @@ public class AssignmentRepositoryTest {
             5L, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime()
         );
         Assertions.assertFalse(assignments.isEmpty());
+    }
 
+    @Test
+    void testFindAssignmentForPositionSlotAndUser() {
+        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(1L, 1L);
+        Assertions.assertEquals(1L, assignment.getAssignedVolunteer().getId());
+        Assertions.assertEquals(1L, assignment.getPositionSlot().getId());
     }
 }
