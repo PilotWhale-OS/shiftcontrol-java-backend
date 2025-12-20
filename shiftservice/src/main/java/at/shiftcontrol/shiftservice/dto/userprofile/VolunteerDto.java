@@ -14,7 +14,5 @@ public class VolunteerDto {
     @NotNull
     private String id;
     @NotNull
-    private String username;
-    @NotNull
-    private String email;
+    private String userId;
 }

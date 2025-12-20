@@ -38,7 +38,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto join(Long positionSlotId, Long userId) throws NotFoundException, ConflictException {
+    public AssignmentDto join(Long positionSlotId, String userId) throws NotFoundException, ConflictException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         var volunteer = volunteerDao.findByUserId(userId)

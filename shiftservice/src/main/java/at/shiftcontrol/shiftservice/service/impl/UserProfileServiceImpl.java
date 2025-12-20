@@ -40,7 +40,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         account.setFistName(user.getFirstName());
         account.setLastName(user.getLastName());
         account.setEmail(user.getEmail());
-        
+
         var profile = new UserProfileDto();
         profile.setAccount(account);
 

@@ -29,11 +29,11 @@ import at.shiftcontrol.lib.auth.UserAuthenticationToken;
 @Configuration
 @RequiredArgsConstructor
 public class JwtSecurityConfig {
-    private final ApplicationUserFactory applicationUserFactory;
+    private final ApplicationUserManager applicationUserManager;
 
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> {
-            var applicationUser = applicationUserFactory.createUser(jwt);
+            var applicationUser = applicationUserManager.getOrCreateUser(jwt);
 
             return new UserAuthenticationToken(applicationUser, jwt.getTokenValue(), applicationUser.getAuthorities());
         };

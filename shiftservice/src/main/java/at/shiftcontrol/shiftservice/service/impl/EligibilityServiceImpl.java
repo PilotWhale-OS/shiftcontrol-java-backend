@@ -21,7 +21,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     private final KeycloakUserService kcService;
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, Long userId) throws NotFoundException {
+    public PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, String userId) throws NotFoundException {
         return getSignupStateForPositionSlot(
             positionSlotDao.findById(positionSlotId).orElseThrow(() -> new NotFoundException("PositionSlot with ID %d not found".formatted(positionSlotId))),
             volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %d not found".formatted(userId))

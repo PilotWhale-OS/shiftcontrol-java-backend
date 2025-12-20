@@ -29,5 +29,5 @@ public interface EligibilityService {
      * @return The signup state of the volunteer for the position slot
      * @throws NotFoundException if the position slot or volunteer could not be found
      */
-    PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, Long userId) throws NotFoundException;
+    PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, String userId) throws NotFoundException;
 }

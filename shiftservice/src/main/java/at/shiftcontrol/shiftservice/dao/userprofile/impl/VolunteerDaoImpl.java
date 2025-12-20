@@ -31,7 +31,7 @@ public class VolunteerDaoImpl implements VolunteerDao {
     }
 
     @Override
-    public Optional<Volunteer> findByUserId(Long userId) {
-        return findById(userId); //Todo: Check if this is correct
+    public Optional<Volunteer> findByUserId(String userId) {
+        return volunteerRepository.findByUserId(userId);
     }
 }
