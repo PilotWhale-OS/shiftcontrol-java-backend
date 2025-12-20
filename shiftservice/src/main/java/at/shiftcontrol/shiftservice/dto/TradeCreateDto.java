@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import at.shiftcontrol.shiftservice.dto.UserProfile.VolunteerDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 
 @Data
 @Builder

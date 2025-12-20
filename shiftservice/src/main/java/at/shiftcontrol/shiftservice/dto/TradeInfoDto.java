@@ -5,7 +5,7 @@ import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
 
-import at.shiftcontrol.shiftservice.dto.UserProfile.VolunteerDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 
 @Data

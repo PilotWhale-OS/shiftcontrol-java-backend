@@ -2,12 +2,16 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
-import at.shiftcontrol.shiftservice.dao.UserProfile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
@@ -15,8 +19,6 @@ import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service

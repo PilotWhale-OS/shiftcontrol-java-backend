@@ -55,6 +55,10 @@
             <artifactId>keycloak-admin-client</artifactId>
             <version>26.0.7</version>
         </dependency>
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+      </dependency>
     </dependencies>
 
     <build>
