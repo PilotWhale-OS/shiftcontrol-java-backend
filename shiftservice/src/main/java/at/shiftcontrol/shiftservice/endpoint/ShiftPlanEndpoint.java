@@ -55,7 +55,7 @@ public class ShiftPlanEndpoint {
         operationId = "joinShiftPlan",
         description = "Join a shift plan using an invite code"
     )
-    public ShiftPlanJoinOverviewDto joinShiftPlan(@PathVariable String shiftPlanId, @RequestBody ShiftPlanJoinRequestDto requestDto) {
+    public ShiftPlanJoinOverviewDto joinShiftPlan(@PathVariable String shiftPlanId, @RequestBody ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
         return shiftPlanService.joinShiftPlan(ConvertUtil.idToLong(shiftPlanId), userProvider.getCurrentUser().getUserId(), requestDto);
     }
 }

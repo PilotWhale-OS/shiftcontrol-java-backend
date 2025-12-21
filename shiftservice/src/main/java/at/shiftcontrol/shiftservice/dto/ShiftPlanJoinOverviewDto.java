@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dto;
 
+import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -12,4 +13,10 @@ public class ShiftPlanJoinOverviewDto {
 
     @NotNull
     private int attendingVolunteerCount;
+
+    @NotNull
+    private ShiftPlanInviteType inviteType;
+
+    @NotNull
+    private boolean joined;
 }

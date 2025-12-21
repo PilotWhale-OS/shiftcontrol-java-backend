@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
@@ -23,6 +25,7 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
@@ -32,6 +35,8 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +46,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final StatisticService statisticService;
     private final EligibilityService eligibilityService;
     private final ShiftPlanDao shiftPlanDao;
+    private final ShiftPlanInviteDao shiftPlanInviteDao;
     private final ShiftDao shiftDao;
     private final EventDao eventDao;
     private final VolunteerDao volunteerDao;
@@ -158,9 +164,83 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto) {
-        return null;
+    @Transactional
+    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+        if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
+            throw new BadRequestException("inviteCode is null or empty");
+        }
 
-        // TODO
+        String code = requestDto.getInviteCode().trim();
+
+        ShiftPlanInvite invite = shiftPlanInviteDao.findByCode(code)
+            .orElseThrow(() -> new NotFoundException("Invite code not found"));
+
+        validateInvite(invite);
+
+        // Make sure invite belongs to the requested shiftPlanId
+        long invitedShiftPlanId = invite.getShiftPlan().getId();
+        if (invitedShiftPlanId != shiftPlanId) {
+            throw new BadRequestException("Invite code does not belong to this shift plan");
+        }
+
+        ShiftPlan shiftPlan = shiftPlanDao.findById(shiftPlanId)
+            .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+
+        Volunteer volunteer = volunteerDao.findByUserId(userId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+
+        boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
+
+        // Increase uses only if joined now and ignores duplicate joins (already member)
+        if (joinedNow) {
+            invite.setUses(invite.getUses() + 1);
+        }
+
+        // auto-deactivate if max uses reached
+        if (invite.getMaxUses() != null && invite.getUses() >= invite.getMaxUses()) {
+            invite.setActive(false);
+            invite.setRevokedAt(Instant.now());
+        }
+
+        // save updates
+        shiftPlanInviteDao.save(invite);
+        shiftPlanDao.save(shiftPlan);
+        
+        return ShiftPlanJoinOverviewDto.builder()
+            .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
+            .attendingVolunteerCount(shiftPlan.getParticipatingVolunteers().size())
+            .inviteType(invite.getType())
+            .joined(joinedNow)
+            .build();
+    }
+
+    private void validateInvite(ShiftPlanInvite invite) {
+        if (!invite.isActive()) {
+            throw new BadRequestException("Invite code is revoked or inactive");
+        }
+        if (invite.getExpiresAt() != null && invite.getExpiresAt().isBefore(Instant.now())) {
+            throw new BadRequestException("Invite code is expired");
+        }
+        if (invite.getMaxUses() != null && invite.getUses() >= invite.getMaxUses()) {
+            throw new BadRequestException("Invite code has reached its max uses");
+        }
+    }
+
+    // returns true if user was newly added, false if already a member
+    private boolean addUserToShiftPlanIfAbsent(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
+        switch (type) {
+            case VOLUNTEER_JOIN -> {
+                if (shiftPlan.getParticipatingVolunteers().contains(volunteer)) {
+                    return false;
+                }
+                shiftPlan.getParticipatingVolunteers().add(volunteer);
+                return true;
+            }
+            case PLANNER_JOIN -> {
+                // TODO implement planner membership
+                throw new BadRequestException("Planner invites not supported yet");
+            }
+            default -> throw new BadRequestException("Unknown invite type");
+        }
     }
 }
