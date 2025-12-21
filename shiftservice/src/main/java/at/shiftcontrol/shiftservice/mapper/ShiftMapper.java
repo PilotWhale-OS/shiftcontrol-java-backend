@@ -18,7 +18,7 @@ public class ShiftMapper {
         var slots = new ArrayList<PositionSlotDto>();
         for (var slot : shift.getSlots()) {
             var signupState = positionSlotSignupStateResolver.apply(slot);
-            slots.add(PositionSlotMapper.toDto(slot, signupState));
+            slots.add(PositionSlotMapper.toDto(slot, signupState, List.of()));
         }
 
         return new ShiftDto(String.valueOf(shift.getId()),
@@ -39,4 +39,21 @@ public class ShiftMapper {
             .map(shift -> toShiftDto(shift, positionSlotSignupStateResolver))
             .toList();
     }
+
+    // TODO paul patrick decide between Assembler and Functions !!!
+    public static ShiftDto toDto(@NonNull Shift shift, Collection<PositionSlotDto> positionSlots) {
+        return new ShiftDto(
+            String.valueOf(shift.getId()),
+            shift.getName(),
+            shift.getShortDescription(),
+            shift.getLongDescription(),
+            shift.getStartTime(),
+            shift.getEndTime(),
+            ActivityMapper.toActivityDto(shift.getRelatedActivities()),
+            positionSlots,
+            shift.getLockStatus(),
+            LocationMapper.toLocationDto(shift.getLocation())
+        );
+    }
+
 }
