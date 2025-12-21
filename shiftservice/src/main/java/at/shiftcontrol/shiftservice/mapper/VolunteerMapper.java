@@ -7,7 +7,7 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 public class VolunteerMapper {
     public static VolunteerDto toDto(Volunteer volunteer) {
-        return new VolunteerDto(String.valueOf(volunteer.getId()), volunteer.getUserId());
+        return new VolunteerDto(volunteer.getId());
     }
 
     public static Collection<VolunteerDto> toDto(java.util.Collection<Volunteer> volunteers) {

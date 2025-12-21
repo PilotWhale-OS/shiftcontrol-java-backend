@@ -3,8 +3,6 @@ package at.shiftcontrol.shiftservice.entity;
 import java.util.Collection;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -25,11 +23,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "volunteer")
 public class Volunteer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
     @NotNull
-    private String userId;
+    private String id;
 
     @ManyToMany
     @JoinTable(
@@ -44,14 +39,15 @@ public class Volunteer {
 
     @ManyToMany
     @JoinTable(
-        name = "volunteer_volunteering_shift_plan",
+        name = "shift_plan_volunteer_volunteering",
         joinColumns = @JoinColumn(name = "volunteer_id"),
         inverseJoinColumns = @JoinColumn(name = "shift_plan_id")
     )
     private Collection<ShiftPlan> volunteeringPlans;
+
     @ManyToMany
     @JoinTable(
-        name = "volunteer_planning_shift_plan",
+        name = "shift_plan_volunteer_planing",
         joinColumns = @JoinColumn(name = "volunteer_id"),
         inverseJoinColumns = @JoinColumn(name = "shift_plan_id")
     )

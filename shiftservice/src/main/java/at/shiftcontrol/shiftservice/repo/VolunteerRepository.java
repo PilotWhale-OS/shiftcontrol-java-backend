@@ -9,5 +9,5 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 @Repository
 public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
-    Optional<Volunteer> findByUserId(String userId);
+    Optional<Volunteer> findById(String userId);
 }

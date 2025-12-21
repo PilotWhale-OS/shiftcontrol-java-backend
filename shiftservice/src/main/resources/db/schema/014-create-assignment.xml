@@ -13,7 +13,7 @@
         <constraints nullable="false"/>
       </column>
 
-      <column name="assigned_volunteer_id" type="BIGINT">
+      <column name="assigned_volunteer_id" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
 

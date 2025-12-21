@@ -41,5 +41,5 @@ public interface EligibilityService {
      * @param userId The volunteer to check
      * @return The signup state of the volunteer for the position slot
      */
-    PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Long userId) throws NotFoundException;
+    PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) throws NotFoundException;
 }

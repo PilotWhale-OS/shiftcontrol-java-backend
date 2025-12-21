@@ -2,17 +2,18 @@ package at.shiftcontrol.shiftservice.dao.impl.specification;
 
 import java.time.Instant;
 
+import org.springframework.data.jpa.domain.Specification;
+
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.domain.Specification;
 
 public final class ShiftSpecifications {
-
     private ShiftSpecifications() {
     }
 
@@ -22,7 +23,7 @@ public final class ShiftSpecifications {
             criteriaBuilder.equal(root.get("shiftPlan").get("id"), shiftPlanId);
     }
 
-    public static Specification<Shift> assignedToUser(long userId) {
+    public static Specification<Shift> assignedToUser(String userId) {
         return (root, query, criteriaBuilder) -> {
             query.distinct(true); // important because of joins to collections
 
@@ -35,7 +36,7 @@ public final class ShiftSpecifications {
         };
     }
 
-    public static Specification<Shift> signupPossibleForUser(long userId) {
+    public static Specification<Shift> signupPossibleForUser(String userId) {
         return (root, query, criteriaBuilder) -> {
             query.distinct(true);
 

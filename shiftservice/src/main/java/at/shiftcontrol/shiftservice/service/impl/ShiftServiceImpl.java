@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
-import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.mapper.ShiftMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;

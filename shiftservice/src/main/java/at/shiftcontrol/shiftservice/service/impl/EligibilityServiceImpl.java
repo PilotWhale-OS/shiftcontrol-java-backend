@@ -29,7 +29,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Long userId) throws NotFoundException {
+    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) throws NotFoundException {
         return getSignupStateForPositionSlot(
             positionSlot,
             volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %d not found".formatted(userId))

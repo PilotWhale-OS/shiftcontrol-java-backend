@@ -9,100 +9,100 @@
 
     <!-- Event 1: Tech Innovators Summit 2025 -->
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="1"/>
+      <column name="volunteer_id" value="1"/>
       <column name="event_id" valueNumeric="1"/>
       <column name="status" value="PLANNED"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="2"/>
+      <column name="volunteer_id" value="2"/>
       <column name="event_id" valueNumeric="1"/>
       <column name="status" value="PRESENT"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="3"/>
+      <column name="volunteer_id" value="3"/>
       <column name="event_id" valueNumeric="1"/>
       <column name="status" value="ABSENT"/>
     </insert>
 
     <!-- Event 2: Global Developer Conference -->
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="4"/>
+      <column name="volunteer_id" value="4"/>
       <column name="event_id" valueNumeric="2"/>
       <column name="status" value="EXCUSED"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="5"/>
+      <column name="volunteer_id" value="5"/>
       <column name="event_id" valueNumeric="2"/>
       <column name="status" value="ABSENT"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="6"/>
+      <column name="volunteer_id" value="6"/>
       <column name="event_id" valueNumeric="2"/>
       <column name="status" value="PLANNED"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="7"/>
+      <column name="volunteer_id" value="7"/>
       <column name="event_id" valueNumeric="2"/>
       <column name="status" value="PLANNED"/>
     </insert>
 
     <!-- Event 3: Open Source Community Meetup -->
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="1"/>
+      <column name="volunteer_id" value="1"/>
       <column name="event_id" valueNumeric="3"/>
       <column name="status" value="PRESENT"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="8"/>
+      <column name="volunteer_id" value="8"/>
       <column name="event_id" valueNumeric="3"/>
       <column name="status" value="PRESENT"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="9"/>
+      <column name="volunteer_id" value="9"/>
       <column name="event_id" valueNumeric="3"/>
       <column name="status" value="EXCUSED"/>
     </insert>
 
     <!-- Event 4: AI & Future Technologies Forum -->
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="2"/>
+      <column name="volunteer_id" value="2"/>
       <column name="event_id" valueNumeric="4"/>
       <column name="status" value="PLANNED"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="5"/>
+      <column name="volunteer_id" value="5"/>
       <column name="event_id" valueNumeric="4"/>
       <column name="status" value="PLANNED"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="10"/>
+      <column name="volunteer_id" value="10"/>
       <column name="event_id" valueNumeric="4"/>
       <column name="status" value="PLANNED"/>
     </insert>
 
     <!-- Event 5: Cloud Computing Expo -->
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="3"/>
+      <column name="volunteer_id" value="3"/>
       <column name="event_id" valueNumeric="5"/>
       <column name="status" value="EXCUSED"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="6"/>
+      <column name="volunteer_id" value="6"/>
       <column name="event_id" valueNumeric="5"/>
       <column name="status" value="EXCUSED"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="7"/>
+      <column name="volunteer_id" value="7"/>
       <column name="event_id" valueNumeric="5"/>
       <column name="status" value="EXCUSED"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="8"/>
+      <column name="volunteer_id" value="8"/>
       <column name="event_id" valueNumeric="5"/>
       <column name="status" value="ABSENT"/>
     </insert>
     <insert tableName="attendance">
-      <column name="volunteer_id" valueNumeric="9"/>
+      <column name="volunteer_id" value="9"/>
       <column name="event_id" valueNumeric="5"/>
       <column name="status" value="ABSENT"/>
     </insert>

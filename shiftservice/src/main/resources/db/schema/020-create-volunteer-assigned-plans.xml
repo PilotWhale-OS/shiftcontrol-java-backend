@@ -14,7 +14,7 @@
         <constraints nullable="false"/>
       </column>
 
-      <column name="volunteer_id" type="BIGINT">
+      <column name="volunteer_id" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
 
@@ -50,7 +50,7 @@
         <constraints nullable="false"/>
       </column>
 
-      <column name="volunteer_id" type="BIGINT">
+      <column name="volunteer_id" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
 
