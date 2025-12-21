@@ -20,16 +20,16 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Assignme
         + "WHERE a.assignedVolunteer.id = :volunteerId "
         + "AND a.positionSlot.shift.endTime > :startTime "
         + "AND a.positionSlot.shift.startTime < :endTime")
-    Collection<Assignment> getConflictingAssignments(long volunteerId, Instant startTime, Instant endTime);
+    Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
 
     @Query("SELECT a FROM Assignment a "
         + "WHERE a.assignedVolunteer.id = :volunteerId "
         + "AND a.positionSlot.id <> :positionSlotId "
         + "AND a.positionSlot.shift.endTime > :startTime "
         + "AND a.positionSlot.shift.startTime < :endTime")
-    Collection<Assignment> getConflictingAssignmentsExcludingSlot(long volunteerId, Instant startTime, Instant endTime, long positionSlotId);
+    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlotId);
 
     @Query("SELECT a FROM Assignment a "
         + "WHERE a.positionSlot.id = :positionSlotId AND a.assignedVolunteer.id = :userId")
-    Assignment findAssignmentForPositionSlotAndUser(long positionSlotId, long userId);
+    Assignment findAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
 }

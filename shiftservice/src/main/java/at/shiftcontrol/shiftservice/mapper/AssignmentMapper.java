@@ -26,7 +26,7 @@ public class AssignmentMapper {
     public static AssignmentId toEntityId(@NonNull AssignmentDto assignmentDto) {
         return new AssignmentId(
             ConvertUtil.idToLong(assignmentDto.getPositionSlotId()),
-            ConvertUtil.idToLong(assignmentDto.getAssignedVolunteer().getId())
+            assignmentDto.getAssignedVolunteer().getId()
         );
     }
 

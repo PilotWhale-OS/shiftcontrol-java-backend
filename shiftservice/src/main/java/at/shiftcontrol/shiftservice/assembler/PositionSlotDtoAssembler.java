@@ -23,7 +23,7 @@ public class PositionSlotDtoAssembler {
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         // TODO get current User
-        Volunteer volunteer = Volunteer.builder().id(1L).build();
+        Volunteer volunteer = Volunteer.builder().id("1").build();
         // calculates SignupState for current user and
         // gets all trade offers for this slot for the current user
         return PositionSlotMapper.toDto(positionSlot,
@@ -36,9 +36,9 @@ public class PositionSlotDtoAssembler {
         return positionSlots.stream().map(this::assemble).toList();
     }
 
-    private Collection<AssignmentSwitchRequest> filterTradesForUser(Collection<Assignment> assignments, long userId) {
+    private Collection<AssignmentSwitchRequest> filterTradesForUser(Collection<Assignment> assignments, String userId) {
         return assignments.stream()
-            .filter(assignment -> assignment.getAssignedVolunteer().getId() == userId)
+            .filter(assignment -> assignment.getAssignedVolunteer().getId().equals(userId))
             .flatMap(assignment -> assignment.getIncomingSwitchRequests().stream())
             .toList();
     }

@@ -32,11 +32,11 @@ public class AssignmentRepositoryTest {
 
     @Test
     void testFindAuctionsByShiftPlanId() {
-        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanId(2L);
+        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanId(3L);
         Assertions.assertFalse(assignments.isEmpty());
         assignments.forEach(
             a -> Assertions.assertAll(
-                () -> Assertions.assertEquals(2L, a.getPositionSlot().getShift().getShiftPlan().getId()),
+                () -> Assertions.assertEquals(3L, a.getPositionSlot().getShift().getShiftPlan().getId()),
                 () -> Assertions.assertTrue(
                     EnumSet.of(AssignmentStatus.AUCTION, AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN).contains(a.getStatus())
                 )
@@ -46,20 +46,20 @@ public class AssignmentRepositoryTest {
 
     @Test
     void testGetConflictingAssignments() {
-        // volunteer 5 is assigned to a position 1  from 2025-09-12T13:00:00Z to 2025-09-12T12:00:00Z
-        // the shift of position slot 21 is         from 2025-09-12T12:00:00Z to 2025-09-12T13:00:01Z (1s overlap)
+        // volunteer is assigned to a position  from 2025-09-12T08:00:00Z to 2025-09-12T12:00:00Z
+        // the shift of position slot 21 is     from 2025-09-12T07:00:00Z to 2025-09-12T08:00:01Z (1s overlap)
         PositionSlot positionSlot = positionSlotRepository.getReferenceById(21L);
 
         Collection<Assignment> assignments = assignmentRepository.getConflictingAssignments(
-            5L, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime()
+            "28c02050-4f90-4f3a-b1df-3c7d27a166e5", positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime()
         );
         Assertions.assertFalse(assignments.isEmpty());
     }
 
     @Test
     void testFindAssignmentForPositionSlotAndUser() {
-        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(1L, 1L);
-        Assertions.assertEquals(1L, assignment.getAssignedVolunteer().getId());
+        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5");
+        Assertions.assertEquals("28c02050-4f90-4f3a-b1df-3c7d27a166e5", assignment.getAssignedVolunteer().getId());
         Assertions.assertEquals(1L, assignment.getPositionSlot().getId());
     }
 }

@@ -62,7 +62,7 @@ public interface EligibilityService {
      * @param endTime end of the timespan to check
      * @return the overlapping assignments
      */
-    Collection<Assignment> getConflictingAssignments(long volunteerId, Instant startTime, Instant endTime);
+    Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
 
     /**
      * checks if the user has any conflicting assignments within a given time
@@ -72,7 +72,7 @@ public interface EligibilityService {
      * @param endTime end of the timespan to check
      * @throws ConflictException if overlapping assignments exist
      */
-    void validateHasConflictingAssignments(long volunteerId, Instant startTime, Instant endTime) throws ConflictException;
+    void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) throws ConflictException;
 
     /**
      * returns all conflicting assignments within a given time for a specific user, ignoring the provided position slot
@@ -83,7 +83,7 @@ public interface EligibilityService {
      * @param positionSlot position slot that is ignored for the check
      * @return the overlapping assignments
      */
-    Collection<Assignment> getConflictingAssignmentsExcludingSlot(long volunteerId, Instant startTime, Instant endTime, long positionSlot);
+    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot);
 
     /**
      * checks if the user has any conflicting assignments within a given time, ignoring the provided position slot
@@ -94,7 +94,7 @@ public interface EligibilityService {
      * @param positionSlot position slot that is ignored for the check
      * @throws ConflictException if overlapping assignments exist
      */
-    void validateHasConflictingAssignmentsExcludingSlot(long volunteerId, Instant startTime, Instant endTime, long positionSlot) throws ConflictException;
+    void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) throws ConflictException;
 
     /**
      *  Determines the signup state of a volunteer for a given position slot.

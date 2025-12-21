@@ -1,14 +1,21 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.time.Instant;
+import java.util.Collection;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
-import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
+import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
@@ -99,6 +106,7 @@ public class EligibilityServiceImpl implements EligibilityService {
                 }
                 // All good, proceed with signup
                 break;
+            // TODO: How to handle SIGNUP_VIA_TRADE and SIGNUP_VIA_AUCTION?
             case SIGNUP_POSSIBLE:
                 // All good, proceed with signup
                 break;
@@ -108,24 +116,24 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignments(long volunteerId, Instant startTime, Instant endTime) {
+    public Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
         return assignmentRepository.getConflictingAssignments(volunteerId, startTime, endTime);
     }
 
     @Override
-    public void validateHasConflictingAssignments(long volunteerId, Instant startTime, Instant endTime) throws ConflictException {
+    public void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) throws ConflictException {
         var a = assignmentRepository.getConflictingAssignments(volunteerId, startTime, endTime);
         if (a.isEmpty()) return;
         throw new ConflictException("User has conflicting assignments");
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(long volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        return assignmentRepository.getConflictingAssignments(volunteerId, startTime, endTime);
+    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
+        return assignmentRepository.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingSlot(long volunteerId, Instant startTime, Instant endTime, long positionSlot) throws ConflictException {
+    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) throws ConflictException {
         var a = assignmentRepository.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
         if (a.isEmpty()) return;
         throw new ConflictException("User has conflicting assignments");
@@ -133,7 +141,7 @@ public class EligibilityServiceImpl implements EligibilityService {
 
     private boolean isSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
         for (var assignment : positionSlot.getAssignments()) {
-            if (assignment.getAssignedVolunteer().getId() == volunteer.getId()) {
+            if (assignment.getAssignedVolunteer().getId().equals(volunteer.getId())) {
                 return true;
             }
         }

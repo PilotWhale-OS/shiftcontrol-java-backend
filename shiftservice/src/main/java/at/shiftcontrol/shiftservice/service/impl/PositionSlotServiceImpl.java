@@ -44,28 +44,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         var volunteer = volunteerDao.findByUserId(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
-        var signupState = eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer);
-
-        switch (signupState) {
-            case SIGNED_UP:
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-            case FULL:
-                // Position is full
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-            case NOT_ELIGIBLE:
-                if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
-                    // User is not allowed to join
-                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-                }
-                // All good, proceed with signup
-                break;
-            // TODO: How to handle SIGNUP_VIA_TRADE and SIGNUP_VIA_AUCTION?
-            case SIGNUP_POSSIBLE:
-                // All good, proceed with signup
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + signupState);
-        }
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
         eligibilityService.validateHasConflictingAssignments(
             userId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
@@ -90,7 +68,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     public AssignmentDto auction(Long positionSlotId) throws NotFoundException {
         // TODO use current user
-        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, 1L);
+        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, "28c02050-4f90-4f3a-b1df-3c7d27a166e5");
         if (assignment == null) throw new IllegalArgumentException("not assigned to position slot");
 
         //Todo: Checks are needed if the user can auction

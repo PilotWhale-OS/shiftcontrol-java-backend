@@ -13,8 +13,8 @@
       <column name="name" value="Registration Noon"/>
       <column name="short_description" value="Noon registration desk shift"/>
       <column name="long_description" value="Shift long description"/>
-      <column name="start_time" value="2025-09-12T12:00:00Z"/>
-      <column name="end_time" value="2025-09-12T13:00:01Z"/>
+      <column name="start_time" value="2025-09-12T07:00:00Z"/>
+      <column name="end_time" value="2025-09-12T08:00:01Z"/>
       <column name="lock_status" value="SELF_ASSIGNABLE"/>
     </insert>
 

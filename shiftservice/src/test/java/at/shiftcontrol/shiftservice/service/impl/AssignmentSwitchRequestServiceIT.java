@@ -15,7 +15,7 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
-import at.shiftcontrol.shiftservice.dto.VolunteerDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
@@ -46,8 +46,8 @@ public class AssignmentSwitchRequestServiceIT {
     @Test
     void testAcceptShiftTrade() throws ConflictException, NotFoundException {
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, 1L),
-            new AssignmentId(2L, 2L)
+            new AssignmentId(1L, "1"),
+            new AssignmentId(2L, "2")
         );
 
         TradeDto dto = service.acceptShiftTrade(id);
@@ -59,8 +59,8 @@ public class AssignmentSwitchRequestServiceIT {
     @Test
     void testDeclineShiftTrade() throws NotFoundException {
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, 1L),
-            new AssignmentId(2L, 2L)
+            new AssignmentId(1L, "1"),
+            new AssignmentId(2L, "2")
         );
 
         TradeDto dto = service.declineShiftTrade(id);
@@ -72,8 +72,8 @@ public class AssignmentSwitchRequestServiceIT {
     @Test
     void testCancelShiftTrade() throws NotFoundException {
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, 1L),
-            new AssignmentId(2L, 2L)
+            new AssignmentId(1L, "1"),
+            new AssignmentId(2L, "2")
         );
 
         TradeDto dto = service.cancelShiftTrade(id);

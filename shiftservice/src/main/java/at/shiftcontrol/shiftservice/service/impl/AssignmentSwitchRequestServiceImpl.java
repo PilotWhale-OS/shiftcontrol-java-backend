@@ -50,7 +50,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         PositionSlot offeredPositionSlot = positionSlotDao.findById(ConvertUtil.idToLong(tradeCreateDto.getOfferedPositionSlotId()))
             .orElseThrow(() -> new NotFoundException("offered PositionSlot not found"));
         Assignment offeredAssignment = offeredPositionSlot.getAssignments().stream()
-            .filter(assignment -> assignment.getAssignedVolunteer().getId() == currentUser.getId()).findFirst()
+            .filter(assignment -> assignment.getAssignedVolunteer().getId().equals(currentUser.getId())).findFirst()
             .orElseThrow(() -> new IllegalArgumentException("not assigned to offered Position"));
 
         // check if eligible and for conflicts
@@ -139,7 +139,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         assignment.getId().setVolunteerId(volunteer.getId());
     }
 
-    public long getDummyUserID() {
-        return 1L;
+    public String getDummyUserID() {
+        return "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
     }
 }
