@@ -11,7 +11,7 @@ import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 @RequiredArgsConstructor
 public class UserPreferenceServiceImpl implements UserPreferenceService {
     @Override
-    public UserShiftPreferenceDto getUserPreference(long userId, long shiftId) {
+    public UserShiftPreferenceDto getUserPreference(String userId, long shiftId) {
         //TODO implement method
         return null;
     }

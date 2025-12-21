@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <!-- 003: shift_plan_volunteer_volunteering join table -->
+  <changeSet id="003-create-shiftplan-volunteer-volunteering-join" author="paul">
+    <createTable tableName="shift_plan_volunteer_volunteering">
+      <column name="volunteer_id" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="shift_plan_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addPrimaryKey
+      tableName="shift_plan_volunteer_volunteering"
+      columnNames="volunteer_id, shift_plan_id"
+      constraintName="pk_sp_vol_volunteering"/>
+
+    <addForeignKeyConstraint
+      constraintName="fk_sp_volunteering_volunteer"
+      baseTableName="shift_plan_volunteer_volunteering"
+      baseColumnNames="volunteer_id"
+      referencedTableName="volunteer"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+
+    <addForeignKeyConstraint
+      constraintName="fk_sp_volunteering_shift_plan"
+      baseTableName="shift_plan_volunteer_volunteering"
+      baseColumnNames="shift_plan_id"
+      referencedTableName="shift_plan"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+  </changeSet>
+
+  <!-- 004: shift_plan_volunteer_planing join table -->
+  <changeSet id="004-create-shiftplan-volunteer-planing-join" author="paul">
+    <createTable tableName="shift_plan_volunteer_planing">
+      <column name="volunteer_id" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="shift_plan_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addPrimaryKey
+      tableName="shift_plan_volunteer_planing"
+      columnNames="volunteer_id, shift_plan_id"
+      constraintName="pk_sp_vol_planing"/>
+
+    <addForeignKeyConstraint
+      constraintName="fk_sp_planing_volunteer"
+      baseTableName="shift_plan_volunteer_planing"
+      baseColumnNames="volunteer_id"
+      referencedTableName="volunteer"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+
+    <addForeignKeyConstraint
+      constraintName="fk_sp_planing_shift_plan"
+      baseTableName="shift_plan_volunteer_planing"
+      baseColumnNames="shift_plan_id"
+      referencedTableName="shift_plan"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+  </changeSet>
+
+</databaseChangeLog>

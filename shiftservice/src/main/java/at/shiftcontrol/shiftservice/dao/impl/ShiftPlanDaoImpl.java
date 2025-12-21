@@ -4,12 +4,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
+import jakarta.persistence.criteria.JoinType;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
-import jakarta.persistence.criteria.JoinType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -42,7 +44,7 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     }
 
     @Override
-    public Collection<ShiftPlan> findUserRelatedShiftPlansInEvent(long eventId, long userId) {
+    public Collection<ShiftPlan> findUserRelatedShiftPlansInEvent(long eventId, String userId) {
         return shiftPlanRepository.findAll((root, query, cb) -> {
             query.distinct(true);
 

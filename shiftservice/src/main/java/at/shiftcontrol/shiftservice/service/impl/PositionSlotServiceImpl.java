@@ -11,7 +11,7 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.assembler.PositionSlotDtoAssembler;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
-import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
@@ -38,12 +38,34 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto join(Long positionSlotId, Long userId) throws NotFoundException, ConflictException {
+    public AssignmentDto join(Long positionSlotId, String userId) throws NotFoundException, ConflictException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         var volunteer = volunteerDao.findByUserId(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
+        var signupState = eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer);
+
+        switch (signupState) {
+            case SIGNED_UP:
+                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+            case FULL:
+                // Position is full
+                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+            case NOT_ELIGIBLE:
+                if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
+                    // User is not allowed to join
+                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                }
+                // All good, proceed with signup
+                break;
+            // TODO: How to handle SIGNUP_VIA_TRADE and SIGNUP_VIA_AUCTION?
+            case SIGNUP_POSSIBLE:
+                // All good, proceed with signup
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + signupState);
+        }
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
         eligibilityService.validateHasConflictingAssignments(
             userId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());

@@ -4,3 +4,10 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://keycloak.127.0.0.1.nip.io/realms/dev
+keycloak:
+    auth-server-url: http://keycloak:8080/
+    client:
+      id: admin-cli
+      realm: master
+      username: admin
+      password: admin

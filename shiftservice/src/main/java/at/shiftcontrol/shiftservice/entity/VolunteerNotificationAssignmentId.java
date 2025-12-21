@@ -19,13 +19,13 @@ import at.shiftcontrol.shiftservice.type.NotificationType;
 @Embeddable
 public class VolunteerNotificationAssignmentId {
     @Column(nullable = false)
-    private long volunteerId;
+    private String volunteerId;
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private NotificationType notificationType;
 
-    public static VolunteerNotificationAssignmentId of(long volunteerId, NotificationType notificationType) {
+    public static VolunteerNotificationAssignmentId of(String volunteerId, NotificationType notificationType) {
         return VolunteerNotificationAssignmentId.builder()
             .volunteerId(volunteerId)
             .notificationType(notificationType)

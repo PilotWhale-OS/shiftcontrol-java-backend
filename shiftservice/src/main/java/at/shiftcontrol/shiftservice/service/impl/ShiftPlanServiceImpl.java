@@ -12,7 +12,7 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
-import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
@@ -21,6 +21,7 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.entity.Location;
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
@@ -32,6 +33,8 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.type.PositionSignupState;
+import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +49,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final VolunteerDao volunteerDao;
 
     @Override
-    public DashboardOverviewDto getDashboardOverview(long shiftPlanId, long userId) throws NotFoundException {
+    public DashboardOverviewDto getDashboardOverview(long shiftPlanId, String userId) throws NotFoundException {
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
@@ -70,8 +73,21 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, long userId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException {
+    public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException {
         var queriedShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId, searchDto);
+
+        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+
+        // Get user related shifts via dao if MY_SHIFTS view is requested
+        // Get shifts with signup possible if SIGNUP_POSSIBLE view is requested; This filtering is done here because it depends on business logic
+        // and it wouldn't make sense to implement this existing logic in the DAO layer (which would be quite complex)
+        if (searchDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
+            queriedShifts = queriedShifts.stream()
+                .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
+                    isSignupPossible(slot, volunteer)
+                ))
+                .toList();
+        }
 
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
         for (var shift : queriedShifts) {
@@ -79,10 +95,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 continue;
             }
             shiftsByLocation.computeIfAbsent(shift.getLocation(), k -> new ArrayList<>()).add(shift);
-
         }
-
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
 
         // Build location DTOs
         var locationSchedules = shiftsByLocation.entrySet().stream()
@@ -97,6 +110,24 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .scheduleStatistics(stats)
             .build();
     }
+
+    private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
+        var state = eligibilityService.getSignupStateForPositionSlot(slot, volunteer);
+
+        // no further actions needed if not eligible
+        if (state == PositionSignupState.NOT_ELIGIBLE) {
+            return false;
+        }
+
+        boolean freeAndEligible = state == PositionSignupState.SIGNUP_POSSIBLE;
+
+        boolean hasOpenTrade = state == PositionSignupState.SIGNUP_VIA_TRADE;
+
+        boolean hasAuction = state == PositionSignupState.SIGNUP_VIA_AUCTION;
+
+        return freeAndEligible || hasOpenTrade || hasAuction;
+    }
+
 
     private LocationScheduleDto buildLocationSchedule(Location location, List<Shift> shifts, Volunteer volunteer) {
         // sort for deterministic column placement
@@ -158,7 +189,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto) {
+    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, String userId, ShiftPlanJoinRequestDto requestDto) {
         return null;
 
         // TODO

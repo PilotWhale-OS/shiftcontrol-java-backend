@@ -7,64 +7,21 @@
 
   <changeSet id="001-insert-volunteers" author="paul" context="dev">
     <insert tableName="volunteer">
-      <column name="id" valueNumeric="1"/>
-      <column name="username" value="Alice Johnson"/>
-      <column name="email" value="alice.johnson@example.com"/>
+      <column name="id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
     </insert>
 
     <insert tableName="volunteer">
-      <column name="id" valueNumeric="2"/>
-      <column name="username" value="Brian Smith"/>
-      <column name="email" value="brian.smith@example.com"/>
+      <column name="id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
     </insert>
 
     <insert tableName="volunteer">
-      <column name="id" valueNumeric="3"/>
-      <column name="username" value="Carla Mendes"/>
-      <column name="email" value="carla.mendes@example.com"/>
+      <column name="id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e7"/>
     </insert>
 
     <insert tableName="volunteer">
-      <column name="id" valueNumeric="4"/>
-      <column name="username" value="David Lee"/>
-      <column name="email" value="david.lee@example.com"/>
+      <column name="id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
     </insert>
 
-    <insert tableName="volunteer">
-      <column name="id" valueNumeric="5"/>
-      <column name="username" value="Elena Garcia"/>
-      <column name="email" value="elena.garcia@example.com"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" valueNumeric="6"/>
-      <column name="username" value="Filip Novak"/>
-      <column name="email" value="filip.novak@example.com"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" valueNumeric="7"/>
-      <column name="username" value="Grace Liu"/>
-      <column name="email" value="grace.liu@example.com"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" valueNumeric="8"/>
-      <column name="username" value="Hannah Brown"/>
-      <column name="email" value="hannah.brown@example.com"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" valueNumeric="9"/>
-      <column name="username" value="Igor Petrov"/>
-      <column name="email" value="igor.petrov@example.com"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" valueNumeric="10"/>
-      <column name="username" value="Julia Santos"/>
-      <column name="email" value="julia.santos@example.com"/>
-    </insert>
   </changeSet>
 
 </databaseChangeLog>

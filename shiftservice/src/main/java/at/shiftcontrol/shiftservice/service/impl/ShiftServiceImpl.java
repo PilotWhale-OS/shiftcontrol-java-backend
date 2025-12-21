@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.assembler.ShiftDtoAssembler;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
-import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.mapper.ShiftMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
@@ -23,7 +23,7 @@ public class ShiftServiceImpl implements ShiftService {
     private final ShiftDtoAssembler shiftDtoAssembler;
 
     @Override
-    public ShiftDetailsDto getShiftDetails(long shiftId, long userId) throws NotFoundException {
+    public ShiftDetailsDto getShiftDetails(long shiftId, String userId) throws NotFoundException {
         var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
         var userPref = userPreferenceService.getUserPreference(userId, shiftId);
         var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %d not found".formatted(userId)));
