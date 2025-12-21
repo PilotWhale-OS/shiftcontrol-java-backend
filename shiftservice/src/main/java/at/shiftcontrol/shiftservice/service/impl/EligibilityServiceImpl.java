@@ -24,7 +24,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     public PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, String userId) throws NotFoundException {
         return getSignupStateForPositionSlot(
             positionSlotDao.findById(positionSlotId).orElseThrow(() -> new NotFoundException("PositionSlot with ID %d not found".formatted(positionSlotId))),
-            volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %d not found".formatted(userId))
+            volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %s not found".formatted(userId))
             ));
     }
 
@@ -32,7 +32,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) throws NotFoundException {
         return getSignupStateForPositionSlot(
             positionSlot,
-            volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %d not found".formatted(userId))
+            volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %s not found".formatted(userId))
             ));
     }
 
@@ -80,13 +80,13 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     // trade requests where the requested assignment is assigned to the user
-    private boolean hasOpenTradeForUser(PositionSlot slot, long userId) {
+    private boolean hasOpenTradeForUser(PositionSlot slot, String userId) {
         return slot.getAssignments().stream().anyMatch(assignment ->
             assignment.getOutgoingSwitchRequests().stream().anyMatch(req ->
                 req.getStatus() == TradeStatus.OPEN
                     && req.getRequestedAssignment() != null
                     && req.getRequestedAssignment().getAssignedVolunteer() != null
-                    && req.getRequestedAssignment().getAssignedVolunteer().getId() == userId
+                    && req.getRequestedAssignment().getAssignedVolunteer().getId().equals(userId)
             )
         );
     }
