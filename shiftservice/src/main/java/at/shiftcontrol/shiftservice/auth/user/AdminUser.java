@@ -4,8 +4,17 @@ import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public class AdminUser extends ShiftPlannerUser {
-    public AdminUser(Collection<? extends GrantedAuthority> authorities, String username, long userId) {
+public class AdminUser extends ShiftControlUser {
+
+    public AdminUser(Collection<? extends GrantedAuthority> authorities, String username, String userId) {
         super(authorities, username, userId);
+    }
+
+    public boolean isVolunteerInShift(long shiftId) {
+        return true;
+    }
+
+    public boolean isPlannerInShift(long shiftId) {
+        return true;
     }
 }

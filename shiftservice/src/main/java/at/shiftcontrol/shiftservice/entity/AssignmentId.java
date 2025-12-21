@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class AssignmentId implements Serializable {
     private long positionSlotId;
-    private long volunteerId;
+    private String volunteerId;
 
-    public static AssignmentId of(long positionSlotId, long volunteerId) {
+    public static AssignmentId of(long positionSlotId, String volunteerId) {
         return AssignmentId.builder()
                 .positionSlotId(positionSlotId)
                 .volunteerId(volunteerId)

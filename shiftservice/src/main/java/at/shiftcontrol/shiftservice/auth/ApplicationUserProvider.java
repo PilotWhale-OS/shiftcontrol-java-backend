@@ -3,11 +3,11 @@ package at.shiftcontrol.shiftservice.auth;
 import org.springframework.stereotype.Component;
 
 import at.shiftcontrol.lib.auth.impl.UserProviderImpl;
-import at.shiftcontrol.shiftservice.auth.user.VolunteerUser;
+import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 
 @Component
 public class ApplicationUserProvider extends UserProviderImpl {
-    public <T extends VolunteerUser> T getCurrentUser() {
+    public <T extends ShiftControlUser> T getCurrentUser() {
         return (T) getApplicationUser();
     }
 

@@ -8,33 +8,21 @@
   <changeSet id="019-insert-position-slot-preferences" author="paul" context="dev">
 
     <insert tableName="position_slot_preference">
-      <column name="volunteer_id" valueNumeric="1"/>
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
       <column name="position_slot_id" valueNumeric="1"/>
       <column name="preference_level" valueNumeric="0"/>
     </insert>
 
     <insert tableName="position_slot_preference">
-      <column name="volunteer_id" valueNumeric="2"/>
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
       <column name="position_slot_id" valueNumeric="3"/>
       <column name="preference_level" valueNumeric="4"/>
     </insert>
 
     <insert tableName="position_slot_preference">
-      <column name="volunteer_id" valueNumeric="2"/>
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
       <column name="position_slot_id" valueNumeric="2"/>
       <column name="preference_level" valueNumeric="-3"/>
-    </insert>
-
-    <insert tableName="position_slot_preference">
-      <column name="volunteer_id" valueNumeric="10"/>
-      <column name="position_slot_id" valueNumeric="19"/>
-      <column name="preference_level" valueNumeric="10"/>
-    </insert>
-
-    <insert tableName="position_slot_preference">
-      <column name="volunteer_id" valueNumeric="10"/>
-      <column name="position_slot_id" valueNumeric="20"/>
-      <column name="preference_level" valueNumeric="-10"/>
     </insert>
 
   </changeSet>

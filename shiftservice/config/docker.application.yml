@@ -6,4 +6,12 @@ spring:
           issuer-uri: http://keycloak:8080/realms/dev
 logging:
   level:
-    root: WARN
+    root: INFO
+
+keycloak:
+  auth-server-url: http://keycloak:8080/
+  client:
+    id: admin-cli
+    realm: master
+    username: admin
+    password: admin

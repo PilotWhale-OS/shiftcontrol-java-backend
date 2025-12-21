@@ -10,7 +10,6 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class ShiftSpecifications {
-
     private ShiftSpecifications() {
     }
 
@@ -20,7 +19,7 @@ public final class ShiftSpecifications {
             criteriaBuilder.equal(root.get("shiftPlan").get("id"), shiftPlanId);
     }
 
-    public static Specification<Shift> assignedToUser(long userId) {
+    public static Specification<Shift> assignedToUser(String userId) {
         return (root, query, criteriaBuilder) -> {
             query.distinct(true); // important because of joins to collections
 

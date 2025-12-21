@@ -35,7 +35,7 @@ public class ShiftDaoImpl implements ShiftDao {
 
 
     @Override
-    public List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, long userId) {
+    public List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, String userId) {
         var spec = ShiftSpecifications.inShiftPlan(shiftPlanId)
             .and(ShiftSpecifications.assignedToUser(userId));
 
@@ -43,7 +43,7 @@ public class ShiftDaoImpl implements ShiftDao {
     }
 
     @Override
-    public List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, long userId, ShiftPlanScheduleSearchDto searchDto) {
+    public List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto) {
         Specification<Shift> spec =
             ShiftSpecifications.inShiftPlan(shiftPlanId)
                 .and(ShiftSpecifications.matchesSearchDto(searchDto)); // your other filters

@@ -31,27 +31,41 @@ public class ShiftPlan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
+
     @NotNull
     @Size(max = 255)
     @Column(nullable = false, length = 255)
     private String name;
+
     @Size(max = 255)
     @Column(nullable = true, length = 255)
     private String shortDescription;
+
     @Size(max = 1024)
     @Column(nullable = true, length = 1024)
     private String longDescription;
+
     @OneToMany(mappedBy = "shiftPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Shift> shifts;
+
     @ManyToMany
     @JoinTable(
-        name = "shift_plan_volunteer",
+        name = "shift_plan_volunteer_volunteering",
         joinColumns = @JoinColumn(name = "shift_plan_id"),
         inverseJoinColumns = @JoinColumn(name = "volunteer_id")
     )
-    private Collection<Volunteer> participatingVolunteers;
+    private Collection<Volunteer> planVolunteers;
+
+    @ManyToMany
+    @JoinTable(
+        name = "shift_plan_volunteer_planing",
+        joinColumns = @JoinColumn(name = "shift_plan_id"),
+        inverseJoinColumns = @JoinColumn(name = "volunteer_id")
+    )
+    private Collection<Volunteer> planPlanners;
 }
