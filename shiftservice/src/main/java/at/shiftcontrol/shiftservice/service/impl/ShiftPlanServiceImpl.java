@@ -33,10 +33,8 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -117,38 +115,18 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
         var state = eligibilityService.getSignupStateForPositionSlot(slot, volunteer);
 
+        // no further actions needed if not eligible
         if (state == PositionSignupState.NOT_ELIGIBLE) {
             return false;
         }
 
         boolean freeAndEligible = state == PositionSignupState.SIGNUP_POSSIBLE;
 
-        // TODO this logic could be moved to EligibilityService
-        boolean hasOpenTrade = slot.getAssignments().stream().anyMatch(offeringAssignment ->
-            offeringAssignment.getOutgoingSwitchRequests().stream().anyMatch(req ->
-                req.getStatus() == TradeStatus.OPEN
-                    && req.getRequestedAssignment() != null
-                    && req.getRequestedAssignment().getAssignedVolunteer() != null
-                    && req.getRequestedAssignment().getAssignedVolunteer().getId() == volunteer.getId()
-            )
-        );
+        boolean hasOpenTrade = state == PositionSignupState.SIGNUP_VIA_TRADE;
 
-        boolean hasAuction = slot.getAssignments().stream().anyMatch(a ->
-            a.getStatus() == AssignmentStatus.AUCTION
-        );
+        boolean hasAuction = state == PositionSignupState.SIGNUP_VIA_AUCTION;
 
         return freeAndEligible || hasOpenTrade || hasAuction;
-    }
-
-    private boolean hasOpenTrade(PositionSlot slot, long userId) {
-        return slot.getAssignments().stream().anyMatch(offeringAssignment ->
-            offeringAssignment.getOutgoingSwitchRequests().stream().anyMatch(req ->
-                req.getStatus() == TradeStatus.OPEN
-                    && req.getRequestedAssignment() != null
-                    && req.getRequestedAssignment().getAssignedVolunteer() != null
-                    && req.getRequestedAssignment().getAssignedVolunteer().getId() == userId
-            )
-        );
     }
 
 

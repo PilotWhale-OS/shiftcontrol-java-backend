@@ -57,6 +57,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 }
                 // All good, proceed with signup
                 break;
+            // TODO: How to handle SIGNUP_VIA_TRADE and SIGNUP_VIA_AUCTION?
             case SIGNUP_POSSIBLE:
                 // All good, proceed with signup
                 break;
