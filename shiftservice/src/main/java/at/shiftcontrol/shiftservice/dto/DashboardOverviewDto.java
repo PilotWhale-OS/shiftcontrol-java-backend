@@ -23,5 +23,5 @@ public class DashboardOverviewDto {
     private Collection<ShiftDto> shifts;
 
     private Collection<TradeDto> trades;
-    private Collection<ShiftDto> auctions;
+    private Collection<ShiftDto> auctions; // TODO this should be Collection<Assignment>
 }

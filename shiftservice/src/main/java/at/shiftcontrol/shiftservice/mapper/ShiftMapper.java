@@ -18,8 +18,7 @@ public class ShiftMapper {
             shift.getEndTime(),
             ActivityMapper.toActivityDto(shift.getRelatedActivities()),
             positionSlots,
-            shift.getLockStatus(),
-            null //Todo: implement when trades are available
+            shift.getLockStatus()
         );
     }
 }

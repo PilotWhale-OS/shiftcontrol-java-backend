@@ -65,7 +65,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                     volunteer -> Objects.equals(volunteer.getId(), String.valueOf(assignment.getAssignedVolunteer().getId()))))
             .map(requestedAssignment -> createAssignmentSwitchRequest(requestedAssignment, offeredAssignment)).toList();
 
-        return TradeMapper.toDtos(assignmentSwitchRequestDao.saveAll(trades));
+        return TradeMapper.toDto(assignmentSwitchRequestDao.saveAll(trades));
     }
 
     @Override
