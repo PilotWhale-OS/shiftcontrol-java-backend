@@ -205,7 +205,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         // save updates
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
-        
+
         return ShiftPlanJoinOverviewDto.builder()
             .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .attendingVolunteerCount(shiftPlan.getParticipatingVolunteers().size())
@@ -234,6 +234,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     return false;
                 }
                 shiftPlan.getParticipatingVolunteers().add(volunteer);
+                // TODO add plan to volunteeringPlans too --> Blocked by MR !24
                 return true;
             }
             case PLANNER_JOIN -> {

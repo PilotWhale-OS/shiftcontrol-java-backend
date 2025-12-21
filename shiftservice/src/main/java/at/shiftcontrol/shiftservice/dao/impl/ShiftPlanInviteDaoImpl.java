@@ -28,7 +28,6 @@ public class ShiftPlanInviteDaoImpl implements ShiftPlanInviteDao {
         shiftPlanInviteRepository.delete(entity);
     }
 
-
     @Override
     public Optional<ShiftPlanInvite> findByCode(String code) {
         return shiftPlanInviteRepository.findByCode(code);
