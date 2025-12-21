@@ -7,44 +7,21 @@
 
   <changeSet id="001-insert-volunteers" author="paul" context="dev">
     <insert tableName="volunteer">
-      <column name="id" value="1"/>
+      <column name="id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
     </insert>
 
     <insert tableName="volunteer">
-      <column name="id" value="2"/>
+      <column name="id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
     </insert>
 
     <insert tableName="volunteer">
-      <column name="id" value="3"/>
+      <column name="id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e7"/>
     </insert>
 
     <insert tableName="volunteer">
-      <column name="id" value="4"/>
+      <column name="id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
     </insert>
 
-    <insert tableName="volunteer">
-      <column name="id" value="5"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" value="6"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" value="7"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" value="8"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" value="9"/>
-    </insert>
-
-    <insert tableName="volunteer">
-      <column name="id" value="10"/>
-    </insert>
   </changeSet>
 
 </databaseChangeLog>
