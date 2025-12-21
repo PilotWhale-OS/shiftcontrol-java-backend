@@ -60,13 +60,8 @@ public class Shift {
     @Enumerated(EnumType.STRING)
     @Column(name = "lock_status", nullable = false)
     private LockStatus lockStatus;
-    @ManyToMany
-    @JoinTable(
-        name = "shift_location",
-        joinColumns = @JoinColumn(name = "shift_id"),
-        inverseJoinColumns = @JoinColumn(name = "location_id")
-    )
-    private Collection<Location> locations;
+    @ManyToOne
+    private Location location;
     @ManyToMany
     @JoinTable(
         name = "activity_shift",
