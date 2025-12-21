@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class ShiftPlanMapper {
-    public static ShiftPlanDto shiftPlanToShiftPlanDto(ShiftPlan shiftPlan) {
+    public static ShiftPlanDto toShiftPlanDto(ShiftPlan shiftPlan) {
         return ShiftPlanDto.builder()
             .id(String.valueOf(shiftPlan.getId()))
             .name(shiftPlan.getName())
@@ -18,9 +18,9 @@ public class ShiftPlanMapper {
             .build();
     }
 
-    public static List<ShiftPlanDto> shiftPlansToShiftPlanDtos(Collection<ShiftPlan> shiftPlans) {
+    public static List<ShiftPlanDto> toShiftPlanDto(Collection<ShiftPlan> shiftPlans) {
         return shiftPlans.stream()
-            .map(ShiftPlanMapper::shiftPlanToShiftPlanDto)
+            .map(ShiftPlanMapper::toShiftPlanDto)
             .toList();
     }
 }

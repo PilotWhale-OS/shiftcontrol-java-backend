@@ -32,4 +32,5 @@ public class ShiftDto {
     private Collection<PositionSlotDto> positionSlots;
     @NotNull
     private LockStatus lockStatus;
+    private LocationDto location;
 }

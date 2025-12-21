@@ -12,15 +12,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EventShiftPlansOverviewDto {
+public class LocationScheduleDto {
     @NotNull
-    private EventDto eventOverview;
+    private LocationDto location;
 
     @NotNull
-    private OwnStatisticsDto ownEventStatistics;
-    @NotNull
-    private OverallStatisticsDto overallEventStatistics;
-    private int rewardPoints;
+    private Collection<ActivityDto> activities;
 
-    private Collection<ShiftPlanDto> shiftPlans;
+    @NotNull
+    private int requiredShiftColumns;
+
+    @NotNull
+    private Collection<ShiftColumnDto> shiftColumns;
 }

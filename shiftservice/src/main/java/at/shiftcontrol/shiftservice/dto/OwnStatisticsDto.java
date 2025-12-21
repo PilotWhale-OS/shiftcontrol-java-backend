@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class OwnShiftPlanStatisticsDto {
-    private int busyDays;
-    private int totalShifts;
+public class OwnStatisticsDto {
     private double totalHours;
+    private int totalShifts;
+    private int busyDays;
 }

@@ -95,4 +95,16 @@ public interface EligibilityService {
      * @throws ConflictException if overlapping assignments exist
      */
     void validateHasConflictingAssignmentsExcludingSlot(long volunteerId, Instant startTime, Instant endTime, long positionSlot) throws ConflictException;
+
+    /**
+     *  Determines the signup state of a volunteer for a given position slot.
+     *
+     *  <p>
+     *  <b>This does not check if the given user has privileges for sign-up</b>
+     *
+     * @param positionSlot The position slot to check
+     * @param userId The volunteer to check
+     * @return The signup state of the volunteer for the position slot
+     */
+    PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Long userId) throws NotFoundException;
 }

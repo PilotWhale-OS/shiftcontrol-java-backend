@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class OverallShiftPlanStatisticsDto {
+public class OverallStatisticsDto {
     private double totalHours;
     private int totalShifts;
     private int volunteerCount;
