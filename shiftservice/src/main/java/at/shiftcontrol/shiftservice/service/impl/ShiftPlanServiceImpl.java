@@ -13,9 +13,8 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
-import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
-import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
@@ -37,10 +36,10 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
-import jakarta.transaction.Transactional;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
+import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -60,6 +59,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
+        // TODO add validation that user is allowed to access this shiftPlan/event data
+
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
         var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
 
@@ -197,7 +198,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @Transactional
-    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, long userId, ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, String userId, ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
             throw new BadRequestException("inviteCode is null or empty");
         }
@@ -240,7 +241,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         return ShiftPlanJoinOverviewDto.builder()
             .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
-            .attendingVolunteerCount(shiftPlan.getParticipatingVolunteers().size())
+            .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
             .inviteType(invite.getType())
             .joined(joinedNow)
             .build();
@@ -262,11 +263,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private boolean addUserToShiftPlanIfAbsent(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
         switch (type) {
             case VOLUNTEER_JOIN -> {
-                if (shiftPlan.getParticipatingVolunteers().contains(volunteer)) {
+                if (shiftPlan.getPlanVolunteers().contains(volunteer)) {
                     return false;
                 }
-                shiftPlan.getParticipatingVolunteers().add(volunteer);
-                // TODO add plan to volunteeringPlans too --> Blocked by MR !24
+                shiftPlan.getPlanVolunteers().add(volunteer);
+                // TODO add plan to volunteeringPlans too ?? Is this needed or resolved by ManyToMany mapping ??
                 return true;
             }
             case PLANNER_JOIN -> {
