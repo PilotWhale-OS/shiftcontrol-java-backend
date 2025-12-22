@@ -24,9 +24,18 @@ public class EventServiceImpl implements EventService {
     private final StatisticService statisticService;
 
     @Override
-    public List<EventDto> search(EventSearchDto searchDto) {
-        // TODO filter here based on events which are relevant for the user (e.g. where the user is a volunteer)
-        return EventMapper.toEventOverviewDto(eventDao.search(searchDto));
+    public List<EventDto> search(EventSearchDto searchDto, String userId) throws NotFoundException {
+        var filteredEvents = eventDao.search(searchDto);
+        var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));
+        var volunteerShiftPlans = volunteer.getVolunteeringPlans();
+
+        // filter events that the volunteer is part of
+        var relevantEvents = filteredEvents.stream()
+            .filter(event -> event.getShiftPlans().stream()
+                .anyMatch(volunteerShiftPlans::contains))
+            .toList();
+
+        return EventMapper.toEventOverviewDto(relevantEvents);
     }
 
     @Override
@@ -35,13 +44,9 @@ public class EventServiceImpl implements EventService {
         var shiftPlans = event.getShiftPlans();
         var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));
 
-        // TODO only show shift plans that are relevant to the user (e.g. volunteeringPlans of volunteer)
-//        var volunteerShiftPlans = volunteer.getVolunteeringPlans();
+        var volunteerShiftPlans = volunteer.getVolunteeringPlans();
 
-        // TODO dummy values for now; CHANGE TO REAL DATA like above once other MR is merged
-        var volunteerShiftPlans = shiftPlans;
-
-        // now filter shiftPlans that the volunteer is part of (volunteerShiftPlans)
+        // filter shiftPlans that the volunteer is part of (volunteerShiftPlans)
         var relevantShiftPlans = shiftPlans.stream()
             .filter(volunteerShiftPlans::contains)
             .toList();

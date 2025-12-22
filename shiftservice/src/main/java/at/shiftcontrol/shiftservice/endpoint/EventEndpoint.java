@@ -31,8 +31,8 @@ public class EventEndpoint {
         operationId = "getAllEvents",
         description = "Find all (volunteer related) events"
     )
-    public List<EventDto> getAllEvents() {
-        return eventService.search(null);
+    public List<EventDto> getAllEvents() throws NotFoundException {
+        return eventService.search(null, userProvider.getCurrentUser().getUserId());
     }
 
     //Todo: Add search capability in future
@@ -43,8 +43,8 @@ public class EventEndpoint {
         operationId = "getShiftPlansOfEvent",
         description = "Find all (volunteer related) shift plans of an event"
     )
-    public List<ShiftPlanDto> getShiftPlansOfEvent(@PathVariable String eventId) {
-        return null; //TODO: implement
+    public List<ShiftPlanDto> getShiftPlansOfEvent(@PathVariable String eventId) throws NotFoundException {
+        return eventService.getUserRelatedShiftPlansOfEvent(ConvertUtil.idToLong(eventId), userProvider.getCurrentUser().getUserId());
     }
 
 
