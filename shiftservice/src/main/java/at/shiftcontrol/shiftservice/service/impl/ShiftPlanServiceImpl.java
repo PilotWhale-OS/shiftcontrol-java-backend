@@ -81,7 +81,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         // Get user related shifts via dao if MY_SHIFTS view is requested
         // Get shifts with signup possible if SIGNUP_POSSIBLE view is requested; This filtering is done here because it depends on business logic
         // and it wouldn't make sense to implement this existing logic in the DAO layer (which would be quite complex)
-        if (searchDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
+        if (searchDto != null && searchDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
             queriedShifts = queriedShifts.stream()
                 .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
                     isSignupPossible(slot, volunteer)
