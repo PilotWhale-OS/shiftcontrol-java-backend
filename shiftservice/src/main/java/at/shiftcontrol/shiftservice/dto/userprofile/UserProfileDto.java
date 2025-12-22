@@ -17,16 +17,12 @@ import at.shiftcontrol.shiftservice.dto.RoleDto;
 @Builder
 public class UserProfileDto {
     @NotNull
-    private AccountInfoDto account; // fetched from keycloak
+    private AccountInfoDto account;
 
     @NotNull
-    private NotificationSettingsDto notifications;
+    private Collection<NotificationSettingsDto> notifications;
 
     private Collection<AbsenceDto> absences;
 
     private Collection<RoleDto> assignedRoles;
-
-    //Todo: move to be dependent on event context
-    //     @NotNull
-    //     private Collection<UnavailabilityDto> unavailabilityDates;
 }

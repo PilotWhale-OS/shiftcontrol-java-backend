@@ -11,6 +11,6 @@ import at.shiftcontrol.shiftservice.type.NotificationType;
 @Data
 @Builder
 public class NotificationSettingsUpdateDto {
+    private NotificationType notificationTypes;
     private Set<NotificationChannel> notificationChannels;
-    private Set<NotificationType> notificationTypes;
 }

@@ -1,6 +1,5 @@
 package at.shiftcontrol.shiftservice.dto;
 
-import java.util.Map;
 import java.util.Set;
 
 import jakarta.validation.constraints.NotNull;
@@ -18,5 +17,6 @@ import at.shiftcontrol.shiftservice.type.NotificationType;
 @Builder
 public class NotificationSettingsDto {
     @NotNull
-    private Map<NotificationType, Set<NotificationChannel>> perTypeSettings;
+    private NotificationType type;
+    private Set<NotificationChannel> channels;
 }

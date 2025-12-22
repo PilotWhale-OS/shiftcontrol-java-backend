@@ -34,7 +34,7 @@ public class Volunteer {
     )
     private Collection<Role> roles;
 
-    @OneToMany(mappedBy = "volunteerNotificationAssignmentId.volunteerId")
+    @OneToMany(mappedBy = "id.volunteerId")
     private Collection<VolunteerNotificationAssignment> notificationAssignments;
 
     @ManyToMany
