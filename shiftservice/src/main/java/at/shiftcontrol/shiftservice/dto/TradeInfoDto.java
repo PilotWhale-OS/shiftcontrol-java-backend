@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dto;
 
 import java.time.Instant;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,9 +16,14 @@ import at.shiftcontrol.shiftservice.type.TradeStatus;
 @AllArgsConstructor
 @Builder
 public class TradeInfoDto {
+    @NotNull
     private String offeredPositionSlotId;
+    @NotNull
     private String requestedPositionSlotId;
+    @NotNull
     private VolunteerDto offeringVolunteer;
+    @NotNull
     private TradeStatus status;
+    @NotNull
     private Instant createdAt;
 }
