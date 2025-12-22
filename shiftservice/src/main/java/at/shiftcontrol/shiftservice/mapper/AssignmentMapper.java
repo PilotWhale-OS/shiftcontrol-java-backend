@@ -12,6 +12,9 @@ import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 
 public class AssignmentMapper {
+    public static final EnumSet<AssignmentStatus> ACTIVE_AUCTION_STATES =
+        EnumSet.of(AssignmentStatus.AUCTION, AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
+
     public static AssignmentDto toDto(@NonNull Assignment assignment) {
         return new AssignmentDto(
             String.valueOf(assignment.getPositionSlot().getId()),
@@ -32,7 +35,7 @@ public class AssignmentMapper {
 
     public static Collection<AssignmentDto> toAuctionDto(@NonNull Collection<Assignment> assignments) {
         return assignments.stream().filter(
-            a -> EnumSet.of(AssignmentStatus.AUCTION, AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN).contains(a.getStatus()))
+            a -> ACTIVE_AUCTION_STATES.contains(a.getStatus()))
             .map(AssignmentMapper::toDto).toList();
     }
 }

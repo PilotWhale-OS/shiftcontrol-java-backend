@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
@@ -28,15 +32,13 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
-import at.shiftcontrol.shiftservice.mapper.ShiftMapper;
+import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ShiftDao shiftDao;
     private final EventDao eventDao;
     private final VolunteerDao volunteerDao;
+    private final ShiftAssemblingMapper shiftMapper;
 
     @Override
     public DashboardOverviewDto getDashboardOverview(long shiftPlanId, String userId) throws NotFoundException {
@@ -54,15 +57,14 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
-
+        
         return DashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .eventOverview(EventMapper.toEventOverviewDto(event))
             .ownShiftPlanStatistics(statisticService.getOwnShiftPlanStatistics(userShifts)) // directly pass user shifts here to avoid redundant filtering
             .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlanId))
             .rewardPoints(-1) // TODO
-            .shifts(ShiftMapper.toShiftDto(userShifts, slot -> eligibilityService.getSignupStateForPositionSlot(slot, volunteer)))
+            .shifts(shiftMapper.assemble(userShifts))
             .trades(null) // TODO implement when trades are available
             .auctions(null) // TODO
             .build();
@@ -99,7 +101,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         // Build location DTOs
         var locationSchedules = shiftsByLocation.entrySet().stream()
-            .map(entry -> buildLocationSchedule(entry.getKey(), entry.getValue(), volunteer))
+            .map(entry -> buildLocationSchedule(entry.getKey(), entry.getValue()))
             .toList();
 
         var stats = statisticService.getShiftPlanScheduleStatistics(queriedShifts);
@@ -129,13 +131,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
 
-    private LocationScheduleDto buildLocationSchedule(Location location, List<Shift> shifts, Volunteer volunteer) {
+    private LocationScheduleDto buildLocationSchedule(Location location, List<Shift> shifts) {
         // sort for deterministic column placement
         shifts.sort(Comparator
             .comparing(Shift::getStartTime)
             .thenComparing(Shift::getEndTime));
 
-        var shiftColumns = calculateShiftColumns(shifts, volunteer);
+        var shiftColumns = calculateShiftColumns(shifts);
         int requiredShiftColumns = shiftColumns.stream()
             .mapToInt(ShiftColumnDto::getColumnIndex)
             .max()
@@ -155,7 +157,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
-    private List<ShiftColumnDto> calculateShiftColumns(List<Shift> sortedShifts, Volunteer volunteer) {
+    private List<ShiftColumnDto> calculateShiftColumns(List<Shift> sortedShifts) {
         // end time per column
         var columnEndTimes = new ArrayList<Instant>();
         var result = new ArrayList<ShiftColumnDto>(sortedShifts.size());
@@ -171,7 +173,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
             result.add(ShiftColumnDto.builder()
                 .columnIndex(columnIndex)
-                .shiftDto(ShiftMapper.toShiftDto(shift, slot -> eligibilityService.getSignupStateForPositionSlot(slot, volunteer)))
+                .shiftDto(shiftMapper.assemble(shift))
                 .build());
         }
 

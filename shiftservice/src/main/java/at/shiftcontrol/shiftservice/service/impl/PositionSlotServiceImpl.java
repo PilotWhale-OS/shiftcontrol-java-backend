@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.assembler.PositionSlotDtoAssembler;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -16,6 +15,7 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
+import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
@@ -28,12 +28,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final AssignmentDao assignmentDao;
 
     private final EligibilityService eligibilityService;
-    private final PositionSlotDtoAssembler positionSlotDtoAssembler;
+    private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
 
     @Override
     public PositionSlotDto findById(Long id) throws NotFoundException {
         return positionSlotDao.findById(id)
-            .map(positionSlotDtoAssembler::assemble)
+            .map(positionSlotAssemblingMapper::assemble)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
     }
 
@@ -69,7 +69,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public AssignmentDto auction(Long positionSlotId) throws NotFoundException {
         // TODO use current user
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, "28c02050-4f90-4f3a-b1df-3c7d27a166e5");
-        if (assignment == null) throw new IllegalArgumentException("not assigned to position slot");
+        if (assignment == null) {
+            throw new IllegalArgumentException("not assigned to position slot");
+        }
 
         //Todo: Checks are needed if the user can auction
         assignment.setStatus(AssignmentStatus.AUCTION);
