@@ -1,8 +1,8 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "api/v1/shift-plans/{shiftPlanId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ShiftPlanEndpoint {
-    private final ApplicationUserProvider userProvider;
     private final ShiftPlanService shiftPlanService;
 
     @GetMapping("/dashboard")
@@ -34,8 +33,8 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanDashboard",
         description = "Get (volunteer related) dashboard data for a specific shift plan of an event"
     )
-    public DashboardOverviewDto getShiftPlanDashboard(@PathVariable String shiftPlanId) throws NotFoundException {
-        return shiftPlanService.getDashboardOverview(ConvertUtil.idToLong(shiftPlanId), userProvider.getCurrentUser().getUserId());
+    public DashboardOverviewDto getShiftPlanDashboard(@PathVariable String shiftPlanId) throws NotFoundException, ForbiddenException {
+        return shiftPlanService.getDashboardOverview(ConvertUtil.idToLong(shiftPlanId));
     }
 
     @GetMapping("/schedule")
@@ -46,8 +45,8 @@ public class ShiftPlanEndpoint {
     )
     public ShiftPlanScheduleDto getShiftPlanSchedule(@PathVariable String shiftPlanId,
                                                      @RequestBody(required = false) ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto)
-        throws NotFoundException {
-        return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), userProvider.getCurrentUser().getUserId(), shiftPlanScheduleSearchDto);
+        throws NotFoundException, ForbiddenException {
+        return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), shiftPlanScheduleSearchDto);
     }
 
     @PostMapping("/join")
@@ -57,6 +56,6 @@ public class ShiftPlanEndpoint {
         description = "Join a shift plan using an invite code"
     )
     public ShiftPlanJoinOverviewDto joinShiftPlan(@PathVariable String shiftPlanId, @RequestBody ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
-        return shiftPlanService.joinShiftPlan(ConvertUtil.idToLong(shiftPlanId), userProvider.getCurrentUser().getUserId(), requestDto);
+        return shiftPlanService.joinShiftPlan(ConvertUtil.idToLong(shiftPlanId), requestDto);
     }
 }

@@ -3,9 +3,8 @@ package at.shiftcontrol.shiftservice.auth.user;
 import java.util.Collection;
 import java.util.Set;
 
-import org.springframework.security.core.GrantedAuthority;
-
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import org.springframework.security.core.GrantedAuthority;
 
 public class AssignedUser extends ShiftControlUser {
     private final UserAttributeProvider attributeProvider;
@@ -16,20 +15,20 @@ public class AssignedUser extends ShiftControlUser {
     }
 
     @Override
-    public boolean isVolunteerInShift(long shiftId) {
-        return getAssignedVolunteerShifts().contains(shiftId);
+    public boolean isVolunteerInPlan(long shiftPlanId) {
+        return getRelevantVolunteerPlans().contains(shiftPlanId);
     }
 
     @Override
-    public boolean isPlannerInShift(long shiftId) {
-        return getAssignedPlannerShifts().contains(shiftId);
+    public boolean isPlannerInPlan(long shiftPlanId) {
+        return getRelevantPlannerPlans().contains(shiftPlanId);
     }
 
-    public Set<Long> getAssignedVolunteerShifts() {
+    public Set<Long> getRelevantVolunteerPlans() {
         return attributeProvider.getPlansWhereUserIsVolunteer(getUserId());
     }
 
-    public Set<Long> getAssignedPlannerShifts() {
+    public Set<Long> getRelevantPlannerPlans() {
         return attributeProvider.getPlansWhereUserIsPlanner(getUserId());
     }
 }

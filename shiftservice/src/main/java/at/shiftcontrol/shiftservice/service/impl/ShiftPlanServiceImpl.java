@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -53,13 +55,14 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ShiftDao shiftDao;
     private final EventDao eventDao;
     private final VolunteerDao volunteerDao;
+    private final ApplicationUserProvider userProvider;
 
     @Override
-    public DashboardOverviewDto getDashboardOverview(long shiftPlanId, String userId) throws NotFoundException {
+    public DashboardOverviewDto getDashboardOverview(long shiftPlanId) throws NotFoundException, ForbiddenException {
+        var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
-        // TODO add validation that user is allowed to access this shiftPlan/event data
 
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
         var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
@@ -81,7 +84,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException {
+    public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException, ForbiddenException {
+        var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var queriedShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId, searchDto);
 
         var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
@@ -117,6 +121,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .locations(locationSchedules)
             .scheduleStatistics(stats)
             .build();
+    }
+
+    private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+        if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
+            throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
+        }
+
+        return currentUser.getUserId();
     }
 
     private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
@@ -198,7 +211,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @Transactional
-    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, String userId, ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+        String userId = userProvider.getCurrentUser().getUserId();
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
             throw new BadRequestException("inviteCode is null or empty");
         }

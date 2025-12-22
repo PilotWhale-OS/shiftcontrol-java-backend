@@ -2,11 +2,9 @@ package at.shiftcontrol.shiftservice.auth.user;
 
 import java.util.Collection;
 
-import org.springframework.security.core.GrantedAuthority;
-
-import lombok.Getter;
-
 import at.shiftcontrol.lib.auth.ApplicationUser;
+import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
 
 @Getter
 public abstract class ShiftControlUser extends ApplicationUser {
@@ -17,7 +15,7 @@ public abstract class ShiftControlUser extends ApplicationUser {
         this.userId = userId;
     }
 
-    public abstract boolean isVolunteerInShift(long shiftId);
+    public abstract boolean isVolunteerInPlan(long shiftPlanId);
 
-    public abstract boolean isPlannerInShift(long shiftId);
+    public abstract boolean isPlannerInPlan(long shiftPlanId);
 }
