@@ -1,14 +1,12 @@
-package at.shiftcontrol.shiftservice.dao.impl;
+package at.shiftcontrol.shiftservice.dao.userprofile.impl;
 
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
-import lombok.RequiredArgsConstructor;
-
-import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -16,7 +14,7 @@ public class VolunteerDaoImpl implements VolunteerDao {
     private final VolunteerRepository volunteerRepository;
 
     @Override
-    public Optional<Volunteer> findById(Long id) {
+    public Optional<Volunteer> findById(String id) {
         return volunteerRepository.findById(id);
     }
 
@@ -31,7 +29,7 @@ public class VolunteerDaoImpl implements VolunteerDao {
     }
 
     @Override
-    public Optional<Volunteer> findByUserId(Long userId) {
-        return findById(userId); //Todo: Check if this is correct
+    public Optional<Volunteer> findByUserId(String userId) {
+        return volunteerRepository.findById(userId);
     }
 }

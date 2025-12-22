@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @Embeddable
 public class AttendanceId implements Serializable {
-    private long volunteerId;
+    private String volunteerId;
     private long eventId;
 
-    public static AttendanceId of(long volunteerId, long eventId) {
+    public static AttendanceId of(String volunteerId, long eventId) {
         return AttendanceId.builder()
                 .volunteerId(volunteerId)
                 .eventId(eventId)

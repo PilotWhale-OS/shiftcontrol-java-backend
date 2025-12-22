@@ -2,12 +2,16 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
-import at.shiftcontrol.shiftservice.dao.VolunteerDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
@@ -15,8 +19,6 @@ import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -36,7 +38,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto join(Long positionSlotId, Long userId) throws NotFoundException, ConflictException {
+    public AssignmentDto join(Long positionSlotId, String userId) throws NotFoundException, ConflictException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         var volunteer = volunteerDao.findByUserId(userId)
@@ -57,6 +59,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 }
                 // All good, proceed with signup
                 break;
+            // TODO: How to handle SIGNUP_VIA_TRADE and SIGNUP_VIA_AUCTION?
             case SIGNUP_POSSIBLE:
                 // All good, proceed with signup
                 break;

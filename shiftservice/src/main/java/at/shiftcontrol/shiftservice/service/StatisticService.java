@@ -12,7 +12,7 @@ public interface StatisticService {
 
     OverallStatisticsDto getOverallShiftPlanStatistics(long shiftPlanId);
 
-    OwnStatisticsDto getOwnEventStatistics(long eventId, long userId);
+    OwnStatisticsDto getOwnEventStatistics(long eventId, String userId);
 
     OverallStatisticsDto getOverallEventStatistics(long eventId);
 

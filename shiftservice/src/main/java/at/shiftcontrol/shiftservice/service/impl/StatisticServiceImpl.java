@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -14,8 +18,6 @@ import at.shiftcontrol.shiftservice.dto.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +54,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public OwnStatisticsDto getOwnEventStatistics(long eventId, long userId) {
+    public OwnStatisticsDto getOwnEventStatistics(long eventId, String userId) {
         var userShiftPlans = shiftPlanDao.findUserRelatedShiftPlansInEvent(eventId, userId);
 
         var totalHours = userShiftPlans.stream()
@@ -141,7 +143,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     private int calculateVolunteerCountInShiftPlan(ShiftPlan shiftPlan) {
-        var volunteerSet = new HashSet<Long>();
+        var volunteerSet = new HashSet<String>();
         for (var shift : shiftPlan.getShifts()) {
             for (var slot : shift.getSlots()) {
                 for (var assignment : slot.getAssignments()) {

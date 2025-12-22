@@ -12,6 +12,8 @@ public class EventMapper {
         return EventDto.builder()
             .id(String.valueOf(event.getId()))
             .name(event.getName())
+            .longDescription(event.getLongDescription())
+            .shortDescription(event.getShortDescription())
             .startTime(event.getStartTime())
             .endTime(event.getEndTime())
             .build();
