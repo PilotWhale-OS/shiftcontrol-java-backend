@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "api/v1/trades")
+@RequestMapping(value = "api/v1/trades", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class PositionSlotTradeEndpoint {
     private final AssignmentSwitchRequestService assignmentSwitchRequestService;
