@@ -13,9 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.dto.NotificationSettingsUpdateDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
+import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 
 @Slf4j
@@ -25,6 +25,7 @@ import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 public class UserProfileEndpoint {
     private final ApplicationUserProvider userProvider;
     private final UserProfileService userProfileService;
+    private final NotificationService notificationService;
 
     @GetMapping("/profile")
     // TODO Security
@@ -42,7 +43,7 @@ public class UserProfileEndpoint {
         operationId = "updateNotificationSettings",
         description = "Update notification settings of the current user"
     )
-    public NotificationSettingsDto updateNotificationSettings(@RequestBody NotificationSettingsUpdateDto updateDto) {
-        return null; // TODO: implement
+    public NotificationSettingsDto updateNotificationSettings(@RequestBody NotificationSettingsDto updateDto) {
+        return notificationService.updateNotificationSetting(userProvider.getCurrentUser().getUserId(), updateDto);
     }
 }

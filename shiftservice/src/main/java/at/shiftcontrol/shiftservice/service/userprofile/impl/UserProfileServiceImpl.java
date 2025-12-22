@@ -38,18 +38,4 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         return profile;
     }
-    //     public NotificationSettingsDto updateNotificationSetting(NotificationSettingsDto settingsDto){
-    //             var volunteer = dao.findById(setting.getUserId()).orElseThrow(() -> new NotFoundException("Volunteer not found"));
-    //             var currentNotifications = volunteer.getNotificationAssignments();
-    //         settingsDto.getPerTypeSettings().forEach(setting -> {
-    //             if (currentNotifications.contains(setting)) {
-    //
-    //             }
-    //
-    //             dao.save(volunteer);
-    //         });
-    //
-    //
-    //         return RoleMapper.toNotificationSettingsDto()
-    //     }
 }
