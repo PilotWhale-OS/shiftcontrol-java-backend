@@ -4,10 +4,12 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "api/v1/shift-plans/{shiftPlanId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "api/v1/shift-plans", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ShiftPlanEndpoint {
     private final ShiftPlanService shiftPlanService;
 
-    @GetMapping("/dashboard")
+    @GetMapping("{shiftPlanId}/dashboard")
     // TODO Security
     @Operation(
         operationId = "getShiftPlanDashboard",
@@ -37,7 +39,7 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.getDashboardOverview(ConvertUtil.idToLong(shiftPlanId));
     }
 
-    @GetMapping("/schedule")
+    @GetMapping("{shiftPlanId}/schedule")
     // TODO Security
     @Operation(
         operationId = "getShiftPlanSchedule",
@@ -49,13 +51,23 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), shiftPlanScheduleSearchDto);
     }
 
+    @PostMapping("{shiftPlanId}/invite")
+    // TODO Security
+    @Operation(
+        operationId = "createShiftPlanInvite",
+        description = "Create an invite code for a specific shift plan of an event"
+    )
+    public ShiftPlanInviteCreateResponseDto createShiftPlanInvite(@PathVariable String shiftPlanId, @RequestBody ShiftPlanInviteCreateRequestDto requestDto) {
+        return shiftPlanService.createShiftPlanInviteCode(ConvertUtil.idToLong(shiftPlanId), requestDto);
+    }
+
     @PostMapping("/join")
     // TODO Security
     @Operation(
         operationId = "joinShiftPlan",
         description = "Join a shift plan using an invite code"
     )
-    public ShiftPlanJoinOverviewDto joinShiftPlan(@PathVariable String shiftPlanId, @RequestBody ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
-        return shiftPlanService.joinShiftPlan(ConvertUtil.idToLong(shiftPlanId), requestDto);
+    public ShiftPlanJoinOverviewDto joinShiftPlan(@RequestBody ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+        return shiftPlanService.joinShiftPlanAsVolunteer(requestDto);
     }
 }

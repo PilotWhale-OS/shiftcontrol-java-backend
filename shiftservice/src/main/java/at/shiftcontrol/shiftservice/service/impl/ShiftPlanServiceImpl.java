@@ -20,10 +20,12 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
@@ -210,8 +212,14 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
+    public ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto) {
+        return null;
+    }
+
+    // TODO add functionality to join as planner too
+    @Override
     @Transactional
-    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+    public ShiftPlanJoinOverviewDto joinShiftPlanAsVolunteer(ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
         String userId = userProvider.getCurrentUser().getUserId();
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
             throw new BadRequestException("inviteCode is null or empty");
@@ -224,12 +232,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         validateInvite(invite);
 
-        // Make sure invite belongs to the requested shiftPlanId
-        long invitedShiftPlanId = invite.getShiftPlan().getId();
-        if (invitedShiftPlanId != shiftPlanId) {
-            throw new BadRequestException("Invite code does not belong to this shift plan");
-        }
-
+        long shiftPlanId = invite.getShiftPlan().getId();
         ShiftPlan shiftPlan = shiftPlanDao.findById(shiftPlanId)
             .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
 
