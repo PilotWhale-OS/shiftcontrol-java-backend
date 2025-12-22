@@ -57,7 +57,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
-        
+
         return DashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .eventOverview(EventMapper.toEventOverviewDto(event))
