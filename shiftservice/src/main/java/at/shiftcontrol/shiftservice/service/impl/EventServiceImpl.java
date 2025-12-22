@@ -2,6 +2,10 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.VolunteerDao;
@@ -13,8 +17,6 @@ import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, long userId) throws NotFoundException {
+    public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) throws NotFoundException {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
         var shiftPlans = event.getShiftPlans();
         var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));

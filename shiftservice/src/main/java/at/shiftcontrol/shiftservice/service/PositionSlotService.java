@@ -10,7 +10,7 @@ import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 public interface PositionSlotService {
     PositionSlotDto findById(Long id) throws NotFoundException;
 
-    AssignmentDto join(Long positionSlotId, Long userId) throws NotFoundException, ConflictException;
+    AssignmentDto join(Long positionSlotId, String userId) throws NotFoundException, ConflictException;
 
     void leave(Long positionSlotId, Long userId);
 

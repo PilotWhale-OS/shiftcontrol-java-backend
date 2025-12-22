@@ -7,9 +7,6 @@
 
   <changeSet id="018-set-pk-sequences" author="paul" context="dev">
 
-    <sql>ALTER TABLE volunteer
-      ALTER COLUMN id RESTART WITH 100;</sql>
-
     <sql>ALTER TABLE role
       ALTER COLUMN id RESTART WITH 100;</sql>
 

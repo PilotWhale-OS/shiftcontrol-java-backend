@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import java.util.Collection;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -42,7 +44,7 @@ public class Assignment {
     @Column(nullable = false)
     private AssignmentStatus status;
     @OneToMany(mappedBy = "offeringAssignment")
-    private java.util.Collection<AssignmentSwitchRequest> outgoingSwitchRequests;
+    private Collection<AssignmentSwitchRequest> outgoingSwitchRequests;
     @OneToMany(mappedBy = "requestedAssignment")
-    private java.util.Collection<AssignmentSwitchRequest> incomingSwitchRequests;
+    private Collection<AssignmentSwitchRequest> incomingSwitchRequests;
 }

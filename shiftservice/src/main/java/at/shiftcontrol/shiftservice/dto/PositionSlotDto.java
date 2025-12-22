@@ -2,12 +2,14 @@ package at.shiftcontrol.shiftservice.dto;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
+import at.shiftcontrol.shiftservice.type.PositionSignupState;
 
 @Data
 @NoArgsConstructor
