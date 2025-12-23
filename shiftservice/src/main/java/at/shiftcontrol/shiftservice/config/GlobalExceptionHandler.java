@@ -23,8 +23,14 @@ import org.slf4j.LoggerFactory;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
 import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
 import at.shiftcontrol.lib.exception.UnauthorizedException;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -35,14 +41,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler({NotFoundException.class})
     protected ResponseEntity<Object> handleNotFound(Exception ex, WebRequest request) {
-        LOGGER.warn(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+        return handleInternal(ex, request, NOT_FOUND);
     }
 
     @ExceptionHandler(value = {ValidationException.class})
     protected ResponseEntity<Object> handleValidation(Exception ex, WebRequest request) {
-        LOGGER.warn(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY, request);
+        return handleInternal(ex, request, UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(value = {ConflictException.class})
@@ -53,28 +57,35 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         //Either respond with DTO (if available) or message
         if (conflictException.hasDto()) {
-            return handleExceptionInternal(conflictException, conflictException.getDto(), new HttpHeaders(), HttpStatus.CONFLICT, request);
+            return handleExceptionInternal(conflictException, conflictException.getDto(), new HttpHeaders(), CONFLICT, request);
         } else {
-            return handleExceptionInternal(conflictException, conflictException.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT, request);
+            return handleExceptionInternal(conflictException, conflictException.getMessage(), new HttpHeaders(), CONFLICT, request);
         }
     }
 
     @ExceptionHandler(value = {ForbiddenException.class})
     protected ResponseEntity<Object> handleForbidden(Exception ex, WebRequest request) {
-        LOGGER.warn(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+        return handleInternal(ex, request, FORBIDDEN);
     }
 
     @ExceptionHandler(value = {UnauthorizedException.class})
     protected ResponseEntity<Object> handleUnauthorized(Exception ex, WebRequest request) {
-        LOGGER.warn(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+        return handleInternal(ex, request, UNAUTHORIZED);
     }
 
     @ExceptionHandler(value = {PartiallyNotFoundException.class})
     protected ResponseEntity<Object> handlePartiallyNotFoundErrors(Exception ex, WebRequest request) {
+        return handleInternal(ex, request, CONFLICT);
+    }
+
+    @ExceptionHandler(NotificationSettingAlreadyExistsException.class)
+    public ResponseEntity<Object> handleNotificationSettingAlreadyExistsException(Exception ex, WebRequest request) {
+        return handleInternal(ex, request, CONFLICT);
+    }
+
+    private ResponseEntity<Object> handleInternal(Exception ex, WebRequest request, HttpStatus status) {
         LOGGER.warn(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT, request);
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), status, request);
     }
 
     /**

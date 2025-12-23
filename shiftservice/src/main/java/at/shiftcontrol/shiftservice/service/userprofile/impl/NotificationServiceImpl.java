@@ -48,8 +48,6 @@ public class NotificationServiceImpl implements NotificationService {
             .collect(Collectors.toSet());
     }
 
-    // todo check if the same channel is set multiple times!
-    // todo exeption should not throw 500
     @Override
     public NotificationSettingsDto updateNotificationSetting(String userId, NotificationSettingsDto settingsDto) {
         Objects.requireNonNull(userId, "userId must not be null");
