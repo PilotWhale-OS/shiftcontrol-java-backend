@@ -1,15 +1,19 @@
 package at.shiftcontrol.shiftservice.dto.roles;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class RoleDto {
+    @NotNull
+    private String id;
+    @NotNull
     private String name;
     private String description;
 }
