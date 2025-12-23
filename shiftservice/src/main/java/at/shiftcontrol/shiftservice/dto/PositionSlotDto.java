@@ -38,4 +38,16 @@ public class PositionSlotDto {
      */
     @NotNull
     private PositionSignupState positionSignupState;
+
+    /**
+     * Specific for the current user's offered trades for this position slot
+     */
+    @NotNull
+    private Collection<TradeInfoDto> tradeInfoDtos;
+
+    /**
+     * Specific for the current user's available auctions of this position slot
+     */
+    @NotNull
+    private Collection<AssignmentDto> auctions;
 }

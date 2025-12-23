@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -23,6 +25,11 @@ public class RoleDaoImpl implements RoleDao {
     @Override
     public Role save(Role entity) {
         return roleRepository.save(entity);
+    }
+
+    @Override
+    public Collection<Role> saveAll(Collection<Role> entities) {
+        return roleRepository.saveAll(entities);
     }
 
     @Override

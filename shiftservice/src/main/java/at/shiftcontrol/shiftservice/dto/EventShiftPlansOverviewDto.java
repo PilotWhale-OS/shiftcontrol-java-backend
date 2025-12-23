@@ -20,7 +20,9 @@ public class EventShiftPlansOverviewDto {
     private OwnStatisticsDto ownEventStatistics;
     @NotNull
     private OverallStatisticsDto overallEventStatistics;
+    @NotNull
     private int rewardPoints;
 
+    @NotNull
     private Collection<ShiftPlanDto> shiftPlans;
 }

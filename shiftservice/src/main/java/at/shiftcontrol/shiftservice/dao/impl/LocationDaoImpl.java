@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -23,6 +25,11 @@ public class LocationDaoImpl implements LocationDao {
     @Override
     public Location save(Location entity) {
         return locationRepository.save(entity);
+    }
+
+    @Override
+    public Collection<Location> saveAll(Collection<Location> entities) {
+        return locationRepository.saveAll(entities);
     }
 
     @Override

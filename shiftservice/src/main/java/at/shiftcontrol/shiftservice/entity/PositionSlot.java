@@ -39,4 +39,7 @@ public class PositionSlot {
     @NotNull
     @Column(nullable = false)
     private int desiredVolunteerCount;
+    @NotNull
+    @Column(nullable = false)
+    private int rewardPoints;
 }
