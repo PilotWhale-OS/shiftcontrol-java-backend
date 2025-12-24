@@ -7,6 +7,7 @@ import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +49,16 @@ public class ShiftPlanEndpoint {
                                                      @RequestBody(required = false) ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto)
         throws NotFoundException {
         return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), userProvider.getCurrentUser().getUserId(), shiftPlanScheduleSearchDto);
+    }
+
+    @GetMapping("/schedule/filters")
+    // TODO Security
+    @Operation(
+        operationId = "getShiftPlanScheduleFilterValues",
+        description = "Get available filter values for the schedule of a specific shift plan of an event"
+    )
+    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(@PathVariable String shiftPlanId) throws NotFoundException {
+        return shiftPlanService.getShiftPlanScheduleFilterValues(ConvertUtil.idToLong(shiftPlanId));
     }
 
     @PostMapping("/join")

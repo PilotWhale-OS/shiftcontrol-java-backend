@@ -8,11 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -23,6 +20,7 @@ import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -32,6 +30,7 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
+import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
@@ -39,6 +38,8 @@ import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -68,10 +69,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .trades(null) // TODO implement when trades are available
             .auctions(null) // TODO
             .build();
-    }
-
-    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
-        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
     }
 
     @Override
@@ -188,6 +185,54 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             }
         }
         return -1;
+    }
+
+    @Override
+    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId) throws NotFoundException {
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+
+        var shifts = shiftPlan.getShifts();
+
+        if (shifts == null || shifts.isEmpty()) {
+            return ShiftPlanScheduleFilterValuesDto.builder()
+                .build();
+        }
+
+        var locations = shifts.stream()
+            .map(Shift::getLocation)
+            .distinct()
+            .map(LocationMapper::toLocationDto)
+            .toList();
+
+        var roles = shifts.stream()
+            .flatMap(shift -> shift.getSlots().stream())
+            .map(PositionSlot::getRole)
+            .distinct()
+            .map(RoleMapper::toRoleDto)
+            .toList();
+
+        var firstDate = shifts.stream()
+            .map(Shift::getStartTime)
+            .min(Instant::compareTo)
+            .map(TimeUtil::convertToUtcLocalDate)
+            .orElse(null);
+
+        var lastDate = shifts.stream()
+            .map(Shift::getEndTime)
+            .max(Instant::compareTo)
+            .map(TimeUtil::convertToUtcLocalDate)
+            .orElse(null);
+
+        return ShiftPlanScheduleFilterValuesDto.builder()
+            .locations(locations)
+            .roles(roles)
+            .firstDate(firstDate)
+            .lastDate(lastDate)
+            .build();
+    }
+
+    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
+        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
     }
 
     @Override
