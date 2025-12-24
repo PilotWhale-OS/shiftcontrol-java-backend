@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,6 +46,7 @@ import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -58,6 +60,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final EventDao eventDao;
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
+
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @Override
     public DashboardOverviewDto getDashboardOverview(long shiftPlanId) throws NotFoundException, ForbiddenException {
@@ -212,8 +216,85 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto) {
-        return null;
+    public ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
+        throws NotFoundException, ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
+            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
+        }
+
+        if (requestDto.getType() == ShiftPlanInviteType.PLANNER_JOIN) {
+            // TODO validate here so that only admins can create such invites (not planner themselves)
+            throw new BadRequestException("Creating planner join invites is not supported yet");
+        }
+
+        var shiftPlan = shiftPlanDao.findById(shiftPlanId)
+            .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+
+        if (requestDto.getExpiresAt() != null && requestDto.getExpiresAt().isBefore(Instant.now())) {
+            throw new BadRequestException("expiresAt must be in the future");
+        }
+        if (requestDto.getMaxUses() != null && requestDto.getMaxUses() <= 0) {
+            throw new BadRequestException("maxUses must be positive");
+        }
+
+        // Generate a unique code (retry a few times)
+        String code = generateUniqueCode();
+
+        var invite = ShiftPlanInvite.builder()
+            .code(code)
+            .type(requestDto.getType())
+            .shiftPlan(shiftPlan)
+            .active(true)
+            .expiresAt(requestDto.getExpiresAt())
+            .maxUses(requestDto.getMaxUses())
+            .uses(0)
+            .createdAt(Instant.now())
+            .build();
+
+        // Should not happen but just in case we retry once
+        try {
+            shiftPlanInviteDao.save(invite);
+        } catch (DataIntegrityViolationException e) {
+            // fallback once, because code uniqueness might collide under concurrency
+            invite.setCode(generateUniqueCode());
+            shiftPlanInviteDao.save(invite);
+        }
+
+        // TODO what should happen if the user clicks the link ? Should the backend provide a redirect endpoint ?? how does this work??
+        // You can return a link that the frontend can open (e.g., /join?code=...&shiftPlanId=...)
+        String joinUrl = publicBaseUrl + "/shift-plans/" + shiftPlanId + "/join?code=" + invite.getCode();
+
+        return ShiftPlanInviteCreateResponseDto.builder()
+            .code(invite.getCode())
+            .type(invite.getType())
+            .expiresAt(invite.getExpiresAt())
+            .maxUses(invite.getMaxUses())
+            .joinUrl(joinUrl)
+            .build();
+    }
+
+    private String generateUniqueCode() {
+        // URL-safe, human-friendly alphabet (no 0/O, 1/I to reduce confusion)
+        final char[] alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toCharArray();
+
+        for (int attempt = 0; attempt < 10; attempt++) {
+            String code = randomString(alphabet);
+            if (!shiftPlanInviteDao.existsByCode(code)) {
+                return code;
+            }
+        }
+        // extremely unlikely unless length is too short / huge volume
+        throw new RuntimeException("Could not generate unique invite code");
+    }
+
+    private String randomString(char[] alphabet) {
+        var sb = new StringBuilder(8);
+        for (int i = 0; i < 8; i++) {
+            int idx = secureRandom.nextInt(alphabet.length);
+            sb.append(alphabet[idx]);
+        }
+        return sb.toString();
     }
 
     // TODO add functionality to join as planner too
@@ -253,6 +334,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
 
         // save updates
+        //do transactionally
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
 

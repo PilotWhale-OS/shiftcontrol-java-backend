@@ -32,4 +32,9 @@ public class ShiftPlanInviteDaoImpl implements ShiftPlanInviteDao {
     public Optional<ShiftPlanInvite> findByCode(String code) {
         return shiftPlanInviteRepository.findByCode(code);
     }
+
+    @Override
+    public boolean existsByCode(String code) {
+        return shiftPlanInviteRepository.existsByCode(code);
+    }
 }

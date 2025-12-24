@@ -61,6 +61,9 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.createShiftPlanInviteCode(ConvertUtil.idToLong(shiftPlanId), requestDto);
     }
 
+    // TODO endpoints to list all codes for shiftPlan + revoke code (safe revoked or delete?)
+    // TODO add roles for invite codes so that user gets assigned specific roles when joining via invite code (to avoid many manual role assignments)
+
     @PostMapping("/join")
     // TODO Security
     @Operation(
