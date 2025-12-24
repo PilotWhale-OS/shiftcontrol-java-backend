@@ -23,6 +23,7 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
@@ -212,14 +213,30 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .distinct()
             .toList();
 
-        var firstDate = shifts.stream()
-            .map(Shift::getStartTime)
+        // Determine first and last date from shifts and related activities
+        var firstDate = Stream.concat(
+                shifts.stream().map(Shift::getStartTime),
+                shifts.stream()
+                    .flatMap(s -> s.getRelatedActivities() == null
+                        ? Stream.<Activity>empty()
+                        : s.getRelatedActivities().stream())
+                    .map(Activity::getStartTime)
+            )
+            .filter(Objects::nonNull)
             .min(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
             .orElse(null);
 
-        var lastDate = shifts.stream()
-            .map(Shift::getEndTime)
+
+        var lastDate = Stream.concat(
+                shifts.stream().map(Shift::getEndTime),
+                shifts.stream()
+                    .flatMap(s -> s.getRelatedActivities() == null
+                        ? Stream.<Activity>empty()
+                        : s.getRelatedActivities().stream())
+                    .map(Activity::getEndTime)
+            )
+            .filter(Objects::nonNull)
             .max(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
             .orElse(null);
