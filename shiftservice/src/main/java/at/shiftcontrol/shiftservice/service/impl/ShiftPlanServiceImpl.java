@@ -278,6 +278,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         // URL-safe, human-friendly alphabet (no 0/O, 1/I to reduce confusion)
         final char[] alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toCharArray();
 
+        //TODO maybe ensure uniqueness by implementing a better strategy if needed (e.g., longer codes, more attempts, algorithm were first 4(?) dicits somehow encore timestamp or sopmething, etc.)
+
         for (int attempt = 0; attempt < 10; attempt++) {
             String code = randomString(alphabet);
             if (!shiftPlanInviteDao.existsByCode(code)) {
