@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -200,15 +201,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         var locations = shifts.stream()
             .map(Shift::getLocation)
+            .filter(Objects::nonNull)
             .distinct()
-            .map(LocationMapper::toLocationDto)
             .toList();
 
         var roles = shifts.stream()
             .flatMap(shift -> shift.getSlots().stream())
             .map(PositionSlot::getRole)
+            .filter(Objects::nonNull)
             .distinct()
-            .map(RoleMapper::toRoleDto)
             .toList();
 
         var firstDate = shifts.stream()
@@ -224,8 +225,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElse(null);
 
         return ShiftPlanScheduleFilterValuesDto.builder()
-            .locations(locations)
-            .roles(roles)
+            .locations(locations.isEmpty() ? null : LocationMapper.toLocationDto(locations))
+            .roles(roles.isEmpty() ? null : RoleMapper.toRoleDto(roles))
             .firstDate(firstDate)
             .lastDate(lastDate)
             .build();
