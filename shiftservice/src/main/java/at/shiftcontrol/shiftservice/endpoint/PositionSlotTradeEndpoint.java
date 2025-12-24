@@ -2,6 +2,15 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
+import at.shiftcontrol.shiftservice.dto.TradeDto;
+import at.shiftcontrol.shiftservice.mapper.TradeMapper;
+import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,17 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
-import at.shiftcontrol.shiftservice.dto.TradeDto;
-import at.shiftcontrol.shiftservice.mapper.TradeMapper;
-import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 
 @Slf4j
 @RestController
@@ -34,8 +32,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "getTradeById",
         description = "Get trade by id"
     )
-    // TODO change body to params ?
-    public TradeDto getTradeById(@RequestBody TradeDto tradeDto) throws NotFoundException {
+    public TradeDto getTradeById(TradeDto tradeDto) throws NotFoundException {
         return assignmentSwitchRequestService.getTradeById(TradeMapper.toEntityId(tradeDto));
     }
 
@@ -75,7 +72,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "cancelShiftTrade",
         description = "Cancel a request for a specific position slot in a shift"
     )
-    public void cancelShiftTrade(@RequestBody TradeDto tradeDto) throws NotFoundException {
+    public void cancelShiftTrade(TradeDto tradeDto) throws NotFoundException {
         assignmentSwitchRequestService.cancelShiftTrade(TradeMapper.toEntityId(tradeDto));
     }
 }
