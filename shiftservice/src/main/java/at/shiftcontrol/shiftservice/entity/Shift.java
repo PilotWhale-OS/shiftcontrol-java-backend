@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.entity;
 import java.time.Instant;
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.type.LockStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,12 +22,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import at.shiftcontrol.shiftservice.type.LockStatus;
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -71,4 +72,19 @@ public class Shift {
     private Collection<Activity> relatedActivities;
     @OneToMany(mappedBy = "shift", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PositionSlot> slots;
+
+    @Override
+    public String toString() {
+        return "Shift{" +
+            "id=" + id +
+            ", shiftPlan=" + shiftPlan.getId() +
+            ", name='" + name + '\'' +
+            ", startTime=" + startTime +
+            ", endTime=" + endTime +
+            ", lockStatus=" + lockStatus +
+            ", location=" + location +
+            ", relatedActivities=" + relatedActivities.stream().map(Activity::getId).toList() +
+            ", slots=" + slots.stream().map(PositionSlot::getId).toList() +
+            '}';
+    }
 }

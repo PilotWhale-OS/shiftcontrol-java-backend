@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.util.Map;
 
+import at.shiftcontrol.shiftservice.util.JsonMapConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -15,12 +16,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import at.shiftcontrol.shiftservice.util.JsonMapConverter;
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -47,4 +48,14 @@ public class Location {
     @Convert(converter = JsonMapConverter.class)
     @Column(columnDefinition = "CLOB")
     private Map<String, Object> additionalProperties;
+
+    @Override
+    public String toString() {
+        return "Location{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", url='" + url + '\'' +
+            ", additionalProperties=" + additionalProperties +
+            '}';
+    }
 }
