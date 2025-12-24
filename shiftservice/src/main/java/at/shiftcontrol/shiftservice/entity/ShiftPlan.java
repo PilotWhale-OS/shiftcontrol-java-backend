@@ -18,12 +18,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
 @Entity
 @Table(name = "shift_plan")
@@ -68,4 +70,16 @@ public class ShiftPlan {
         inverseJoinColumns = @JoinColumn(name = "volunteer_id")
     )
     private Collection<Volunteer> planPlanners;
+
+    @Override
+    public String toString() {
+        return "ShiftPlan{" +
+            "id=" + id +
+            ", event=" + event.getId() +
+            ", name='" + name + '\'' +
+            ", shifts=" + shifts.stream().map(Shift::getId).toList() +
+            ", planVolunteers=" + planVolunteers.stream().map(Volunteer::getId).toList() +
+            ", planPlanners=" + planPlanners.stream().map(Volunteer::getId).toList() +
+            '}';
+    }
 }

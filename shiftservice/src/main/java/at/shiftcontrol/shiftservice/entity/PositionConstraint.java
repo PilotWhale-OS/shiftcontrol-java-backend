@@ -9,10 +9,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -31,5 +33,14 @@ public class PositionConstraint {
     @ManyToOne(optional = false)
     @JoinColumn(name = "target_position_slot_id", referencedColumnName = "id", nullable = false)
     private PositionSlot target;
+
+    @Override
+    public String toString() {
+        return "PositionConstraint{" +
+            "id=" + id +
+            ", source=" + source +
+            ", target=" + target +
+            '}';
+    }
     // TODO: Add constraint details here
 }

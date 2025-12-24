@@ -15,10 +15,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -50,4 +52,17 @@ public class Event {
     private Collection<Attendance> attendances;  // TODO only relevant for magament view (not for volunteer) --> not included in volunteer DTOs
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<ShiftPlan> shiftPlans;
+
+    @Override
+    public String toString() {
+        return "Event{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", startTime=" + startTime +
+            ", endTime=" + endTime +
+            ", locations=" + locations.stream().map(Location::getId).toList() +
+            ", attendances=" + attendances +
+            ", shiftPlans=" + shiftPlans.stream().map(ShiftPlan::getId).toList() +
+            '}';
+    }
 }

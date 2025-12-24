@@ -15,10 +15,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -44,4 +46,14 @@ public class Activity {
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Location location;
+
+    @Override
+    public String toString() {
+        return "Activity{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", shifts=" + shifts.stream().map(Shift::getId).toList() +
+            ", location=" + location +
+            '}';
+    }
 }
