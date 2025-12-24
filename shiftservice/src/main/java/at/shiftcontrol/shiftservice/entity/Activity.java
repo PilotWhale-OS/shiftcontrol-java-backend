@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import java.time.Instant;
 import java.util.Collection;
 
 import jakarta.persistence.Column;
@@ -39,6 +40,12 @@ public class Activity {
     @Size(max = 1024)
     @Column(nullable = true, length = 1024)
     private String description;
+    @NotNull
+    @Column(nullable = false)
+    private Instant startTime;
+    @NotNull
+    @Column(nullable = false)
+    private Instant endTime;
     @ManyToMany(mappedBy = "relatedActivities")
     private Collection<Shift> shifts;
     @ManyToOne
