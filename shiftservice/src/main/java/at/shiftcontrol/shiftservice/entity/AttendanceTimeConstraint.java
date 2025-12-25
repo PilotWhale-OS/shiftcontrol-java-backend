@@ -11,10 +11,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -31,5 +33,13 @@ public class AttendanceTimeConstraint {
         @JoinColumn(name = "attendance_event_id", referencedColumnName = "event_id")
     })
     private Attendance attendance;
+
+    @Override
+    public String toString() {
+        return "AttendanceTimeConstraint{" +
+            "id=" + id +
+            ", attendance=" + attendance +
+            '}';
+    }
     // startDate, endDate
 }
