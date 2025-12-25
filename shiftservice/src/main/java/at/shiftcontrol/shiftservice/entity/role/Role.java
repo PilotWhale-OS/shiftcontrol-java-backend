@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.entity;
+package at.shiftcontrol.shiftservice.entity.role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

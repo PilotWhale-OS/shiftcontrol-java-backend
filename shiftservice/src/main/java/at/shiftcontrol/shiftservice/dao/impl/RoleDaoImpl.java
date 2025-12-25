@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.RoleDao;
-import at.shiftcontrol.shiftservice.entity.Role;
+import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.repo.RoleRepository;
 
 @RequiredArgsConstructor

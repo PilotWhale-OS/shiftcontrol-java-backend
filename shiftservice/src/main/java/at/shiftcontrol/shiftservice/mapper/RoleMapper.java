@@ -3,7 +3,7 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
-import at.shiftcontrol.shiftservice.entity.Role;
+import at.shiftcontrol.shiftservice.entity.role.Role;
 
 public class RoleMapper {
     public static RoleDto toRoleDto(Role role) {

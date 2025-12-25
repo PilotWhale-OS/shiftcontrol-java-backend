@@ -6,6 +6,8 @@ import java.util.Collection;
 import lombok.Builder;
 import lombok.Data;
 
+import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
+
 @Data
 @Builder
 public class ShiftPlanScheduleFilterValuesDto {
