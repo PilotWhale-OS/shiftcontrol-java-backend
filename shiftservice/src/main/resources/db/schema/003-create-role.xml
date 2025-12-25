@@ -13,6 +13,10 @@
         <constraints primaryKey="true" nullable="false"/>
       </column>
 
+      <column name="event_id" type="BIGINT">
+        <constraints nullable="false" foreignKeyName="fk_role_event" references="event(id)"/>
+      </column>
+
       <column name="name" type="VARCHAR(255)">
         <constraints nullable="false" unique="true"/>
       </column>

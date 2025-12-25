@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
+import java.util.Collection;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,8 +17,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.dto.roles.RoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.roles.RoleAssignmentDto;
+import at.shiftcontrol.shiftservice.service.RoleService;
 
 @Slf4j
 @RestController
@@ -26,17 +30,18 @@ import at.shiftcontrol.shiftservice.dto.roles.RoleAssignmentDto;
 )
 @RequiredArgsConstructor
 public class RoleAssignmentEndpoint {
+    private final RoleService roleService;
 
     @GetMapping
     @Operation(
         operationId = "getRoleAssignments",
         description = "Get role assignments of a user for an event"
     )
-    public RoleAssignmentDto getRoleAssignments(
+    public Collection<RoleAssignmentDto> getRoleAssignments(
         @PathVariable String eventId,
         @PathVariable String userId
     ) {
-        throw new UnsupportedOperationException("Not implemented");
+        return roleService.getRoleAssignmentsForUser(Long.valueOf(eventId), userId);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -48,8 +53,8 @@ public class RoleAssignmentEndpoint {
         @PathVariable String eventId,
         @PathVariable String userId,
         @RequestBody RoleAssignmentAssignDto roleAssignmentAssign
-    ) {
-        throw new UnsupportedOperationException("Not implemented");
+    ) throws ForbiddenException {
+        return roleService.createRoleAssignment(Long.valueOf(eventId), userId, roleAssignmentAssign);
     }
 
     @DeleteMapping("/{roleAssignmentId}")
@@ -62,7 +67,7 @@ public class RoleAssignmentEndpoint {
         @PathVariable String eventId,
         @PathVariable String userId,
         @PathVariable String roleAssignmentId
-    ) {
-        throw new UnsupportedOperationException("Not implemented");
+    ) throws ForbiddenException {
+        roleService.deleteRoleAssignment(Long.valueOf(eventId), userId, Long.valueOf(roleAssignmentId));
     }
 }

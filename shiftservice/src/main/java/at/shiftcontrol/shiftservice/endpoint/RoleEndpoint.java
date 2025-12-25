@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,9 +18,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
 import at.shiftcontrol.shiftservice.dto.roles.RoleModificationDto;
+import at.shiftcontrol.shiftservice.service.RoleService;
 
 @Slf4j
 @RestController
@@ -30,14 +31,26 @@ import at.shiftcontrol.shiftservice.dto.roles.RoleModificationDto;
 )
 @RequiredArgsConstructor
 public class RoleEndpoint {
+    private final RoleService roleService;
+
     @GetMapping
     // TODO Security
     @Operation(
         operationId = "getRoles",
         description = "Get roles of this event"
     )
-    public List<RoleDto> getRoles(@PathVariable String eventId) {
-        throw new UnsupportedOperationException("Not implemented");
+    public Collection<RoleDto> getRoles(@PathVariable String eventId) {
+        return roleService.getRoles(Long.valueOf(eventId));
+    }
+
+    @GetMapping("/{roleId}")
+    // TODO Security
+    @Operation(
+        operationId = "getRole",
+        description = "Get role by id"
+    )
+    public RoleDto getRole(@PathVariable String eventId, @PathVariable String roleId) throws ForbiddenException {
+        return roleService.getRole(Long.valueOf(eventId), Long.valueOf(roleId));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -50,8 +63,8 @@ public class RoleEndpoint {
     public RoleDto createRole(
         @PathVariable String eventId,
         @RequestBody RoleModificationDto role
-    ) throws NotFoundException {
-        throw new UnsupportedOperationException("Not implemented");
+    ) {
+        return roleService.createRole(Long.valueOf(eventId), role);
     }
 
     @PutMapping(value = "/{roleId}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -64,8 +77,8 @@ public class RoleEndpoint {
         @PathVariable String eventId,
         @PathVariable String roleId,
         @RequestBody RoleModificationDto role
-    ) throws NotFoundException {
-        throw new UnsupportedOperationException("Not implemented");
+    ) throws ForbiddenException {
+        return roleService.updateRole(Long.valueOf(eventId), Long.valueOf(roleId), role);
     }
 
     @DeleteMapping("/{roleId}")
@@ -78,7 +91,7 @@ public class RoleEndpoint {
     public void deleteRole(
         @PathVariable String eventId,
         @PathVariable String roleId
-    ) throws NotFoundException {
-        throw new UnsupportedOperationException("Not implemented");
+    ) throws ForbiddenException {
+        roleService.deleteRole(Long.valueOf(eventId), Long.valueOf(roleId));
     }
 }
