@@ -16,6 +16,8 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.user.AdminUser;
+import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RoleDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
@@ -268,16 +270,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        // TODO add this again before commit
-//        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
-//            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
-//        }
-
-        // TODO validate type and permissions
-        if (requestDto.getType() == ShiftPlanInviteType.PLANNER_JOIN) {
-            // TODO validate here so that only admins can create such invites (not planner themselves)
-            throw new BadRequestException("Creating planner join invites is not supported yet");
-        }
+        validatePermission(shiftPlanId, requestDto.getType(), currentUser);
 
         var shiftPlan = shiftPlanDao.findById(shiftPlanId)
             .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
@@ -300,7 +293,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 throw new BadRequestException("One or more roleIds are invalid");
             }
 
-            // TODO verify roles belong to this event/shiftPlan domain if you have that concept
+            // TODO verify roles belong to this shiftPlan
         }
 
         var invite = ShiftPlanInvite.builder()
@@ -359,12 +352,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public void revokeShiftPlanInviteCode(long shiftPlanId, String inviteCode) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
-            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
-        }
-
         var invite = shiftPlanInviteDao.findByCode(inviteCode)
             .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
+
+        validatePermission(shiftPlanId, invite.getType(), currentUser);
 
         if (invite.getShiftPlan().getId() != shiftPlanId) {
             throw new NotFoundException("Invite code not found in shift plan with id: " + shiftPlanId);
@@ -376,14 +367,25 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanInviteDao.save(invite);
     }
 
+    private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
+        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN && !currentUser.isPlannerInPlan(shiftPlanId)) {
+            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
+        }
+
+        // only allowed by admins
+        if (type == ShiftPlanInviteType.PLANNER_JOIN && !(currentUser instanceof AdminUser)) {
+            throw new ForbiddenException("Only admins can create planner join invite codes");
+        }
+    }
+
     @Override
     public Collection<ShiftPlanInviteDto> listShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        // TODO add this again before commit
-//        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
-//            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
-//        }
+        // both planners and admins can list invites
+        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
+            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
+        }
 
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
 
@@ -409,7 +411,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
     }
 
-    // TODO add functionality to join as planner too
     @Override
     @Transactional
     public ShiftPlanJoinOverviewDto joinShiftPlanAsVolunteer(ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
@@ -491,8 +492,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 return true;
             }
             case PLANNER_JOIN -> {
-                // TODO implement planner membership
-                throw new BadRequestException("Planner invites not supported yet");
+                if (shiftPlan.getPlanPlanners().contains(volunteer)) {
+                    return false;
+                }
+                shiftPlan.getPlanPlanners().add(volunteer);
+                return true;
             }
             default -> throw new BadRequestException("Unknown invite type");
         }
