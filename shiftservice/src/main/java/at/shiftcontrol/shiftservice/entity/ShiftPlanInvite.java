@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.entity;
 
 import java.time.Instant;
+import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import jakarta.persistence.Column;
@@ -11,6 +12,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -57,6 +60,15 @@ public class ShiftPlanInvite {
     @NotNull
     @Column(name = "uses", nullable = false)
     private int uses = 0;
+
+    @ManyToMany
+    @JoinTable(
+        name = "shift_plan_invite_role",
+        joinColumns = @JoinColumn(name = "invite_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    // add roles which get assigned when using this invite
+    private Collection<Role> autoAssignRoles;
 
     // optional auditing
     @Column(name = "created_at", nullable = false)

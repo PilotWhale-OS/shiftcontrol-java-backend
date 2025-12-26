@@ -14,6 +14,7 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.RoleDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -58,6 +59,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ShiftPlanInviteDao shiftPlanInviteDao;
     private final ShiftDao shiftDao;
     private final EventDao eventDao;
+    private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
 
@@ -219,10 +221,12 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
         throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
+
         if (!currentUser.isPlannerInPlan(shiftPlanId)) {
             throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
         }
 
+        // TODO validate type and permissions
         if (requestDto.getType() == ShiftPlanInviteType.PLANNER_JOIN) {
             // TODO validate here so that only admins can create such invites (not planner themselves)
             throw new BadRequestException("Creating planner join invites is not supported yet");
@@ -241,6 +245,19 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         // Generate a unique code (retry a few times)
         String code = generateUniqueCode();
 
+        //TODO
+//        Collection<Role> rolesToAssign = List.of();
+//        if (requestDto.getAutoAssignRoleIds() != null && !requestDto.getAutoAssignRoleIds().isEmpty()) {
+//            rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds());
+//
+//            if (rolesToAssign.size() != requestDto.getAutoAssignRoleIds().size()) {
+//                throw new BadRequestException("One or more roleIds are invalid");
+//            }
+//
+//            // Optional but recommended:
+//            // verify roles belong to this event/shiftPlan domain if you have that concept
+//        }
+
         var invite = ShiftPlanInvite.builder()
             .code(code)
             .type(requestDto.getType())
@@ -250,6 +267,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .maxUses(requestDto.getMaxUses())
             .uses(0)
             .createdAt(Instant.now())
+//            .autoAssignRoles(rolesToAssign.isEmpty() ? null : rolesToAssign) TODO
             .build();
 
         // Should not happen but just in case we retry once
@@ -261,16 +279,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             shiftPlanInviteDao.save(invite);
         }
 
-        // TODO what should happen if the user clicks the link ? Should the backend provide a redirect endpoint ?? how does this work??
-        // You can return a link that the frontend can open (e.g., /join?code=...&shiftPlanId=...)
-        String joinUrl = publicBaseUrl + "/shift-plans/" + shiftPlanId + "/join?code=" + invite.getCode();
-
         return ShiftPlanInviteCreateResponseDto.builder()
             .code(invite.getCode())
             .type(invite.getType())
             .expiresAt(invite.getExpiresAt())
             .maxUses(invite.getMaxUses())
-            .joinUrl(joinUrl)
             .build();
     }
 
@@ -326,6 +339,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         // Increase uses only if joined now and ignores duplicate joins (already member)
         if (joinedNow) {
+            // TODO In join-shift-plan service: apply roles on join
             invite.setUses(invite.getUses() + 1);
         }
 

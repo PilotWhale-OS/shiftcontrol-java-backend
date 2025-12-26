@@ -17,10 +17,6 @@ public class ShiftPlanInviteCreateResponseDto {
     @NotNull
     private String code;
 
-    // convenience for frontend
-    @NotNull
-    private String joinUrl;
-
     @NotNull
     private ShiftPlanInviteType type;
 
