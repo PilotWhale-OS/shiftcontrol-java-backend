@@ -9,9 +9,9 @@ import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignmentId;
 import at.shiftcontrol.shiftservice.type.NotificationType;
 
 public interface NotificationRepository extends JpaRepository<VolunteerNotificationAssignment, VolunteerNotificationAssignmentId> {
-    List<VolunteerNotificationAssignment> findAllById_VolunteerId(String volunteerId);
+    List<VolunteerNotificationAssignment> findAllByVolunteerNotificationAssignmentId_VolunteerId(String volunteerId);
 
-    List<VolunteerNotificationAssignment> findAllById_VolunteerIdAndId_NotificationType(
+    List<VolunteerNotificationAssignment> findAllByVolunteerNotificationAssignmentId_VolunteerIdAndVolunteerNotificationAssignmentId_NotificationType(
         String volunteerId,
         NotificationType notificationType
     );

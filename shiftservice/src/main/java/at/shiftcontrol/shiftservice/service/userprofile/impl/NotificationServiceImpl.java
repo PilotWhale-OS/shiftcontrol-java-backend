@@ -29,7 +29,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Set<NotificationSettingsDto> getNotificationsForUser(String userId) {
-        List<VolunteerNotificationAssignment> rows = notificationRepository.findAllById_VolunteerId(userId);
+        List<VolunteerNotificationAssignment> rows = notificationRepository.findAllByVolunteerNotificationAssignmentId_VolunteerId(userId);
         Map<NotificationType, Set<NotificationChannel>> grouped =
             rows.stream()
                 .collect(Collectors.groupingBy(
@@ -62,7 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
             .collect(Collectors.toCollection(() -> EnumSet.noneOf(NotificationChannel.class)));
         // load all existing for this (user,type)
         List<VolunteerNotificationAssignment> existingRows =
-            notificationRepository.findAllById_VolunteerIdAndId_NotificationType(userId, type);
+            notificationRepository.findAllByVolunteerNotificationAssignmentId_VolunteerIdAndVolunteerNotificationAssignmentId_NotificationType(userId, type);
         Set<NotificationChannel> existingChannels = existingRows.stream()
             .map(VolunteerNotificationAssignment::getNotificationChannel)
             .collect(Collectors.toCollection(() -> EnumSet.noneOf(NotificationChannel.class)));
@@ -98,7 +98,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private NotificationSettingsDto fetchPersistedSettings(String userId, NotificationType type) {
-        Set<NotificationChannel> persistedChannels = notificationRepository.findAllById_VolunteerIdAndId_NotificationType(userId, type)
+        Set<NotificationChannel> persistedChannels = notificationRepository.findAllByVolunteerNotificationAssignmentId_VolunteerIdAndVolunteerNotificationAssignmentId_NotificationType(userId, type)
                 .stream()
                 .map(VolunteerNotificationAssignment::getNotificationChannel)
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(NotificationChannel.class)));
@@ -121,7 +121,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (!toAdd.isEmpty()) {
             List<VolunteerNotificationAssignment> addEntities = toAdd.stream()
                 .map(ch -> VolunteerNotificationAssignment.builder()
-                    .id(VolunteerNotificationAssignmentId.of(userId, type, ch))
+                    .volunteerNotificationAssignmentId(VolunteerNotificationAssignmentId.of(userId, type, ch))
                     .build())
                 .toList();
             notificationRepository.saveAll(addEntities);
