@@ -46,13 +46,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
         // Check for overlapping time constraints for this volunteer+event
         var existingConstraints = attendanceTimeConstraintDao.searchByVolunteerAndEvent(userId, eventId);
-        for (var constraint : existingConstraints) {
-            if (createDto.getFrom().isBefore(constraint.getEndTime())
-                    && createDto.getTo().isAfter(constraint.getStartTime())) {
-                throw new ConflictException("New time constraint overlaps with existing time constraint id=%d".formatted(constraint.getId()));
-            }
-        }
-
+        checkForConstraintOverlaps(createDto, existingConstraints);
         var entity = attendanceTimeConstraintDao.save(TimeConstraintMapper.fromCreateDto(createDto, attendance));
 
         return TimeConstraintMapper.toDto(entity);
@@ -65,5 +59,14 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
             throw new NotFoundException("Time constraint not found");
         }
         attendanceTimeConstraintDao.delete(atcOpt.get());
+    }
+
+    static void checkForConstraintOverlaps(@NonNull TimeConstraintCreateDto createDto, @NonNull Collection<AttendanceTimeConstraint> existingConstraints) throws ConflictException {
+        for (var constraint : existingConstraints) {
+            if (createDto.getFrom().isBefore(constraint.getEndTime())
+                && createDto.getTo().isAfter(constraint.getStartTime())) {
+                throw new ConflictException("New time constraint overlaps with existing time constraint id=%d".formatted(constraint.getId()));
+            }
+        }
     }
 }
