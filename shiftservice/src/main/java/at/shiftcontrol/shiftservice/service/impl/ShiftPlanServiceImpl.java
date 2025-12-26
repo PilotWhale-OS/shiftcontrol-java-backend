@@ -272,8 +272,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         validatePermission(shiftPlanId, requestDto.getType(), currentUser);
 
-        var shiftPlan = shiftPlanDao.findById(shiftPlanId)
-            .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
 
         if (requestDto.getExpiresAt() != null && requestDto.getExpiresAt().isBefore(Instant.now())) {
             throw new BadRequestException("expiresAt must be in the future");
