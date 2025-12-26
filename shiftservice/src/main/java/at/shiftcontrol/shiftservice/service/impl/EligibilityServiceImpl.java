@@ -52,6 +52,14 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
+    public void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId) {
+        Collection<Volunteer> shiftPlanVolunteers = positionSlot.getShift().getShiftPlan().getPlanVolunteers();
+        if (shiftPlanVolunteers.stream().noneMatch(v -> v.getId().equals(volunteerId))) {
+            throw new IllegalArgumentException("Volunteer not assigned to shift plan");
+        }
+    }
+
+    @Override
     public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Volunteer volunteer) {
         if (isSignedUp(positionSlot, volunteer)) {
             return PositionSignupState.SIGNED_UP;
@@ -86,9 +94,16 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
+    public void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
+        PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
+        if (PositionSignupState.SIGNUP_VIA_AUCTION.equals(signupState)) return;
+        validateSignUpState(signupState);
+    }
+
+    @Override
     public void validateSignUpStateForTrade(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
-        if (PositionSignupState.FULL.equals(signupState)) return; // trades can be created even if the position slot is full
+        if (PositionSignupState.SIGNUP_VIA_TRADE.equals(signupState)) return;
         validateSignUpState(signupState);
     }
 

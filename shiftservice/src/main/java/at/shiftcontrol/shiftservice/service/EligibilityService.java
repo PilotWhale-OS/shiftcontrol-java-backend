@@ -46,6 +46,15 @@ public interface EligibilityService {
     void validateSignUpStateForJoin(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
 
     /**
+     * Checks if the volunteer can claim an auction for the position slot based on PositionSignUpState
+     *
+     * @param positionSlot The requested position slot to check
+     * @param volunteer The volunteer to check
+     * @throws ConflictException if it is not possible for the volunteer to claim an auction for this position slot
+     */
+    void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
+
+    /**
      * Checks if the volunteer can request a trade for the position slot based on PositionSignUpState
      *
      * @param positionSlot The requested position slot to check
@@ -107,4 +116,6 @@ public interface EligibilityService {
      * @return The signup state of the volunteer for the position slot
      */
     PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) throws NotFoundException;
+
+    void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId);
 }
