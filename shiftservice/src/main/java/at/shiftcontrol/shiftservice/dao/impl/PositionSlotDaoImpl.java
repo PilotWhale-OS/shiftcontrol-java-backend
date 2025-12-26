@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -23,6 +25,11 @@ public class PositionSlotDaoImpl implements PositionSlotDao {
     @Override
     public PositionSlot save(PositionSlot entity) {
         return positionSlotRepository.save(entity);
+    }
+
+    @Override
+    public Collection<PositionSlot> saveAll(Collection<PositionSlot> entities) {
+        return positionSlotRepository.saveAll(entities);
     }
 
     @Override

@@ -1,8 +1,12 @@
 package at.shiftcontrol.shiftservice.mapper;
 
+import java.util.List;
+
 import at.shiftcontrol.shiftservice.dto.LocationDto;
 import at.shiftcontrol.shiftservice.entity.Location;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class LocationMapper {
     public static LocationDto toLocationDto(Location location) {
         return new LocationDto(
@@ -11,5 +15,11 @@ public class LocationMapper {
             location.getDescription(),
             location.getUrl()
         );
+    }
+
+    public static List<LocationDto> toLocationDto(List<Location> locations) {
+        return locations.stream()
+            .map(LocationMapper::toLocationDto)
+            .toList();
     }
 }

@@ -2,17 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
-import at.shiftcontrol.shiftservice.dto.UserPreferenceUpdateDto;
-import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,19 +11,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
+import at.shiftcontrol.shiftservice.dto.UserPreferenceUpdateDto;
+import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
+import at.shiftcontrol.shiftservice.service.PositionSlotService;
+
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/position-slots/{positionSlotId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class PositionSlotEndpoint {
+    private final PositionSlotService positionSlotService;
+
     @GetMapping
     // TODO Security
     @Operation(
         operationId = "getPositionSlot",
         description = "Get details for a specific position slot in a shift"
     )
-    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) {
-        return null; // TODO: implement
+    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException {
+        return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
 
     @PostMapping("/join")
@@ -82,4 +89,20 @@ public class PositionSlotEndpoint {
     public Collection<AssignmentDto> getPositionSlotAssignments(@PathVariable String positionSlotId) {
         return null; // TODO: implement
     }
+
+    @PutMapping("/auction")
+    // TODO Security
+    @Operation(
+        operationId = "auctionAssignment",
+        description = "Put the logged in users assignment for the PositionSlot up for auction"
+    )
+    public AssignmentDto auctionAssignment(@PathVariable String positionSlotId) throws NotFoundException {
+        return positionSlotService.auction(ConvertUtil.idToLong(positionSlotId));
+    }
+
+    // TODO claim auction
+    // TODO cancle auction
+    // TODO positionSlot unassign
+    // TODO positionSlot request unassign
+    // TODO positionSlot request signup
 }

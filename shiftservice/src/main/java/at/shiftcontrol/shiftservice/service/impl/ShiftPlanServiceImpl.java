@@ -7,12 +7,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RoleDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
@@ -23,6 +25,7 @@ import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
@@ -37,7 +40,8 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
-import at.shiftcontrol.shiftservice.mapper.ShiftMapper;
+import at.shiftcontrol.shiftservice.mapper.RoleMapper;
+import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
@@ -62,6 +66,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
+    private final ShiftAssemblingMapper shiftMapper;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -71,9 +76,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
-
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
 
         return DashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
@@ -81,14 +84,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .ownShiftPlanStatistics(statisticService.getOwnShiftPlanStatistics(userShifts)) // directly pass user shifts here to avoid redundant filtering
             .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlanId))
             .rewardPoints(-1) // TODO
-            .shifts(ShiftMapper.toShiftDto(userShifts, slot -> eligibilityService.getSignupStateForPositionSlot(slot, volunteer)))
+            .shifts(shiftMapper.assemble(userShifts))
             .trades(null) // TODO implement when trades are available
             .auctions(null) // TODO
             .build();
-    }
-
-    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
-        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
     }
 
     @Override
@@ -119,7 +118,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         // Build location DTOs
         var locationSchedules = shiftsByLocation.entrySet().stream()
-            .map(entry -> buildLocationSchedule(entry.getKey(), entry.getValue(), volunteer))
+            .map(entry -> buildLocationSchedule(entry.getKey(), entry.getValue()))
             .toList();
 
         var stats = statisticService.getShiftPlanScheduleStatistics(queriedShifts);
@@ -158,13 +157,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
 
-    private LocationScheduleDto buildLocationSchedule(Location location, List<Shift> shifts, Volunteer volunteer) {
+    private LocationScheduleDto buildLocationSchedule(Location location, List<Shift> shifts) {
         // sort for deterministic column placement
         shifts.sort(Comparator
             .comparing(Shift::getStartTime)
             .thenComparing(Shift::getEndTime));
 
-        var shiftColumns = calculateShiftColumns(shifts, volunteer);
+        var shiftColumns = calculateShiftColumns(shifts);
         int requiredShiftColumns = shiftColumns.stream()
             .mapToInt(ShiftColumnDto::getColumnIndex)
             .max()
@@ -184,7 +183,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
-    private List<ShiftColumnDto> calculateShiftColumns(List<Shift> sortedShifts, Volunteer volunteer) {
+    private List<ShiftColumnDto> calculateShiftColumns(List<Shift> sortedShifts) {
         // end time per column
         var columnEndTimes = new ArrayList<Instant>();
         var result = new ArrayList<ShiftColumnDto>(sortedShifts.size());
@@ -200,7 +199,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
             result.add(ShiftColumnDto.builder()
                 .columnIndex(columnIndex)
-                .shiftDto(ShiftMapper.toShiftDto(shift, slot -> eligibilityService.getSignupStateForPositionSlot(slot, volunteer)))
+                .shiftDto(shiftMapper.assemble(shift))
                 .build());
         }
 
@@ -215,6 +214,54 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             }
         }
         return -1;
+    }
+
+    @Override
+    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId) throws NotFoundException {
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+
+        var shifts = shiftPlan.getShifts();
+
+        if (shifts == null || shifts.isEmpty()) {
+            return ShiftPlanScheduleFilterValuesDto.builder()
+                .build();
+        }
+
+        var locations = shifts.stream()
+            .map(Shift::getLocation)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+
+        var roles = shifts.stream()
+            .flatMap(shift -> shift.getSlots().stream())
+            .map(PositionSlot::getRole)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+
+        var firstDate = shifts.stream()
+            .map(Shift::getStartTime)
+            .min(Instant::compareTo)
+            .map(TimeUtil::convertToUtcLocalDate)
+            .orElse(null);
+
+        var lastDate = shifts.stream()
+            .map(Shift::getEndTime)
+            .max(Instant::compareTo)
+            .map(TimeUtil::convertToUtcLocalDate)
+            .orElse(null);
+
+        return ShiftPlanScheduleFilterValuesDto.builder()
+            .locations(locations.isEmpty() ? null : LocationMapper.toLocationDto(locations))
+            .roles(roles.isEmpty() ? null : RoleMapper.toRoleDto(roles))
+            .firstDate(firstDate)
+            .lastDate(lastDate)
+            .build();
+    }
+
+    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
+        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
     }
 
     @Override

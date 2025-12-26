@@ -14,10 +14,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -39,4 +41,19 @@ public class PositionSlot {
     @NotNull
     @Column(nullable = false)
     private int desiredVolunteerCount;
+    @NotNull
+    @Column(nullable = false)
+    private int rewardPoints;
+
+    @Override
+    public String toString() {
+        return "PositionSlot{" +
+            "id=" + id +
+            ", shift=" + shift.getId() +
+            ", role=" + role +
+            ", assignments=" + assignments +
+            ", desiredVolunteerCount=" + desiredVolunteerCount +
+            ", rewardPoints=" + rewardPoints +
+            '}';
+    }
 }

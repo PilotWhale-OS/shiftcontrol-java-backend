@@ -1,131 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="007-insert-activities" author="paul" context="dev">
+    <changeSet id="007-insert-activities" author="paul" context="dev">
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="1"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="location_id" valueNumeric="1"/>
-      <column name="name" value="Registration Desk Morning"/>
-      <column name="description" value="Assist attendees with check-in at the registration desk in the morning"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="1"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="location_id" valueNumeric="1"/>
+            <column name="name" value="Registration Desk Morning"/>
+            <column name="description" value="Assist attendees with check-in at the registration desk in the morning"/>
+            <!-- linked to shift 1 (2025-09-12 08-12) and shift 2 (2025-09-13 08-12) -->
+            <column name="start_time" value="2025-09-12T08:00:00Z"/>
+            <column name="end_time" value="2025-09-13T12:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="2"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="location_id" valueNumeric="1"/>
-      <column name="name" value="Registration Desk Afternoon"/>
-      <column name="description"
-              value="Assist attendees with check-in at the registration desk in the afternoon"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="2"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="location_id" valueNumeric="1"/>
+            <column name="name" value="Registration Desk Afternoon"/>
+            <column name="description"
+                    value="Assist attendees with check-in at the registration desk in the afternoon"/>
+            <!-- linked to shift 2 (2025-09-13 08-12) and shift 3 (2025-09-12 13-17) -->
+            <column name="start_time" value="2025-09-12T13:00:00Z"/>
+            <column name="end_time" value="2025-09-13T12:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="3"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="location_id" valueNumeric="2"/>
-      <column name="name" value="Workshop Setup"/>
-      <column name="description" value="Prepare Workshop Room A for sessions and equipment setup"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="3"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="location_id" valueNumeric="2"/>
+            <column name="name" value="Workshop Setup"/>
+            <column name="description" value="Prepare Workshop Room A for sessions and equipment setup"/>
+            <!-- linked to shift 1 (2025-09-12 08-12) and shift 3 (2025-09-12 13-17) -->
+            <column name="start_time" value="2025-09-12T08:00:00Z"/>
+            <column name="end_time" value="2025-09-12T17:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="4"/>
-      <column name="event_id" valueNumeric="2"/>
-      <column name="location_id" valueNumeric="3"/>
-      <column name="name" value="Exhibition Hall Support"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="4"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="location_id" valueNumeric="3"/>
+            <column name="name" value="Exhibition Hall Support"/>
+            <!-- linked to shift 1 and shift 2 -->
+            <column name="start_time" value="2025-09-12T08:00:00Z"/>
+            <column name="end_time" value="2025-09-13T12:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="5"/>
-      <column name="event_id" valueNumeric="2"/>
-      <column name="location_id" valueNumeric="4"/>
-      <column name="name" value="Breakout Room Assistance"/>
-      <column name="description" value="Support smaller sessions and handle attendee needs"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="5"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="location_id" valueNumeric="4"/>
+            <column name="name" value="Breakout Room Assistance"/>
+            <column name="description" value="Support smaller sessions and handle attendee needs"/>
+            <!-- linked to shift 3 (2025-09-12 13-17) and shift 4 (2025-09-14 13-17) -->
+            <column name="start_time" value="2025-09-12T13:00:00Z"/>
+            <column name="end_time" value="2025-09-14T17:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="6"/>
-      <column name="event_id" valueNumeric="3"/>
-      <column name="location_id" valueNumeric="5"/>
-      <column name="name" value="Auditorium Technical Support"/>
-      <column name="description" value="Assist with AV and microphone setup for sessions"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="6"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="location_id" valueNumeric="5"/>
+            <column name="name" value="Auditorium Technical Support"/>
+            <column name="description" value="Assist with AV and microphone setup for sessions"/>
+            <!-- linked to shift 1 and shift 2 -->
+            <column name="start_time" value="2025-09-12T08:00:00Z"/>
+            <column name="end_time" value="2025-09-13T12:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="7"/>
-      <column name="event_id" valueNumeric="3"/>
-      <column name="location_id" valueNumeric="6"/>
-      <column name="name" value="Workshop Assistance"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="7"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="location_id" valueNumeric="6"/>
+            <column name="name" value="Workshop Assistance"/>
+            <!-- linked to shift 2 (2025-09-13 08-12) and shift 3 (2025-09-12 13-17) -->
+            <column name="start_time" value="2025-09-12T13:00:00Z"/>
+            <column name="end_time" value="2025-09-13T12:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="8"/>
-      <column name="event_id" valueNumeric="4"/>
-      <column name="location_id" valueNumeric="7"/>
-      <column name="name" value="Main Hall Monitoring"/>
-      <column name="description" value="Monitor Main Conference Hall and assist speakers"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="8"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="location_id" valueNumeric="7"/>
+            <column name="name" value="Main Hall Monitoring"/>
+            <column name="description" value="Monitor Main Conference Hall and assist speakers"/>
+            <!-- linked to shift 1 (2025-09-12 08-12) and shift 4 (2025-09-14 13-17) -->
+            <column name="start_time" value="2025-09-12T08:00:00Z"/>
+            <column name="end_time" value="2025-09-14T17:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="9"/>
-      <column name="event_id" valueNumeric="4"/>
-      <column name="location_id" valueNumeric="8"/>
-      <column name="name" value="Workshop Room C Support"/>
-      <column name="description" value="Ensure all sessions run smoothly and equipment works"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="9"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="location_id" valueNumeric="8"/>
+            <column name="name" value="Workshop Room C Support"/>
+            <column name="description" value="Ensure all sessions run smoothly and equipment works"/>
+            <!-- linked to shift 3 (2025-09-12 13-17) and shift 5 (2025-09-12 17:30-21:00) -->
+            <column name="start_time" value="2025-09-12T13:00:00Z"/>
+            <column name="end_time" value="2025-09-12T21:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="10"/>
-      <column name="event_id" valueNumeric="5"/>
-      <column name="location_id" valueNumeric="9"/>
-      <column name="name" value="Expo Hall Assistance"/>
-      <column name="description" value="Assist exhibitors and manage visitor flow in Expo Hall"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="10"/>
+            <column name="event_id" valueNumeric="5"/>
+            <column name="location_id" valueNumeric="9"/>
+            <column name="name" value="Expo Hall Assistance"/>
+            <column name="description" value="Assist exhibitors and manage visitor flow in Expo Hall"/>
+            <!-- linked to shift 2 (2025-09-13 08-12) and shift 4 (2025-09-14 13-17) -->
+            <column name="start_time" value="2025-09-13T08:00:00Z"/>
+            <column name="end_time" value="2025-09-14T17:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="11"/>
-      <column name="event_id" valueNumeric="5"/>
-      <column name="location_id" valueNumeric="10"/>
-      <column name="name" value="Breakout Room D Support"/>
-      <column name="description" value="Help speakers and attendees in Breakout Room D"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="11"/>
+            <column name="event_id" valueNumeric="5"/>
+            <column name="location_id" valueNumeric="10"/>
+            <column name="name" value="Breakout Room D Support"/>
+            <column name="description" value="Help speakers and attendees in Breakout Room D"/>
+            <!-- aligns with shift 19 (2026-01-20 08-12) -->
+            <column name="start_time" value="2026-01-20T08:00:00Z"/>
+            <column name="end_time" value="2026-01-20T12:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="12"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="location_id" valueNumeric="2"/>
-      <column name="name" value="Audio Setup Workshop A"/>
-      <column name="description" value="Set up microphones and audio equipment for workshops"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="12"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="location_id" valueNumeric="2"/>
+            <column name="name" value="Audio Setup Workshop A"/>
+            <column name="description" value="Set up microphones and audio equipment for workshops"/>
+            <!-- aligns with workshop/setup theme; picked a sensible morning slot around event 1 -->
+            <column name="start_time" value="2025-09-14T08:00:00Z"/>
+            <column name="end_time" value="2025-09-14T12:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="13"/>
-      <column name="event_id" valueNumeric="2"/>
-      <column name="location_id" valueNumeric="3"/>
-      <column name="name" value="Lighting Control Exhibition"/>
-      <column name="description" value="Manage lighting for exhibition hall booths"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="13"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="location_id" valueNumeric="3"/>
+            <column name="name" value="Lighting Control Exhibition"/>
+            <column name="description" value="Manage lighting for exhibition hall booths"/>
+            <!-- aligns with shift 10 (2025-10-06 13-17) -->
+            <column name="start_time" value="2025-10-06T13:00:00Z"/>
+            <column name="end_time" value="2025-10-06T17:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="14"/>
-      <column name="event_id" valueNumeric="3"/>
-      <column name="location_id" valueNumeric="6"/>
-      <column name="name" value="Workshop Materials Distribution"/>
-      <column name="description" value="Distribute materials and handouts to workshop participants"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="14"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="location_id" valueNumeric="6"/>
+            <column name="name" value="Workshop Materials Distribution"/>
+            <column name="description" value="Distribute materials and handouts to workshop participants"/>
+            <!-- aligns with shift 11 (2025-11-15 08-12) -->
+            <column name="start_time" value="2025-11-15T08:00:00Z"/>
+            <column name="end_time" value="2025-11-15T12:00:00Z"/>
+        </insert>
 
-    <insert tableName="activity">
-      <column name="id" valueNumeric="15"/>
-      <column name="event_id" valueNumeric="4"/>
-      <column name="location_id" valueNumeric="8"/>
-      <column name="name" value="Session Cleanup"/>
-      <column name="description" value="Clean and organize Workshop Room C after each session"/>
-    </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="15"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="location_id" valueNumeric="8"/>
+            <column name="name" value="Session Cleanup"/>
+            <column name="description" value="Clean and organize Workshop Room C after each session"/>
+            <!-- aligns with shift 17 (2025-12-12 13-17) -->
+            <column name="start_time" value="2025-12-12T13:00:00Z"/>
+            <column name="end_time" value="2025-12-12T17:00:00Z"/>
+        </insert>
 
-  </changeSet>
+    </changeSet>
 
 </databaseChangeLog>

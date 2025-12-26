@@ -27,5 +27,5 @@ public class DashboardOverviewDto {
     @NotNull
     private Collection<TradeDto> trades;
     @NotNull
-    private Collection<ShiftDto> auctions;
+    private Collection<ShiftDto> auctions; // TODO this should be Collection<Assignment>
 }

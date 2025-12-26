@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
@@ -26,6 +27,11 @@ public class ShiftDaoImpl implements ShiftDao {
     @Override
     public Shift save(Shift entity) {
         return shiftRepository.save(entity);
+    }
+
+    @Override
+    public Collection<Shift> saveAll(Collection<Shift> entities) {
+        return shiftRepository.saveAll(entities);
     }
 
     @Override

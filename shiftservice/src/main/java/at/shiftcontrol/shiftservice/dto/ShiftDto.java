@@ -30,8 +30,8 @@ public class ShiftDto {
     private Collection<ActivityDto> relatedActivities;
     @NotNull
     private Collection<PositionSlotDto> positionSlots;
+    @NotNull
     private LockStatus lockStatus;
-    private TradeInfoDto tradeInfo;
-
+    @NotNull
     private LocationDto location;
 }

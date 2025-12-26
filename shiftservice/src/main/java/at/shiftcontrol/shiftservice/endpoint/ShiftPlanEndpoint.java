@@ -5,6 +5,7 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
@@ -51,6 +52,16 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), shiftPlanScheduleSearchDto);
     }
 
+    @GetMapping("/schedule/filters")
+    // TODO Security
+    @Operation(
+        operationId = "getShiftPlanScheduleFilterValues",
+        description = "Get available filter values for the schedule of a specific shift plan of an event"
+    )
+    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(@PathVariable String shiftPlanId) throws NotFoundException {
+        return shiftPlanService.getShiftPlanScheduleFilterValues(ConvertUtil.idToLong(shiftPlanId));
+    }
+    
     @PostMapping("{shiftPlanId}/invite")
     // TODO Security
     @Operation(
@@ -63,7 +74,7 @@ public class ShiftPlanEndpoint {
 
     // TODO endpoints to list all codes for shiftPlan + revoke code (safe revoked or delete?)
     // TODO add roles for invite codes so that user gets assigned specific roles when joining via invite code (to avoid many manual role assignments)
-
+    
     @PostMapping("/join")
     // TODO Security
     @Operation(

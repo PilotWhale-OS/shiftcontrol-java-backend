@@ -25,6 +25,5 @@ public class AssignmentEndpoint {
     public AssignmentDto auctionAssignment(@PathVariable String positionSlotId, @PathVariable String volunteerId) {
         return null; // TODO: implement
     }
-
-    //Todo more endpoints for the assignments (trade etc.)
+    // assignment functionality is implemented in PositionSlotEndpoint and PositionSlotTradeEndpoint
 }

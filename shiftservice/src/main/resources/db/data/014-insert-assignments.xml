@@ -40,7 +40,7 @@
     <insert tableName="assignment">
       <column name="position_slot_id" valueNumeric="12"/>
       <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
-      <column name="status" value="ACCEPTED"/>
+      <column name="status" value="AUCTION_REQUEST_FOR_UNASSIGN"/>
     </insert>
 
     <insert tableName="assignment">
