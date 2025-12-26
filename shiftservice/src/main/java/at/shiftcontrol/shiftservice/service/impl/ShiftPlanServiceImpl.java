@@ -35,6 +35,7 @@ import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.entity.Role;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
@@ -291,18 +292,16 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         // Generate a unique code (retry a few times)
         String code = generateUniqueCode();
 
-        //TODO
-//        Collection<Role> rolesToAssign = List.of();
-//        if (requestDto.getAutoAssignRoleIds() != null && !requestDto.getAutoAssignRoleIds().isEmpty()) {
-//            rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds());
-//
-//            if (rolesToAssign.size() != requestDto.getAutoAssignRoleIds().size()) {
-//                throw new BadRequestException("One or more roleIds are invalid");
-//            }
-//
-//            // Optional but recommended:
-//            // verify roles belong to this event/shiftPlan domain if you have that concept
-//        }
+        Collection<Role> rolesToAssign = List.of();
+        if (requestDto.getAutoAssignRoleIds() != null && !requestDto.getAutoAssignRoleIds().isEmpty()) {
+            rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds());
+
+            if (rolesToAssign.size() != requestDto.getAutoAssignRoleIds().size()) {
+                throw new BadRequestException("One or more roleIds are invalid");
+            }
+
+            // TODO verify roles belong to this event/shiftPlan domain if you have that concept
+        }
 
         var invite = ShiftPlanInvite.builder()
             .code(code)
@@ -313,7 +312,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .maxUses(requestDto.getMaxUses())
             .uses(0)
             .createdAt(Instant.now())
-//            .autoAssignRoles(rolesToAssign.isEmpty() ? null : rolesToAssign) TODO
+            .autoAssignRoles(rolesToAssign.isEmpty() ? null : rolesToAssign)
             .build();
 
         // Should not happen but just in case we retry once
@@ -335,9 +334,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     private String generateUniqueCode() {
         // URL-safe, human-friendly alphabet (no 0/O, 1/I to reduce confusion)
-        final char[] alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toCharArray();
-
-        //TODO maybe ensure uniqueness by implementing a better strategy if needed (e.g., longer codes, more attempts, algorithm were first 4(?) dicits somehow encore timestamp or sopmething, etc.)
+        final char[] alphabet = "ABCDEFGHJKLMNOPQRSTUVWXYZ123456789".toCharArray();
 
         for (int attempt = 0; attempt < 10; attempt++) {
             String code = randomString(alphabet);
@@ -362,11 +359,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public void revokeShiftPlanInviteCode(long shiftPlanId, String inviteCode) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        // TODO add this again before commit
-//        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
-//            throw new ForbiddenException("User is not a planner in shift plan with id: "
-//                + shiftPlanId);
-//        }
+        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
+            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
+        }
 
         var invite = shiftPlanInviteDao.findByCode(inviteCode)
             .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
@@ -439,9 +434,18 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
 
-        // Increase uses only if joined now and ignores duplicate joins (already member)
+        // Increase uses and add roles only if joined now and ignores duplicate joins (already member)
         if (joinedNow) {
-            // TODO In join-shift-plan service: apply roles on join
+            var rolesToAssign = invite.getAutoAssignRoles();
+            if (rolesToAssign != null && !rolesToAssign.isEmpty()) {
+                for (var role : rolesToAssign) {
+                    if (!volunteer.getRoles().contains(role)) {
+                        volunteer.getRoles().add(role);
+                    }
+                }
+                volunteerDao.save(volunteer);
+            }
+
             invite.setUses(invite.getUses() + 1);
         }
 
@@ -452,7 +456,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
 
         // save updates
-        //do transactionally
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
 

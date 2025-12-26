@@ -23,5 +23,5 @@ public class ShiftPlanInviteCreateRequestDto {
 
     private Integer maxUses;
 
-    private Collection<String> autoAssignRoleIds;
+    private Collection<Long> autoAssignRoleIds;
 }
