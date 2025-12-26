@@ -22,6 +22,8 @@ import lombok.Setter;
 
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -54,9 +56,9 @@ public class AttendanceTimeConstraint {
 
     @Override
     public String toString() {
-        return "AttendanceTimeConstraint{" +
-            "id=" + id +
-            ", attendance=" + attendance +
-            '}';
+        return "AttendanceTimeConstraint{"
+            + "id=" + id
+            + ", attendance=" + attendance
+            + '}';
     }
 }
