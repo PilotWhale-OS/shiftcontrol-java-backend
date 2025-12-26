@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -24,6 +25,11 @@ public class ShiftPlanInviteDaoImpl implements ShiftPlanInviteDao {
     }
 
     @Override
+    public Collection<ShiftPlanInvite> saveAll(Collection<ShiftPlanInvite> entities) {
+        return shiftPlanInviteRepository.saveAll(entities);
+    }
+
+    @Override
     public void delete(ShiftPlanInvite entity) {
         shiftPlanInviteRepository.delete(entity);
     }
@@ -36,5 +42,12 @@ public class ShiftPlanInviteDaoImpl implements ShiftPlanInviteDao {
     @Override
     public boolean existsByCode(String code) {
         return shiftPlanInviteRepository.existsByCode(code);
+    }
+
+    @Override
+    public Collection<ShiftPlanInvite> findAllByShiftPlanId(Long shiftPlanId) {
+        return shiftPlanInviteRepository.findAll().stream()
+            .filter(invite -> invite.getShiftPlan().getId() == shiftPlanId)
+            .toList();
     }
 }

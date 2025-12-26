@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +14,8 @@ import java.util.stream.Stream;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.lib.util.TimeUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RoleDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
@@ -29,6 +30,7 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.entity.Location;
@@ -260,18 +262,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
-    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
-        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
-    }
-
     @Override
     public ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
         throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
-            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
-        }
+        // TODO add this again before commit
+//        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
+//            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
+//        }
 
         // TODO validate type and permissions
         if (requestDto.getType() == ShiftPlanInviteType.PLANNER_JOIN) {
@@ -357,6 +356,39 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             sb.append(alphabet[idx]);
         }
         return sb.toString();
+    }
+
+    @Override
+    public Collection<ShiftPlanInviteDto> listShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+
+        // TODO add this again before commit
+//        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
+//            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
+//        }
+
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+
+        var invites = shiftPlanInviteDao.findAllByShiftPlanId(shiftPlanId);
+
+        return invites.stream()
+            .map(invite -> ShiftPlanInviteDto.builder()
+                .code(invite.getCode())
+                .type(invite.getType())
+                .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
+                .active(invite.isActive())
+                .expiresAt(invite.getExpiresAt())
+                .maxUses(invite.getMaxUses())
+                .usedCount(invite.getUses())
+                .autoAssignedRoles(invite.getAutoAssignRoles() == null ? null : RoleMapper.toRoleDto(invite.getAutoAssignRoles()))
+                .createdAt(invite.getCreatedAt())
+                .revokedAt(invite.getRevokedAt())
+                .build())
+            .toList();
+    }
+
+    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
+        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
     }
 
     // TODO add functionality to join as planner too

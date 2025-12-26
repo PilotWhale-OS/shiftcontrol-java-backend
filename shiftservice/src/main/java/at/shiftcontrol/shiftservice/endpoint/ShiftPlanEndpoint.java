@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
+import java.util.Collection;
+
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -9,10 +11,12 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -61,20 +65,35 @@ public class ShiftPlanEndpoint {
     public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(@PathVariable String shiftPlanId) throws NotFoundException {
         return shiftPlanService.getShiftPlanScheduleFilterValues(ConvertUtil.idToLong(shiftPlanId));
     }
-    
+
     @PostMapping("{shiftPlanId}/invite")
     // TODO Security
     @Operation(
         operationId = "createShiftPlanInvite",
         description = "Create an invite code for a specific shift plan of an event"
     )
-    public ShiftPlanInviteCreateResponseDto createShiftPlanInvite(@PathVariable String shiftPlanId, @RequestBody ShiftPlanInviteCreateRequestDto requestDto) {
+    public ShiftPlanInviteCreateResponseDto createShiftPlanInvite(@PathVariable String shiftPlanId,
+                                                                  @RequestBody @Valid ShiftPlanInviteCreateRequestDto requestDto)
+        throws ForbiddenException, NotFoundException {
         return shiftPlanService.createShiftPlanInviteCode(ConvertUtil.idToLong(shiftPlanId), requestDto);
     }
 
-    // TODO endpoints to list all codes for shiftPlan + revoke code (safe revoked or delete?)
+
+    // TODO endpoints to list all codes for shiftPlan + revoke code (safe revoked or delete?) --> Daily CRON Job to delete expired codes
     // TODO add roles for invite codes so that user gets assigned specific roles when joining via invite code (to avoid many manual role assignments)
-    
+
+    // endpoint to list all codes for shiftPlan
+    @GetMapping("{shiftPlanId}/invites")
+    // TODO Security
+    @Operation(
+        operationId = "listShiftPlanInvites",
+        description = "List all invite codes for a specific shift plan of an event"
+    )
+    public Collection<ShiftPlanInviteDto> listShiftPlanInvites(@PathVariable String shiftPlanId)
+        throws ForbiddenException, NotFoundException {
+        return shiftPlanService.listShiftPlanInvites(ConvertUtil.idToLong(shiftPlanId));
+    }
+
     @PostMapping("/join")
     // TODO Security
     @Operation(
