@@ -12,10 +12,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -52,4 +54,15 @@ public class Volunteer {
         inverseJoinColumns = @JoinColumn(name = "shift_plan_id")
     )
     private Collection<ShiftPlan> planningPlans;
+
+    @Override
+    public String toString() {
+        return "Volunteer{" +
+            "id='" + id + '\'' +
+            ", roles=" + roles +
+            ", notificationAssignments=" + notificationAssignments +
+            ", volunteeringPlans=" + volunteeringPlans.stream().map(ShiftPlan::getId).toList() +
+            ", planningPlans=" + planningPlans.stream().map(ShiftPlan::getId).toList() +
+            '}';
+    }
 }

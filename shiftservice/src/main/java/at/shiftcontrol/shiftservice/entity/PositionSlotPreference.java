@@ -7,10 +7,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,4 +25,12 @@ public class PositionSlotPreference {
     @Size(min = -10, max = 10)
     @Column(nullable = false)
     private int preferenceLevel;
+
+    @Override
+    public String toString() {
+        return "PositionSlotPreference{" +
+            "id=" + id +
+            ", preferenceLevel=" + preferenceLevel +
+            '}';
+    }
 }

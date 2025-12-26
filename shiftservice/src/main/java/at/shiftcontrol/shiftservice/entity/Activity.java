@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import java.time.Instant;
 import java.util.Collection;
 
 import jakarta.persistence.Column;
@@ -15,10 +16,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -39,9 +42,25 @@ public class Activity {
     @Size(max = 1024)
     @Column(nullable = true, length = 1024)
     private String description;
+    @NotNull
+    @Column(nullable = false)
+    private Instant startTime;
+    @NotNull
+    @Column(nullable = false)
+    private Instant endTime;
     @ManyToMany(mappedBy = "relatedActivities")
     private Collection<Shift> shifts;
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Location location;
+
+    @Override
+    public String toString() {
+        return "Activity{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", shifts=" + shifts.stream().map(Shift::getId).toList() +
+            ", location=" + location +
+            '}';
+    }
 }
