@@ -16,15 +16,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.EventDto;
 import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.dto.UnavailabilityCreateDto;
-import at.shiftcontrol.shiftservice.dto.UnavailabilityDto;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.service.EventService;
+import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 
 @Slf4j
 @RestController
@@ -33,6 +35,7 @@ import at.shiftcontrol.shiftservice.service.EventService;
 public class EventEndpoint {
     private final ApplicationUserProvider userProvider;
     private final EventService eventService;
+    private final TimeConstraintService timeConstraintService;
 
     @GetMapping()
     //TODO: @Secured({"planner.event.read", "volunteer.event.read"})
@@ -65,33 +68,37 @@ public class EventEndpoint {
         return eventService.getEventShiftPlansOverview(ConvertUtil.idToLong(eventId), userProvider.getCurrentUser().getUserId());
     }
 
-    @GetMapping("/unavailability")
+    @GetMapping("/{eventId}/time-constraints")
     // TODO Security
     @Operation(
-        operationId = "getUnavailabilities",
-        description = "Get unavailability periods of the current user"
+        operationId = "getTimeConstraints",
+        description = "Get time constraints of the current user"
     )
-    public Collection<UnavailabilityDto> getUnavailabilities() {
-        return null; // TODO: implement
+    public Collection<TimeConstraintDto> getTimeConstraints(@PathVariable String eventId) {
+        return timeConstraintService.getTimeConstraints(userProvider.getCurrentUser().getUserId(), ConvertUtil.idToLong(eventId));
     }
 
-    @PostMapping("/unavailability")
+    @PostMapping("/{eventId}/time-constraints")
     // TODO Security
     @Operation(
-        operationId = "createUnavailability",
-        description = "Create a new unavailability period for the current user"
+        operationId = "createTimeConstraint",
+        description = "Create a new time constraint for the current user"
     )
-    public UnavailabilityDto createUnavailability(@RequestBody UnavailabilityCreateDto createDto) {
-        return null; // TODO: implement
+    public TimeConstraintDto createUnavailability(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto) throws ConflictException {
+        return timeConstraintService.createTimeConstraint(
+            createDto,
+            userProvider.getCurrentUser().getUserId(),
+            ConvertUtil.idToLong(eventId)
+        );
     }
 
-    @DeleteMapping("/unavailability/{unavailabilityId}")
+    @DeleteMapping("/{eventId}/time-constraints/{timeConstraintId}")
     // TODO Security
     @Operation(
         operationId = "deleteUnavailability",
         description = "Delete an existing unavailability period of the current user"
     )
-    public void deleteUnavailability(@PathVariable String unavailabilityId) {
-        // TODO: implement
+    public void deleteUnavailability(@PathVariable String eventId, @PathVariable String timeConstraintId) throws NotFoundException {
+        timeConstraintService.delete(ConvertUtil.idToLong(timeConstraintId));
     }
 }

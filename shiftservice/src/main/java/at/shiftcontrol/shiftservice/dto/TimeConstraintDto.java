@@ -6,11 +6,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import at.shiftcontrol.shiftservice.type.TimeConstraintType;
+
 @Data
 @Builder
-public class UnavailabilityDto {
+public class TimeConstraintDto {
     @NotNull
     private String id;
+    @NotNull
+    private TimeConstraintType type;
     @NotNull
     private Instant from;
     @NotNull

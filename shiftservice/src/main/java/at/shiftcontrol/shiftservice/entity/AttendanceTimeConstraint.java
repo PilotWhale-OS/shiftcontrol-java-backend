@@ -1,6 +1,11 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import java.time.Instant;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,6 +18,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 
 @Data
 @NoArgsConstructor
@@ -31,5 +38,17 @@ public class AttendanceTimeConstraint {
         @JoinColumn(name = "attendance_event_id", referencedColumnName = "event_id")
     })
     private Attendance attendance;
-    // startDate, endDate
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TimeConstraintType type;
+
+    @NotNull
+    @Column(name = "start_time", nullable = false)
+    private Instant startTime;
+
+    @NotNull
+    @Column(name = "end_time", nullable = false)
+    private Instant endTime;
 }
