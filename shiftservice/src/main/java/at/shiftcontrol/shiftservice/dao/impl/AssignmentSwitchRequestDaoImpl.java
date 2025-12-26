@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -24,6 +26,11 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     @Override
     public AssignmentSwitchRequest save(AssignmentSwitchRequest entity) {
         return assignmentSwitchRequestRepository.save(entity);
+    }
+
+    @Override
+    public Collection<AssignmentSwitchRequest> saveAll(Collection<AssignmentSwitchRequest> entities) {
+        return assignmentSwitchRequestRepository.saveAll(entities);
     }
 
     @Override

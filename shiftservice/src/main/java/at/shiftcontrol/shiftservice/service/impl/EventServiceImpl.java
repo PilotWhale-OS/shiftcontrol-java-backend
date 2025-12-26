@@ -9,6 +9,7 @@ import at.shiftcontrol.shiftservice.dto.EventDto;
 import at.shiftcontrol.shiftservice.dto.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
@@ -40,18 +41,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) throws NotFoundException {
-        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
-        var shiftPlans = event.getShiftPlans();
-        var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));
-
-        var volunteerShiftPlans = volunteer.getVolunteeringPlans();
-
-        // filter shiftPlans that the volunteer is part of (volunteerShiftPlans)
-        var relevantShiftPlans = shiftPlans.stream()
-            .filter(volunteerShiftPlans::contains)
-            .toList();
-
-        return ShiftPlanMapper.toShiftPlanDto(relevantShiftPlans);
+        return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId));
     }
 
     @Override
@@ -59,14 +49,28 @@ public class EventServiceImpl implements EventService {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
 
         var eventOverviewDto = EventMapper.toEventOverviewDto(event);
+        var userRelevantShiftPlans = getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId);
 
         //Todo: implement reward points
         return EventShiftPlansOverviewDto.builder()
             .eventOverview(eventOverviewDto)
-            .shiftPlans(getUserRelatedShiftPlansOfEvent(eventId, userId))
+            .shiftPlans(ShiftPlanMapper.toShiftPlanDto(userRelevantShiftPlans))
             .rewardPoints(-1)
-            .ownEventStatistics(statisticService.getOwnEventStatistics(eventId, userId))
-            .overallEventStatistics(statisticService.getOverallEventStatistics(eventId))
+            .ownEventStatistics(statisticService.getOwnStatisticsOfShiftPlans(userRelevantShiftPlans, userId))
+            .overallEventStatistics(statisticService.getOverallEventStatistics(event))
             .build();
+    }
+
+    private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) throws NotFoundException {
+        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        var shiftPlans = event.getShiftPlans();
+        var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));
+
+        var volunteerShiftPlans = volunteer.getVolunteeringPlans();
+
+        // filter shiftPlans that the volunteer is part of (volunteerShiftPlans)
+        return shiftPlans.stream()
+            .filter(volunteerShiftPlans::contains)
+            .toList();
     }
 }

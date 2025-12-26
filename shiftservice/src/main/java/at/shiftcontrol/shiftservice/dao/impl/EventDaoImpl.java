@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,11 @@ public class EventDaoImpl implements EventDao {
     @Override
     public Event save(Event entity) {
         return eventRepository.save(entity);
+    }
+
+    @Override
+    public Collection<Event> saveAll(Collection<Event> entities) {
+        return eventRepository.saveAll(entities);
     }
 
     @Override

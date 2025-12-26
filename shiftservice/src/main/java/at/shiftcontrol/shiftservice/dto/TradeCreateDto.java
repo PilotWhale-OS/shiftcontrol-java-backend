@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.dto;
 
+import java.util.Collection;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +16,5 @@ public class TradeCreateDto {
     @NotNull
     private String requestedPositionSlotId;
     @NotNull
-    private VolunteerDto offeringVolunteer;
+    private Collection<VolunteerDto> requestedVolunteers;
 }

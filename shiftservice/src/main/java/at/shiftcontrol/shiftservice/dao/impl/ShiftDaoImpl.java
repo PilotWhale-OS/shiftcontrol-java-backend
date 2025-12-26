@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,11 @@ public class ShiftDaoImpl implements ShiftDao {
     }
 
     @Override
+    public Collection<Shift> saveAll(Collection<Shift> entities) {
+        return shiftRepository.saveAll(entities);
+    }
+
+    @Override
     public void delete(Shift entity) {
         shiftRepository.delete(entity);
     }
@@ -43,7 +49,7 @@ public class ShiftDaoImpl implements ShiftDao {
     }
 
     @Override
-    public List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto) {
+    public List<Shift> searchShiftsInShiftPlan(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto) {
         Specification<Shift> spec =
             ShiftSpecifications.inShiftPlan(shiftPlanId)
                 .and(ShiftSpecifications.matchesSearchDto(searchDto)); // your other filters

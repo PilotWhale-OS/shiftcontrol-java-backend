@@ -18,10 +18,14 @@ public class DashboardOverviewDto {
     private OwnStatisticsDto ownShiftPlanStatistics;
     @NotNull
     private OverallStatisticsDto overallShiftPlanStatistics;
+    @NotNull
     private int rewardPoints;
 
+    @NotNull
     private Collection<ShiftDto> shifts;
 
+    @NotNull
     private Collection<TradeDto> trades;
-    private Collection<ShiftDto> auctions;
+    @NotNull
+    private Collection<ShiftDto> auctions; // TODO this should be Collection<Assignment>
 }

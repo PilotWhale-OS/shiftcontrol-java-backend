@@ -1,11 +1,7 @@
 package at.shiftcontrol.shiftservice.util;
 
 import java.time.Instant;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import org.apache.commons.lang3.NotImplementedException;
+import java.time.temporal.ChronoUnit;
 
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Assignment;
@@ -33,6 +29,9 @@ import at.shiftcontrol.shiftservice.repo.RoleRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
+import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TestEntityFactory {
@@ -86,6 +85,8 @@ public class TestEntityFactory {
             .name("activityName")
             .description("activityDescription")
             .event(createPersistedEvent())
+            .startTime(Instant.now())
+            .endTime(Instant.now().plus(2, ChronoUnit.HOURS))
             .build();
         return activityRepository.save(activity);
     }

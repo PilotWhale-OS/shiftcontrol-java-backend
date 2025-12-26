@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -23,6 +25,11 @@ public class ActivityDaoImpl implements ActivityDao {
     @Override
     public Activity save(Activity entity) {
         return activityRepository.save(entity);
+    }
+
+    @Override
+    public Collection<Activity> saveAll(Collection<Activity> entities) {
+        return activityRepository.saveAll(entities);
     }
 
     @Override

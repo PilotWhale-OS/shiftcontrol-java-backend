@@ -27,6 +27,11 @@ public class AttendanceTimeConstraintDaoImpl implements AttendanceTimeConstraint
     }
 
     @Override
+    public Collection<AttendanceTimeConstraint> saveAll(Collection<AttendanceTimeConstraint> entities) {
+        return attendanceTimeConstraintRepository.saveAll(entities);
+    }
+
+    @Override
     public void delete(AttendanceTimeConstraint entity) {
         attendanceTimeConstraintRepository.delete(entity);
     }

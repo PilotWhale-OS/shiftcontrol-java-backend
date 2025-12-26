@@ -16,12 +16,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -51,4 +51,12 @@ public class AttendanceTimeConstraint {
     @NotNull
     @Column(name = "end_time", nullable = false)
     private Instant endTime;
+
+    @Override
+    public String toString() {
+        return "AttendanceTimeConstraint{" +
+            "id=" + id +
+            ", attendance=" + attendance +
+            '}';
+    }
 }
