@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import at.shiftcontrol.shiftservice.entity.Event;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 
 @Getter
 @Setter
@@ -31,23 +31,20 @@ public class Role {
     private long id;
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @JoinColumn(name = "shift_plan_id", nullable = false)
+    private ShiftPlan shiftPlan;
     @NotNull
     @Size(max = 255)
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String name;
     @Size(max = 1024)
-    @Column(nullable = true, length = 1024)
+    @Column(length = 1024)
     private String description;
+    @Column(nullable = false)
+    private boolean selfAssignable;
 
     @Override
     public String toString() {
-        return "Role{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", description='" + description + '\'' +
-            '}';
+        return "Role{" + name + "}";
     }
-    //Todo: openForSelfAssignment indicates whether users can assign this role to themselves
 }

@@ -6,7 +6,5 @@ import at.shiftcontrol.shiftservice.dao.BasicDao;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 
 public interface RoleDao extends BasicDao<Role, Long> {
-
-    List<Role> findAllByEventId(Long eventId);
-
+    List<Role> findAllByShiftPlanId(Long eventId);
 }

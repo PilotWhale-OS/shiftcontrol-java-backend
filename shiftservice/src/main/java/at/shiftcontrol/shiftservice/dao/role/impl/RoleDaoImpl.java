@@ -38,7 +38,7 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
-    public List<Role> findAllByEventId(Long eventId) {
-        return roleRepository.findAllByEventId(eventId);
+    public List<Role> findAllByShiftPlanId(Long shiftPlanId) {
+        return roleRepository.findAllByShiftPlanId(shiftPlanId);
     }
 }

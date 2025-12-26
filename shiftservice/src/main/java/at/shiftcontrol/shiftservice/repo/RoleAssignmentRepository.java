@@ -9,5 +9,5 @@ import at.shiftcontrol.shiftservice.entity.role.RoleAssignment;
 
 @Repository
 public interface RoleAssignmentRepository extends JpaRepository<RoleAssignment, Long> {
-    List<RoleAssignment> findAllByRole_EventIdAndUserId(Long eventId, String userId);
+    List<RoleAssignment> findAllByRole_ShiftPlanIdAndUserId(Long eventId, String userId);
 }

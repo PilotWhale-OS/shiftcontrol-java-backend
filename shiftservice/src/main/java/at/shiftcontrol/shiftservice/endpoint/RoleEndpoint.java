@@ -26,7 +26,7 @@ import at.shiftcontrol.shiftservice.service.RoleService;
 @Slf4j
 @RestController
 @RequestMapping(
-    value = "/api/v1/events/{eventId}/roles",
+    value = "/api/v1/shift-plans/{shiftPlanId}/roles",
     produces = MediaType.APPLICATION_JSON_VALUE
 )
 @RequiredArgsConstructor
@@ -39,8 +39,8 @@ public class RoleEndpoint {
         operationId = "getRoles",
         description = "Get roles of this event"
     )
-    public Collection<RoleDto> getRoles(@PathVariable String eventId) {
-        return roleService.getRoles(Long.valueOf(eventId));
+    public Collection<RoleDto> getRoles(@PathVariable String shiftPlanId) {
+        return roleService.getRoles(Long.valueOf(shiftPlanId));
     }
 
     @GetMapping("/{roleId}")
@@ -49,8 +49,8 @@ public class RoleEndpoint {
         operationId = "getRole",
         description = "Get role by id"
     )
-    public RoleDto getRole(@PathVariable String eventId, @PathVariable String roleId) throws ForbiddenException {
-        return roleService.getRole(Long.valueOf(eventId), Long.valueOf(roleId));
+    public RoleDto getRole(@PathVariable String shiftPlanId, @PathVariable String roleId) throws ForbiddenException {
+        return roleService.getRole(Long.valueOf(shiftPlanId), Long.valueOf(roleId));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -61,10 +61,10 @@ public class RoleEndpoint {
         description = "Create a new role for an event"
     )
     public RoleDto createRole(
-        @PathVariable String eventId,
+        @PathVariable String shiftPlanId,
         @RequestBody RoleModificationDto role
     ) {
-        return roleService.createRole(Long.valueOf(eventId), role);
+        return roleService.createRole(Long.valueOf(shiftPlanId), role);
     }
 
     @PutMapping(value = "/{roleId}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -74,11 +74,11 @@ public class RoleEndpoint {
         description = "Update a role of this event"
     )
     public RoleDto updateRole(
-        @PathVariable String eventId,
+        @PathVariable String shiftPlanId,
         @PathVariable String roleId,
         @RequestBody RoleModificationDto role
     ) throws ForbiddenException {
-        return roleService.updateRole(Long.valueOf(eventId), Long.valueOf(roleId), role);
+        return roleService.updateRole(Long.valueOf(shiftPlanId), Long.valueOf(roleId), role);
     }
 
     @DeleteMapping("/{roleId}")
@@ -89,9 +89,9 @@ public class RoleEndpoint {
         description = "Delete a role of this event"
     )
     public void deleteRole(
-        @PathVariable String eventId,
+        @PathVariable String shiftPlanId,
         @PathVariable String roleId
     ) throws ForbiddenException {
-        roleService.deleteRole(Long.valueOf(eventId), Long.valueOf(roleId));
+        roleService.deleteRole(Long.valueOf(shiftPlanId), Long.valueOf(roleId));
     }
 }

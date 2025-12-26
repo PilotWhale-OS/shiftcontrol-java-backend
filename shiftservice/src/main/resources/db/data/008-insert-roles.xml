@@ -5,72 +5,72 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="002-insert-roles" author="paul" context="dev">
+  <changeSet id="008-insert-roles" author="paul" context="dev">
     <insert tableName="role">
       <column name="id" valueNumeric="1"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="REGISTRATION_DESK"/>
       <column name="description" value="Handles attendee check-in and badge distribution"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="2"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="TICKET_CHECKING"/>
       <column name="description" value="Checks tickets and controls entrance to the venue"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="3"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="AUDIO_TECH"/>
       <column name="description" value="Assists with audio equipment and microphone setup"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="4"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="LIGHTING_TECH"/>
       <column name="description" value="Responsible for lighting operation and adjustments"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="5"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="STAGE_MANAGER"/>
       <column name="description" value="Coordinates speakers and stage transitions"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="6"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="ROOM_ASSISTANT"/>
       <column name="description" value="Supports operations inside breakout rooms and talks"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="7"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="SPEAKER_SUPPORT"/>
       <column name="description" value="Helps speakers with setup and presentation needs"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="8"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="CROWD_CONTROL"/>
       <column name="description" value="Manages flow of people in high-traffic areas"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="9"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="EXHIBITOR_SUPPORT"/>
     </insert>
 
     <insert tableName="role">
       <column name="id" valueNumeric="10"/>
-      <column name="event_id" valueNumeric="1"/>
+      <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="HOSPITALITY"/>
     </insert>
   </changeSet>

@@ -18,8 +18,8 @@ public class RoleAssignmentDaoImpl implements RoleAssignmentDao {
     private final RoleAssignmentRepository repository;
 
     @Override
-    public List<RoleAssignment> findAllByRole_EventIdAndUserId(Long eventId, String userId) {
-        return repository.findAllByRole_EventIdAndUserId(eventId, userId);
+    public List<RoleAssignment> findAllByRole_ShiftPlanIdAndUserId(Long shiftPlanId, String userId) {
+        return repository.findAllByRole_ShiftPlanIdAndUserId(shiftPlanId, userId);
     }
 
     @Override

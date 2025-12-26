@@ -9,19 +9,19 @@ import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
 import at.shiftcontrol.shiftservice.dto.roles.RoleModificationDto;
 
 public interface RoleService {
-    Collection<RoleDto> getRoles(Long eventId);
+    Collection<RoleDto> getRoles(Long shiftPlanId);
 
-    RoleDto getRole(Long eventId, Long roleId) throws ForbiddenException;
+    RoleDto getRole(Long shiftPlanId, Long roleId) throws ForbiddenException;
 
-    RoleDto createRole(Long eventId, RoleModificationDto roleDto);
+    RoleDto createRole(Long shiftPlanId, RoleModificationDto roleDto);
 
-    RoleDto updateRole(Long eventId, Long roleId, RoleModificationDto roleDto) throws ForbiddenException;
+    RoleDto updateRole(Long shiftPlanId, Long roleId, RoleModificationDto roleDto) throws ForbiddenException;
 
-    void deleteRole(Long eventId, Long roleId) throws ForbiddenException;
+    void deleteRole(Long shiftPlanId, Long roleId) throws ForbiddenException;
 
-    Collection<RoleAssignmentDto> getRoleAssignmentsForUser(Long eventId, String userId);
+    Collection<RoleAssignmentDto> getRoleAssignmentsForUser(Long shiftPlanId, String userId);
 
-    RoleAssignmentDto createRoleAssignment(Long eventId, String userId, RoleAssignmentAssignDto assignDto) throws ForbiddenException;
+    RoleAssignmentDto createRoleAssignment(Long shiftPlanId, String userId, RoleAssignmentAssignDto assignDto) throws ForbiddenException;
 
-    void deleteRoleAssignment(Long eventId, String userId, Long roleAssignmentId) throws ForbiddenException;
+    void deleteRoleAssignment(Long shiftPlanId, String userId, Long roleAssignmentId) throws ForbiddenException;
 }
