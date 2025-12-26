@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,8 +79,17 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.createShiftPlanInviteCode(ConvertUtil.idToLong(shiftPlanId), requestDto);
     }
 
+    // revoke
+    @DeleteMapping("{shiftPlanId}/invites/{inviteCode}")
+    // TODO Security
+    @Operation(
+        operationId = "revokeShiftPlanInvite",
+        description = "Revoke an invite code for a specific shift plan of an event (soft delete)"
+    )
+    public void revokeShiftPlanInvite(@PathVariable String shiftPlanId, @PathVariable String inviteCode) throws ForbiddenException, NotFoundException {
+        shiftPlanService.revokeShiftPlanInviteCode(ConvertUtil.idToLong(shiftPlanId), inviteCode);
+    }
 
-    // TODO endpoints to list all codes for shiftPlan + revoke code (safe revoked or delete?) --> Daily CRON Job to delete expired codes
     // TODO add roles for invite codes so that user gets assigned specific roles when joining via invite code (to avoid many manual role assignments)
 
     // endpoint to list all codes for shiftPlan
