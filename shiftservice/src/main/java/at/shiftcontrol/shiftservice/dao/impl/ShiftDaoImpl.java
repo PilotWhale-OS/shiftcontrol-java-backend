@@ -1,7 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
@@ -49,7 +49,7 @@ public class ShiftDaoImpl implements ShiftDao {
     }
 
     @Override
-    public List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto) {
+    public List<Shift> searchShiftsInShiftPlan(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto) {
         Specification<Shift> spec =
             ShiftSpecifications.inShiftPlan(shiftPlanId)
                 .and(ShiftSpecifications.matchesSearchDto(searchDto)); // your other filters

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class EventServiceTest {
+class EventServiceTest {
     @Mock
     private EventDao eventDao;
 
@@ -140,8 +140,8 @@ public class EventServiceTest {
         OwnStatisticsDto ownStats = mock(OwnStatisticsDto.class);
         OverallStatisticsDto overallStats = mock(OverallStatisticsDto.class);
 
-        when(statisticService.getOwnEventStatistics(eventId, userId)).thenReturn(ownStats);
-        when(statisticService.getOverallEventStatistics(eventId)).thenReturn(overallStats);
+        when(statisticService.getOwnStatisticsOfShiftPlans(List.of(spRelevant), userId)).thenReturn(ownStats);
+        when(statisticService.getOverallEventStatistics(event)).thenReturn(overallStats);
 
         var result = eventService.getEventShiftPlansOverview(eventId, userId);
 
@@ -157,8 +157,8 @@ public class EventServiceTest {
 
         verify(eventDao, times(2)).findById(eventId); // called twice since shiftPlans is fetched via call to getUserRelatedShiftPlansOfEvent
         verify(volunteerDao).findById(userId);
-        verify(statisticService).getOwnEventStatistics(eventId, userId);
-        verify(statisticService).getOverallEventStatistics(eventId);
+        verify(statisticService).getOwnStatisticsOfShiftPlans(List.of(spRelevant), userId);
+        verify(statisticService).getOverallEventStatistics(event);
     }
 
     @Test

@@ -86,8 +86,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         return DashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .eventOverview(EventMapper.toEventOverviewDto(event))
-            .ownShiftPlanStatistics(statisticService.getOwnShiftPlanStatistics(userShifts)) // directly pass user shifts here to avoid redundant filtering
-            .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlanId))
+            .ownShiftPlanStatistics(statisticService.getOwnStatisticsOfShifts(userShifts)) // directly pass user shifts here to avoid redundant filtering
+            .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlan))
             .rewardPoints(-1) // TODO
             .shifts(shiftMapper.assemble(userShifts))
             .trades(null) // TODO implement when trades are available
@@ -98,7 +98,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @Override
     public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException, ForbiddenException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
-        var queriedShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId, searchDto);
+        var queriedShifts = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, searchDto);
 
         var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
 
