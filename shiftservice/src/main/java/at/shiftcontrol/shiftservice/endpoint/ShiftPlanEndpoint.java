@@ -79,7 +79,6 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.createShiftPlanInviteCode(ConvertUtil.idToLong(shiftPlanId), requestDto);
     }
 
-    // revoke
     @DeleteMapping("{shiftPlanId}/invites/{inviteCode}")
     // TODO Security
     @Operation(
