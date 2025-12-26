@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
@@ -49,10 +50,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public NotificationSettingsDto updateNotificationSetting(String userId, NotificationSettingsDto settingsDto) {
-        Objects.requireNonNull(userId, "userId must not be null");
-        Objects.requireNonNull(settingsDto, "settingsDto must not be null");
-        Objects.requireNonNull(settingsDto.getType(), "settingsDto.type must not be null");
+    public NotificationSettingsDto updateNotificationSetting(@NonNull String userId, @NonNull NotificationSettingsDto settingsDto) {
         NotificationType type = settingsDto.getType();
         // normalize channels: null -> empty, remove null entries
         Set<NotificationChannel> requestedChannels = Optional.ofNullable(settingsDto.getChannels())
