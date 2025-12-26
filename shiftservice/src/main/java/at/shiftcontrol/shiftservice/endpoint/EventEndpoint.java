@@ -99,6 +99,8 @@ public class EventEndpoint {
         description = "Delete an existing unavailability period of the current user"
     )
     public void deleteUnavailability(@PathVariable String eventId, @PathVariable String timeConstraintId) throws NotFoundException {
+        // Check that the time constraint belongs to the current user (throws NotFoundException if not)
+        timeConstraintService.getTimeConstraints(userProvider.getCurrentUser().getUserId(), ConvertUtil.idToLong(eventId));
         timeConstraintService.delete(ConvertUtil.idToLong(timeConstraintId));
     }
 }
