@@ -38,4 +38,9 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     public Collection<ShiftPlan> findByEventId(Long eventId) {
         return shiftPlanRepository.findByEventId(eventId);
     }
+
+    @Override
+    public Collection<ShiftPlan> findAllUserRelatedShiftPlans(String userId) {
+        return shiftPlanRepository.findAllUserRelatedShiftPlans(userId);
+    }
 }

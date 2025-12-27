@@ -14,6 +14,7 @@ import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRespons
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ShiftPlanEndpoint {
     private final ShiftPlanService shiftPlanService;
+    private final DashboardService dashboardService;
 
     @GetMapping("/{shiftPlanId}/dashboard")
     // TODO Security
@@ -42,7 +44,7 @@ public class ShiftPlanEndpoint {
         description = "Get (volunteer related) dashboard data for a specific shift plan of an event"
     )
     public DashboardOverviewDto getShiftPlanDashboard(@PathVariable String shiftPlanId) throws NotFoundException, ForbiddenException {
-        return shiftPlanService.getDashboardOverview(ConvertUtil.idToLong(shiftPlanId));
+        return dashboardService.getDashboardOverviewOfShiftPlan(ConvertUtil.idToLong(shiftPlanId));
     }
 
     @GetMapping("/{shiftPlanId}/schedule")
