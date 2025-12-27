@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ShiftPlanScheduleDto {
+    @NotNull
     private LocalDate date;
     private Collection<LocationScheduleDto> locations;
     @NotNull

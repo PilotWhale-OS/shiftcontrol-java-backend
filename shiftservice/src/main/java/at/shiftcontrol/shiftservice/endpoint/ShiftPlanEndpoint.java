@@ -11,6 +11,7 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -45,7 +46,7 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanSchedule",
         description = "Get (volunteer related) schedule data for a specific shift plan of an event"
     )
-    public ShiftPlanScheduleDto getShiftPlanSchedule(@PathVariable String shiftPlanId, ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto)
+    public ShiftPlanScheduleDto getShiftPlanSchedule(@PathVariable String shiftPlanId, @Valid ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto)
         throws NotFoundException {
         return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), userProvider.getCurrentUser().getUserId(), shiftPlanScheduleSearchDto);
     }
