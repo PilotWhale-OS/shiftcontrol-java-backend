@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -81,6 +82,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public void setPreference(@NonNull String volunteerId, long positionSlotId, int preference) {
+        if (preference < -10 || preference > 10) {
+            throw new BadRequestException("preference must be between -10 and 10");
+        }
+
         positionSlotDao.setPreference(volunteerId, positionSlotId, preference);
     }
 
