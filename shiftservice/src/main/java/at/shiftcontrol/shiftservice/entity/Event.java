@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 
 import jakarta.persistence.CascadeType;
@@ -42,10 +42,10 @@ public class Event {
     private String longDescription;
     @NotNull
     @Column(nullable = false)
-    private Instant startTime;
+    private LocalDate startDate;
     @NotNull
     @Column(nullable = false)
-    private Instant endTime;
+    private LocalDate endDate;
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Location> locations;
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -58,8 +58,8 @@ public class Event {
         return "Event{" +
             "id=" + id +
             ", name='" + name + '\'' +
-            ", startTime=" + startTime +
-            ", endTime=" + endTime +
+            ", startTime=" + startDate +
+            ", endTime=" + endDate +
             ", locations=" + locations.stream().map(Location::getId).toList() +
             ", attendances=" + attendances +
             ", shiftPlans=" + shiftPlans.stream().map(ShiftPlan::getId).toList() +

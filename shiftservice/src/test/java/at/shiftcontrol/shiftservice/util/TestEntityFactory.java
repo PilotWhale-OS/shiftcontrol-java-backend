@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.util;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import at.shiftcontrol.shiftservice.entity.Activity;
@@ -65,8 +66,8 @@ public class TestEntityFactory {
     public Event createPersistedEvent() {
         Event event = Event.builder()
             .name("eventName")
-            .startTime(Instant.now())
-            .endTime(Instant.now())
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusDays(2))
             .build();
         // TODO add other fields
         return eventRepository.save(event);

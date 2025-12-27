@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.dto;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -16,7 +16,7 @@ public class EventDto {
     private String shortDescription;
     private String longDescription;
     @NotNull
-    private Instant startTime;
+    private LocalDate startDate;
     @NotNull
-    private Instant endTime;
+    private LocalDate endDate;
 }
