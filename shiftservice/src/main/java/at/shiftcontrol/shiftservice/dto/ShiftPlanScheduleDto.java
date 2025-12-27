@@ -13,6 +13,7 @@ public class ShiftPlanScheduleDto {
     @NotNull
     private LocalDate date;
     private Collection<LocationScheduleDto> locations;
+    private Collection<LocationDto> allOccurringLocations;
     @NotNull
     private ScheduleStatisticsDto scheduleStatistics;
 }
