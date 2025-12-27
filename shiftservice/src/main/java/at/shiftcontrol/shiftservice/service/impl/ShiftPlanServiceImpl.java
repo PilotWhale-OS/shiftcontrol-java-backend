@@ -30,7 +30,6 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
@@ -49,7 +48,6 @@ import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
-import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
@@ -81,26 +79,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private static final String INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private static final int INVITE_CODE_LENGTH = 8;
     private static final int MAX_INVITE_CODE_GENERATION_ATTEMPTS = 10;
-
-    @Override
-    public DashboardOverviewDto getDashboardOverview(long shiftPlanId) throws NotFoundException, ForbiddenException {
-        var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
-        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
-        var event = eventDao.findById(shiftPlan.getEvent().getId())
-            .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
-        var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
-
-        return DashboardOverviewDto.builder()
-            .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
-            .eventOverview(EventMapper.toEventOverviewDto(event))
-            .ownShiftPlanStatistics(statisticService.getOwnStatisticsOfShifts(userShifts)) // directly pass user shifts here to avoid redundant filtering
-            .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlan))
-            .rewardPoints(-1) // TODO
-            .shifts(shiftMapper.assemble(userShifts))
-            .trades(null) // TODO implement when trades are available
-            .auctions(null) // TODO
-            .build();
-    }
 
     @Override
     public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException, ForbiddenException {
