@@ -104,9 +104,17 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         var stats = statisticService.getShiftPlanScheduleStatistics(queriedShifts);
 
+        var allOccurringLocations = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, null).stream()
+            .map(Shift::getLocation)
+            .filter(Objects::nonNull)
+            .distinct()
+            .map(LocationMapper::toLocationDto)
+            .toList();
+
         return ShiftPlanScheduleDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
             .locations(locationSchedules)
+            .allOccurringLocations(allOccurringLocations)
             .scheduleStatistics(stats)
             .build();
     }
