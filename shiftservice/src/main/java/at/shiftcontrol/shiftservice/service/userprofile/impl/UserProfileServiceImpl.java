@@ -4,10 +4,12 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
-import at.shiftcontrol.shiftservice.auth.UserType;
-import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
+import at.shiftcontrol.shiftservice.mapper.RoleMapper;
+import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 
@@ -16,25 +18,17 @@ import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 public class UserProfileServiceImpl implements UserProfileService {
     private final KeycloakUserService kcService;
     private final NotificationService notificationService;
+    private final VolunteerDao volunteerDao;
 
     @Override
-    public UserProfileDto getUserProfile(String userId) {
+    public UserProfileDto getUserProfile(String userId) throws NotFoundException {
         var user = kcService.getUserById(userId);
-        var account = new AccountInfoDto();
-
-        var userTypeAttr = user.firstAttribute("userType");
-        var userType = userTypeAttr == null ? UserType.ASSIGNED : UserType.valueOf(userTypeAttr);
-
-        account.setUserType(userType);
-        account.setId(user.getId());
-        account.setUsername(user.getUsername());
-        account.setFistName(user.getFirstName());
-        account.setLastName(user.getLastName());
-        account.setEmail(user.getEmail());
+        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(NotFoundException::new);
 
         var profile = new UserProfileDto();
-        profile.setAccount(account);
+        profile.setAccount(UserProfileMapper.toAccountInfoDto(user));
         profile.setNotifications(notificationService.getNotificationsForUser(userId));
+        profile.setAssignedRoles(RoleMapper.toRoleDto(volunteer.getRoles()));
 
         return profile;
     }
