@@ -2,8 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.exception.ConflictException;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,8 +18,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
@@ -35,6 +35,7 @@ import at.shiftcontrol.shiftservice.service.PositionSlotService;
 @RequiredArgsConstructor
 public class PositionSlotEndpoint {
     private final PositionSlotService positionSlotService;
+    private final ApplicationUserProvider userProvider;
 
     @GetMapping
     // TODO Security
@@ -99,7 +100,9 @@ public class PositionSlotEndpoint {
         description = "Put the logged in users assignment for the PositionSlot up for auction"
     )
     public AssignmentDto auctionAssignment(@PathVariable String positionSlotId) throws NotFoundException {
-        return positionSlotService.createAuction(ConvertUtil.idToLong(positionSlotId));
+        return positionSlotService.createAuction(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId());
     }
 
     @PostMapping("/claim-auction/{offeringUserId}")
@@ -109,7 +112,9 @@ public class PositionSlotEndpoint {
         description = "Assign the logged in user to the auctions PositionSlot"
     )
     public AssignmentDto claimAssignment(@PathVariable String positionSlotId, @PathVariable String offeringUserId) throws NotFoundException, ConflictException {
-        return positionSlotService.claimAuction(ConvertUtil.idToLong(positionSlotId), offeringUserId);
+        return positionSlotService.claimAuction(
+            ConvertUtil.idToLong(positionSlotId), offeringUserId,
+            userProvider.getCurrentUser().getUserId());
     }
 
     @PostMapping("/cancel-auction")
@@ -119,7 +124,9 @@ public class PositionSlotEndpoint {
         description = "Cancel the logged in users auction for the PositionSlot"
     )
     public AssignmentDto cancelAuction(@PathVariable String positionSlotId) throws NotFoundException {
-        return positionSlotService.cancelAuction(ConvertUtil.idToLong(positionSlotId));
+        return positionSlotService.cancelAuction(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId());
     }
 
     // TODO positionSlot unassign

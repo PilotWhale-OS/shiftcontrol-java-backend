@@ -52,7 +52,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId) {
+    public void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId) throws IllegalArgumentException {
         Collection<Volunteer> shiftPlanVolunteers = positionSlot.getShift().getShiftPlan().getPlanVolunteers();
         if (shiftPlanVolunteers.stream().noneMatch(v -> v.getId().equals(volunteerId))) {
             throw new IllegalArgumentException("Volunteer not assigned to shift plan");

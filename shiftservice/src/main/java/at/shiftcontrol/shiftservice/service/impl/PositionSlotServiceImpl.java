@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -36,7 +35,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     private final EligibilityService eligibilityService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
-    private final ApplicationUserProvider userProvider;
 
     @Override
     public PositionSlotDto findById(Long id) throws NotFoundException {
@@ -74,8 +72,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto createAuction(Long positionSlotId) {
-        Assignment assignment = getAssignmentForCurrentUser(positionSlotId);
+    public AssignmentDto createAuction(Long positionSlotId, String currentUserId) {
+        Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         // check for signup phase
         LockStatus lockStatus = assignment.getPositionSlot().getShift().getLockStatus();
         switch (lockStatus) {
@@ -93,7 +91,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @Transactional
-    public AssignmentDto claimAuction(Long positionSlotId, String offeringUserId) throws NotFoundException, ConflictException {
+    public AssignmentDto claimAuction(Long positionSlotId, String offeringUserId, String currentUserId) throws NotFoundException, ConflictException {
         // get auction-assignment
         Assignment auction = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
         if (auction == null
@@ -103,7 +101,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
 
         // get current user (volunteer)
-        String currentUserId = userProvider.getCurrentUser().getUserId();
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("user not found"));
 
@@ -134,14 +131,13 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto cancelAuction(Long positionSlotId) {
-        Assignment assignment = getAssignmentForCurrentUser(positionSlotId);
+    public AssignmentDto cancelAuction(Long positionSlotId, String currentUserId) {
+        Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
-    private Assignment getAssignmentForCurrentUser(Long positionSlotId) {
-        String userId = userProvider.getCurrentUser().getUserId();
+    private Assignment getAssignmentForUser(Long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
         if (assignment == null) {
             throw new IllegalArgumentException("not assigned to position slot");
@@ -153,13 +149,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public Assignment reassignAssignment(Assignment oldAssignment, Volunteer newVolunteer) {
 
         // Create new assignment with new PK
-        Assignment newAssignment = new Assignment();
+        Assignment newAssignment = AssignmentMapper.shallowCopy(oldAssignment);
         newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
         newAssignment.setStatus(AssignmentStatus.ACCEPTED);
         newAssignment.setAssignedVolunteer(newVolunteer);
-        newAssignment.setPositionSlot(oldAssignment.getPositionSlot());
-        newAssignment.setIncomingSwitchRequests(oldAssignment.getIncomingSwitchRequests());
-        newAssignment.setOutgoingSwitchRequests(oldAssignment.getOutgoingSwitchRequests());
 
         assignmentDao.save(newAssignment);
 

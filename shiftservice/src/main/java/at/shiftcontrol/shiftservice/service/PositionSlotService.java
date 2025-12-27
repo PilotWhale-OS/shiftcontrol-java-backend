@@ -16,9 +16,9 @@ public interface PositionSlotService {
 
     Collection<AssignmentDto> getAssignments(Long positionSlotId) throws NotFoundException;
 
-    AssignmentDto createAuction(Long positionSlotId);
+    AssignmentDto createAuction(Long positionSlotId, String currentUserId);
 
-    AssignmentDto claimAuction(Long positionSlotId, String offeringUserId) throws NotFoundException, ConflictException;
+    AssignmentDto claimAuction(Long positionSlotId, String offeringUserId, String currentUserId) throws NotFoundException, ConflictException;
 
-    AssignmentDto cancelAuction(Long positionSlotId);
+    AssignmentDto cancelAuction(Long positionSlotId, String currentUserId);
 }
