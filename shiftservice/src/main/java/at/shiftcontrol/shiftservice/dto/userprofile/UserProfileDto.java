@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.RoleDto;
 
 @Data
@@ -17,16 +16,12 @@ import at.shiftcontrol.shiftservice.dto.RoleDto;
 @Builder
 public class UserProfileDto {
     @NotNull
-    private AccountInfoDto account; // fetched from keycloak
+    private AccountInfoDto account;
 
     @NotNull
-    private NotificationSettingsDto notifications;
+    private Collection<NotificationSettingsDto> notifications;
 
     private Collection<AbsenceDto> absences;
 
     private Collection<RoleDto> assignedRoles;
-
-    //Todo: move to be dependent on event context
-    //     @NotNull
-    //     private Collection<UnavailabilityDto> unavailabilityDates;
 }

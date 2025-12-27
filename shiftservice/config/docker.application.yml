@@ -10,6 +10,10 @@ logging:
 
 keycloak:
   auth-server-url: http://keycloak:8080/
+  auth-realm: dev
+  allowed-issuers:
+    - http://keycloak.127.0.0.1.nip.io/realms/dev
+    - http://keycloak:8080/realms/dev
   client:
     id: admin-cli
     realm: master
