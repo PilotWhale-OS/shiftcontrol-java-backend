@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.event;
 
 import java.time.LocalDate;
 
@@ -8,9 +8,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EventDto {
-    @NotNull
-    private String id;
+public class EventModificationDto {
     @NotNull
     private String name;
     private String shortDescription;
