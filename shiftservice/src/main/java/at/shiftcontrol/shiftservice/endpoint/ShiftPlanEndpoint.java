@@ -89,6 +89,16 @@ public class ShiftPlanEndpoint {
         shiftPlanService.revokeShiftPlanInviteCode(inviteCode);
     }
 
+    @GetMapping("/invites/{inviteCode}")
+    // TODO Security
+    @Operation(
+        operationId = "getShiftPlanInviteDetails",
+        description = "Get details about a specific invite code for a shift plan"
+    )
+    public ShiftPlanInviteDto getShiftPlanInviteDetails(@PathVariable String inviteCode) throws NotFoundException, ForbiddenException {
+        return shiftPlanService.getShiftPlanInviteDetails(inviteCode);
+    }
+
     // endpoint to list all codes for shiftPlan
     @GetMapping("/{shiftPlanId}/invites")
     // TODO Security
