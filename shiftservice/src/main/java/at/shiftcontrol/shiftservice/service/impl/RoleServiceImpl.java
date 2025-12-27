@@ -11,6 +11,7 @@ import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -32,6 +33,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleDao roleDao;
     private final ShiftPlanDao shiftPlanDao;
     private final VolunteerDao volunteerDao;
+    private final ApplicationUserProvider userProvider;
 
     @Override
     public Collection<RoleDto> getRoles(Long shiftPlanId) {
@@ -40,13 +42,15 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDto getRole(Long shiftPlanId, Long roleId) throws ForbiddenException {
+        assertUserIsPlanner(shiftPlanId);
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         assertRoleBelongsToShiftPlan(role, shiftPlanId);
         return RoleMapper.toRoleDto(role);
     }
 
     @Override
-    public RoleDto createRole(Long shiftPlanId, RoleModificationDto roleDto) {
+    public RoleDto createRole(Long shiftPlanId, RoleModificationDto roleDto) throws ForbiddenException {
+        assertUserIsPlanner(shiftPlanId);
         Role entity = RoleMapper.toRole(roleDto);
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
         entity.setShiftPlan(shiftPlan);
@@ -55,6 +59,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDto updateRole(Long shiftPlanId, Long roleId, RoleModificationDto roleDto) throws ForbiddenException {
+        assertUserIsPlanner(shiftPlanId);
         Role existing = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         assertRoleBelongsToShiftPlan(existing, shiftPlanId);
         RoleMapper.updateRole(roleDto, existing);
@@ -63,6 +68,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRole(Long shiftPlanId, Long roleId) throws ForbiddenException {
+        assertUserIsPlanner(shiftPlanId);
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         assertRoleBelongsToShiftPlan(role, shiftPlanId);
         roleDao.delete(role);
@@ -80,20 +86,8 @@ public class RoleServiceImpl implements RoleService {
         Volunteer volunteer = volunteerDao.findById(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
         if (!role.isSelfAssignable()) {
-            if (volunteer.getPlanningPlans() == null) {
-                throw new ForbiddenException();
-            }
-            var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
-            List<@NotNull Event> planningPlans = volunteer
-                .getPlanningPlans()
-                .stream()
-                .map(ShiftPlan::getEvent)
-                .toList();
-            if (!planningPlans.contains(shiftPlan.getEvent())) {
-                throw new ForbiddenException();
-            }
+            assertUserIsPlanner(volunteer,  shiftPlanId);
         }
-
         if (volunteer.getRoles() != null && volunteer.getRoles().stream().anyMatch(r -> r.getId() == role.getId())) {
             throw new ForbiddenException("Role already assigned to user.");
         }
@@ -114,6 +108,9 @@ public class RoleServiceImpl implements RoleService {
         assertRoleBelongsToShiftPlan(role, shiftPlanId);
         Volunteer volunteer = volunteerDao.findById(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
+        if (!role.isSelfAssignable()) {
+            assertUserIsPlanner(volunteer,  shiftPlanId);
+        }
         boolean removed = volunteer.getRoles().removeIf(r -> r.getId() == roleId);
         if (!removed) {
             throw new NotFoundException("Role is not assigned to this user.");
@@ -124,6 +121,28 @@ public class RoleServiceImpl implements RoleService {
     private void assertRoleBelongsToShiftPlan(Role role, Long shiftPlanId) throws ForbiddenException {
         if (role.getShiftPlan() == null || role.getShiftPlan().getId() != shiftPlanId) {
             throw new ForbiddenException("User has not the right permission for this shiftPlan.");
+        }
+    }
+
+    private void assertUserIsPlanner(Long shiftPlanId) throws ForbiddenException {
+        String userId = userProvider.getCurrentUser().getUserId();
+        Volunteer volunteer = volunteerDao.findById(userId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
+        assertUserIsPlanner(volunteer, shiftPlanId);
+    }
+
+    private void assertUserIsPlanner(Volunteer volunteer, Long shiftPlanId) throws ForbiddenException {
+        if (volunteer.getPlanningPlans() == null) {
+            throw new ForbiddenException();
+        }
+        var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+        List<@NotNull Event> planningPlans = volunteer
+            .getPlanningPlans()
+            .stream()
+            .map(ShiftPlan::getEvent)
+            .toList();
+        if (!planningPlans.contains(shiftPlan.getEvent())) {
+            throw new ForbiddenException();
         }
     }
 }

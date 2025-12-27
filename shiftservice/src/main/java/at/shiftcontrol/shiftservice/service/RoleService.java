@@ -13,7 +13,7 @@ public interface RoleService {
 
     RoleDto getRole(Long shiftPlanId, Long roleId) throws ForbiddenException;
 
-    RoleDto createRole(Long shiftPlanId, RoleModificationDto roleDto);
+    RoleDto createRole(Long shiftPlanId, RoleModificationDto roleDto) throws ForbiddenException;
 
     RoleDto updateRole(Long shiftPlanId, Long roleId, RoleModificationDto roleDto) throws ForbiddenException;
 
