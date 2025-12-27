@@ -6,6 +6,5 @@ import lombok.Data;
 @Data
 @Builder
 public class UserShiftPreferenceDto {
-    private boolean hasBlocker;
     private int preferenceValue;
 }

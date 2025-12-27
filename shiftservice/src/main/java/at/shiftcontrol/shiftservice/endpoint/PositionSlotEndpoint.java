@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
@@ -33,6 +34,7 @@ import at.shiftcontrol.shiftservice.service.PositionSlotService;
 @RequiredArgsConstructor
 public class PositionSlotEndpoint {
     private final PositionSlotService positionSlotService;
+    private final ApplicationUserProvider userProvider;
 
     @GetMapping
     // TODO Security
@@ -77,7 +79,12 @@ public class PositionSlotEndpoint {
         description = "Set preference for a specific position slot"
     )
     public UserShiftPreferenceDto setPositionSlotPreference(@PathVariable String positionSlotId, @RequestBody UserPreferenceUpdateDto preferenceUpdateDto) {
-        return null; // TODO: implement
+        positionSlotService.setPreference(
+            userProvider.getCurrentUser().getUserId(),
+            ConvertUtil.idToLong(positionSlotId),
+            preferenceUpdateDto.getPreferenceValue()
+        );
+        return UserShiftPreferenceDto.builder().preferenceValue(preferenceUpdateDto.getPreferenceValue()).build();
     }
 
     @GetMapping("/assignments")

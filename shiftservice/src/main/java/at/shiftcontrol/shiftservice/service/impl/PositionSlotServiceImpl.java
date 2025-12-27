@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -31,22 +32,22 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
 
     @Override
-    public PositionSlotDto findById(Long id) throws NotFoundException {
+    public PositionSlotDto findById(@NonNull Long id) throws NotFoundException {
         return positionSlotDao.findById(id)
             .map(positionSlotAssemblingMapper::assemble)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
     }
 
     @Override
-    public AssignmentDto join(Long positionSlotId, String userId) throws NotFoundException, ConflictException {
+    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ConflictException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        var volunteer = volunteerDao.findByUserId(userId)
+        var volunteer = volunteerDao.findByUserId(volunteerId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
         eligibilityService.validateHasConflictingAssignments(
-            userId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
         //Todo: Implement actual joining logic
 
         //Todo: Send Eventbus event
@@ -54,19 +55,19 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public void leave(Long positionSlotId, Long userId) {
+    public void leave(@NonNull Long positionSlotId, @NonNull Long volunteerId) {
         //Todo: Checks are needed if the user can leave
     }
 
     @Override
-    public Collection<AssignmentDto> getAssignments(Long positionSlotId) throws NotFoundException {
+    public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) throws NotFoundException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         return AssignmentMapper.toDto(positionSlot.getAssignments());
     }
 
     @Override
-    public AssignmentDto auction(Long positionSlotId) throws NotFoundException {
+    public AssignmentDto auction(@NonNull Long positionSlotId) throws NotFoundException {
         // TODO use current user
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, "28c02050-4f90-4f3a-b1df-3c7d27a166e5");
         if (assignment == null) {
@@ -76,5 +77,15 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         //Todo: Checks are needed if the user can auction
         assignment.setStatus(AssignmentStatus.AUCTION);
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
+    }
+
+    @Override
+    public void setPreference(@NonNull String volunteerId, long positionSlotId, int preference) {
+        positionSlotDao.setPreference(volunteerId, positionSlotId, preference);
+    }
+
+    @Override
+    public int getPreference(@NonNull String volunteerId, long positionSlotId) {
+        return positionSlotDao.getPreference(volunteerId, positionSlotId);
     }
 }

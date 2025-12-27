@@ -50,4 +50,10 @@ public class PositionSlotDto {
      */
     @NotNull
     private Collection<AssignmentDto> auctions;
+
+    /**
+     * Specific for the current user's preference value for this position slot.
+     */
+    @NotNull
+    private int preferenceValue;
 }
