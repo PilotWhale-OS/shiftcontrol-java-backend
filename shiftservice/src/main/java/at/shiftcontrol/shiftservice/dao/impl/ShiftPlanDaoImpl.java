@@ -1,17 +1,13 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-
-import org.springframework.stereotype.Component;
-
-import jakarta.persistence.criteria.JoinType;
-import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -44,26 +40,7 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     }
 
     @Override
-    public Collection<ShiftPlan> findUserRelatedShiftPlansInEvent(long eventId, String userId) {
-        return shiftPlanRepository.findAll((root, query, cb) -> {
-            query.distinct(true);
-
-            var predicates = cb.conjunction();
-
-            // ShiftPlan -> event.id
-            predicates = cb.and(predicates,
-                cb.equal(root.get("event").get("id"), eventId));
-
-            // ShiftPlan -> shifts -> slots -> assignments -> assignedVolunteer.id
-            var shiftsJoin = root.join("shifts", JoinType.INNER);
-            var slotsJoin = shiftsJoin.join("slots", JoinType.INNER);
-            var assignmentsJoin = slotsJoin.join("assignments", JoinType.INNER);
-            var volunteerJoin = assignmentsJoin.join("assignedVolunteer", JoinType.INNER);
-
-            predicates = cb.and(predicates,
-                cb.equal(volunteerJoin.get("id"), userId));
-
-            return predicates;
-        });
+    public Collection<ShiftPlan> findAllUserRelatedShiftPlans(String userId) {
+        return shiftPlanRepository.findAllUserRelatedShiftPlans(userId);
     }
 }

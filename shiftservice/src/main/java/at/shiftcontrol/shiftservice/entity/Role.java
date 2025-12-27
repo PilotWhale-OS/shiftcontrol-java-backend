@@ -10,10 +10,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -30,5 +32,14 @@ public class Role {
     @Size(max = 1024)
     @Column(nullable = true, length = 1024)
     private String description;
+
+    @Override
+    public String toString() {
+        return "Role{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", description='" + description + '\'' +
+            '}';
+    }
     //Todo: openForSelfAssignment indicates whether users can assign this role to themselves
 }

@@ -5,28 +5,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.util.TimeUtil;
-import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.ScheduleStatisticsDto;
+import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class StatisticServiceImpl implements StatisticService {
-    private final ShiftPlanDao shiftPlanDao;
-    private final EventDao eventDao;
+    private final ShiftDao shiftDao;
 
     @Override
-    public OwnStatisticsDto getOwnShiftPlanStatistics(List<Shift> userShifts) {
+    public OwnStatisticsDto getOwnStatisticsOfShifts(List<Shift> userShifts) {
         var busyDays = calculateBusyDaysInShifts(userShifts);
         var totalShifts = calculateTotalShiftCountInShifts(userShifts);
         var totalHours = calculateTotalHoursInShifts(userShifts);
@@ -40,8 +37,7 @@ public class StatisticServiceImpl implements StatisticService {
 
 
     @Override
-    public OverallStatisticsDto getOverallShiftPlanStatistics(long shiftPlanId) {
-        var shiftPlan = shiftPlanDao.findById(shiftPlanId).get(); // no validation needed since this is done in calling service method
+    public OverallStatisticsDto getOverallShiftPlanStatistics(ShiftPlan shiftPlan) {
         var totalShifts = shiftPlan.getShifts().size();
         var totalHours = calculateTotalHoursInShifts(shiftPlan.getShifts().stream().toList());
         var volunteerCount = calculateVolunteerCountInShiftPlan(shiftPlan);
@@ -54,34 +50,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public OwnStatisticsDto getOwnEventStatistics(long eventId, String userId) {
-        var userShiftPlans = shiftPlanDao.findUserRelatedShiftPlansInEvent(eventId, userId);
-
-        var totalHours = userShiftPlans.stream()
-            .mapToDouble(shiftPlan ->
-                calculateTotalHoursInShifts(shiftPlan.getShifts().stream().toList()))
-            .sum();
-
-        var totalShifts = userShiftPlans.stream()
-            .mapToInt(shiftPlan ->
-                calculateTotalShiftCountInShifts(shiftPlan.getShifts().stream().toList()))
-            .sum();
-        var busyDays = userShiftPlans.stream()
-            .mapToInt(shiftPlan ->
-                calculateBusyDaysInShifts(shiftPlan.getShifts().stream().toList()))
-            .sum();
-
-        return OwnStatisticsDto.builder()
-            .totalHours(totalHours)
-            .totalShifts(totalShifts)
-            .busyDays(busyDays)
-            .build();
-    }
-
-    @Override
-    public OverallStatisticsDto getOverallEventStatistics(long eventId) {
-        var event = eventDao.findById(eventId).get(); // no validation needed since this is done in calling service method
-
+    public OverallStatisticsDto getOverallEventStatistics(Event event) {
         var totalHours = event.getShiftPlans().stream()
             .mapToDouble(shiftPlan ->
                 calculateTotalHoursInShifts(shiftPlan.getShifts().stream().toList()))
@@ -99,6 +68,17 @@ public class StatisticServiceImpl implements StatisticService {
             .totalShifts(totalShifts)
             .volunteerCount(volunteerCount)
             .build();
+    }
+
+    @Override
+    public OwnStatisticsDto getOwnStatisticsOfShiftPlans(List<ShiftPlan> shiftPlans, String userId) {
+        var userShiftsSet = new HashSet<Shift>();
+        for (var shiftPlan : shiftPlans) {
+            var relevantShiftsOfPlan = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlan.getId(), userId);
+            userShiftsSet.addAll(relevantShiftsOfPlan);
+        }
+
+        return getOwnStatisticsOfShifts(userShiftsSet.stream().toList());
     }
 
     @Override

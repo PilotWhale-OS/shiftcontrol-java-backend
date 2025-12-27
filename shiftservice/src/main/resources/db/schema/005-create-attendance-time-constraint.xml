@@ -20,6 +20,18 @@
         <constraints nullable="false"/>
       </column>
 
+      <column name="type" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="start_time" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="end_time" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+
     </createTable>
 
     <!-- Foreign key to attendance (composite FK) -->

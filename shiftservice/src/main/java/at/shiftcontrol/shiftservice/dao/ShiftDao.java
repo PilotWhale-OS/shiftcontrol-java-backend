@@ -8,5 +8,5 @@ import at.shiftcontrol.shiftservice.entity.Shift;
 public interface ShiftDao extends BasicDao<Shift, Long> {
     List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, String userId);
 
-    List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto);
+    List<Shift> searchShiftsInShiftPlan(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto);
 }

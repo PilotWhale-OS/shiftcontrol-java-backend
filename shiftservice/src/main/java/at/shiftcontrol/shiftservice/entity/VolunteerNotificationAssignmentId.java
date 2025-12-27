@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -10,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import at.shiftcontrol.shiftservice.type.NotificationChannel;
 import at.shiftcontrol.shiftservice.type.NotificationType;
 
 @Data
@@ -17,18 +20,27 @@ import at.shiftcontrol.shiftservice.type.NotificationType;
 @AllArgsConstructor
 @Builder
 @Embeddable
-public class VolunteerNotificationAssignmentId {
+public class VolunteerNotificationAssignmentId implements Serializable {
     @Column(nullable = false)
     private String volunteerId;
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private NotificationType notificationType;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationChannel notificationChannel;
 
-    public static VolunteerNotificationAssignmentId of(String volunteerId, NotificationType notificationType) {
+    public static VolunteerNotificationAssignmentId of(
+        String volunteerId,
+        NotificationType notificationType,
+        NotificationChannel notificationChannel
+    ) {
         return VolunteerNotificationAssignmentId.builder()
             .volunteerId(volunteerId)
             .notificationType(notificationType)
+            .notificationChannel(notificationChannel)
             .build();
     }
 }

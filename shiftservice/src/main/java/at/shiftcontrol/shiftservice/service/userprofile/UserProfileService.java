@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service;
+package at.shiftcontrol.shiftservice.service.userprofile;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;

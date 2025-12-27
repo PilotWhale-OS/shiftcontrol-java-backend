@@ -5,21 +5,21 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
-
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-
-import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UserAttributeProviderImpl implements UserAttributeProvider {
     private LoadingCache<String, UserAttributes> attributesCache;
-    VolunteerDao volunteerDao;
+    private final VolunteerDao volunteerDao;
 
     @PostConstruct
     public void init() {

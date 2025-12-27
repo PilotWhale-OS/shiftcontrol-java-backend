@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import at.shiftcontrol.shiftservice.type.AttendanceStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -12,12 +13,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import at.shiftcontrol.shiftservice.type.AttendanceStatus;
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -40,4 +41,12 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AttendanceStatus status;
+
+    @Override
+    public String toString() {
+        return "Attendance{" +
+            "id=" + id +
+            ", status=" + status +
+            '}';
+    }
 }
