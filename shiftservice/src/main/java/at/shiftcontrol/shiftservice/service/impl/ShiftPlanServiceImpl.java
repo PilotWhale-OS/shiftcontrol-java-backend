@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
@@ -166,8 +165,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElse(-1) + 1;
 
         var activities = shifts.stream()
-            .flatMap(s -> s.getRelatedActivities() == null ? Stream.empty() : s.getRelatedActivities().stream())
-            .distinct()
+            .map(Shift::getRelatedActivity)
             .map(ActivityMapper::toActivityDto)
             .toList();
 

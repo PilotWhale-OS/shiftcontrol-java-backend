@@ -13,8 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -63,13 +61,9 @@ public class Shift {
     private LockStatus lockStatus;
     @ManyToOne
     private Location location;
-    @ManyToMany
-    @JoinTable(
-        name = "activity_shift",
-        joinColumns = @JoinColumn(name = "shift_id"),
-        inverseJoinColumns = @JoinColumn(name = "activity_id")
-    )
-    private Collection<Activity> relatedActivities;
+    @ManyToOne
+    @JoinColumn(name = "activity_id")
+    private Activity relatedActivity;
     @OneToMany(mappedBy = "shift", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PositionSlot> slots;
 
@@ -83,7 +77,7 @@ public class Shift {
             ", endTime=" + endTime +
             ", lockStatus=" + lockStatus +
             ", location=" + location +
-            ", relatedActivities=" + relatedActivities.stream().map(Activity::getId).toList() +
+            ", relatedActivity=" + (relatedActivity == null ? "null" : relatedActivity.getId()) +
             ", slots=" + slots.stream().map(PositionSlot::getId).toList() +
             '}';
     }
