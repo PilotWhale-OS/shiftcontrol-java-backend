@@ -75,6 +75,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     private final SecureRandom secureRandom = new SecureRandom();
 
+    // URL-safe, human-friendly alphabet (no 0/O, 1/I to reduce confusion)
+    private static final String INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    private static final int INVITE_CODE_LENGTH = 8;
+    private static final int MAX_INVITE_CODE_GENERATION_ATTEMPTS = 10;
+
     @Override
     public DashboardOverviewDto getDashboardOverview(long shiftPlanId) throws NotFoundException, ForbiddenException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
@@ -325,10 +330,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private String generateUniqueCode() {
-        // URL-safe, human-friendly alphabet (no 0/O, 1/I to reduce confusion)
-        final char[] alphabet = "ABCDEFGHJKLMNOPQRSTUVWXYZ123456789".toCharArray();
+        final char[] alphabet = INVITE_CODE_ALPHABET.toCharArray();
 
-        for (int attempt = 0; attempt < 10; attempt++) {
+        for (int attempt = 0; attempt < MAX_INVITE_CODE_GENERATION_ATTEMPTS; attempt++) {
             String code = randomString(alphabet);
             if (!shiftPlanInviteDao.existsByCode(code)) {
                 return code;
@@ -339,8 +343,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private String randomString(char[] alphabet) {
-        var sb = new StringBuilder(8);
-        for (int i = 0; i < 8; i++) {
+        var sb = new StringBuilder(INVITE_CODE_LENGTH);
+        for (int i = 0; i < INVITE_CODE_LENGTH; i++) {
             int idx = secureRandom.nextInt(alphabet.length);
             sb.append(alphabet[idx]);
         }
