@@ -6,7 +6,7 @@ import java.util.Collection;
 import lombok.Builder;
 import lombok.Data;
 
-import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 
 @Data
 @Builder

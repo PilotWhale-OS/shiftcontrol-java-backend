@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.roles;
+package at.shiftcontrol.shiftservice.dto.role;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

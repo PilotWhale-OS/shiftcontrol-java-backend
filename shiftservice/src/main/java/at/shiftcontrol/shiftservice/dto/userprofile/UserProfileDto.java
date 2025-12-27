@@ -8,8 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 
 @Data
 @NoArgsConstructor

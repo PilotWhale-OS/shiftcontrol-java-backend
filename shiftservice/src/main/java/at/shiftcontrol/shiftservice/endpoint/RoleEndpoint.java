@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
-import at.shiftcontrol.shiftservice.dto.roles.RoleModificationDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.service.RoleService;
 
 @Slf4j

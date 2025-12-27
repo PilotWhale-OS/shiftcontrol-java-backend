@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 
@@ -41,13 +41,13 @@ public class PositionSlotDto {
     private PositionSignupState positionSignupState;
 
     /**
-     * Specific for the current user's offered trades for this position slot
+     * Specific for the current user's offered trades for this position slot.
      */
     @NotNull
     private Collection<TradeInfoDto> tradeInfoDtos;
 
     /**
-     * Specific for the current user's available auctions of this position slot
+     * Specific for the current user's available auctions of this position slot.
      */
     @NotNull
     private Collection<AssignmentDto> auctions;

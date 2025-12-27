@@ -8,11 +8,11 @@ import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 
 public interface ShiftPlanService {
     DashboardOverviewDto getDashboardOverview(long shiftPlanId) throws NotFoundException, ForbiddenException;

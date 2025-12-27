@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.roles.RoleAssignmentDto;
-import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
-import at.shiftcontrol.shiftservice.dto.roles.RoleModificationDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleAssignmentDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.entity.role.RoleAssignment;
 

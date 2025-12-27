@@ -3,10 +3,11 @@ package at.shiftcontrol.shiftservice.dto;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+
+import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 
 @Data
 @Builder

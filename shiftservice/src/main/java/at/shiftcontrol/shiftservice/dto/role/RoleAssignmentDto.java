@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.roles;
+package at.shiftcontrol.shiftservice.dto.role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoleModificationDto {
-    private String name;
-    private String description;
+public class RoleAssignmentDto {
+    Long id;
+    Long roleId;
+    String userId;
 }

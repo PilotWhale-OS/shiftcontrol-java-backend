@@ -3,10 +3,10 @@ package at.shiftcontrol.shiftservice.service;
 import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.shiftservice.dto.roles.RoleAssignmentAssignDto;
-import at.shiftcontrol.shiftservice.dto.roles.RoleAssignmentDto;
-import at.shiftcontrol.shiftservice.dto.roles.RoleDto;
-import at.shiftcontrol.shiftservice.dto.roles.RoleModificationDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleAssignmentAssignDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleAssignmentDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 
 public interface RoleService {
     Collection<RoleDto> getRoles(Long shiftPlanId);
