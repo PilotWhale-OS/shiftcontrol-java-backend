@@ -1,8 +1,12 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.TradeDto;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;

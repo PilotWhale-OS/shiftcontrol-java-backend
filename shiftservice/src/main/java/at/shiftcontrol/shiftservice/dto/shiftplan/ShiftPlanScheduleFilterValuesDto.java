@@ -1,8 +1,10 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.LocationDto;
+import at.shiftcontrol.shiftservice.dto.RoleDto;
 import lombok.Builder;
 import lombok.Data;
 

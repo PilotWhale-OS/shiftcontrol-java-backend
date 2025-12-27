@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dto;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

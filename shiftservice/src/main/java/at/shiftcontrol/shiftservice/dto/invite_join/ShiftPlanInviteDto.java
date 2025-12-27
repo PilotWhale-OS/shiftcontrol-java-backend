@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.RoleDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

@@ -2,14 +2,12 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
-import org.springframework.stereotype.Service;
-
+import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
+import at.shiftcontrol.shiftservice.entity.Shift;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
-import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
-import at.shiftcontrol.shiftservice.dto.ShiftDto;
-import at.shiftcontrol.shiftservice.entity.Shift;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service

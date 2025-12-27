@@ -3,7 +3,7 @@ package at.shiftcontrol.shiftservice.dao.impl.specification;
 import java.time.Instant;
 
 import at.shiftcontrol.lib.util.TimeUtil;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleSearchDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
