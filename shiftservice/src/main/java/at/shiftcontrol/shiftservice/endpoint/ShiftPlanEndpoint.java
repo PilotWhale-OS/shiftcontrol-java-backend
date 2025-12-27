@@ -2,24 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
-import at.shiftcontrol.shiftservice.service.DashboardService;
-import at.shiftcontrol.shiftservice.service.ShiftPlanService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +10,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
+import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 
 @Slf4j
 @RestController
