@@ -22,7 +22,7 @@
     <insert tableName="volunteer_notification_assignment">
       <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
       <column name="notification_type" value="TRADE_ACCEPTED_DECLINED"/>
-      <column name="notification_channel" value="NONE"/>
+      <column name="notification_channel" value="PUSH"/>
     </insert>
 
   </changeSet>

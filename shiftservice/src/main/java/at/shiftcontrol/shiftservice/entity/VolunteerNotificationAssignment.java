@@ -25,20 +25,20 @@ import lombok.Setter;
 public class VolunteerNotificationAssignment {
     @EmbeddedId
     VolunteerNotificationAssignmentId volunteerNotificationAssignmentId;
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private NotificationChannel notificationChannel;
 
     public NotificationType getNotificationType() {
         return this.volunteerNotificationAssignmentId.getNotificationType();
+    }
+
+    public NotificationChannel getNotificationChannel() {
+        return this.volunteerNotificationAssignmentId.getNotificationChannel();
     }
 
     @Override
     public String toString() {
         return "VolunteerNotificationAssignment{" +
             "volunteerNotificationAssignmentId=" + volunteerNotificationAssignmentId +
-            ", notificationChannel=" + notificationChannel +
+            ", notificationChannel=" + getNotificationChannel() +
             '}';
     }
 }

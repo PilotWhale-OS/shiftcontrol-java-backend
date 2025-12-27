@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -35,5 +34,10 @@ public class AttendanceTimeConstraintDaoImpl implements AttendanceTimeConstraint
     @Override
     public void delete(AttendanceTimeConstraint entity) {
         attendanceTimeConstraintRepository.delete(entity);
+    }
+
+    @Override
+    public Collection<AttendanceTimeConstraint> searchByVolunteerAndEvent(String volunteerId, long eventId) {
+        return attendanceTimeConstraintRepository.searchByVolunteerAndEvent(volunteerId, eventId);
     }
 }
