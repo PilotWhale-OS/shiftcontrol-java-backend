@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ShiftPlanEndpoint {
     private final ShiftPlanService shiftPlanService;
 
-    @GetMapping("{shiftPlanId}/dashboard")
+    @GetMapping("/{shiftPlanId}/dashboard")
     // TODO Security
     @Operation(
         operationId = "getShiftPlanDashboard",
@@ -45,7 +45,7 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.getDashboardOverview(ConvertUtil.idToLong(shiftPlanId));
     }
 
-    @GetMapping("{shiftPlanId}/schedule")
+    @GetMapping("/{shiftPlanId}/schedule")
     // TODO Security
     @Operation(
         operationId = "getShiftPlanSchedule",
@@ -67,7 +67,7 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.getShiftPlanScheduleFilterValues(ConvertUtil.idToLong(shiftPlanId));
     }
 
-    @PostMapping("{shiftPlanId}/invite")
+    @PostMapping("/{shiftPlanId}/invite")
     // TODO Security
     @Operation(
         operationId = "createShiftPlanInvite",
@@ -79,20 +79,18 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.createShiftPlanInviteCode(ConvertUtil.idToLong(shiftPlanId), requestDto);
     }
 
-    @DeleteMapping("{shiftPlanId}/invites/{inviteCode}")
+    @DeleteMapping("/invites/{inviteCode}")
     // TODO Security
     @Operation(
         operationId = "revokeShiftPlanInvite",
         description = "Revoke an invite code for a specific shift plan of an event (soft delete)"
     )
-    public void revokeShiftPlanInvite(@PathVariable String shiftPlanId, @PathVariable String inviteCode) throws ForbiddenException, NotFoundException {
-        shiftPlanService.revokeShiftPlanInviteCode(ConvertUtil.idToLong(shiftPlanId), inviteCode);
+    public void revokeShiftPlanInvite(@PathVariable String inviteCode) throws ForbiddenException, NotFoundException {
+        shiftPlanService.revokeShiftPlanInviteCode(inviteCode);
     }
 
-    // TODO add roles for invite codes so that user gets assigned specific roles when joining via invite code (to avoid many manual role assignments)
-
     // endpoint to list all codes for shiftPlan
-    @GetMapping("{shiftPlanId}/invites")
+    @GetMapping("/{shiftPlanId}/invites")
     // TODO Security
     @Operation(
         operationId = "listShiftPlanInvites",

@@ -352,17 +352,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public void revokeShiftPlanInviteCode(long shiftPlanId, String inviteCode) throws NotFoundException, ForbiddenException {
+    public void revokeShiftPlanInviteCode(String inviteCode) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
         var invite = shiftPlanInviteDao.findByCode(inviteCode)
             .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
 
-        validatePermission(shiftPlanId, invite.getType(), currentUser);
-
-        if (invite.getShiftPlan().getId() != shiftPlanId) {
-            throw new NotFoundException("Invite code not found in shift plan with id: " + shiftPlanId);
-        }
+        validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
 
         invite.setActive(false);
         invite.setRevokedAt(Instant.now());
