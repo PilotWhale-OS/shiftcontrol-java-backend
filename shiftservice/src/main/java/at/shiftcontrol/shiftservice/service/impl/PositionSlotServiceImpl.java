@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import org.springframework.stereotype.Service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
