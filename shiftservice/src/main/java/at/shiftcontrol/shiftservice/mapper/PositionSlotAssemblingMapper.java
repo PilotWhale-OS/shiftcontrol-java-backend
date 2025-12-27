@@ -8,13 +8,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 
 @RequiredArgsConstructor
@@ -23,12 +23,12 @@ public class PositionSlotAssemblingMapper {
     private final EligibilityService eligibilityService;
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
-    private final PositionSlotService positionSlotService;
+    private final PositionSlotDao positionSlotDao;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         var volunteer = volunteerDao.findByUserId(applicationUserProvider.getCurrentUser().getUserId())
             .orElseThrow(() -> new IllegalStateException("Current user has no volunteer entity"));
-        var preferenceValue = positionSlotService.getPreference(volunteer.getId(), positionSlot.getId());
+        var preferenceValue = positionSlotDao.getPreference(volunteer.getId(), positionSlot.getId());
 
         // calculates SignupState for current user and
         // gets all trade offers for this slot for the current user
