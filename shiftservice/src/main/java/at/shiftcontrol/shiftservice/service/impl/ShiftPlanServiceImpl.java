@@ -1,7 +1,9 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -9,24 +11,36 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.TimeUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.user.AdminUser;
+import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.RoleDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
+import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.entity.Role;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
@@ -39,7 +53,10 @@ import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
+import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -48,13 +65,24 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final StatisticService statisticService;
     private final EligibilityService eligibilityService;
     private final ShiftPlanDao shiftPlanDao;
+    private final ShiftPlanInviteDao shiftPlanInviteDao;
     private final ShiftDao shiftDao;
     private final EventDao eventDao;
+    private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
+    private final ApplicationUserProvider userProvider;
     private final ShiftAssemblingMapper shiftMapper;
 
+    private final SecureRandom secureRandom = new SecureRandom();
+
+    // URL-safe, human-friendly alphabet (no 0/O, 1/I to reduce confusion)
+    private static final String INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    private static final int INVITE_CODE_LENGTH = 8;
+    private static final int MAX_INVITE_CODE_GENERATION_ATTEMPTS = 10;
+
     @Override
-    public DashboardOverviewDto getDashboardOverview(long shiftPlanId, String userId) throws NotFoundException {
+    public DashboardOverviewDto getDashboardOverview(long shiftPlanId) throws NotFoundException, ForbiddenException {
+        var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
@@ -73,7 +101,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, String userId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException {
+    public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException, ForbiddenException {
+        var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var queriedShifts = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, searchDto);
 
         var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
@@ -104,11 +133,28 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         var stats = statisticService.getShiftPlanScheduleStatistics(queriedShifts);
 
+        var allOccurringLocations = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, null).stream()
+            .map(Shift::getLocation)
+            .filter(Objects::nonNull)
+            .distinct()
+            .map(LocationMapper::toLocationDto)
+            .toList();
+
         return ShiftPlanScheduleDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
             .locations(locationSchedules)
+            .allOccurringLocations(allOccurringLocations)
             .scheduleStatistics(stats)
             .build();
+    }
+
+    private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+        if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
+            throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
+        }
+
+        return currentUser.getUserId();
     }
 
     private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
@@ -232,14 +278,255 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
+    @Override
+    public ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
+        throws NotFoundException, ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+
+        validatePermission(shiftPlanId, requestDto.getType(), currentUser);
+
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+
+        if (requestDto.getExpiresAt() != null && requestDto.getExpiresAt().isBefore(Instant.now())) {
+            throw new BadRequestException("expiresAt must be in the future");
+        }
+        if (requestDto.getMaxUses() != null && requestDto.getMaxUses() <= 0) {
+            throw new BadRequestException("maxUses must be positive");
+        }
+
+        // Generate a unique code (retry a few times)
+        String code = generateUniqueCode();
+
+        Collection<Role> rolesToAssign = List.of();
+        if (requestDto.getAutoAssignRoleIds() != null && !requestDto.getAutoAssignRoleIds().isEmpty()) {
+            rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds());
+
+            if (rolesToAssign.size() != requestDto.getAutoAssignRoleIds().size()) {
+                throw new BadRequestException("One or more roleIds are invalid");
+            }
+
+            // TODO verify roles belong to this shiftPlan
+        }
+
+        var invite = ShiftPlanInvite.builder()
+            .code(code)
+            .type(requestDto.getType())
+            .shiftPlan(shiftPlan)
+            .active(true)
+            .expiresAt(requestDto.getExpiresAt())
+            .maxUses(requestDto.getMaxUses())
+            .uses(0)
+            .createdAt(Instant.now())
+            .autoAssignRoles(rolesToAssign.isEmpty() ? null : rolesToAssign)
+            .build();
+
+        // Should not happen but just in case we retry once
+        try {
+            shiftPlanInviteDao.save(invite);
+        } catch (DataIntegrityViolationException e) {
+            // fallback once, because code uniqueness might collide under concurrency
+            invite.setCode(generateUniqueCode());
+            shiftPlanInviteDao.save(invite);
+        }
+
+        return ShiftPlanInviteCreateResponseDto.builder()
+            .code(invite.getCode())
+            .type(invite.getType())
+            .expiresAt(invite.getExpiresAt())
+            .maxUses(invite.getMaxUses())
+            .build();
+    }
+
+    private String generateUniqueCode() {
+        final char[] alphabet = INVITE_CODE_ALPHABET.toCharArray();
+
+        for (int attempt = 0; attempt < MAX_INVITE_CODE_GENERATION_ATTEMPTS; attempt++) {
+            String code = randomString(alphabet);
+            if (!shiftPlanInviteDao.existsByCode(code)) {
+                return code;
+            }
+        }
+        // extremely unlikely unless length is too short / huge volume
+        throw new RuntimeException("Could not generate unique invite code");
+    }
+
+    private String randomString(char[] alphabet) {
+        var sb = new StringBuilder(INVITE_CODE_LENGTH);
+        for (int i = 0; i < INVITE_CODE_LENGTH; i++) {
+            int idx = secureRandom.nextInt(alphabet.length);
+            sb.append(alphabet[idx]);
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public void revokeShiftPlanInviteCode(String inviteCode) throws NotFoundException, ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+
+        var invite = shiftPlanInviteDao.findByCode(inviteCode)
+            .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
+
+        validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
+
+        invite.setActive(false);
+        invite.setRevokedAt(Instant.now());
+
+        shiftPlanInviteDao.save(invite);
+    }
+
+    private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
+        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN && !currentUser.isPlannerInPlan(shiftPlanId)) {
+            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
+        }
+
+        // only allowed by admins
+        if (type == ShiftPlanInviteType.PLANNER_JOIN && !(currentUser instanceof AdminUser)) {
+            throw new ForbiddenException("Only admins can create planner join invite codes");
+        }
+    }
+
+    @Override
+    public ShiftPlanInviteDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException {
+        var invite = shiftPlanInviteDao.findByCode(inviteCode)
+            .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
+
+        var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
+
+        return ShiftPlanInviteDto.builder()
+            .code(invite.getCode())
+            .type(invite.getType())
+            .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
+            .active(invite.isActive())
+            .expiresAt(invite.getExpiresAt())
+            .maxUses(invite.getMaxUses())
+            .usedCount(invite.getUses())
+            .autoAssignedRoles(invite.getAutoAssignRoles() == null ? null : RoleMapper.toRoleDto(invite.getAutoAssignRoles()))
+            .createdAt(invite.getCreatedAt())
+            .revokedAt(invite.getRevokedAt())
+            .build();
+    }
+
+    @Override
+    public Collection<ShiftPlanInviteDto> listShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+
+        // both planners and admins can list invites
+        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
+            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
+        }
+
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+
+        var invites = shiftPlanInviteDao.findAllByShiftPlanId(shiftPlanId);
+
+        return invites.stream()
+            .map(invite -> ShiftPlanInviteDto.builder()
+                .code(invite.getCode())
+                .type(invite.getType())
+                .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
+                .active(invite.isActive())
+                .expiresAt(invite.getExpiresAt())
+                .maxUses(invite.getMaxUses())
+                .usedCount(invite.getUses())
+                .autoAssignedRoles(invite.getAutoAssignRoles() == null ? null : RoleMapper.toRoleDto(invite.getAutoAssignRoles()))
+                .createdAt(invite.getCreatedAt())
+                .revokedAt(invite.getRevokedAt())
+                .build())
+            .toList();
+    }
+
     private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
         return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
     }
 
     @Override
-    public ShiftPlanJoinOverviewDto joinShiftPlan(long shiftPlanId, String userId, ShiftPlanJoinRequestDto requestDto) {
-        return null;
+    @Transactional
+    public ShiftPlanJoinOverviewDto joinShiftPlanAsVolunteer(ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+        String userId = userProvider.getCurrentUser().getUserId();
+        if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
+            throw new BadRequestException("inviteCode is null or empty");
+        }
 
-        // TODO
+        String code = requestDto.getInviteCode().trim();
+
+        ShiftPlanInvite invite = shiftPlanInviteDao.findByCode(code)
+            .orElseThrow(() -> new NotFoundException("Invite code not found"));
+
+        validateInvite(invite);
+
+        long shiftPlanId = invite.getShiftPlan().getId();
+        ShiftPlan shiftPlan = shiftPlanDao.findById(shiftPlanId)
+            .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+
+        Volunteer volunteer = volunteerDao.findByUserId(userId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+
+        boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
+
+        // Increase uses and add roles only if joined now and ignores duplicate joins (already member)
+        if (joinedNow) {
+            var rolesToAssign = invite.getAutoAssignRoles();
+            if (rolesToAssign != null && !rolesToAssign.isEmpty()) {
+                for (var role : rolesToAssign) {
+                    if (!volunteer.getRoles().contains(role)) {
+                        volunteer.getRoles().add(role);
+                    }
+                }
+                volunteerDao.save(volunteer);
+            }
+
+            invite.setUses(invite.getUses() + 1);
+        }
+
+        // auto-deactivate if max uses reached
+        if (invite.getMaxUses() != null && invite.getUses() >= invite.getMaxUses()) {
+            invite.setActive(false);
+            invite.setRevokedAt(Instant.now());
+        }
+
+        // save updates
+        shiftPlanInviteDao.save(invite);
+        shiftPlanDao.save(shiftPlan);
+
+        return ShiftPlanJoinOverviewDto.builder()
+            .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
+            .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
+            .inviteType(invite.getType())
+            .joined(joinedNow)
+            .build();
+    }
+
+    private void validateInvite(ShiftPlanInvite invite) {
+        if (!invite.isActive()) {
+            throw new BadRequestException("Invite code is revoked or inactive");
+        }
+        if (invite.getExpiresAt() != null && invite.getExpiresAt().isBefore(Instant.now())) {
+            throw new BadRequestException("Invite code is expired");
+        }
+        if (invite.getMaxUses() != null && invite.getUses() >= invite.getMaxUses()) {
+            throw new BadRequestException("Invite code has reached its max uses");
+        }
+    }
+
+    // returns true if user was newly added, false if already a member
+    private boolean addUserToShiftPlanIfAbsent(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
+        switch (type) {
+            case VOLUNTEER_JOIN -> {
+                if (shiftPlan.getPlanVolunteers().contains(volunteer)) {
+                    return false;
+                }
+                shiftPlan.getPlanVolunteers().add(volunteer);
+                // TODO add plan to volunteeringPlans too ?? Is this needed or resolved by ManyToMany mapping ??
+                return true;
+            }
+            case PLANNER_JOIN -> {
+                if (shiftPlan.getPlanPlanners().contains(volunteer)) {
+                    return false;
+                }
+                shiftPlan.getPlanPlanners().add(volunteer);
+                return true;
+            }
+            default -> throw new BadRequestException("Unknown invite type");
+        }
     }
 }

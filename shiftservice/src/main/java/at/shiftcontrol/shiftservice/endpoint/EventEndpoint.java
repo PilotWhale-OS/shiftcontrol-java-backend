@@ -84,7 +84,7 @@ public class EventEndpoint {
         operationId = "createTimeConstraint",
         description = "Create a new time constraint for the current user"
     )
-    public TimeConstraintDto createUnavailability(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto) throws ConflictException {
+    public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto) throws ConflictException {
         return timeConstraintService.createTimeConstraint(
             createDto,
             userProvider.getCurrentUser().getUserId(),
@@ -95,10 +95,10 @@ public class EventEndpoint {
     @DeleteMapping("/{eventId}/time-constraints/{timeConstraintId}")
     // TODO Security
     @Operation(
-        operationId = "deleteUnavailability",
-        description = "Delete an existing unavailability period of the current user"
+        operationId = "deleteTimeConstraint",
+        description = "Delete an existing time constraint of the current user"
     )
-    public void deleteUnavailability(@PathVariable String eventId, @PathVariable String timeConstraintId) throws NotFoundException {
+    public void deleteTimeConstraint(@PathVariable String eventId, @PathVariable String timeConstraintId) throws NotFoundException {
         // Check that the time constraint belongs to the current user (throws NotFoundException if not)
         timeConstraintService.getTimeConstraints(userProvider.getCurrentUser().getUserId(), ConvertUtil.idToLong(eventId));
         timeConstraintService.delete(ConvertUtil.idToLong(timeConstraintId));

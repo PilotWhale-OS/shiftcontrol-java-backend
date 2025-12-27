@@ -4,13 +4,15 @@ import java.time.LocalDate;
 import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
 public class ShiftPlanScheduleSearchDto {
-    private LocalDate date; // if not provided, all dates should be fetched
+    @NotNull
+    private LocalDate date;
     // additional filter params
     private String shiftName;
     private ScheduleViewType scheduleViewType;

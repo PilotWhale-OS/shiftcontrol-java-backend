@@ -10,11 +10,11 @@ public class AdminUser extends ShiftControlUser {
         super(authorities, username, userId);
     }
 
-    public boolean isVolunteerInShift(long shiftId) {
+    public boolean isVolunteerInPlan(long shiftPlanId) {
         return true;
     }
 
-    public boolean isPlannerInShift(long shiftId) {
+    public boolean isPlannerInPlan(long shiftPlanId) {
         return true;
     }
 }
