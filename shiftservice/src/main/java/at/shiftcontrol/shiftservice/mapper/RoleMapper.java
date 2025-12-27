@@ -1,18 +1,14 @@
 package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.role.RoleAssignmentDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.entity.role.Role;
-import at.shiftcontrol.shiftservice.entity.role.RoleAssignment;
 
 @RequiredArgsConstructor
 @Service
@@ -21,7 +17,9 @@ public class RoleMapper {
         return new RoleDto(
             String.valueOf(role.getId()),
             role.getName(),
-            role.getDescription());
+            role.getDescription(),
+            role.isSelfAssignable()
+        );
     }
 
     public static Collection<RoleDto> toRoleDto(Collection<Role> roles) {
@@ -34,20 +32,13 @@ public class RoleMapper {
         return Role.builder()
             .name(roleDto.getName())
             .description(roleDto.getDescription())
+            .selfAssignable(roleDto.isSelfAssignable())
             .build();
     }
 
-    public static Collection<RoleAssignmentDto> toRoleAssignmentDto(List<RoleAssignment> roleAssignments) {
-        return roleAssignments.stream()
-            .map(RoleMapper::toRoleAssignmentDto)
-            .collect(Collectors.toList());
-    }
-
-    public static RoleAssignmentDto toRoleAssignmentDto(RoleAssignment roleAssignment) {
-        return RoleAssignmentDto.builder()
-            .id(roleAssignment.getId())
-            .userId(roleAssignment.getUserId())
-            .roleId(roleAssignment.getRole().getId())
-            .build();
+    public static void updateRole(RoleModificationDto roleDto, Role role) {
+        role.setName(roleDto.getName());
+        role.setDescription(roleDto.getDescription());
+        role.setSelfAssignable(roleDto.isSelfAssignable());
     }
 }

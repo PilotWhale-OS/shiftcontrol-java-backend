@@ -33,8 +33,8 @@ public class Volunteer {
     @ManyToMany
     @JoinTable(
         name = "volunteer_role",
-        joinColumns = @JoinColumn(name = "volunteer_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
+        joinColumns = @JoinColumn(name = "volunteer_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
     private Collection<Role> roles;
 
@@ -59,12 +59,13 @@ public class Volunteer {
 
     @Override
     public String toString() {
-        return "Volunteer{" +
-            "id='" + id + '\'' +
-            ", roles=" + roles +
-            ", notificationAssignments=" + notificationAssignments +
-            ", volunteeringPlans=" + volunteeringPlans.stream().map(ShiftPlan::getId).toList() +
-            ", planningPlans=" + planningPlans.stream().map(ShiftPlan::getId).toList() +
-            '}';
+        return "Volunteer{id='%s', roles=%s, notificationAssignments=%s, volunteeringPlans=%s, planningPlans=%s}"
+            .formatted(
+                id,
+                roles,
+                notificationAssignments,
+                volunteeringPlans.stream().map(ShiftPlan::getId).toList(),
+                planningPlans.stream().map(ShiftPlan::getId).toList()
+            );
     }
 }

@@ -1,11 +1,14 @@
 package at.shiftcontrol.shiftservice.entity.role;
 
+import java.util.Collection;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 @Getter
 @Setter
@@ -42,6 +46,8 @@ public class Role {
     private String description;
     @Column(nullable = false)
     private boolean selfAssignable;
+    @ManyToMany(mappedBy = "roles")
+    private Collection<Volunteer> volunteers;
 
     @Override
     public String toString() {

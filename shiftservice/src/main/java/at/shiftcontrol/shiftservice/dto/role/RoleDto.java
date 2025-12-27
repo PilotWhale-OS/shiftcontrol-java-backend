@@ -16,4 +16,6 @@ public class RoleDto {
     @NotNull
     private String name;
     private String description;
+    @NotNull
+    private boolean selfAssignable;
 }

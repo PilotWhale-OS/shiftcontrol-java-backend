@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.service.RoleService;
@@ -40,7 +41,7 @@ public class RoleEndpoint {
         description = "Get roles of this event"
     )
     public Collection<RoleDto> getRoles(@PathVariable String shiftPlanId) {
-        return roleService.getRoles(Long.valueOf(shiftPlanId));
+        return roleService.getRoles(ConvertUtil.idToLong(shiftPlanId));
     }
 
     @GetMapping("/{roleId}")
@@ -50,7 +51,7 @@ public class RoleEndpoint {
         description = "Get role by id"
     )
     public RoleDto getRole(@PathVariable String shiftPlanId, @PathVariable String roleId) throws ForbiddenException {
-        return roleService.getRole(Long.valueOf(shiftPlanId), Long.valueOf(roleId));
+        return roleService.getRole(ConvertUtil.idToLong(shiftPlanId), ConvertUtil.idToLong(roleId));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -64,7 +65,7 @@ public class RoleEndpoint {
         @PathVariable String shiftPlanId,
         @RequestBody RoleModificationDto role
     ) {
-        return roleService.createRole(Long.valueOf(shiftPlanId), role);
+        return roleService.createRole(ConvertUtil.idToLong(shiftPlanId), role);
     }
 
     @PutMapping(value = "/{roleId}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -78,7 +79,7 @@ public class RoleEndpoint {
         @PathVariable String roleId,
         @RequestBody RoleModificationDto role
     ) throws ForbiddenException {
-        return roleService.updateRole(Long.valueOf(shiftPlanId), Long.valueOf(roleId), role);
+        return roleService.updateRole(ConvertUtil.idToLong(shiftPlanId), ConvertUtil.idToLong(roleId), role);
     }
 
     @DeleteMapping("/{roleId}")
@@ -92,6 +93,6 @@ public class RoleEndpoint {
         @PathVariable String shiftPlanId,
         @PathVariable String roleId
     ) throws ForbiddenException {
-        roleService.deleteRole(Long.valueOf(shiftPlanId), Long.valueOf(roleId));
+        roleService.deleteRole(ConvertUtil.idToLong(shiftPlanId), ConvertUtil.idToLong(roleId));
     }
 }

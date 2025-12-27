@@ -3,10 +3,10 @@ package at.shiftcontrol.shiftservice.service;
 import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.shiftservice.dto.role.RoleAssignmentAssignDto;
-import at.shiftcontrol.shiftservice.dto.role.RoleAssignmentDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
+import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 
 public interface RoleService {
     Collection<RoleDto> getRoles(Long shiftPlanId);
@@ -19,9 +19,7 @@ public interface RoleService {
 
     void deleteRole(Long shiftPlanId, Long roleId) throws ForbiddenException;
 
-    Collection<RoleAssignmentDto> getRoleAssignmentsForUser(Long shiftPlanId, String userId);
+    VolunteerDto createUserRoleAssignment(Long shiftPlanId, String userId, UserRoleAssignmentAssignDto assignDto) throws ForbiddenException;
 
-    RoleAssignmentDto createRoleAssignment(Long shiftPlanId, String userId, RoleAssignmentAssignDto assignDto) throws ForbiddenException;
-
-    void deleteRoleAssignment(Long shiftPlanId, String userId, Long roleAssignmentId) throws ForbiddenException;
+    void deleteUserRoleAssignment(Long shiftPlanId, String userId, Long roleId) throws ForbiddenException;
 }
