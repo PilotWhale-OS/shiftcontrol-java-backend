@@ -5,7 +5,7 @@ import java.util.Collection;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
@@ -43,7 +43,7 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanDashboard",
         description = "Get (volunteer related) dashboard data for a specific shift plan of an event"
     )
-    public DashboardOverviewDto getShiftPlanDashboard(@PathVariable String shiftPlanId) throws NotFoundException, ForbiddenException {
+    public ShiftPlanDashboardOverviewDto getShiftPlanDashboard(@PathVariable String shiftPlanId) throws NotFoundException, ForbiddenException {
         return dashboardService.getDashboardOverviewOfShiftPlan(ConvertUtil.idToLong(shiftPlanId));
     }
 

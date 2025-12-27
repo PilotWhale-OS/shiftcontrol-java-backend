@@ -1,14 +1,13 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
-import java.util.Collection;
-
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
-import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.EventsDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
@@ -29,14 +28,14 @@ public class DashboardServiceImpl implements DashboardService {
     private final ShiftAssemblingMapper shiftMapper;
 
     @Override
-    public DashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) throws NotFoundException, ForbiddenException {
+    public ShiftPlanDashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) throws NotFoundException, ForbiddenException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.findById(shiftPlan.getEvent().getId())
             .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
 
-        return DashboardOverviewDto.builder()
+        return ShiftPlanDashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .eventOverview(EventMapper.toEventOverviewDto(event))
             .ownShiftPlanStatistics(statisticService.getOwnStatisticsOfShifts(userShifts)) // directly pass user shifts here to avoid redundant filtering
@@ -62,10 +61,10 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public Collection<DashboardOverviewDto> getDashboardOverviewsOfAllShiftPlans(String userId) throws NotFoundException, ForbiddenException {
+    public EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(String userId) throws NotFoundException, ForbiddenException {
         var userShiftPlans = shiftPlanDao.findAllUserRelatedShiftPlans(userId);
 
-        return userShiftPlans.stream().map(shiftPlan -> {
+        var shiftPlanDashboards = userShiftPlans.stream().map(shiftPlan -> {
             try {
                 return getDashboardOverviewOfShiftPlan(shiftPlan.getId());
             } catch (NotFoundException | ForbiddenException e) {
@@ -73,5 +72,10 @@ public class DashboardServiceImpl implements DashboardService {
                 throw new RuntimeException(e);
             }
         }).toList();
+
+        return EventsDashboardOverviewDto.builder()
+            .shiftPlanDashboardOverviewDtos(shiftPlanDashboards)
+            .ownStatisticsDto(statisticService.getOwnStatisticsOfShiftPlans(userShiftPlans.stream().toList(), userId))
+            .build();
     }
 }

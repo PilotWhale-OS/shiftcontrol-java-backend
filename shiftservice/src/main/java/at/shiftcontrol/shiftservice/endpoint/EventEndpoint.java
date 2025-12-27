@@ -7,9 +7,9 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.EventDto;
 import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
@@ -75,7 +75,7 @@ public class EventEndpoint {
         operationId = "getEventsDashboard",
         description = "Get (volunteer related) dashboard data for all events"
     )
-    public Collection<DashboardOverviewDto> getEventsDashboard() throws NotFoundException, ForbiddenException {
+    public EventsDashboardOverviewDto getEventsDashboard() throws NotFoundException, ForbiddenException {
         return dashboardService.getDashboardOverviewsOfAllShiftPlans(userProvider.getCurrentUser().getUserId());
     }
 

@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class DashboardOverviewDto {
+public class ShiftPlanDashboardOverviewDto {
     @NotNull
     private ShiftPlanDto shiftPlan;
     @NotNull

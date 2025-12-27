@@ -1,13 +1,12 @@
 package at.shiftcontrol.shiftservice.service;
 
-import java.util.Collection;
-
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.EventsDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanDashboardOverviewDto;
 
 public interface DashboardService {
-    DashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) throws NotFoundException, ForbiddenException;
+    ShiftPlanDashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) throws NotFoundException, ForbiddenException;
 
-    Collection<DashboardOverviewDto> getDashboardOverviewsOfAllShiftPlans(String userId) throws NotFoundException, ForbiddenException;
+    EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(String userId) throws NotFoundException, ForbiddenException;
 }
