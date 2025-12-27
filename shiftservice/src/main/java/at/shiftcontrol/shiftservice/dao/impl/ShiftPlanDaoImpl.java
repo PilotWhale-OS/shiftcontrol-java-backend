@@ -41,6 +41,15 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
 
     @Override
     public Collection<ShiftPlan> findAllUserRelatedShiftPlans(String userId) {
-        return shiftPlanRepository.findAllUserRelatedShiftPlans(userId);
+        var allShiftPlans = shiftPlanRepository.findAll();
+
+        return allShiftPlans.stream()
+            .filter(shiftPlan -> {
+                var planners = shiftPlan.getPlanPlanners();
+                var volunteers = shiftPlan.getPlanVolunteers();
+                return planners.stream().anyMatch(planner -> planner.getId().equals(userId)) ||
+                    volunteers.stream().anyMatch(volunteer -> volunteer.getId().equals(userId));
+            })
+            .toList();
     }
 }
