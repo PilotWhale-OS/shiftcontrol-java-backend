@@ -52,7 +52,7 @@ public class ShiftPlanEndpoint {
         description = "Get (volunteer related) schedule data for a specific shift plan of an event"
     )
     public ShiftPlanScheduleDto getShiftPlanSchedule(@PathVariable String shiftPlanId, @Valid ShiftPlanScheduleSearchDto shiftPlanScheduleSearchDto)
-        throws NotFoundException {
+        throws NotFoundException, ForbiddenException {
         return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), shiftPlanScheduleSearchDto);
     }
 
