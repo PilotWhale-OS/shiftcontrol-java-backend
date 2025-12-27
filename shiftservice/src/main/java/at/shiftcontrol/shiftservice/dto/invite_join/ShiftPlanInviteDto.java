@@ -23,15 +23,23 @@ public class ShiftPlanInviteDto {
     @NotNull
     private ShiftPlanInviteType type;
 
+    @NotNull
     private ShiftPlanDto shiftPlanDto;
+
+    @NotNull
     private boolean active;
+
     private Instant expiresAt;
     private Integer maxUses;
+
+    @NotNull
     private int usedCount;
 
     private Collection<RoleDto> autoAssignedRoles;
-    
+
+    @NotNull
     private Instant createdAt;
+
     private Instant revokedAt;
 
 }

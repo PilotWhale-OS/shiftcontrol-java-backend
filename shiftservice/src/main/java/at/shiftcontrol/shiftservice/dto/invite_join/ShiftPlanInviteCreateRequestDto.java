@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ShiftPlanInviteCreateRequestDto {
     @NotNull
-    private ShiftPlanInviteType type; // PLANNER_JOIN or VOLUNTEER_JOIN
+    private ShiftPlanInviteType type;
 
     private Instant expiresAt;
 
