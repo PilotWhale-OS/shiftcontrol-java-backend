@@ -21,7 +21,6 @@ public class UserProfileDto {
     @NotNull
     private Collection<NotificationSettingsDto> notifications;
 
-    private Collection<AbsenceDto> absences;
-
+    @NotNull
     private Collection<RoleDto> assignedRoles;
 }
