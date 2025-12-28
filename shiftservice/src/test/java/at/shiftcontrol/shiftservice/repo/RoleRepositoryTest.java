@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 
 @DataJpaTest
 @Import({TestConfig.class})

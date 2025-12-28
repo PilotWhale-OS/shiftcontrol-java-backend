@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.entity.role.Role;
-import at.shiftcontrol.shiftservice.repo.RoleRepository;
+import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 
 @RequiredArgsConstructor
 @Component

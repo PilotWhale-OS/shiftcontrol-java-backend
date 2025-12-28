@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.impl;
+package at.shiftcontrol.shiftservice.service.role.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,7 +25,7 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
-import at.shiftcontrol.shiftservice.service.RoleService;
+import at.shiftcontrol.shiftservice.service.role.RoleService;
 
 @Service
 @RequiredArgsConstructor
@@ -94,6 +94,7 @@ public class RoleServiceImpl implements RoleService {
         if (volunteer.getRoles() == null) {
             volunteer.setRoles(new HashSet<>());
         }
+        volunteer.getRoles().add(role);
         volunteerDao.save(volunteer);
         return VolunteerMapper.toDto(volunteer);
     }

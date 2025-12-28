@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.endpoint;
+package at.shiftcontrol.shiftservice.endpoint.role;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +18,7 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.service.RoleService;
+import at.shiftcontrol.shiftservice.service.role.RoleService;
 
 @Slf4j
 @RestController
@@ -27,7 +27,7 @@ import at.shiftcontrol.shiftservice.service.RoleService;
     produces = MediaType.APPLICATION_JSON_VALUE
 )
 @RequiredArgsConstructor
-public class UserRoleAssignmentEndpoint {
+public class RoleUserAssignmentEndpoint {
     private final RoleService roleService;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

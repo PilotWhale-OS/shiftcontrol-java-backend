@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.repo;
+package at.shiftcontrol.shiftservice.repo.role;
 
 import java.util.List;
 

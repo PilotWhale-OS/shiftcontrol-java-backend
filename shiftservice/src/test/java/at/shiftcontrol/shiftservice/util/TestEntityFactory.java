@@ -30,10 +30,10 @@ import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
 import at.shiftcontrol.shiftservice.repo.PositionConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
-import at.shiftcontrol.shiftservice.repo.RoleRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
+import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 
 @Component
 public class TestEntityFactory {

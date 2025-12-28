@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.endpoint;
+package at.shiftcontrol.shiftservice.endpoint.role;
 
 import java.util.Collection;
 
@@ -22,7 +22,7 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
-import at.shiftcontrol.shiftservice.service.RoleService;
+import at.shiftcontrol.shiftservice.service.role.RoleService;
 
 @Slf4j
 @RestController
