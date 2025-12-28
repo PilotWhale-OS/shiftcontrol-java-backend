@@ -15,7 +15,6 @@
       <column name="long_description" value="Shift long description"/>
       <column name="start_time" value="2025-09-12T07:00:00Z"/>
       <column name="end_time" value="2025-09-12T08:00:01Z"/>
-      <column name="lock_status" value="SELF_ASSIGNABLE"/>
     </insert>
 
     <insert tableName="position_slot">

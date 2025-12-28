@@ -36,10 +36,6 @@
         <constraints nullable="false"/>
       </column>
 
-      <column name="lock_status" type="VARCHAR(50)">
-        <constraints nullable="false"/>
-      </column>
-
       <column name="location_id" type="BIGINT">
         <constraints nullable="true" foreignKeyName="fk_shift_location_ref" references="location(id)"/>
       </column>

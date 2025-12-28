@@ -6,8 +6,6 @@ import java.util.Collection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,8 +23,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import at.shiftcontrol.shiftservice.type.LockStatus;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,32 +34,36 @@ public class Shift {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "shift_plan_id", nullable = false)
     private ShiftPlan shiftPlan;
+
     @NotNull
     @Size(max = 255)
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String name;
+
     @Size(max = 255)
-    @Column(nullable = true, length = 255)
+    @Column()
     private String shortDescription;
+
     @Size(max = 1024)
-    @Column(nullable = true, length = 1024)
+    @Column(length = 1024)
     private String longDescription;
+
     @NotNull
     @Column(nullable = false)
     private Instant startTime;
+
     @NotNull
     @Column(nullable = false)
     private Instant endTime;
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "lock_status", nullable = false)
-    private LockStatus lockStatus;
+
     @ManyToOne
     private Location location;
+
     @ManyToMany
     @JoinTable(
         name = "activity_shift",
@@ -71,21 +71,21 @@ public class Shift {
         inverseJoinColumns = @JoinColumn(name = "activity_id")
     )
     private Collection<Activity> relatedActivities;
+
     @OneToMany(mappedBy = "shift", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PositionSlot> slots;
 
     @Override
     public String toString() {
-        return "Shift{"
-            + "id=" + id
-            + ", shiftPlan=" + shiftPlan.getId()
-            + ", name='" + name + '\''
-            + ", startTime=" + startTime
-            + ", endTime=" + endTime
-            + ", lockStatus=" + lockStatus
-            + ", location=" + location
-            + ", relatedActivities=" + relatedActivities.stream().map(Activity::getId).toList()
-            + ", slots=" + slots.stream().map(PositionSlot::getId).toList()
-            + '}';
+        return "Shift{id=%d, shiftPlan=%d, name='%s', startTime=%s, endTime=%s, location=%s, relatedActivities=%s, slots=%s}"
+            .formatted(
+                id,
+                shiftPlan.getId(),
+                name,
+                startTime,
+                endTime,
+                location,
+                relatedActivities.stream().map(Activity::getId).toList(),
+                slots.stream().map(PositionSlot::getId).toList());
     }
 }

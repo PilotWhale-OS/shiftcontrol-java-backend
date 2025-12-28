@@ -75,16 +75,18 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public AssignmentDto createAuction(Long positionSlotId, String currentUserId) {
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         // check for signup phase
-        LockStatus lockStatus = assignment.getPositionSlot().getShift().getLockStatus();
+        LockStatus lockStatus = assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus();
         switch (lockStatus) {
-            case SELF_ASSIGNABLE:
+            case SELF_SIGNUP:
                 throw new IllegalStateException("Auction not possible, unassign instead");
-            case SELF_ASSIGNABLE_NO_UNASSIGN:
+            case SUPERVISED:
                 // proceed with auction
                 assignment.setStatus(AssignmentStatus.AUCTION);
                 break;
             case LOCKED:
                 throw new IllegalStateException("Auction not possible, shift is locked");
+            default:
+                throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
@@ -147,7 +149,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Transactional
     public Assignment reassignAssignment(Assignment oldAssignment, Volunteer newVolunteer) {
-
         // Create new assignment with new PK
         Assignment newAssignment = AssignmentMapper.shallowCopy(oldAssignment);
         newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
@@ -170,5 +171,4 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         return newAssignment;
     }
-
 }

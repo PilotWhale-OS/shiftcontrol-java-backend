@@ -34,7 +34,7 @@ public class ShiftAssemblingMapper {
             shift.getEndTime(),
             ActivityMapper.toActivityDto(shift.getRelatedActivities()),
             positionSlots,
-            shift.getLockStatus(),
+            shift.getShiftPlan().getLockStatus(),
             LocationMapper.toLocationDto(shift.getLocation())
         );
     }

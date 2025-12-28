@@ -5,6 +5,8 @@ import java.util.Collection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,6 +23,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import at.shiftcontrol.shiftservice.type.LockStatus;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,16 +45,21 @@ public class ShiftPlan {
 
     @NotNull
     @Size(max = 255)
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String name;
 
     @Size(max = 255)
-    @Column(nullable = true, length = 255)
+    @Column()
     private String shortDescription;
 
     @Size(max = 1024)
-    @Column(nullable = true, length = 1024)
+    @Column(length = 1024)
     private String longDescription;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "lock_status", nullable = false)
+    private LockStatus lockStatus;
 
     @OneToMany(mappedBy = "shiftPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Shift> shifts;
@@ -73,13 +82,13 @@ public class ShiftPlan {
 
     @Override
     public String toString() {
-        return "ShiftPlan{" +
-            "id=" + id +
-            ", event=" + event.getId() +
-            ", name='" + name + '\'' +
-            ", shifts=" + shifts.stream().map(Shift::getId).toList() +
-            ", planVolunteers=" + planVolunteers.stream().map(Volunteer::getId).toList() +
-            ", planPlanners=" + planPlanners.stream().map(Volunteer::getId).toList() +
-            '}';
+        return "ShiftPlan{id=%d, event=%d, name='%s', shifts=%s, planVolunteers=%s, planPlanners=%s}"
+            .formatted(
+                id,
+                event.getId(),
+                name,
+                shifts.stream().map(Shift::getId).toList(),
+                planVolunteers.stream().map(Volunteer::getId).toList(),
+                planPlanners.stream().map(Volunteer::getId).toList());
     }
 }
