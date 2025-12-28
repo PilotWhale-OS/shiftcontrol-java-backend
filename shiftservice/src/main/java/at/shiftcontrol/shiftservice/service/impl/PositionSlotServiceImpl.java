@@ -74,7 +74,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto createAuction(Long positionSlotId, String currentUserId) {
+    public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         // check for signup phase
         LockStatus lockStatus = assignment.getPositionSlot().getShift().getLockStatus();
@@ -87,13 +87,16 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 break;
             case LOCKED:
                 throw new IllegalStateException("Auction not possible, shift is locked");
+            default:
+                throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
     @Override
     @Transactional
-    public AssignmentDto claimAuction(Long positionSlotId, String offeringUserId, String currentUserId) throws NotFoundException, ConflictException {
+    public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
+        throws NotFoundException, ConflictException {
         // get auction-assignment
         Assignment auction = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
         if (auction == null
@@ -133,7 +136,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto cancelAuction(Long positionSlotId, String currentUserId) {
+    public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
@@ -149,7 +152,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Transactional
     public Assignment reassignAssignment(Assignment oldAssignment, Volunteer newVolunteer) {
-
         // Create new assignment with new PK
         Assignment newAssignment = AssignmentMapper.shallowCopy(oldAssignment);
         newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));

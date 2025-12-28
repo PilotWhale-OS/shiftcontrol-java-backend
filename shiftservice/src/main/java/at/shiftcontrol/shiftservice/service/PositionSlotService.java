@@ -22,9 +22,10 @@ public interface PositionSlotService {
 
     int getPreference(@NonNull String volunteerId, long positionSlotId);
 
-    AssignmentDto createAuction(Long positionSlotId, String currentUserId);
+    AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
 
-    AssignmentDto claimAuction(Long positionSlotId, String offeringUserId, String currentUserId) throws NotFoundException, ConflictException;
+    AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
+        throws NotFoundException, ConflictException;
 
-    AssignmentDto cancelAuction(Long positionSlotId, String currentUserId);
+    AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
 }
