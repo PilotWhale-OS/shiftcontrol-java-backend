@@ -123,7 +123,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         // Build location DTOs
         var scheduleContentDtos = shiftsByLocation.entrySet().stream()
-            .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue(), shiftPlanId))
+            .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue()))
             .toList();
 
         var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
@@ -191,7 +191,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
 
-    private ScheduleContentDto buildScheduleContentDto(Location location, List<Shift> shifts, long shiftPlanId) {
+    private ScheduleContentDto buildScheduleContentDto(Location location, List<Shift> shifts) {
         // sort for deterministic column placement
         shifts.sort(Comparator
             .comparing(Shift::getStartTime)
