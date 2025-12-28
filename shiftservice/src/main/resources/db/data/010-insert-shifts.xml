@@ -245,6 +245,18 @@
 
       -->
 
+    <!-- edge case -->
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="39"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Have Some Coffee"/>
+      <column name="start_time" value="2025-11-20T00:10:00.000Z"/>
+      <column name="end_time" value="2025-11-20T00:50:00.000Z"/>
+      <column name="lock_status" value="SELF_ASSIGNABLE"/>
+      <column name="location_id" valueNumeric="16"/>
+    </insert>
+
     <!-- day 1 -->
 
     <insert tableName="shift">
@@ -429,6 +441,18 @@
       <column name="long_description" value="Collect stuff from this location"/>
       <column name="start_time" value="2025-11-25T08:00:00.000Z"/>
       <column name="end_time" value="2025-11-25T10:00:00.000Z"/>
+      <column name="lock_status" value="SELF_ASSIGNABLE"/>
+      <column name="location_id" valueNumeric="16"/>
+    </insert>
+
+    <!-- edge case -->
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="38"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Have Some Drinks"/>
+      <column name="start_time" value="2025-11-25T23:10:00.000Z"/>
+      <column name="end_time" value="2025-11-25T23:50:00.000Z"/>
       <column name="lock_status" value="SELF_ASSIGNABLE"/>
       <column name="location_id" valueNumeric="16"/>
     </insert>

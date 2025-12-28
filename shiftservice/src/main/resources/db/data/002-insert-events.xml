@@ -54,7 +54,7 @@
       <column name="id" valueNumeric="6"/>
       <column name="name" value="TU Student Days"/>
       <column name="start_time" value="2025-11-20T00:00:00.000Z"/>
-      <column name="end_time" value="2025-11-25T18:00:00.000Z"/>
+      <column name="end_time" value="2025-11-25T23:59:59.999Z"/>
       <column name="short_description" value="Just the good stuff of Uni @ TU."/>
       <column name="long_description" value="A week full of events, organized by and for students. The whole TU is transfigured to a place of joy!"/>
     </insert>
