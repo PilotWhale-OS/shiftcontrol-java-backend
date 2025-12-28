@@ -3,9 +3,10 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.NoArgsConstructor;
+
 import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class ShiftPlanMapper {

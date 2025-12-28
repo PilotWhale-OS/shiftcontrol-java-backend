@@ -4,15 +4,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.impl.specification.ShiftSpecifications;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component

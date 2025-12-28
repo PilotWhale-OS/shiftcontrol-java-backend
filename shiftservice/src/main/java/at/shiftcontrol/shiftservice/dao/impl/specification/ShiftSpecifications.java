@@ -2,13 +2,15 @@ package at.shiftcontrol.shiftservice.dao.impl.specification;
 
 import java.time.Instant;
 
+import org.springframework.data.jpa.domain.Specification;
+
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.domain.Specification;
 
 public final class ShiftSpecifications {
     private ShiftSpecifications() {
