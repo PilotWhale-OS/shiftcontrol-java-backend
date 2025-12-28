@@ -5,17 +5,17 @@ import java.util.Collection;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,7 +67,8 @@ public class ShiftPlanEndpoint {
         description = "Get (volunteer related) schedule content data for a specific day of a specific shift plan of an event"
     )
     public ShiftPlanScheduleContentDto getShiftPlanScheduleContent(@PathVariable String shiftPlanId,
-                                                                   @Valid ShiftPlanScheduleDaySearchDto shiftPlanScheduleSearchDto)
+                                                                   @Valid
+                                                                   ShiftPlanScheduleDaySearchDto shiftPlanScheduleSearchDto)
         throws NotFoundException, ForbiddenException {
         return shiftPlanService.getShiftPlanScheduleContent(ConvertUtil.idToLong(shiftPlanId), shiftPlanScheduleSearchDto);
     }
@@ -78,7 +79,8 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanScheduleFilterValues",
         description = "Get available filter values for the schedule of a specific shift plan of an event"
     )
-    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(@PathVariable String shiftPlanId) throws NotFoundException {
+    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(@PathVariable String shiftPlanId)
+        throws NotFoundException {
         return shiftPlanService.getShiftPlanScheduleFilterValues(ConvertUtil.idToLong(shiftPlanId));
     }
 

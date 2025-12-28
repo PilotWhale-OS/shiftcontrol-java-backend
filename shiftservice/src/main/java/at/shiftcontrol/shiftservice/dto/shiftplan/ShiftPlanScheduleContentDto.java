@@ -3,8 +3,7 @@ package at.shiftcontrol.shiftservice.dto.shiftplan;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.LocationDto;
-import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.ScheduleStatisticsDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
