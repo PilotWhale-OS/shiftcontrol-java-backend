@@ -64,6 +64,15 @@ public interface EligibilityService {
     void validateSignUpStateForTrade(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
 
     /**
+     * Checks if the volunteer could accept a trade for the given position slot, based on PositionSignUpState
+     *
+     * @param positionSlot that would be offered to the volunteer
+     * @param volunteer to whom a trade might be created
+     * @return true if the user could accept the trade
+     */
+    boolean canTradeBeRequestedFromUser(PositionSlot positionSlot, Volunteer volunteer);
+
+    /**
      * returns all conflicting assignments within a given time for a specific user
      *
      * @param volunteerId The volunteer to check

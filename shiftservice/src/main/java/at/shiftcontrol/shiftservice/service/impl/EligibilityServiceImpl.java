@@ -122,13 +122,19 @@ public class EligibilityServiceImpl implements EligibilityService {
                 }
                 // All good, proceed with signup
                 break;
-            // TODO: How to handle SIGNUP_VIA_TRADE and SIGNUP_VIA_AUCTION?
             case SIGNUP_POSSIBLE:
                 // All good, proceed with signup
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + signupState);
         }
+    }
+
+    @Override
+    public boolean canTradeBeRequestedFromUser(PositionSlot positionSlot, Volunteer volunteer) {
+        PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
+        return !PositionSignupState.SIGNED_UP.equals(signupState)
+            && !PositionSignupState.NOT_ELIGIBLE.equals(signupState);
     }
 
     @Override
