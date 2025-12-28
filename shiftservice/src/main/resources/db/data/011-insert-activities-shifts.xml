@@ -97,6 +97,30 @@
       <column name="shift_id" valueNumeric="4"/>
     </insert>
 
+    <!--
+
+      manual test event shifts
+
+      -->
+
+    <!-- day 1 -->
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="16"/>
+      <column name="shift_id" valueNumeric="34"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="16"/>
+      <column name="shift_id" valueNumeric="35"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="16"/>
+      <column name="shift_id" valueNumeric="36"/>
+    </insert>
+    <insert tableName="activity_shift">
+      <column name="activity_id" valueNumeric="17"/>
+      <column name="shift_id" valueNumeric="37"/>
+    </insert>
+
   </changeSet>
 
 </databaseChangeLog>

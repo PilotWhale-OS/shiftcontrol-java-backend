@@ -260,6 +260,36 @@
     </insert>
 
     <insert tableName="shift">
+      <column name="id" valueNumeric="34"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Photos Open Mic"/>
+      <column name="start_time" value="2025-11-20T15:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T18:00:00.000Z"/>
+      <column name="lock_status" value="SELF_ASSIGNABLE"/>
+      <column name="location_id" valueNumeric="11"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="35"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Record Open Mic"/>
+      <column name="start_time" value="2025-11-20T13:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T14:00:00.000Z"/>
+      <column name="lock_status" value="SELF_ASSIGNABLE"/>
+      <column name="location_id" valueNumeric="11"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="36"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Cut and edit recording video"/>
+      <column name="start_time" value="2025-11-20T14:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T16:00:00.000Z"/>
+      <column name="lock_status" value="SELF_ASSIGNABLE"/>
+      <column name="location_id" valueNumeric="11"/>
+    </insert>
+
+    <insert tableName="shift">
       <column name="id" valueNumeric="23"/>
       <column name="shift_plan_id" valueNumeric="13"/>
       <column name="name" value="Location Intro Freihaus"/>
@@ -317,6 +347,16 @@
       <column name="end_time" value="2025-11-20T10:00:00.000Z"/>
       <column name="lock_status" value="SELF_ASSIGNABLE"/>
       <column name="location_id" valueNumeric="16"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="37"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Rooftop Photo Sesh"/>
+      <column name="start_time" value="2025-11-23T20:00:00.000Z"/>
+      <column name="end_time" value="2025-11-24T01:00:00.000Z"/>
+      <column name="lock_status" value="SELF_ASSIGNABLE"/>
+      <column name="location_id" valueNumeric="15"/>
     </insert>
 
     <!-- day 5 -->
@@ -387,8 +427,8 @@
       <column name="name" value="Location Cleanup Audimax"/>
       <column name="short_description" value="Collect stuff from this location"/>
       <column name="long_description" value="Collect stuff from this location"/>
-      <column name="start_time" value="2025-11-20T08:00:00.000Z"/>
-      <column name="end_time" value="2025-11-20T10:00:00.000Z"/>
+      <column name="start_time" value="2025-11-25T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-25T10:00:00.000Z"/>
       <column name="lock_status" value="SELF_ASSIGNABLE"/>
       <column name="location_id" valueNumeric="16"/>
     </insert>
