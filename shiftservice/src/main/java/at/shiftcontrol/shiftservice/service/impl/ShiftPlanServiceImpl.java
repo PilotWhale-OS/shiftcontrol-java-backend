@@ -24,11 +24,14 @@ import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.LocationScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.ScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
@@ -79,16 +82,69 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private static final int MAX_INVITE_CODE_GENERATION_ATTEMPTS = 10;
 
     @Override
-    public ShiftPlanScheduleDto getShiftPlanSchedule(long shiftPlanId, ShiftPlanScheduleSearchDto searchDto) throws NotFoundException, ForbiddenException {
+    public ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto)
+        throws NotFoundException, ForbiddenException {
+        var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, filterDto);
+
+        // Build location DTOs
+        var scheduleLayoutDtos = shiftsByLocation.entrySet().stream()
+            .map(entry -> buildScheduleLayoutDto(entry.getKey(), entry.getValue()))
+            .toList();
+
+        return ShiftPlanScheduleLayoutDto.builder()
+            .scheduleLayoutDtos(scheduleLayoutDtos)
+            .build();
+    }
+
+    private ScheduleLayoutDto buildScheduleLayoutDto(Location location, List<Shift> shifts) {
+        // sort for deterministic column placement
+        shifts.sort(Comparator
+            .comparing(Shift::getStartTime)
+            .thenComparing(Shift::getEndTime));
+
+        var shiftColumns = calculateShiftColumns(shifts);
+
+        int requiredShiftColumns = shiftColumns.stream()
+            .mapToInt(ShiftColumnDto::getColumnIndex)
+            .max()
+            .orElse(-1) + 1;
+
+        return ScheduleLayoutDto.builder()
+            .location(LocationMapper.toLocationDto(location))
+            .requiredShiftColumns(requiredShiftColumns)
+            .build();
+    }
+
+    @Override
+    public ShiftPlanScheduleContentDto getShiftPlanScheduleContent(long shiftPlanId, ShiftPlanScheduleDaySearchDto searchDto)
+        throws NotFoundException, ForbiddenException {
+        var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, searchDto);
+
+        // Build location DTOs
+        var scheduleContentDtos = shiftsByLocation.entrySet().stream()
+            .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue()))
+            .toList();
+
+        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
+
+        return ShiftPlanScheduleContentDto.builder()
+            .date(searchDto != null ? searchDto.getDate() : null)
+            .scheduleContentDtos(scheduleContentDtos)
+            .scheduleStatistics(stats)
+            .build();
+    }
+
+    private Map<Location, List<Shift>> getScheduleShiftsByLocation(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto)
+        throws ForbiddenException, NotFoundException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
-        var queriedShifts = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, searchDto);
+        var queriedShifts = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
 
         var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
 
         // Get user related shifts via dao if MY_SHIFTS view is requested
         // Get shifts with signup possible if SIGNUP_POSSIBLE view is requested; This filtering is done here because it depends on business logic
         // and it wouldn't make sense to implement this existing logic in the DAO layer (which would be quite complex)
-        if (searchDto != null && searchDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
+        if (filterDto != null && filterDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
             queriedShifts = queriedShifts.stream()
                 .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
                     isSignupPossible(slot, volunteer)
@@ -104,26 +160,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             shiftsByLocation.computeIfAbsent(shift.getLocation(), k -> new ArrayList<>()).add(shift);
         }
 
-        // Build location DTOs
-        var locationSchedules = shiftsByLocation.entrySet().stream()
-            .map(entry -> buildLocationSchedule(entry.getKey(), entry.getValue()))
-            .toList();
-
-        var stats = statisticService.getShiftPlanScheduleStatistics(queriedShifts);
-
-        var allOccurringLocations = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, null).stream()
-            .map(Shift::getLocation)
-            .filter(Objects::nonNull)
-            .distinct()
-            .map(LocationMapper::toLocationDto)
-            .toList();
-
-        return ShiftPlanScheduleDto.builder()
-            .date(searchDto != null ? searchDto.getDate() : null)
-            .locations(locationSchedules)
-            .allOccurringLocations(allOccurringLocations)
-            .scheduleStatistics(stats)
-            .build();
+        return shiftsByLocation;
     }
 
     private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
@@ -153,17 +190,18 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
 
-    private LocationScheduleDto buildLocationSchedule(Location location, List<Shift> shifts) {
+    private ScheduleContentDto buildScheduleContentDto(Location location, List<Shift> shifts) {
         // sort for deterministic column placement
         shifts.sort(Comparator
             .comparing(Shift::getStartTime)
             .thenComparing(Shift::getEndTime));
 
         var shiftColumns = calculateShiftColumns(shifts);
-        int requiredShiftColumns = shiftColumns.stream()
-            .mapToInt(ShiftColumnDto::getColumnIndex)
-            .max()
-            .orElse(-1) + 1;
+        //TODO
+//        int requiredShiftColumns = shiftColumns.stream()
+//            .mapToInt(ShiftColumnDto::getColumnIndex)
+//            .max()
+//            .orElse(-1) + 1;
 
         var activities = shifts.stream()
             .flatMap(s -> s.getRelatedActivities() == null ? Stream.empty() : s.getRelatedActivities().stream())
@@ -171,10 +209,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(ActivityMapper::toActivityDto)
             .toList();
 
-        return LocationScheduleDto.builder()
+        return ScheduleContentDto.builder()
             .location(LocationMapper.toLocationDto(location))
             .activities(activities)
-            .requiredShiftColumns(requiredShiftColumns)
             .shiftColumns(shiftColumns)
             .build();
     }

@@ -3,7 +3,8 @@ package at.shiftcontrol.shiftservice.dao.impl.specification;
 import java.time.Instant;
 
 import at.shiftcontrol.lib.util.TimeUtil;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -32,26 +33,26 @@ public final class ShiftSpecifications {
         };
     }
 
-    public static Specification<Shift> matchesSearchDto(ShiftPlanScheduleSearchDto searchDto) {
+    public static Specification<Shift> matchesSearchDto(ShiftPlanScheduleFilterDto filterDto) {
         return (root, query, criteriaBuilder) -> {
-            if (searchDto == null) {
+            if (filterDto == null) {
                 return criteriaBuilder.conjunction();
             }
 
             var predicates = criteriaBuilder.conjunction();
 
             // date filter (LocalDate -> Instant range)
-            if (searchDto.getDate() != null) {
-                Instant dayStart = TimeUtil.convertToStartOfUtcDayInstant(searchDto.getDate());
-                Instant dayEnd = TimeUtil.convertToEndOfUtcDayInstant(searchDto.getDate());
+            if (filterDto instanceof ShiftPlanScheduleDaySearchDto daySearchDto && daySearchDto.getDate() != null) {
+                Instant dayStart = TimeUtil.convertToStartOfUtcDayInstant(daySearchDto.getDate());
+                Instant dayEnd = TimeUtil.convertToEndOfUtcDayInstant(daySearchDto.getDate());
 
                 predicates = criteriaBuilder.and(predicates,
                     criteriaBuilder.between(root.get("startTime"), dayStart, dayEnd));
             }
 
             // shift name contains (case-insensitive)
-            if (searchDto.getShiftName() != null && !searchDto.getShiftName().isBlank()) {
-                String pattern = "%" + searchDto.getShiftName().toLowerCase() + "%";
+            if (filterDto.getShiftName() != null && !filterDto.getShiftName().isBlank()) {
+                String pattern = "%" + filterDto.getShiftName().toLowerCase() + "%";
                 predicates = criteriaBuilder.and(predicates,
                     criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")),
@@ -60,12 +61,12 @@ public final class ShiftSpecifications {
             }
 
             // roleNames: Shift -> slots --> role --> name
-            if (searchDto.getRoleNames() != null && !searchDto.getRoleNames().isEmpty()) {
+            if (filterDto.getRoleNames() != null && !filterDto.getRoleNames().isEmpty()) {
                 var roleJoin = root
                     .join("slots", JoinType.INNER)
                     .join("role", JoinType.INNER);
 
-                var likePredicates = searchDto.getRoleNames().stream()
+                var likePredicates = filterDto.getRoleNames().stream()
                     .filter(r -> r != null && !r.isBlank())
                     .map(r -> "%" + r.toLowerCase() + "%")
                     .map(pattern ->
@@ -85,10 +86,10 @@ public final class ShiftSpecifications {
             }
 
             // locations: Shift -> locations --> name
-            if (searchDto.getLocations() != null && !searchDto.getLocations().isEmpty()) {
+            if (filterDto.getLocations() != null && !filterDto.getLocations().isEmpty()) {
                 var locationJoin = root.join("location", JoinType.INNER);
 
-                var likePredicates = searchDto.getLocations().stream()
+                var likePredicates = filterDto.getLocations().stream()
                     .filter(s -> s != null && !s.isBlank())
                     .map(s -> "%" + s.toLowerCase() + "%")
                     .map(pattern ->
