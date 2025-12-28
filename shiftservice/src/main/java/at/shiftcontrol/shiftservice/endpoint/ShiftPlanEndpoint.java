@@ -58,7 +58,7 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.getShiftPlanSchedule(ConvertUtil.idToLong(shiftPlanId), shiftPlanScheduleSearchDto);
     }
 
-    @GetMapping("/schedule/filters")
+    @GetMapping("/{shiftPlanId}/schedule/filters")
     // TODO Security
     @Operation(
         operationId = "getShiftPlanScheduleFilterValues",
