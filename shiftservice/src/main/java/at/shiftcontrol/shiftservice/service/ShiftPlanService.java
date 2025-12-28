@@ -8,18 +8,12 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRequestDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateResponseDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
-import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
 
 public interface ShiftPlanService {
     ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto) throws NotFoundException, ForbiddenException;
