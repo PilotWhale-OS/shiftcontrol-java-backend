@@ -60,7 +60,7 @@ public class ShiftPlanEndpoint {
         return shiftPlanService.getShiftPlanScheduleLayout(ConvertUtil.idToLong(shiftPlanId), filterDto);
     }
 
-    @GetMapping("/{shiftPlanId}/schedule/conent")
+    @GetMapping("/{shiftPlanId}/schedule/content")
     // TODO Security
     @Operation(
         operationId = "getShiftPlanScheduleContent",
