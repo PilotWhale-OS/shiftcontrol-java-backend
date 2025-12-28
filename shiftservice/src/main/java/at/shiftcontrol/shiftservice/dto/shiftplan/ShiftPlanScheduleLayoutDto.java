@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.ScheduleLayoutDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
