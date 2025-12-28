@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UserShiftPreferenceDto {
+public class PositionSlotPreferenceUpdateDto {
     private int preferenceValue;
 }
