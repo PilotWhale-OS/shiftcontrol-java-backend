@@ -18,7 +18,7 @@ import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
-import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -31,13 +31,13 @@ import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
@@ -69,7 +69,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftPlanInviteDao shiftPlanInviteDao;
     private final ShiftDao shiftDao;
-    private final EventDao eventDao;
+    private final ActivityDao activityDao;
     private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
@@ -123,7 +123,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         // Build location DTOs
         var scheduleContentDtos = shiftsByLocation.entrySet().stream()
-            .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue()))
+            .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue(), shiftPlanId))
             .toList();
 
         var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
@@ -191,28 +191,23 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
 
-    private ScheduleContentDto buildScheduleContentDto(Location location, List<Shift> shifts) {
+    private ScheduleContentDto buildScheduleContentDto(Location location, List<Shift> shifts, long shiftPlanId) {
         // sort for deterministic column placement
         shifts.sort(Comparator
             .comparing(Shift::getStartTime)
             .thenComparing(Shift::getEndTime));
 
         var shiftColumns = calculateShiftColumns(shifts);
-        //TODO
-//        int requiredShiftColumns = shiftColumns.stream()
-//            .mapToInt(ShiftColumnDto::getColumnIndex)
-//            .max()
-//            .orElse(-1) + 1;
 
-        var activities = shifts.stream()
-            .flatMap(s -> s.getRelatedActivities() == null ? Stream.empty() : s.getRelatedActivities().stream())
+        // get activities related to this location (shift unrelated, even when no shifts are present)
+        var activitiesRelatedToLocation = activityDao.findAllByLocationId(location.getId()).stream()
             .distinct()
             .map(ActivityMapper::toActivityDto)
             .toList();
 
         return ScheduleContentDto.builder()
             .location(LocationMapper.toLocationDto(location))
-            .activities(activities)
+            .activities(activitiesRelatedToLocation)
             .shiftColumns(shiftColumns)
             .build();
     }
