@@ -64,7 +64,7 @@ public class RoleEndpoint {
     public RoleDto createRole(
         @PathVariable String shiftPlanId,
         @RequestBody RoleModificationDto role
-    ) {
+    ) throws ForbiddenException {
         return roleService.createRole(ConvertUtil.idToLong(shiftPlanId), role);
     }
 
