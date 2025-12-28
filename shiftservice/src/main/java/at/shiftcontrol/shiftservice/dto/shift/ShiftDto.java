@@ -28,7 +28,6 @@ public class ShiftDto {
     private Instant startTime;
     @NotNull
     private Instant endTime;
-    @NotNull
     private ActivityDto relatedActivity;
     @NotNull
     private Collection<PositionSlotDto> positionSlots;
