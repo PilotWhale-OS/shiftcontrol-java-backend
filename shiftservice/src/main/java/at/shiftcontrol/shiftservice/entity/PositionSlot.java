@@ -18,6 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import at.shiftcontrol.shiftservice.entity.role.Role;
+
 @Getter
 @Setter
 @NoArgsConstructor

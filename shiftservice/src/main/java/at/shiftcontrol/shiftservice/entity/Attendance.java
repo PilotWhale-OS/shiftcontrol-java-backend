@@ -1,6 +1,5 @@
 package at.shiftcontrol.shiftservice.entity;
 
-import at.shiftcontrol.shiftservice.type.AttendanceStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -16,6 +15,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import at.shiftcontrol.shiftservice.type.AttendanceStatus;
 
 @Getter
 @Setter
@@ -44,9 +45,9 @@ public class Attendance {
 
     @Override
     public String toString() {
-        return "Attendance{" +
-            "id=" + id +
-            ", status=" + status +
-            '}';
+        return "Attendance{"
+            + "id=" + id
+            + ", status=" + status
+            + '}';
     }
 }

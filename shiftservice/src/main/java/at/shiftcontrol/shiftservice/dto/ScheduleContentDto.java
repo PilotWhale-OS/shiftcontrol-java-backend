@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.userprofile;
+package at.shiftcontrol.shiftservice.dto;
 
 import java.util.Collection;
 
@@ -8,19 +8,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.role.RoleDto;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserProfileDto {
+public class ScheduleContentDto {
     @NotNull
-    private AccountInfoDto account;
+    private LocationDto location;
 
     @NotNull
-    private Collection<NotificationSettingsDto> notifications;
+    private Collection<ActivityDto> activities;
 
     @NotNull
-    private Collection<RoleDto> assignedRoles;
+    private Collection<ShiftColumnDto> shiftColumns;
 }

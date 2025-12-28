@@ -3,7 +3,6 @@ package at.shiftcontrol.shiftservice.entity;
 import java.time.Instant;
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,6 +20,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 
 @Data
 @NoArgsConstructor

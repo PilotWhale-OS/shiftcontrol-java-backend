@@ -3,8 +3,9 @@ package at.shiftcontrol.shiftservice.auth.user;
 import java.util.Collection;
 import java.util.Set;
 
-import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import org.springframework.security.core.GrantedAuthority;
+
+import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 
 public class AssignedUser extends ShiftControlUser {
     private final UserAttributeProvider attributeProvider;

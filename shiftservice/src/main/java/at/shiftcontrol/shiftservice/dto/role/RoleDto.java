@@ -1,6 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.userprofile;
-
-import java.time.LocalDate;
+package at.shiftcontrol.shiftservice.dto.role;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -12,11 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AbsenceDto {
+public class RoleDto {
     @NotNull
-    Long userId;
+    private String id;
     @NotNull
-    LocalDate from;
+    private String name;
+    private String description;
     @NotNull
-    LocalDate to;
+    private boolean selfAssignable;
 }
