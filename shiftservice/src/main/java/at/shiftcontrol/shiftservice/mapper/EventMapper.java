@@ -14,8 +14,8 @@ public class EventMapper {
             .name(event.getName())
             .longDescription(event.getLongDescription())
             .shortDescription(event.getShortDescription())
-            .startDate(event.getStartDate())
-            .endDate(event.getEndDate())
+            .startTime(event.getStartTime())
+            .endTime(event.getEndTime())
             .build();
     }
 

@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.util;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +67,8 @@ public class TestEntityFactory {
     public Event createPersistedEvent() {
         Event event = Event.builder()
             .name("eventName")
-            .startDate(LocalDate.now())
-            .endDate(LocalDate.now().plusDays(2))
+            .startTime(Instant.now())
+            .endTime(Instant.now())
             .build();
         // TODO add other fields
         return eventRepository.save(event);
