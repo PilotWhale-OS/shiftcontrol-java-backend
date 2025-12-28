@@ -9,11 +9,13 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ShiftPlanScheduleDto {
+public class ShiftPlanScheduleContentDto {
     @NotNull
     private LocalDate date;
-    private Collection<LocationScheduleDto> locations;
-    private Collection<LocationDto> allOccurringLocations;
+
+    @NotNull
+    private Collection<ScheduleContentDto> scheduleContentDtos;
+
     @NotNull
     private ScheduleStatisticsDto scheduleStatistics;
 }

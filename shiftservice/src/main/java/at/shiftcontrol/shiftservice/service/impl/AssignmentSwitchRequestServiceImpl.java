@@ -115,7 +115,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private void validateTradePossible(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot, Volunteer currentUser) throws ConflictException {
-        // TODO check if position slots are in the same shift plan
         if (offeredPositionSlot.getShift().getShiftPlan().getId() != requestedPositionSlot.getShift().getShiftPlan().getId()) {
             throw new IllegalArgumentException("position slots belong to different shift plans");
         }

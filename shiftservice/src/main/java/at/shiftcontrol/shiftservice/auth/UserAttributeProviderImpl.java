@@ -5,15 +5,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import org.springframework.stereotype.Component;
+
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 
 @Component
 @RequiredArgsConstructor

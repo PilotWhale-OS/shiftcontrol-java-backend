@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.util.Map;
 
-import at.shiftcontrol.shiftservice.util.JsonMapConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -19,6 +18,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import at.shiftcontrol.shiftservice.util.JsonMapConverter;
 
 @Getter
 @Setter
@@ -51,11 +52,11 @@ public class Location {
 
     @Override
     public String toString() {
-        return "Location{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", url='" + url + '\'' +
-            ", additionalProperties=" + additionalProperties +
-            '}';
+        return "Location{"
+            + "id=" + id
+            + ", name='" + name + '\''
+            + ", url='" + url + '\''
+            + ", additionalProperties=" + additionalProperties
+            + '}';
     }
 }

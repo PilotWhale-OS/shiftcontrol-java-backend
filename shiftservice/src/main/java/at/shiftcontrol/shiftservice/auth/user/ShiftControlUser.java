@@ -2,9 +2,11 @@ package at.shiftcontrol.shiftservice.auth.user;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.auth.ApplicationUser;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+
+import lombok.Getter;
+
+import at.shiftcontrol.lib.auth.ApplicationUser;
 
 @Getter
 public abstract class ShiftControlUser extends ApplicationUser {

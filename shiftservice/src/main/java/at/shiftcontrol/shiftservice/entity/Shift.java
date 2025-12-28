@@ -3,7 +3,6 @@ package at.shiftcontrol.shiftservice.entity;
 import java.time.Instant;
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.type.LockStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,6 +24,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import at.shiftcontrol.shiftservice.type.LockStatus;
 
 @Getter
 @Setter
@@ -75,16 +76,16 @@ public class Shift {
 
     @Override
     public String toString() {
-        return "Shift{" +
-            "id=" + id +
-            ", shiftPlan=" + shiftPlan.getId() +
-            ", name='" + name + '\'' +
-            ", startTime=" + startTime +
-            ", endTime=" + endTime +
-            ", lockStatus=" + lockStatus +
-            ", location=" + location +
-            ", relatedActivities=" + relatedActivities.stream().map(Activity::getId).toList() +
-            ", slots=" + slots.stream().map(PositionSlot::getId).toList() +
-            '}';
+        return "Shift{"
+            + "id=" + id
+            + ", shiftPlan=" + shiftPlan.getId()
+            + ", name='" + name + '\''
+            + ", startTime=" + startTime
+            + ", endTime=" + endTime
+            + ", lockStatus=" + lockStatus
+            + ", location=" + location
+            + ", relatedActivities=" + relatedActivities.stream().map(Activity::getId).toList()
+            + ", slots=" + slots.stream().map(PositionSlot::getId).toList()
+            + '}';
     }
 }

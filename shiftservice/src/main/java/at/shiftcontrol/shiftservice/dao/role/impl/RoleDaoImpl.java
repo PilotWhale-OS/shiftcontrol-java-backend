@@ -1,13 +1,16 @@
-package at.shiftcontrol.shiftservice.dao.impl;
+package at.shiftcontrol.shiftservice.dao.role.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
-import at.shiftcontrol.shiftservice.dao.RoleDao;
-import at.shiftcontrol.shiftservice.entity.Role;
-import at.shiftcontrol.shiftservice.repo.RoleRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.shiftservice.dao.role.RoleDao;
+import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 
 @RequiredArgsConstructor
 @Component
@@ -37,5 +40,10 @@ public class RoleDaoImpl implements RoleDao {
     @Override
     public void delete(Role entity) {
         roleRepository.delete(entity);
+    }
+
+    @Override
+    public List<Role> findAllByShiftPlanId(Long shiftPlanId) {
+        return roleRepository.findAllByShiftPlanId(shiftPlanId);
     }
 }
