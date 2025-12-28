@@ -14,10 +14,12 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AttendanceDao;
 import at.shiftcontrol.shiftservice.dao.AttendanceTimeConstraintDao;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
+import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AttendanceId;
 import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
 import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
@@ -29,6 +31,7 @@ import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final AttendanceTimeConstraintDao attendanceTimeConstraintDao;
     private final AttendanceDao attendanceDao;
+    private final AssignmentDao assignmentDao;
 
     @Override
     public Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId) {
@@ -54,12 +57,14 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
                 // Check for overlapping time constraints for this volunteer+event
                 var existingConstraints = attendanceTimeConstraintDao.searchByVolunteerAndEvent(userId, eventId);
                 checkForConstraintOverlaps(createDto, existingConstraints);
+                checkForAssignmentOverlaps(userId, from, to);
             }
             case EMERGENCY -> {
                 validateEmergencyWholeDays(from, to);
                 // Check for overlapping time constraints for this volunteer+event+type
                 var existingConstraints = attendanceTimeConstraintDao.searchByVolunteerAndEventAndType(userId, eventId, TimeConstraintType.EMERGENCY);
                 checkForConstraintOverlaps(createDto, existingConstraints);
+                // todo add trust allert
             }
             default -> throw new IllegalStateException("Unexpected value: " + createDto.getType());
         }
@@ -91,6 +96,14 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
                 && createDto.getTo().isAfter(constraint.getStartTime())) {
                 throw new ConflictException("New time constraint overlaps with existing time constraint id=%d".formatted(constraint.getId()));
             }
+        }
+    }
+
+    private void checkForAssignmentOverlaps(@NonNull String userId, Instant from, Instant to) throws ConflictException {
+        var existingAssignments = assignmentDao.getConflictingAssignments(userId, from, to);
+        if (!existingAssignments.isEmpty()) {
+            throw new ConflictException("New time constraint overlaps with existing assignments ids=%s"
+                .formatted(existingAssignments.stream().map(Assignment::getId).toList().toString()));
         }
     }
 }

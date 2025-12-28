@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AttendanceDao;
 import at.shiftcontrol.shiftservice.dao.AttendanceTimeConstraintDao;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
@@ -32,6 +33,9 @@ class TimeConstraintServiceImplTest {
 
     @Mock
     private AttendanceDao attendanceDao;
+
+    @Mock
+    private AssignmentDao assignmentDao;
 
     @InjectMocks
     private TimeConstraintServiceImpl timeConstraintService;
