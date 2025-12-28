@@ -171,6 +171,14 @@
             <column name="end_time" value="2025-12-12T17:00:00Z"/>
         </insert>
 
+      <!--
+
+        manual test event activities
+
+        -->
+
+      <!-- day 1 -->
+
     </changeSet>
 
 </databaseChangeLog>

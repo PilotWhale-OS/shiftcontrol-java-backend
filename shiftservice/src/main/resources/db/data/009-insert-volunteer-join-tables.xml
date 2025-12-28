@@ -25,6 +25,13 @@
       <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
     </insert>
 
+    <!-- manual test event -->
+
+    <insert tableName="shift_plan_volunteer_volunteering">
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+    </insert>
+
   </changeSet>
   <changeSet id="010-insert-shift_plan_volunteer_planing" author="paul" context="dev">
 
