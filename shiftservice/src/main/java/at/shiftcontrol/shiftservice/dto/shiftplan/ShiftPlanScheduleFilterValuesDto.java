@@ -8,6 +8,8 @@ import at.shiftcontrol.shiftservice.dto.RoleDto;
 import lombok.Builder;
 import lombok.Data;
 
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+
 @Data
 @Builder
 public class ShiftPlanScheduleFilterValuesDto {

@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.invite_join;
+package at.shiftcontrol.shiftservice.dto.invite;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

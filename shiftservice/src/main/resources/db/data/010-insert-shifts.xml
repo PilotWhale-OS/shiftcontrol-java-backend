@@ -20,16 +20,16 @@
             <column name="location_id" valueNumeric="1"/>
         </insert>
 
-        <insert tableName="shift">
-            <column name="id" valueNumeric="2"/>
-            <column name="activity_id" valueNumeric="1"/>
-            <column name="shift_plan_id" valueNumeric="1"/>
-            <column name="name" value="Entrance Assistance"/>
-            <column name="start_time" value="2025-09-13T08:00:00Z"/>
-            <column name="end_time" value="2025-09-13T12:00:00Z"/>
-            <column name="lock_status" value="LOCKED"/>
-            <column name="location_id" valueNumeric="2"/>
-        </insert>
+    <insert tableName="shift">
+      <column name="id" valueNumeric="2"/>
+        <column name="activity_id" valueNumeric="1"/>
+        <column name="shift_plan_id" valueNumeric="1"/>
+      <column name="name" value="Entrance Assistance"/>
+      <column name="start_time" value="2025-09-13T08:00:00Z"/>
+      <column name="end_time" value="2025-09-13T12:00:00Z"/>
+      <column name="lock_status" value="SELF_ASSIGNABLE_NO_UNASSIGN"/>
+      <column name="location_id" valueNumeric="2"/>
+    </insert>
 
         <insert tableName="shift">
             <column name="id" valueNumeric="3"/>

@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -12,6 +11,7 @@ import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
+import at.shiftcontrol.shiftservice.type.TradeStatus;
 
 @RequiredArgsConstructor
 @Component
@@ -36,5 +36,10 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     @Override
     public void delete(AssignmentSwitchRequest entity) {
         assignmentSwitchRequestRepository.delete(entity);
+    }
+
+    @Override
+    public void cancelTradesForAssignment(Long positionSlotId, String assignedUser) {
+        assignmentSwitchRequestRepository.cancelTradesForAssignment(positionSlotId, assignedUser, TradeStatus.CANCELED);
     }
 }

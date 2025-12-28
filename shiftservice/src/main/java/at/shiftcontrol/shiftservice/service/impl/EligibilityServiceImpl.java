@@ -11,14 +11,13 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
@@ -29,9 +28,7 @@ import at.shiftcontrol.shiftservice.type.TradeStatus;
 public class EligibilityServiceImpl implements EligibilityService {
     private final VolunteerDao volunteerDao;
     private final PositionSlotDao positionSlotDao;
-    private final KeycloakUserService kcService;
-
-    private final AssignmentRepository assignmentRepository;
+    private final AssignmentDao assignmentDao;
 
     private final ApplicationUserProvider userProvider;
 
@@ -49,6 +46,14 @@ public class EligibilityServiceImpl implements EligibilityService {
             positionSlot,
             volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %s not found".formatted(userId))
             ));
+    }
+
+    @Override
+    public void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId) throws IllegalArgumentException {
+        Collection<Volunteer> shiftPlanVolunteers = positionSlot.getShift().getShiftPlan().getPlanVolunteers();
+        if (shiftPlanVolunteers.stream().noneMatch(v -> v.getId().equals(volunteerId))) {
+            throw new IllegalArgumentException("Volunteer not assigned to shift plan");
+        }
     }
 
     @Override
@@ -86,9 +91,20 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
+    public void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
+        PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
+        if (PositionSignupState.SIGNUP_VIA_AUCTION.equals(signupState)) {
+            return;
+        }
+        validateSignUpState(signupState);
+    }
+
+    @Override
     public void validateSignUpStateForTrade(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
-        if (PositionSignupState.FULL.equals(signupState)) return; // trades can be created even if the position slot is full
+        if (PositionSignupState.SIGNUP_VIA_TRADE.equals(signupState)) {
+            return;
+        }
         validateSignUpState(signupState);
     }
 
@@ -117,24 +133,25 @@ public class EligibilityServiceImpl implements EligibilityService {
 
     @Override
     public Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
-        return assignmentRepository.getConflictingAssignments(volunteerId, startTime, endTime);
+        return assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
     }
 
     @Override
     public void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) throws ConflictException {
-        var a = assignmentRepository.getConflictingAssignments(volunteerId, startTime, endTime);
+        var a = assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
         if (a.isEmpty()) return;
         throw new ConflictException("User has conflicting assignments");
     }
 
     @Override
     public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        return assignmentRepository.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
+        return assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) throws ConflictException {
-        var a = assignmentRepository.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
+    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot)
+        throws ConflictException {
+        var a = assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
         if (a.isEmpty()) return;
         throw new ConflictException("User has conflicting assignments");
     }

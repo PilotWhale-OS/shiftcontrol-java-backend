@@ -2,11 +2,8 @@ package at.shiftcontrol.shiftservice.auth;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.ws.rs.NotFoundException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
-
-import java.io.Console;
 
 @Service
 public class KeycloakUserService {
@@ -25,5 +22,4 @@ public class KeycloakUserService {
             .get(userId)
             .toRepresentation();
     }
-
 }

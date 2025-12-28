@@ -3,7 +3,6 @@ package at.shiftcontrol.shiftservice.entity;
 import java.time.Instant;
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.type.LockStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,6 +22,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import at.shiftcontrol.shiftservice.type.LockStatus;
 
 @Getter
 @Setter

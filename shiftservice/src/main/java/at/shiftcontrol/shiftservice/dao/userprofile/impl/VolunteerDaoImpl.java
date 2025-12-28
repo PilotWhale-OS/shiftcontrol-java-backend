@@ -1,14 +1,15 @@
 package at.shiftcontrol.shiftservice.dao.userprofile.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component

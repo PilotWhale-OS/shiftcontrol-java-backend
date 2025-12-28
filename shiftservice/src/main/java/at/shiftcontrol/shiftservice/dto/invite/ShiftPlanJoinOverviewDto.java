@@ -1,10 +1,11 @@
-package at.shiftcontrol.shiftservice.dto.invite_join;
+package at.shiftcontrol.shiftservice.dto.invite;
 
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+
+import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 
 @Data
 @Builder

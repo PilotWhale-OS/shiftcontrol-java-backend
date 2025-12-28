@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.role;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -7,13 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class RoleDto {
-    @NotNull
-    private String id;
+public class RoleModificationDto {
     @NotNull
     private String name;
+    @NotNull
     private String description;
+    @NotNull
+    private boolean selfAssignable;
 }

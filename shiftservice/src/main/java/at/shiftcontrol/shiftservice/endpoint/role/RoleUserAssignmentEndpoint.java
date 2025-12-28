@@ -1,0 +1,59 @@
+package at.shiftcontrol.shiftservice.endpoint.role;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
+import at.shiftcontrol.shiftservice.service.role.RoleService;
+
+@Slf4j
+@RestController
+@RequestMapping(
+    value = "/api/v1/shift-plans/{shiftPlanId}/users/{userId}/role-assignments",
+    produces = MediaType.APPLICATION_JSON_VALUE
+)
+@RequiredArgsConstructor
+public class RoleUserAssignmentEndpoint {
+    private final RoleService roleService;
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        operationId = "createRoleAssignment",
+        description = "Create a role assignment for a user in an event"
+    )
+    public VolunteerDto createUserRoleAssignment(
+        @PathVariable String shiftPlanId,
+        @PathVariable String userId,
+        @RequestBody UserRoleAssignmentAssignDto roleAssignmentAssign
+    ) throws ForbiddenException {
+        return roleService.createUserRoleAssignment(ConvertUtil.idToLong(shiftPlanId), userId, roleAssignmentAssign);
+    }
+
+    @DeleteMapping("/{roleId}")
+    @Operation(
+        operationId = "deleteRoleAssignment",
+        description = "Delete a role assignment for a user in an event"
+    )
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUserRoleAssignment(
+        @PathVariable String shiftPlanId,
+        @PathVariable String userId,
+        @PathVariable String roleId
+    ) throws ForbiddenException {
+        roleService.deleteUserRoleAssignment(ConvertUtil.idToLong(shiftPlanId), userId, ConvertUtil.idToLong(roleId));
+    }
+}

@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +21,6 @@ public class UserProfileDto {
     @NotNull
     private Collection<NotificationSettingsDto> notifications;
 
-    private Collection<AbsenceDto> absences;
-
+    @NotNull
     private Collection<RoleDto> assignedRoles;
 }

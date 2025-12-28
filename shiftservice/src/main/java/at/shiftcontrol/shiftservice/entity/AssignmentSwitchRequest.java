@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.time.Instant;
 
-import at.shiftcontrol.shiftservice.type.TradeStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -19,6 +18,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import at.shiftcontrol.shiftservice.type.TradeStatus;
 
 @Getter
 @Setter
@@ -56,10 +57,10 @@ public class AssignmentSwitchRequest {
 
     @Override
     public String toString() {
-        return "AssignmentSwitchRequest{" +
-            "id=" + id +
-            ", status=" + status +
-            ", createdAt=" + createdAt +
-            '}';
+        return "AssignmentSwitchRequest{"
+            + "id=" + id
+            + ", status=" + status
+            + ", createdAt=" + createdAt
+            + '}';
     }
 }

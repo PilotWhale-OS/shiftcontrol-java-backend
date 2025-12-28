@@ -3,8 +3,10 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.List;
 
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
-import at.shiftcontrol.shiftservice.entity.Event;
 import lombok.NoArgsConstructor;
+
+import at.shiftcontrol.shiftservice.dto.EventDto;
+import at.shiftcontrol.shiftservice.entity.Event;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EventMapper {

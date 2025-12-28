@@ -4,6 +4,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import org.apache.commons.lang3.NotImplementedException;
+
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
@@ -13,10 +18,10 @@ import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionConstraint;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Role;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
@@ -26,13 +31,10 @@ import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
 import at.shiftcontrol.shiftservice.repo.PositionConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
-import at.shiftcontrol.shiftservice.repo.RoleRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 
 @Component
 public class TestEntityFactory {
