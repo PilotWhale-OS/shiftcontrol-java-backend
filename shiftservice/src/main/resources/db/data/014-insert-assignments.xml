@@ -32,6 +32,12 @@
     </insert>
 
     <insert tableName="assignment">
+      <column name="position_slot_id" valueNumeric="5"/>
+      <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="status" value="AUCTION"/>
+    </insert>
+
+    <insert tableName="assignment">
       <column name="position_slot_id" valueNumeric="11"/>
       <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
       <column name="status" value="AUCTION"/>
