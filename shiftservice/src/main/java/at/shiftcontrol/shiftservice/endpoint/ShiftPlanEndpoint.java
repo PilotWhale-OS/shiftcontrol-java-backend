@@ -5,7 +5,7 @@ import java.util.Collection;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.DashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleSearchDto;
@@ -14,6 +14,7 @@ import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteCreateRespons
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite_join.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ShiftPlanEndpoint {
     private final ShiftPlanService shiftPlanService;
+    private final DashboardService dashboardService;
 
     @GetMapping("/{shiftPlanId}/dashboard")
     // TODO Security
@@ -41,8 +43,8 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanDashboard",
         description = "Get (volunteer related) dashboard data for a specific shift plan of an event"
     )
-    public DashboardOverviewDto getShiftPlanDashboard(@PathVariable String shiftPlanId) throws NotFoundException, ForbiddenException {
-        return shiftPlanService.getDashboardOverview(ConvertUtil.idToLong(shiftPlanId));
+    public ShiftPlanDashboardOverviewDto getShiftPlanDashboard(@PathVariable String shiftPlanId) throws NotFoundException, ForbiddenException {
+        return dashboardService.getDashboardOverviewOfShiftPlan(ConvertUtil.idToLong(shiftPlanId));
     }
 
     @GetMapping("/{shiftPlanId}/schedule")

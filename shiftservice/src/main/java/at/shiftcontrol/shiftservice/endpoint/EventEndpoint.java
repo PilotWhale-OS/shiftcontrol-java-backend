@@ -1,8 +1,24 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
-import java.util.List;
 
+import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.EventDto;
+import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.EventsDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
+import at.shiftcontrol.shiftservice.service.EventService;
+import at.shiftcontrol.shiftservice.service.TimeConstraintService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,22 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.EventDto;
-import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
-import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
-import at.shiftcontrol.shiftservice.service.EventService;
-import at.shiftcontrol.shiftservice.service.TimeConstraintService;
-
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/events", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -35,6 +35,7 @@ import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 public class EventEndpoint {
     private final ApplicationUserProvider userProvider;
     private final EventService eventService;
+    private final DashboardService dashboardService;
     private final TimeConstraintService timeConstraintService;
 
     @GetMapping()
@@ -43,7 +44,7 @@ public class EventEndpoint {
         operationId = "getAllEvents",
         description = "Find all (volunteer related) events"
     )
-    public List<EventDto> getAllEvents() throws NotFoundException {
+    public Collection<EventDto> getAllEvents() throws NotFoundException {
         return eventService.search(null, userProvider.getCurrentUser().getUserId());
     }
     //Todo: Add search capability in future
@@ -54,7 +55,7 @@ public class EventEndpoint {
         operationId = "getShiftPlansOfEvent",
         description = "Find all (volunteer related) shift plans of an event"
     )
-    public List<ShiftPlanDto> getShiftPlansOfEvent(@PathVariable String eventId) throws NotFoundException {
+    public Collection<ShiftPlanDto> getShiftPlansOfEvent(@PathVariable String eventId) throws NotFoundException {
         return eventService.getUserRelatedShiftPlansOfEvent(ConvertUtil.idToLong(eventId), userProvider.getCurrentUser().getUserId());
     }
 
@@ -66,6 +67,16 @@ public class EventEndpoint {
     )
     public EventShiftPlansOverviewDto getAllShiftPlanOverviewsOfEvent(@PathVariable String eventId) throws NotFoundException {
         return eventService.getEventShiftPlansOverview(ConvertUtil.idToLong(eventId), userProvider.getCurrentUser().getUserId());
+    }
+
+    @GetMapping("/dashboard")
+    // TODO Security
+    @Operation(
+        operationId = "getEventsDashboard",
+        description = "Get (volunteer related) dashboard data for all events"
+    )
+    public EventsDashboardOverviewDto getEventsDashboard() throws NotFoundException, ForbiddenException {
+        return dashboardService.getDashboardOverviewsOfAllShiftPlans(userProvider.getCurrentUser().getUserId());
     }
 
     @GetMapping("/{eventId}/time-constraints")
