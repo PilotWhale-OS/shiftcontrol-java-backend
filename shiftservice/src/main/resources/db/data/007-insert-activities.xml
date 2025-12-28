@@ -193,7 +193,7 @@
       <insert tableName="activity">
         <column name="id" valueNumeric="17"/>
         <column name="event_id" valueNumeric="6"/>
-        <column name="location_id" valueNumeric="11"/>
+        <column name="location_id" valueNumeric="15"/>
         <column name="name" value="Freihausblick Nonstop Rave"/>
         <column name="description" value="Music. Drinks. Stunning view of Freihaus. What more could you possibly want?"/>
         <column name="start_time" value="2025-11-20T18:00:00Z"/>
