@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="003-create-event" author="paul">
+    <changeSet id="003-create-event" author="paul">
 
-    <createTable tableName="event">
+        <createTable tableName="event">
 
-      <column name="id" type="BIGINT" autoIncrement="true">
-        <constraints primaryKey="true" nullable="false"/>
-      </column>
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
 
-      <column name="name" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
 
-      <column name="short_description" type="VARCHAR(255)">
-        <constraints nullable="true"/>
-      </column>
+            <column name="short_description" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
 
-      <column name="long_description" type="VARCHAR(1024)">
-        <constraints nullable="true"/>
-      </column>
+            <column name="long_description" type="VARCHAR(1024)">
+                <constraints nullable="true"/>
+            </column>
 
-      <column name="start_time" type="TIMESTAMP">
-        <constraints nullable="false"/>
-      </column>
+            <column name="start_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
 
-      <column name="end_time" type="TIMESTAMP">
-        <constraints nullable="false"/>
-      </column>
+            <column name="end_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
 
-    </createTable>
+        </createTable>
 
-  </changeSet>
+    </changeSet>
 
 </databaseChangeLog>
