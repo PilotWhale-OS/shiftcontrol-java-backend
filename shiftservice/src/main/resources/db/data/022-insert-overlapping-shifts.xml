@@ -9,6 +9,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="21"/>
+      <column name="activity_id" valueNumeric="1"/>
       <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="Registration Noon"/>
       <column name="short_description" value="Noon registration desk shift"/>
