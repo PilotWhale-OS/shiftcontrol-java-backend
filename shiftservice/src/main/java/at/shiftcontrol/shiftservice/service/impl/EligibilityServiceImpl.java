@@ -67,18 +67,24 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.NOT_ELIGIBLE;
         }
 
+        if (hasAuction(positionSlot)) {
+            return PositionSignupState.SIGNUP_VIA_AUCTION;
+        }
+
         boolean hasCapacity = positionSlot.getAssignments().size() < positionSlot.getDesiredVolunteerCount();
+        boolean isTradePossible = hasOpenTradeForUser(positionSlot, volunteer.getId());
+
+        if (hasCapacity && isTradePossible) {
+            return PositionSignupState.SIGNUP_OR_TRADE;
+        }
+
         if (hasCapacity) {
             return PositionSignupState.SIGNUP_POSSIBLE;
         }
 
         // Slot is full: check alternative mechanisms
-        if (hasOpenTradeForUser(positionSlot, volunteer.getId())) {
+        if (isTradePossible) {
             return PositionSignupState.SIGNUP_VIA_TRADE;
-        }
-
-        if (hasAuction(positionSlot)) {
-            return PositionSignupState.SIGNUP_VIA_AUCTION;
         }
 
         // No special mechanisms, just full
@@ -87,43 +93,17 @@ public class EligibilityServiceImpl implements EligibilityService {
 
     @Override
     public void validateSignUpStateForJoin(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
-        validateSignUpState(this.getSignupStateForPositionSlot(positionSlot, volunteer));
-    }
-
-    @Override
-    public void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
-        if (PositionSignupState.SIGNUP_VIA_AUCTION.equals(signupState)) {
-            return;
-        }
-        validateSignUpState(signupState);
-    }
-
-    @Override
-    public void validateSignUpStateForTrade(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
-        PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
-        if (PositionSignupState.SIGNUP_VIA_TRADE.equals(signupState)) {
-            return;
-        }
-        validateSignUpState(signupState);
-    }
-
-    private void validateSignUpState(PositionSignupState signupState) throws ConflictException {
         switch (signupState) {
-            case SIGNED_UP:
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-            case FULL:
-                // Position is full
+            case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION:
+                // simply joining is not possible
                 throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
             case NOT_ELIGIBLE:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
-                    // User is not allowed to join
                     throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
                 }
-                // All good, proceed with signup
                 break;
-            case SIGNUP_POSSIBLE:
-                // All good, proceed with signup
+            case SIGNUP_POSSIBLE, SIGNUP_OR_TRADE:
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + signupState);
@@ -131,7 +111,46 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public boolean canTradeBeRequestedFromUser(PositionSlot positionSlot, Volunteer volunteer) {
+    public void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
+        PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
+        switch (signupState) {
+            case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_POSSIBLE, SIGNUP_OR_TRADE:
+                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+            case NOT_ELIGIBLE:
+                if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
+                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                }
+                break;
+            case SIGNUP_VIA_AUCTION:
+                // only possible status for claiming an auction
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + signupState);
+        }
+    }
+
+    @Override
+    public void validateSignUpStateForTrade(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
+        // TODO needed ?
+        PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
+        switch (signupState) {
+            case SIGNED_UP, FULL, SIGNUP_VIA_AUCTION, SIGNUP_POSSIBLE:
+                // means no trade possible
+                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+            case NOT_ELIGIBLE:
+                if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
+                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                }
+                break;
+            case SIGNUP_VIA_TRADE, SIGNUP_OR_TRADE:
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + signupState);
+        }
+    }
+
+    @Override
+    public boolean isTradePossible(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         return !PositionSignupState.SIGNED_UP.equals(signupState)
             && !PositionSignupState.NOT_ELIGIBLE.equals(signupState);
@@ -177,6 +196,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     // trade requests where the requested assignment is assigned to the user
+    // TODO check for trades over shift plan, not position slot
     private boolean hasOpenTradeForUser(PositionSlot slot, String userId) {
         return slot.getAssignments().stream().anyMatch(assignment ->
             assignment.getOutgoingSwitchRequests().stream().anyMatch(req ->

@@ -11,6 +11,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -55,10 +61,6 @@ import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -180,13 +182,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             return false;
         }
 
+        boolean freeAndOpenTrade = state == PositionSignupState.SIGNUP_OR_TRADE;
+
         boolean freeAndEligible = state == PositionSignupState.SIGNUP_POSSIBLE;
 
         boolean hasOpenTrade = state == PositionSignupState.SIGNUP_VIA_TRADE;
 
         boolean hasAuction = state == PositionSignupState.SIGNUP_VIA_AUCTION;
 
-        return freeAndEligible || hasOpenTrade || hasAuction;
+        return freeAndEligible || freeAndOpenTrade || hasOpenTrade || hasAuction;
     }
 
 

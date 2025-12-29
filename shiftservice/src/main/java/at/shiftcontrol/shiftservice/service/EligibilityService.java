@@ -70,7 +70,7 @@ public interface EligibilityService {
      * @param volunteer to whom a trade might be created
      * @return true if the user could accept the trade
      */
-    boolean canTradeBeRequestedFromUser(PositionSlot positionSlot, Volunteer volunteer);
+    boolean isTradePossible(PositionSlot positionSlot, Volunteer volunteer);
 
     /**
      * returns all conflicting assignments within a given time for a specific user
