@@ -7,12 +7,13 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.EventDto;
-import at.shiftcontrol.shiftservice.dto.EventShiftPlansOverviewDto;
-import at.shiftcontrol.shiftservice.dto.EventsDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
+import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
+import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.EventService;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +50,37 @@ public class EventEndpoint {
         return eventService.search(null, userProvider.getCurrentUser().getUserId());
     }
     //Todo: Add search capability in future
+
+    @PostMapping()
+    // TODO: Security
+    @Operation(
+        operationId = "createEvent",
+        description = "Create a new event"
+    )
+    public EventDto createEvent(@RequestBody EventModificationDto modificationDto) {
+        return null; // TODO implement service method (ensure that only admin can do this (planner and volunteer are not allowed))
+    }
+
+    @PutMapping("/{eventId}")
+    // TODO: Security
+    @Operation(
+        operationId = "updateEvent",
+        description = "Update an existing event"
+    )
+    public EventDto updateEvent(@PathVariable String eventId, @RequestBody EventModificationDto modificationDto) throws NotFoundException {
+        return null; // TODO implement service method (ensure that only admin can do this (planner and volunteer are not allowed))
+    }
+
+    @DeleteMapping("/{eventId}")
+    // TODO: Security
+    @Operation(
+        operationId = "deleteEvent",
+        description = "Delete an existing event"
+    )
+    public void deleteEvent(@PathVariable String eventId) throws NotFoundException {
+        // TODO implement service method (ensure that only admin can do this (planner and volunteer are not allowed))
+    }
+
 
     @GetMapping("/{eventId}/shift-plans")
     //TODO Security

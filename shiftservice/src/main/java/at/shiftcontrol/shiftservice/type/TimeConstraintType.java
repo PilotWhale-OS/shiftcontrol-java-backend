@@ -8,5 +8,6 @@ package at.shiftcontrol.shiftservice.type;
  * extensible as additional time constraint types are introduced.
  */
 public enum TimeConstraintType {
-    UNAVAILABLE
+    UNAVAILABLE,
+    EMERGENCY
 }

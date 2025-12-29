@@ -9,8 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -48,7 +48,7 @@ public class Activity {
     @NotNull
     @Column(nullable = false)
     private Instant endTime;
-    @ManyToMany(mappedBy = "relatedActivities")
+    @OneToMany(mappedBy = "relatedActivity")
     private Collection<Shift> shifts;
     @ManyToOne
     @JoinColumn(name = "location_id")
@@ -59,7 +59,7 @@ public class Activity {
         return "Activity{" +
             "id=" + id +
             ", name='" + name + '\'' +
-            ", shifts=" + shifts.stream().map(Shift::getId).toList() +
+            ", shifts=" + (shifts == null ? "[]" : shifts.stream().map(Shift::getId).toList()) +
             ", location=" + location +
             '}';
     }

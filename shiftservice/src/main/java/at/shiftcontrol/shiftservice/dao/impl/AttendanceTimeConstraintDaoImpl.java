@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.shiftservice.dao.AttendanceTimeConstraintDao;
 import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
 import at.shiftcontrol.shiftservice.repo.AttendanceTimeConstraintRepository;
+import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 
 @RequiredArgsConstructor
 @Component
@@ -39,5 +40,10 @@ public class AttendanceTimeConstraintDaoImpl implements AttendanceTimeConstraint
     @Override
     public Collection<AttendanceTimeConstraint> searchByVolunteerAndEvent(String volunteerId, long eventId) {
         return attendanceTimeConstraintRepository.searchByVolunteerAndEvent(volunteerId, eventId);
+    }
+
+    @Override
+    public Collection<AttendanceTimeConstraint> searchByVolunteerAndEventAndType(String volunteerId, long eventId, TimeConstraintType type) {
+        return attendanceTimeConstraintRepository.searchByVolunteerAndEventAndType(volunteerId, eventId, type);
     }
 }

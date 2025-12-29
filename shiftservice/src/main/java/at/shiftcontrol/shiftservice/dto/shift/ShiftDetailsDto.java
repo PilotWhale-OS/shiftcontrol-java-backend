@@ -1,5 +1,6 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.shift;
 
+import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;

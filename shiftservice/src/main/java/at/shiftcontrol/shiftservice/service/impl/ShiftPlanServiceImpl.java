@@ -24,19 +24,19 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.ScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.ScheduleLayoutDto;
-import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -273,9 +273,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var firstDate = Stream.concat(
                 shifts.stream().map(Shift::getStartTime),
                 shifts.stream()
-                    .flatMap(s -> s.getRelatedActivities() == null
-                        ? Stream.<Activity>empty()
-                        : s.getRelatedActivities().stream())
+                    .map(Shift::getRelatedActivity)
+                    .filter(Objects::nonNull)
                     .map(Activity::getStartTime)
             )
             .filter(Objects::nonNull)
@@ -287,9 +286,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var lastDate = Stream.concat(
                 shifts.stream().map(Shift::getEndTime),
                 shifts.stream()
-                    .flatMap(s -> s.getRelatedActivities() == null
-                        ? Stream.<Activity>empty()
-                        : s.getRelatedActivities().stream())
+                    .map(Shift::getRelatedActivity)
+                    .filter(Objects::nonNull)
                     .map(Activity::getEndTime)
             )
             .filter(Objects::nonNull)
