@@ -10,6 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -51,13 +57,10 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -466,10 +469,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElseThrow(() -> new NotFoundException("Invite code not found"));
 
         validateInvite(invite);
-
-        long shiftPlanId = invite.getShiftPlan().getId();
-        ShiftPlan shiftPlan = shiftPlanDao.findById(shiftPlanId)
-            .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+        ShiftPlan shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
 
         Volunteer volunteer = volunteerDao.findByUserId(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
@@ -507,6 +507,16 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .inviteType(invite.getType())
             .joined(joinedNow)
             .build();
+    }
+
+    @Override
+    public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) throws NotFoundException {
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+        if (shiftPlan.getLockStatus().equals(lockStatus)) {
+            throw new BadRequestException("Lock status already in requested state");
+        }
+        shiftPlan.setLockStatus(lockStatus);
+        shiftPlanDao.save(shiftPlan);
     }
 
     private void validateInvite(ShiftPlanInvite invite) {
