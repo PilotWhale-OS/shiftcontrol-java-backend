@@ -130,30 +130,17 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateSignUpStateForTrade(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
-        // TODO needed ?
-        PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
-        switch (signupState) {
-            case SIGNED_UP, FULL, SIGNUP_VIA_AUCTION, SIGNUP_POSSIBLE:
-                // means no trade possible
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-            case NOT_ELIGIBLE:
-                if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
-                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-                }
-                break;
-            case SIGNUP_VIA_TRADE, SIGNUP_OR_TRADE:
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + signupState);
-        }
-    }
-
-    @Override
     public boolean isTradePossible(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         return !PositionSignupState.SIGNED_UP.equals(signupState)
             && !PositionSignupState.NOT_ELIGIBLE.equals(signupState);
+    }
+
+    @Override
+    public void validateIsTradePossible(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
+        if (!isTradePossible(positionSlot, volunteer)) {
+            throw new ConflictException("position slot can not be traded with volunteer");
+        }
     }
 
     @Override

@@ -55,15 +55,6 @@ public interface EligibilityService {
     void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
 
     /**
-     * Checks if the volunteer can request a trade for the position slot based on PositionSignUpState
-     *
-     * @param positionSlot The requested position slot to check
-     * @param volunteer The volunteer to check
-     * @throws ConflictException if it is not possible for the volunteer to create or accept a trade for this position slot
-     */
-    void validateSignUpStateForTrade(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
-
-    /**
      * Checks if the volunteer could accept a trade for the given position slot, based on PositionSignUpState
      *
      * @param positionSlot that would be offered to the volunteer
@@ -73,13 +64,22 @@ public interface EligibilityService {
     boolean isTradePossible(PositionSlot positionSlot, Volunteer volunteer);
 
     /**
-     * returns all conflicting assignments within a given time for a specific user
+     * Checks if the volunteer could accept a trade for the given position slot, based on PositionSignUpState
      *
-     * @param volunteerId The volunteer to check
-     * @param startTime start of the timespan to check
-     * @param endTime end of the timespan to check
-     * @return the overlapping assignments
+     * @param positionSlot that would be offered to the volunteer
+     * @param volunteer to whom a trade might be created
+     * @throws ConflictException if the user can not accept the trade
      */
+    public void validateIsTradePossible(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
+
+        /**
+         * returns all conflicting assignments within a given time for a specific user
+         *
+         * @param volunteerId The volunteer to check
+         * @param startTime start of the timespan to check
+         * @param endTime end of the timespan to check
+         * @return the overlapping assignments
+         */
     Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
 
     /**

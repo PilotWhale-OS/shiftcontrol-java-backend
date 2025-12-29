@@ -55,6 +55,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             userId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
         //Todo: Implement actual joining logic
 
+        // TODO close trades where this slot was offered to me
+
         //Todo: Send Eventbus event
         return null;
     }
@@ -108,13 +110,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // check if volunteer has access to shift plan
         eligibilityService.validateHasAccessToPositionSlot(auction.getPositionSlot(), currentUserId);
 
-        // check for position signup state
-        eligibilityService.validateSignUpStateForAuction(auction.getPositionSlot(), currentUser);
-
         // check for trade not necessary
 
         // check if user is eligible for the auction position slot
-        eligibilityService.validateSignUpStateForTrade(auction.getPositionSlot(), currentUser);
+        eligibilityService.validateSignUpStateForAuction(auction.getPositionSlot(), currentUser);
 
         // check if any current assignments overlap with auction position slot
         eligibilityService.validateHasConflictingAssignments(
