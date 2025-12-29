@@ -183,13 +183,10 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     // trade requests where the requested assignment is assigned to the user
-    // TODO check for trades over shift plan, not position slot
     private boolean hasOpenTradeForUser(PositionSlot slot, String userId) {
         return slot.getAssignments().stream().anyMatch(assignment ->
             assignment.getOutgoingSwitchRequests().stream().anyMatch(req ->
                 req.getStatus() == TradeStatus.OPEN
-                    && req.getRequestedAssignment() != null
-                    && req.getRequestedAssignment().getAssignedVolunteer() != null
                     && req.getRequestedAssignment().getAssignedVolunteer().getId().equals(userId)
             )
         );

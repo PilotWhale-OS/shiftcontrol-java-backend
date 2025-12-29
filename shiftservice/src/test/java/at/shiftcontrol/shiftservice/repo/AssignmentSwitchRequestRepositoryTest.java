@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.repo;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,4 +45,18 @@ public class AssignmentSwitchRequestRepositoryTest {
         )).orElseThrow(() -> new RuntimeException("trade not found"));
         Assertions.assertEquals(TradeStatus.CANCELED, trade.getStatus());
     }
+
+    @Test
+    void testGetOpenTradesForRequestedPositionAndOfferingUser() {
+        long positionSlotId = 2L;
+        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        Collection<AssignmentSwitchRequest> trades =
+            assignmentSwitchRequestRepository.getOpenTradesForRequestedPositionAndOfferingUser(positionSlotId, userId, TradeStatus.OPEN);
+
+        Assertions.assertFalse(trades.isEmpty());
+        AssignmentSwitchRequest trade = trades.stream().findFirst().get();
+        Assertions.assertEquals(positionSlotId, trade.getRequestedAssignment().getPositionSlot().getId());
+        Assertions.assertEquals(userId, trade.getOfferingAssignment().getAssignedVolunteer().getId());
+    }
+
 }

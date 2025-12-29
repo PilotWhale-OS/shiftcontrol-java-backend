@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.repo;
 
+import java.util.Collection;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +33,12 @@ public interface AssignmentSwitchRequestRepository extends JpaRepository<Assignm
         )
         """)
     void cancelTradesForAssignment(Long positionSlotId, String assignedUser, TradeStatus status);
+
+    @Query("""
+        SELECT a FROM AssignmentSwitchRequest a
+        WHERE a.requestedAssignment.positionSlot.id = :positionSlotId
+        AND a.offeringAssignment.assignedVolunteer.id = :userId
+        AND a.status = :status
+        """)
+    Collection<AssignmentSwitchRequest> getOpenTradesForRequestedPositionAndOfferingUser(long positionSlotId, String userId, TradeStatus status);
 }

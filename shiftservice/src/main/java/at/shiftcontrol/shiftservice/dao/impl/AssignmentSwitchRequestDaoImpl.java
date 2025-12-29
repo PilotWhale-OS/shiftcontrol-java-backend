@@ -42,4 +42,9 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     public void cancelTradesForAssignment(Long positionSlotId, String assignedUser) {
         assignmentSwitchRequestRepository.cancelTradesForAssignment(positionSlotId, assignedUser, TradeStatus.CANCELED);
     }
+
+    @Override
+    public Collection<AssignmentSwitchRequest> getOpenTradesForRequestedPositionAndOfferingUser(long positionSlotId, String userId) {
+        return assignmentSwitchRequestRepository.getOpenTradesForRequestedPositionAndOfferingUser(positionSlotId, userId, TradeStatus.OPEN);
+    }
 }

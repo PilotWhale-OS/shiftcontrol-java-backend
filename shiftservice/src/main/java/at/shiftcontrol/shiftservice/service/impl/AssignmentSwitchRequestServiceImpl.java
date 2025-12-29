@@ -86,6 +86,14 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             }
         }
 
+        // check for already existing trades in status OPEN
+        Collection<AssignmentSwitchRequest> existingTrades =
+            assignmentSwitchRequestDao.getOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
+
+        // TODO check if trade already exists
+        // filter assigned volunteers based on existing assignments
+        // filter dtos based on volunteers left
+
         return slotsToOffer;
     }
 
@@ -140,6 +148,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                 tradeCreateDto.getRequestedVolunteers().stream().anyMatch(
                     volunteer -> Objects.equals(volunteer.getId(), String.valueOf(assignment.getAssignedVolunteer().getId()))))
             .map(requestedAssignment -> createAssignmentSwitchRequest(requestedAssignment, offeredAssignment)).toList();
+
+        // TODO check if trade already exists (re-request if rejected or canceled)
 
         return TradeMapper.toDto(assignmentSwitchRequestDao.saveAll(trades));
     }

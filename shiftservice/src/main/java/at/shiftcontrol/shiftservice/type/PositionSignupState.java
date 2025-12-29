@@ -8,6 +8,5 @@ public enum PositionSignupState {
     FULL,                   // slot has no capacity left (and not trade or auction exists)
     NOT_ELIGIBLE,           // user cannot join (wrong role/qualification)
     SIGNUP_OR_TRADE         // user can eiter join normally or via trade
-    // TODO integrate SIGNUP_OR_TRADE into all current calculations
 }
 
