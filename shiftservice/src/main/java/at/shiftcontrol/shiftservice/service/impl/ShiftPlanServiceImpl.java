@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
@@ -24,19 +23,19 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.ScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.ScheduleLayoutDto;
-import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
@@ -204,8 +203,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 //            .orElse(-1) + 1;
 
         var activities = shifts.stream()
-            .flatMap(s -> s.getRelatedActivities() == null ? Stream.empty() : s.getRelatedActivities().stream())
-            .distinct()
+            .map(Shift::getRelatedActivity)
             .map(ActivityMapper::toActivityDto)
             .toList();
 

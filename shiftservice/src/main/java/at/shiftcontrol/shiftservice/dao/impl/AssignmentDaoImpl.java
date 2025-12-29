@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -43,8 +44,17 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
+    public Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
+        return assignmentRepository.getConflictingAssignments(volunteerId, startTime, endTime);
+    }
+
+    @Override
+    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlotId) {
+        return assignmentRepository.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlotId);
+    }
+
+    @Override
     public Assignment findAssignmentForPositionSlotAndUser(long positionSlotId, String userId) {
         return assignmentRepository.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
     }
-
 }

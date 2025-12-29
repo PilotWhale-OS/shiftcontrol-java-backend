@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
+import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 
 @Repository
 public interface AttendanceTimeConstraintRepository extends JpaRepository<AttendanceTimeConstraint, Long> {
@@ -17,4 +18,13 @@ public interface AttendanceTimeConstraintRepository extends JpaRepository<Attend
           AND atc.attendance.event.id = :eventId
         """)
     Collection<AttendanceTimeConstraint> searchByVolunteerAndEvent(String volunteerId, long eventId);
+
+    @Query("""
+        SELECT atc
+        FROM AttendanceTimeConstraint atc
+        WHERE atc.attendance.volunteer.id = :volunteerId
+          AND atc.attendance.event.id = :eventId
+          AND atc.type = :type
+        """)
+    Collection<AttendanceTimeConstraint> searchByVolunteerAndEventAndType(String volunteerId, long eventId,  TimeConstraintType type);
 }

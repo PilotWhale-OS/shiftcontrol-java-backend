@@ -10,8 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -64,20 +62,16 @@ public class Shift {
     @ManyToOne
     private Location location;
 
-    @ManyToMany
-    @JoinTable(
-        name = "activity_shift",
-        joinColumns = @JoinColumn(name = "shift_id"),
-        inverseJoinColumns = @JoinColumn(name = "activity_id")
-    )
-    private Collection<Activity> relatedActivities;
+    @ManyToOne
+    @JoinColumn(name = "activity_id")
+    private Activity relatedActivity;
 
     @OneToMany(mappedBy = "shift", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PositionSlot> slots;
 
     @Override
     public String toString() {
-        return "Shift{id=%d, shiftPlan=%d, name='%s', startTime=%s, endTime=%s, location=%s, relatedActivities=%s, slots=%s}"
+        return "Shift{id=%d, shiftPlan=%d, name='%s', startTime=%s, endTime=%s, location=%s, relatedActivity=%s, slots=%s}"
             .formatted(
                 id,
                 shiftPlan.getId(),
@@ -85,7 +79,7 @@ public class Shift {
                 startTime,
                 endTime,
                 location,
-                relatedActivities.stream().map(Activity::getId).toList(),
+                relatedActivity,
                 slots.stream().map(PositionSlot::getId).toList());
     }
 }

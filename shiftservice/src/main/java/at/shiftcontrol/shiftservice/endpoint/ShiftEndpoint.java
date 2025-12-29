@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.ShiftDetailsDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 
 @Slf4j

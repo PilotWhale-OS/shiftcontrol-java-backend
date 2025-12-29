@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

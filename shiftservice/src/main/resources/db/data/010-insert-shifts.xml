@@ -9,6 +9,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="1"/>
+      <column name="activity_id" valueNumeric="1"/>
       <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="Registration Morning"/>
       <column name="short_description" value="Morning registration desk shift"/>
@@ -20,6 +21,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="2"/>
+      <column name="activity_id" valueNumeric="1"/>
       <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="Entrance Assistance"/>
       <column name="start_time" value="2025-09-13T08:00:00Z"/>
@@ -29,6 +31,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="3"/>
+      <column name="activity_id" valueNumeric="2"/>
       <column name="shift_plan_id" valueNumeric="2"/>
       <column name="name" value="Registration Afternoon"/>
       <column name="short_description" value="Afternoon registration desk shift"/>
@@ -40,6 +43,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="4"/>
+      <column name="activity_id" valueNumeric="2"/>
       <column name="shift_plan_id" valueNumeric="2"/>
       <column name="name" value="Workshop Assistance"/>
       <column name="short_description" value="Help set up Workshop Room A"/>
@@ -50,6 +54,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="5"/>
+      <column name="activity_id" valueNumeric="3"/>
       <column name="shift_plan_id" valueNumeric="3"/>
       <column name="name" value="Evening Registration"/>
       <column name="short_description" value="Evening registration desk shift"/>
@@ -61,6 +66,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="6"/>
+      <column name="activity_id" valueNumeric="3"/>
       <column name="shift_plan_id" valueNumeric="3"/>
       <column name="name" value="Exhibition Monitoring"/>
       <column name="long_description" value="Shift long description"/>
@@ -69,9 +75,9 @@
       <column name="location_id" valueNumeric="4"/>
     </insert>
 
-
     <insert tableName="shift">
       <column name="id" valueNumeric="7"/>
+      <column name="activity_id" valueNumeric="4"/>
       <column name="shift_plan_id" valueNumeric="4"/>
       <column name="name" value="Morning Room Assistance"/>
       <column name="start_time" value="2025-10-03T08:00:00Z"/>
@@ -81,6 +87,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="8"/>
+      <column name="activity_id" valueNumeric="4"/>
       <column name="shift_plan_id" valueNumeric="4"/>
       <column name="name" value="Audio/Video Setup"/>
       <column name="short_description" value="Assist with AV setup for sessions"/>
@@ -92,6 +99,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="9"/>
+      <column name="activity_id" valueNumeric="5"/>
       <column name="shift_plan_id" valueNumeric="5"/>
       <column name="name" value="Morning Registration"/>
       <column name="short_description" value="Registration desk morning shift"/>
@@ -103,6 +111,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="10"/>
+      <column name="activity_id" valueNumeric="5"/>
       <column name="shift_plan_id" valueNumeric="5"/>
       <column name="name" value="Exhibition Assistance"/>
       <column name="short_description" value="Help exhibitors and manage visitor flow"/>
@@ -115,6 +124,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="11"/>
+      <column name="activity_id" valueNumeric="6"/>
       <column name="shift_plan_id" valueNumeric="6"/>
       <column name="name" value="Workshop Morning"/>
       <column name="short_description" value="Assist workshops in morning sessions"/>
@@ -125,6 +135,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="12"/>
+      <column name="activity_id" valueNumeric="6"/>
       <column name="shift_plan_id" valueNumeric="6"/>
       <column name="name" value="Lighting Control"/>
       <column name="short_description" value="Manage lighting for workshops"/>
@@ -136,6 +147,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="13"/>
+      <column name="activity_id" valueNumeric="7"/>
       <column name="shift_plan_id" valueNumeric="7"/>
       <column name="name" value="Afternoon Workshop"/>
       <column name="long_description" value="Shift long description"/>
@@ -146,6 +158,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="14"/>
+      <column name="activity_id" valueNumeric="7"/>
       <column name="shift_plan_id" valueNumeric="7"/>
       <column name="name" value="Stage Assistance"/>
       <column name="short_description" value="Help manage speaker transitions"/>
@@ -157,6 +170,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="15"/>
+      <column name="activity_id" valueNumeric="8"/>
       <column name="shift_plan_id" valueNumeric="8"/>
       <column name="name" value="Morning Workshop"/>
       <column name="long_description" value="Shift long description"/>
@@ -167,6 +181,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="16"/>
+      <column name="activity_id" valueNumeric="8"/>
       <column name="shift_plan_id" valueNumeric="8"/>
       <column name="name" value="Equipment Setup"/>
       <column name="short_description" value="Prepare equipment for sessions"/>
@@ -177,6 +192,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="17"/>
+      <column name="activity_id" valueNumeric="9"/>
       <column name="shift_plan_id" valueNumeric="9"/>
       <column name="name" value="Afternoon Sessions"/>
       <column name="short_description" value="Support afternoon sessions"/>
@@ -188,6 +204,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="18"/>
+      <column name="activity_id" valueNumeric="9"/>
       <column name="shift_plan_id" valueNumeric="9"/>
       <column name="name" value="Room Cleanup"/>
       <column name="short_description" value="Cleanup and organize rooms"/>
@@ -200,6 +217,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="19"/>
+      <column name="activity_id" valueNumeric="10"/>
       <column name="shift_plan_id" valueNumeric="10"/>
       <column name="name" value="Morning Registration"/>
       <column name="short_description" value="Morning registration desk shift"/>
@@ -210,6 +228,7 @@
 
     <insert tableName="shift">
       <column name="id" valueNumeric="20"/>
+      <column name="activity_id" valueNumeric="10"/>
       <column name="shift_plan_id" valueNumeric="10"/>
       <column name="name" value="Exhibition Hall Support"/>
       <column name="short_description" value="Assist exhibitors and manage visitor flow"/>
