@@ -5,8 +5,10 @@ import java.util.Collection;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -37,22 +39,22 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
 
     @Override
-    public PositionSlotDto findById(Long id) throws NotFoundException {
+    public PositionSlotDto findById(@NonNull Long id) throws NotFoundException {
         return positionSlotDao.findById(id)
             .map(positionSlotAssemblingMapper::assemble)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
     }
 
     @Override
-    public AssignmentDto join(Long positionSlotId, String userId) throws NotFoundException, ConflictException {
+    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ConflictException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        var volunteer = volunteerDao.findByUserId(userId)
+        var volunteer = volunteerDao.findByUserId(volunteerId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
         eligibilityService.validateHasConflictingAssignments(
-            userId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
         //Todo: Implement actual joining logic
 
         //Todo: Send Eventbus event
@@ -60,19 +62,19 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public void leave(Long positionSlotId, Long userId) {
+    public void leave(@NonNull Long positionSlotId, @NonNull Long volunteerId) {
         //Todo: Checks are needed if the user can leave
     }
 
     @Override
-    public Collection<AssignmentDto> getAssignments(Long positionSlotId) throws NotFoundException {
+    public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) throws NotFoundException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         return AssignmentMapper.toDto(positionSlot.getAssignments());
     }
 
     @Override
-    public AssignmentDto createAuction(Long positionSlotId, String currentUserId) {
+    public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         // check for signup phase
         LockStatus lockStatus = assignment.getPositionSlot().getShift().getLockStatus();
@@ -85,13 +87,16 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 break;
             case LOCKED:
                 throw new IllegalStateException("Auction not possible, shift is locked");
+            default:
+                throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
     @Override
     @Transactional
-    public AssignmentDto claimAuction(Long positionSlotId, String offeringUserId, String currentUserId) throws NotFoundException, ConflictException {
+    public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
+        throws NotFoundException, ConflictException {
         // get auction-assignment
         Assignment auction = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
         if (auction == null
@@ -131,7 +136,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto cancelAuction(Long positionSlotId, String currentUserId) {
+    public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
@@ -147,7 +152,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Transactional
     public Assignment reassignAssignment(Assignment oldAssignment, Volunteer newVolunteer) {
-
         // Create new assignment with new PK
         Assignment newAssignment = AssignmentMapper.shallowCopy(oldAssignment);
         newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
@@ -171,4 +175,17 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         return newAssignment;
     }
 
+    @Override
+    public void setPreference(@NonNull String volunteerId, long positionSlotId, int preference) {
+        if (preference < -10 || preference > 10) {
+            throw new BadRequestException("preference must be between -10 and 10");
+        }
+
+        positionSlotDao.setPreference(volunteerId, positionSlotId, preference);
+    }
+
+    @Override
+    public int getPreference(@NonNull String volunteerId, long positionSlotId) {
+        return positionSlotDao.getPreference(volunteerId, positionSlotId);
+    }
 }

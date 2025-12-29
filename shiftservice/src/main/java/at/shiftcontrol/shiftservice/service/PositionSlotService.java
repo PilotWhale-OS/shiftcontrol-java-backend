@@ -2,23 +2,30 @@ package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 
+import lombok.NonNull;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 
 public interface PositionSlotService {
-    PositionSlotDto findById(Long id) throws NotFoundException;
+    PositionSlotDto findById(@NonNull Long id) throws NotFoundException;
 
-    AssignmentDto join(Long positionSlotId, String userId) throws NotFoundException, ConflictException;
+    AssignmentDto join(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ConflictException;
 
-    void leave(Long positionSlotId, Long userId);
+    void leave(@NonNull Long positionSlotId, @NonNull Long volunteerId);
 
-    Collection<AssignmentDto> getAssignments(Long positionSlotId) throws NotFoundException;
+    Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) throws NotFoundException;
 
-    AssignmentDto createAuction(Long positionSlotId, String currentUserId);
+    void setPreference(@NonNull String volunteerId, long positionSlotId, int preference);
 
-    AssignmentDto claimAuction(Long positionSlotId, String offeringUserId, String currentUserId) throws NotFoundException, ConflictException;
+    int getPreference(@NonNull String volunteerId, long positionSlotId);
 
-    AssignmentDto cancelAuction(Long positionSlotId, String currentUserId);
+    AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
+
+    AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
+        throws NotFoundException, ConflictException;
+
+    AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
 }
