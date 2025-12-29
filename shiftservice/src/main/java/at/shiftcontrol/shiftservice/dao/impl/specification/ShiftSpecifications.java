@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl.specification;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
@@ -43,10 +44,12 @@ public final class ShiftSpecifications {
             // date filter (LocalDate -> Instant range)
             if (filterDto instanceof ShiftPlanScheduleDaySearchDto daySearchDto && daySearchDto.getDate() != null) {
                 Instant dayStart = TimeUtil.convertToStartOfUtcDayInstant(daySearchDto.getDate());
-                Instant dayEnd = TimeUtil.convertToEndOfUtcDayInstant(daySearchDto.getDate());
+                Instant nextDayStart = daySearchDto.getDate().plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
 
                 predicates = criteriaBuilder.and(predicates,
-                    criteriaBuilder.between(root.get("startTime"), dayStart, dayEnd));
+                    criteriaBuilder.lessThan(root.get("startTime"), nextDayStart),
+                    criteriaBuilder.greaterThan(root.get("endTime"), dayStart)
+                );
             }
 
             // shift name contains (case-insensitive)
