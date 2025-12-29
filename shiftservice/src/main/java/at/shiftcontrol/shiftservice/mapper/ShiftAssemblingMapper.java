@@ -23,6 +23,8 @@ public class ShiftAssemblingMapper {
     }
 
     public static ShiftDto toDto(@NonNull Shift shift, Collection<PositionSlotDto> positionSlots) {
+        var relatedActivity = shift.getRelatedActivity();
+
         return new ShiftDto(
             String.valueOf(shift.getId()),
             shift.getName(),
@@ -30,7 +32,7 @@ public class ShiftAssemblingMapper {
             shift.getLongDescription(),
             shift.getStartTime(),
             shift.getEndTime(),
-            ActivityMapper.toActivityDto(shift.getRelatedActivity()),
+            relatedActivity == null ? null : ActivityMapper.toActivityDto(relatedActivity),
             positionSlots,
             shift.getLockStatus(),
             LocationMapper.toLocationDto(shift.getLocation())

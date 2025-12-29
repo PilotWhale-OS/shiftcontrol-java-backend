@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
@@ -17,7 +18,7 @@ import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
-import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -36,6 +37,7 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
@@ -67,7 +69,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftPlanInviteDao shiftPlanInviteDao;
     private final ShiftDao shiftDao;
-    private final EventDao eventDao;
+    private final ActivityDao activityDao;
     private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
@@ -196,20 +198,16 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .thenComparing(Shift::getEndTime));
 
         var shiftColumns = calculateShiftColumns(shifts);
-        //TODO
-//        int requiredShiftColumns = shiftColumns.stream()
-//            .mapToInt(ShiftColumnDto::getColumnIndex)
-//            .max()
-//            .orElse(-1) + 1;
 
-        var activities = shifts.stream()
-            .map(Shift::getRelatedActivity)
+        // get activities related to this location (shift unrelated, even when no shifts are present)
+        var activitiesRelatedToLocation = activityDao.findAllByLocationId(location.getId()).stream()
+            .distinct()
             .map(ActivityMapper::toActivityDto)
             .toList();
 
         return ScheduleContentDto.builder()
             .location(LocationMapper.toLocationDto(location))
-            .activities(activities)
+            .activities(activitiesRelatedToLocation)
             .shiftColumns(shiftColumns)
             .build();
     }
@@ -271,14 +269,28 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .distinct()
             .toList();
 
-        var firstDate = shifts.stream()
-            .map(Shift::getStartTime)
+        // Determine first and last date from shifts and related activities
+        var firstDate = Stream.concat(
+                shifts.stream().map(Shift::getStartTime),
+                shifts.stream()
+                    .map(Shift::getRelatedActivity)
+                    .filter(Objects::nonNull)
+                    .map(Activity::getStartTime)
+            )
+            .filter(Objects::nonNull)
             .min(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
             .orElse(null);
 
-        var lastDate = shifts.stream()
-            .map(Shift::getEndTime)
+
+        var lastDate = Stream.concat(
+                shifts.stream().map(Shift::getEndTime),
+                shifts.stream()
+                    .map(Shift::getRelatedActivity)
+                    .filter(Objects::nonNull)
+                    .map(Activity::getEndTime)
+            )
+            .filter(Objects::nonNull)
             .max(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
             .orElse(null);
