@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.dto.shift;
 
-import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotPreferenceDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +11,6 @@ public class ShiftDetailsDto {
     @NotNull
     private ShiftDto shift;
     @NotNull
-    private UserShiftPreferenceDto preference;
+    private PositionSlotPreferenceDto preference;
     // TODO additional info needed for trade/auction?
 }

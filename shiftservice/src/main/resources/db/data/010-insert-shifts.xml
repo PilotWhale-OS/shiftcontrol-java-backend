@@ -238,6 +238,211 @@
       <column name="location_id" valueNumeric="5"/>
     </insert>
 
+    <!--
+
+      manual test event shifts
+
+      -->
+
+    <!-- edge case -->
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="39"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Have Some Coffee"/>
+      <column name="start_time" value="2025-11-20T00:10:00.000Z"/>
+      <column name="end_time" value="2025-11-20T00:50:00.000Z"/>
+      <column name="lock_status" value="SELF_ASSIGNABLE"/>
+      <column name="location_id" valueNumeric="16"/>
+    </insert>
+
+    <!-- day 1 -->
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="22"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Intro Inf HS"/>
+      <column name="short_description" value="Discuss details about this location"/>
+      <column name="long_description" value="The shift supervisor will elaborate the location details and photographers may find good photo spots, address light issues, etc."/>
+      <column name="start_time" value="2025-11-20T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="11"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="34"/>
+      <column name="activity_id" valueNumeric="16"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Photos Open Mic"/>
+      <column name="start_time" value="2025-11-20T15:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T18:00:00.000Z"/>
+      <column name="location_id" valueNumeric="11"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="35"/>
+      <column name="activity_id" valueNumeric="16"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Record Open Mic"/>
+      <column name="start_time" value="2025-11-20T13:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T14:00:00.000Z"/>
+      <column name="location_id" valueNumeric="11"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="36"/>
+      <column name="activity_id" valueNumeric="16"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Cut and edit recording video"/>
+      <column name="start_time" value="2025-11-20T14:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T16:00:00.000Z"/>
+      <column name="location_id" valueNumeric="11"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="23"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Intro Freihaus"/>
+      <column name="short_description" value="Discuss details about this location"/>
+      <column name="long_description" value="The shift supervisor will elaborate the location details and photographers may find good photo spots, address light issues, etc."/>
+      <column name="start_time" value="2025-11-20T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="12"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="24"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Intro EI7"/>
+      <column name="short_description" value="Discuss details about this location"/>
+      <column name="long_description" value="The shift supervisor will elaborate the location details and photographers may find good photo spots, address light issues, etc."/>
+      <column name="start_time" value="2025-11-20T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="13"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="25"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Intro Gusshaus"/>
+      <column name="short_description" value="Discuss details about this location"/>
+      <column name="long_description" value="The shift supervisor will elaborate the location details and photographers may find good photo spots, address light issues, etc."/>
+      <column name="start_time" value="2025-11-20T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="14"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="26"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Intro Rooftop"/>
+      <column name="short_description" value="Discuss details about this location"/>
+      <column name="long_description" value="The shift supervisor will elaborate the location details and photographers may find good photo spots, address light issues, etc."/>
+      <column name="start_time" value="2025-11-20T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="15"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="27"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Intro Audimax"/>
+      <column name="short_description" value="Discuss details about this location"/>
+      <column name="long_description" value="The shift supervisor will elaborate the location details and photographers may find good photo spots, address light issues, etc."/>
+      <column name="start_time" value="2025-11-20T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-20T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="16"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="37"/>
+      <column name="activity_id" valueNumeric="16"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Rooftop Photo Sesh"/>
+      <column name="start_time" value="2025-11-23T20:00:00.000Z"/>
+      <column name="end_time" value="2025-11-24T01:00:00.000Z"/>
+      <column name="location_id" valueNumeric="15"/>
+    </insert>
+
+    <!-- day 5 -->
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="28"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Cleanup Inf HS"/>
+      <column name="short_description" value="Collect stuff from this location"/>
+      <column name="long_description" value="Collect stuff from this location"/>
+      <column name="start_time" value="2025-11-25T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-25T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="11"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="29"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Cleanup Freihaus"/>
+      <column name="short_description" value="Collect stuff from this location"/>
+      <column name="long_description" value="Collect stuff from this location"/>
+      <column name="start_time" value="2025-11-25T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-25T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="12"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="30"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Cleanup EI7"/>
+      <column name="short_description" value="Collect stuff from this location"/>
+      <column name="long_description" value="Collect stuff from this location"/>
+      <column name="start_time" value="2025-11-25T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-25T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="13"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="31"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Cleanup Gusshaus"/>
+      <column name="short_description" value="Collect stuff from this location"/>
+      <column name="long_description" value="Collect stuff from this location"/>
+      <column name="start_time" value="2025-11-25T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-25T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="14"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="32"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Cleanup Rooftop"/>
+      <column name="short_description" value="Collect stuff from this location"/>
+      <column name="long_description" value="Collect stuff from this location"/>
+      <column name="start_time" value="2025-11-25T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-25T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="15"/>
+    </insert>
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="33"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Location Cleanup Audimax"/>
+      <column name="short_description" value="Collect stuff from this location"/>
+      <column name="long_description" value="Collect stuff from this location"/>
+      <column name="start_time" value="2025-11-25T08:00:00.000Z"/>
+      <column name="end_time" value="2025-11-25T10:00:00.000Z"/>
+      <column name="location_id" valueNumeric="16"/>
+    </insert>
+
+    <!-- edge case -->
+
+    <insert tableName="shift">
+      <column name="id" valueNumeric="38"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Have Some Drinks"/>
+      <column name="start_time" value="2025-11-25T23:10:00.000Z"/>
+      <column name="end_time" value="2025-11-25T23:50:00.000Z"/>
+      <column name="location_id" valueNumeric="16"/>
+    </insert>
+
   </changeSet>
 
 </databaseChangeLog>

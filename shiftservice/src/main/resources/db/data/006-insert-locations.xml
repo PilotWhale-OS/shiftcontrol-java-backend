@@ -91,6 +91,57 @@
       <column name="url" value="https://maps.example.com/breakoutD"/>
     </insert>
 
+    <!-- manual test event locations -->
+
+    <insert tableName="location">
+      <column name="id" valueNumeric="11"/>
+      <column name="event_id" valueNumeric="6"/>
+      <column name="name" value="Informatik Hörsaaal"/>
+      <column name="description" value="Two-story lecture room near Resslpark with great acoustics"/>
+      <column name="url" value="https://maps.example.com/Informatik"/>
+      <column name="additional_properties" value='{}'/>
+    </insert>
+
+    <insert tableName="location">
+      <column name="id" valueNumeric="12"/>
+      <column name="event_id" valueNumeric="6"/>
+      <column name="name" value="Freihaus Erdgeschoss"/>
+      <column name="description" value="The whole entry area and open floor in the Freihaus"/>
+      <column name="url" value="https://maps.example.com/Freihaus"/>
+      <column name="additional_properties" value='{}'/>
+    </insert>
+
+    <insert tableName="location">
+      <column name="id" valueNumeric="13"/>
+      <column name="event_id" valueNumeric="6"/>
+      <column name="name" value="EI7"/>
+      <column name="description" value="Big lecture hall with modern tech in Gusshaus"/>
+      <column name="url" value="https://maps.example.com/EI7"/>
+      <column name="additional_properties" value='{}'/>
+    </insert>
+
+    <insert tableName="location">
+      <column name="id" valueNumeric="14"/>
+      <column name="event_id" valueNumeric="6"/>
+      <column name="name" value="Gusshaus Innenhof"/>
+      <column name="additional_properties" value='{}'/>
+    </insert>
+
+    <insert tableName="location">
+      <column name="id" valueNumeric="15"/>
+      <column name="event_id" valueNumeric="6"/>
+      <column name="name" value="Gusshaus Rooftop"/>
+      <column name="description" value="Entrance via elevator or staircase"/>
+    </insert>
+
+    <insert tableName="location">
+      <column name="id" valueNumeric="16"/>
+      <column name="event_id" valueNumeric="6"/>
+      <column name="name" value="Audimax"/>
+      <column name="description" value="Top-tier lecture room with massive capacity at Getreidemarkt"/>
+      <column name="url" value="https://maps.example.com/Audimax"/>
+    </insert>
+
   </changeSet>
 
 </databaseChangeLog>
