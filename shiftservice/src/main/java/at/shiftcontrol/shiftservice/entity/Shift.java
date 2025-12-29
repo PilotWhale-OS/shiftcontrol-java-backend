@@ -2,7 +2,9 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Objects;
 
+import at.shiftcontrol.shiftservice.type.LockStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,8 +24,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import at.shiftcontrol.shiftservice.type.LockStatus;
 
 @Getter
 @Setter
@@ -81,5 +81,23 @@ public class Shift {
             ", relatedActivity=" + (relatedActivity == null ? "null" : relatedActivity.getId()) +
             ", slots=" + slots.stream().map(PositionSlot::getId).toList() +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Shift shift = (Shift) o;
+        return id == shift.id && Objects.equals(shiftPlan, shift.shiftPlan) && Objects.equals(name, shift.name) &&
+            Objects.equals(shortDescription, shift.shortDescription) && Objects.equals(longDescription, shift.longDescription) &&
+            Objects.equals(startTime, shift.startTime) && Objects.equals(endTime, shift.endTime) && lockStatus == shift.lockStatus &&
+            Objects.equals(location, shift.location) && Objects.equals(relatedActivity, shift.relatedActivity) &&
+            Objects.equals(slots, shift.slots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, shiftPlan, name, shortDescription, longDescription, startTime, endTime, lockStatus, location, relatedActivity, slots);
     }
 }

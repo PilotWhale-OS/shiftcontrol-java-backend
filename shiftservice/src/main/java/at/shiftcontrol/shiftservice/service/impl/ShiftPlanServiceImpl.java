@@ -54,8 +54,8 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
+import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -138,20 +138,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private Map<Location, List<Shift>> getScheduleShiftsByLocation(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto)
         throws ForbiddenException, NotFoundException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
-        var queriedShifts = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
+        var filteredShiftsWithoutViewMode = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
 
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
-
-        // Get user related shifts via dao if MY_SHIFTS view is requested
-        // Get shifts with signup possible if SIGNUP_POSSIBLE view is requested; This filtering is done here because it depends on business logic
-        // and it wouldn't make sense to implement this existing logic in the DAO layer (which would be quite complex)
-        if (filterDto != null && filterDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
-            queriedShifts = queriedShifts.stream()
-                .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
-                    isSignupPossible(slot, volunteer)
-                ))
-                .toList();
-        }
+        var queriedShifts = getShiftsBasedOnViewModes(shiftPlanId, userId, filterDto, filteredShiftsWithoutViewMode);
 
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
         for (var shift : queriedShifts) {
@@ -171,6 +160,43 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
 
         return currentUser.getUserId();
+    }
+
+    private List<Shift> getShiftsBasedOnViewModes(long shiftPlanId, String userId, ShiftPlanScheduleFilterDto filterDto,
+                                                  List<Shift> filteredShiftsWithoutViewMode) throws NotFoundException {
+
+        if (filterDto != null && filterDto.getShiftRelevances() != null &&
+            !filterDto.getShiftRelevances().isEmpty()) {
+            List<Shift> ownShifts = new ArrayList<>();
+            List<Shift> signUpPossibleShifts = new ArrayList<>();
+            if (filterDto.getShiftRelevances().contains(ShiftRelevance.MY_SHIFTS)) {
+                ownShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
+            }
+            if (filterDto.getShiftRelevances().contains(ShiftRelevance.SIGNUP_POSSIBLE)) {
+                signUpPossibleShifts = new ArrayList<>(filteredShiftsWithoutViewMode);
+                var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+
+                signUpPossibleShifts = signUpPossibleShifts.stream()
+                    .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
+                        isSignupPossible(slot, volunteer)
+                    ))
+                    .toList();
+            }
+            // combine results
+            var combinedShifts = new ArrayList<>(ownShifts);
+            for (var shift : signUpPossibleShifts) {
+                if (!combinedShifts.contains(shift)) {
+                    combinedShifts.add(shift);
+                }
+            }
+
+            // combine combined shifts with filteredShiftsWithoutViewMode to apply other filters
+            return combinedShifts.stream()
+                .filter(filteredShiftsWithoutViewMode::contains)
+                .toList();
+        }
+
+        return filteredShiftsWithoutViewMode;
     }
 
     private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {

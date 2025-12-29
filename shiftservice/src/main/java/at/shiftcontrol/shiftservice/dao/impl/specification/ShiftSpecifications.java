@@ -7,7 +7,6 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class ShiftSpecifications {
@@ -60,48 +59,34 @@ public final class ShiftSpecifications {
                     ));
             }
 
-            // roleNames: Shift -> slots --> role --> name
-            if (filterDto.getRoleNames() != null && !filterDto.getRoleNames().isEmpty()) {
+            // roleNames: Shift -> slots --> role --> id
+            if (filterDto.getRoleIds() != null && !filterDto.getRoleIds().isEmpty()) {
                 var roleJoin = root
                     .join("slots", JoinType.INNER)
                     .join("role", JoinType.INNER);
 
-                var likePredicates = filterDto.getRoleNames().stream()
-                    .filter(r -> r != null && !r.isBlank())
-                    .map(r -> "%" + r.toLowerCase() + "%")
-                    .map(pattern ->
-                        criteriaBuilder.like(
-                            criteriaBuilder.lower(roleJoin.get("name")),
-                            pattern
-                        )
-                    )
-                    .toArray(Predicate[]::new);
 
-                // Only add if we actually have patterns
-                if (likePredicates.length > 0) {
-                    predicates = criteriaBuilder.and(predicates,
-                        criteriaBuilder.or(likePredicates)
-                    );
-                }
+                // filter only non-null, non-blank role IDs
+                predicates = criteriaBuilder.and(predicates,
+                    roleJoin.get("id").in(
+                        filterDto.getRoleIds().stream()
+                            .filter(s -> s != null && !s.isBlank())
+                            .toList()
+                    )
+                );
             }
 
-            // locations: Shift -> locations --> name
-            if (filterDto.getLocations() != null && !filterDto.getLocations().isEmpty()) {
+            // locations: Shift -> locations --> id
+            if (filterDto.getLocationIds() != null && !filterDto.getLocationIds().isEmpty()) {
                 var locationJoin = root.join("location", JoinType.INNER);
 
-                var likePredicates = filterDto.getLocations().stream()
-                    .filter(s -> s != null && !s.isBlank())
-                    .map(s -> "%" + s.toLowerCase() + "%")
-                    .map(pattern ->
-                        criteriaBuilder.like(
-                            criteriaBuilder.lower(locationJoin.get("name")),
-                            pattern
-                        )
-                    )
-                    .toArray(Predicate[]::new);
-
+                // filter only non-null, non-blank location IDs
                 predicates = criteriaBuilder.and(predicates,
-                    criteriaBuilder.or(likePredicates)
+                    locationJoin.get("id").in(
+                        filterDto.getLocationIds().stream()
+                            .filter(s -> s != null && !s.isBlank())
+                            .toList()
+                    )
                 );
             }
 
