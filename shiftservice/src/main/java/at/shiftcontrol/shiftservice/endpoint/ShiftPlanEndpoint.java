@@ -118,7 +118,7 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanInviteDetails",
         description = "Get details about a specific invite code for a shift plan"
     )
-    public ShiftPlanInviteDto getShiftPlanInviteDetails(@PathVariable String inviteCode) throws NotFoundException, ForbiddenException {
+    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(@PathVariable String inviteCode) throws NotFoundException, ForbiddenException {
         return shiftPlanService.getShiftPlanInviteDetails(inviteCode);
     }
 

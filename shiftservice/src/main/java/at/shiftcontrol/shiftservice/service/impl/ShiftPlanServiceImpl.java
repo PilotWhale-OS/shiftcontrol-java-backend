@@ -30,6 +30,7 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
@@ -52,6 +53,8 @@ import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
+import at.shiftcontrol.shiftservice.mapper.EventMapper;
+import at.shiftcontrol.shiftservice.mapper.InviteMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
@@ -414,23 +417,24 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanInviteDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException {
+    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException {
+        var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.findByCode(inviteCode)
             .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
 
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
+        var volunteer = volunteerDao.findByUserId(userId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+        boolean alreadyJoined = userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
 
-        return ShiftPlanInviteDto.builder()
-            .code(invite.getCode())
-            .type(invite.getType())
-            .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
-            .active(invite.isActive())
-            .expiresAt(invite.getExpiresAt())
-            .maxUses(invite.getMaxUses())
-            .usedCount(invite.getUses())
-            .autoAssignedRoles(invite.getAutoAssignRoles() == null ? null : RoleMapper.toRoleDto(invite.getAutoAssignRoles()))
-            .createdAt(invite.getCreatedAt())
-            .revokedAt(invite.getRevokedAt())
+        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
+
+        return ShiftPlanJoinOverviewDto.builder()
+            .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
+            .joined(alreadyJoined)
+            .inviteDto(inviteDto)
+            .eventDto(eventDto)
             .build();
     }
 
@@ -448,18 +452,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var invites = shiftPlanInviteDao.findAllByShiftPlanId(shiftPlanId);
 
         return invites.stream()
-            .map(invite -> ShiftPlanInviteDto.builder()
-                .code(invite.getCode())
-                .type(invite.getType())
-                .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
-                .active(invite.isActive())
-                .expiresAt(invite.getExpiresAt())
-                .maxUses(invite.getMaxUses())
-                .usedCount(invite.getUses())
-                .autoAssignedRoles(invite.getAutoAssignRoles() == null ? null : RoleMapper.toRoleDto(invite.getAutoAssignRoles()))
-                .createdAt(invite.getCreatedAt())
-                .revokedAt(invite.getRevokedAt())
-                .build())
+            .map(invite -> InviteMapper.toInviteDto(invite, shiftPlan))
             .toList();
     }
 
@@ -513,11 +506,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
 
+
+        var eventDto =EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
+
         return ShiftPlanJoinOverviewDto.builder()
-            .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
-            .inviteType(invite.getType())
             .joined(joinedNow)
+            .inviteDto(inviteDto)
+            .eventDto(eventDto)
             .build();
     }
 
@@ -560,6 +557,18 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 }
                 shiftPlan.getPlanPlanners().add(volunteer);
                 return true;
+            }
+            default -> throw new BadRequestException("Unknown invite type");
+        }
+    }
+
+    private boolean userIsInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
+        switch (type) {
+            case VOLUNTEER_JOIN -> {
+                return shiftPlan.getPlanVolunteers().contains(volunteer);
+            }
+            case PLANNER_JOIN -> {
+                return shiftPlan.getPlanPlanners().contains(volunteer);
             }
             default -> throw new BadRequestException("Unknown invite type");
         }
