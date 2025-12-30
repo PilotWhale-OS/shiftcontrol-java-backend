@@ -252,7 +252,6 @@
       <column name="name" value="Have Some Coffee"/>
       <column name="start_time" value="2025-11-20T00:10:00.000Z"/>
       <column name="end_time" value="2025-11-20T00:50:00.000Z"/>
-      <column name="lock_status" value="SELF_ASSIGNABLE"/>
       <column name="location_id" valueNumeric="16"/>
     </insert>
 

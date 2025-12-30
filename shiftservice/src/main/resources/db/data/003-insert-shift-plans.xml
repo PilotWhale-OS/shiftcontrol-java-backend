@@ -121,7 +121,9 @@
       <column name="event_id" valueNumeric="6"/>
       <column name="name" value="Photographer Plan"/>
       <column name="short_description" value="Shifts for photographers at the TU Student Days"/>
-      <column name="long_description" value="Throughout the TU Student Days, all events are being attended by photographers to capture the joy this event brings. This shift plan manages photographers across the Tu locations."/>
+      <column name="long_description" value="Throughout the TU Student Days, all events are being attended by photographers to capture the joy this event
+      brings. This shift plan manages photographers across the Tu locations."/>
+      <column name="lock_status" value="SUPERVISED"/>
     </insert>
 
   </changeSet>
