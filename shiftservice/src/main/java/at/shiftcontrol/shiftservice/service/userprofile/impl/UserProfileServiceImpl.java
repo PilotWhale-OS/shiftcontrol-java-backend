@@ -1,5 +1,10 @@
 package at.shiftcontrol.shiftservice.service.userprofile.impl;
 
+import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
+import at.shiftcontrol.shiftservice.type.NotificationType;
+
+import org.antlr.v4.runtime.atn.SemanticContext;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -12,6 +17,8 @@ import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +34,21 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         var profile = new UserProfileDto();
         profile.setAccount(UserProfileMapper.toAccountInfoDto(user));
-        profile.setNotifications(notificationService.getNotificationsForUser(userId));
+
+        /* fetch persistent notification settings and add empty set to missing types */
+        var notifications = notificationService.getNotificationsForUser(userId);
+        for(NotificationType type : NotificationType.values()) {
+            if(notifications.stream().noneMatch(n -> n.getType() == type)) {
+                notifications.add(NotificationSettingsDto
+                    .builder()
+                    .type(type)
+                    .channels(Set.of())
+                    .build()
+                );
+            }
+        }
+
+        profile.setNotifications(notifications);
         profile.setAssignedRoles(RoleMapper.toRoleDto(volunteer.getRoles()));
 
         return profile;

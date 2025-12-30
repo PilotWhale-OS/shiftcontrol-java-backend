@@ -29,6 +29,10 @@
         <constraints nullable="true"/>
       </column>
 
+      <column name="lock_status" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+
     </createTable>
 
   </changeSet>
