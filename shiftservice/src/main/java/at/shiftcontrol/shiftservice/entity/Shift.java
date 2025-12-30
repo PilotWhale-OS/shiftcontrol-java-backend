@@ -93,13 +93,13 @@ public class Shift {
         Shift shift = (Shift) o;
         return id == shift.id && Objects.equals(shiftPlan, shift.shiftPlan) && Objects.equals(name, shift.name) &&
             Objects.equals(shortDescription, shift.shortDescription) && Objects.equals(longDescription, shift.longDescription) &&
-            Objects.equals(startTime, shift.startTime) && Objects.equals(endTime, shift.endTime) && lockStatus == shift.lockStatus &&
+            Objects.equals(startTime, shift.startTime) && Objects.equals(endTime, shift.endTime) &&
             Objects.equals(location, shift.location) && Objects.equals(relatedActivity, shift.relatedActivity) &&
             Objects.equals(slots, shift.slots);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, shiftPlan, name, shortDescription, longDescription, startTime, endTime, lockStatus, location, relatedActivity, slots);
+        return Objects.hash(id, shiftPlan, name, shortDescription, longDescription, startTime, endTime, location, relatedActivity, slots);
     }
 }
