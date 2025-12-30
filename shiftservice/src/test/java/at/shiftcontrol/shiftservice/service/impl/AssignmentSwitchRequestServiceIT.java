@@ -59,20 +59,28 @@ public class AssignmentSwitchRequestServiceIT {
     @Disabled
     void testCreateTrade() throws ConflictException, NotFoundException {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
+        String offeredPosition = "11";
+        String requestedPosition = "12";
         Mockito.when(userProfileService.getUserProfile(any()))
             .thenReturn(getUserProfileDtoWithId(currentUserId));
         TradeCreateDto createDto = TradeCreateDto.builder()
-            .offeredPositionSlotId("1")
-            .requestedPositionSlotId("5")
+            .offeredPositionSlotId(offeredPosition)
+            .requestedPositionSlotId(requestedPosition)
             .requestedVolunteers(List.of(
-                VolunteerDto.builder().id("28c02050-4f90-4f3a-b1df-3c7d27a166e8").build()))
+                VolunteerDto.builder().id(otherUserId).build()))
             .build();
 
         Collection<TradeDto> dtos = assignmentSwitchRequestService.createTrade(createDto, currentUserId);
 
         Assertions.assertNotNull(dtos);
         Assertions.assertFalse(dtos.isEmpty());
-        dtos.forEach(trade -> Assertions.assertEquals(TradeStatus.OPEN, trade.getStatus()));
+        TradeDto dto = dtos.stream().findFirst().get();
+        Assertions.assertEquals(TradeStatus.OPEN, dto.getStatus());
+        Assertions.assertEquals(requestedPosition, dto.getRequestedAssignment().getPositionSlotId());
+        Assertions.assertEquals(offeredPosition, dto.getOfferingAssignment().getPositionSlotId());
+        Assertions.assertEquals(currentUserId, dto.getOfferingAssignment().getAssignedVolunteer().getId());
+        Assertions.assertEquals(otherUserId, dto.getRequestedAssignment().getAssignedVolunteer().getId());
     }
 
     @Test

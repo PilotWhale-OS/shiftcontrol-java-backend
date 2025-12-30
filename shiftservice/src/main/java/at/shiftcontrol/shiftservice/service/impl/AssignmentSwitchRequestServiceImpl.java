@@ -187,7 +187,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             .filter(assignment ->
                 tradeCreateDto.getRequestedVolunteers().stream().anyMatch(
                     volunteer -> Objects.equals(volunteer.getId(), String.valueOf(assignment.getAssignedVolunteer().getId()))))
-            .map(requestedAssignment -> createAssignmentSwitchRequest(requestedAssignment, offeredAssignment)).toList();
+            .map(requestedAssignment -> createAssignmentSwitchRequest(offeredAssignment, requestedAssignment)).toList();
 
         // TODO check if trade already exists (re-request if rejected or canceled) ?
         // no need to check for existing trades, status will just be updated
@@ -312,7 +312,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private boolean isPositionSlotLocked(PositionSlot slot) {
-        return slot.getShift().getLockStatus().equals(LockStatus.LOCKED);
+        return slot.getShift().getShiftPlan().getLockStatus().equals(LockStatus.LOCKED);
     }
 
     private void cancelOtherTrades(AssignmentSwitchRequest trade) {
