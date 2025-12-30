@@ -1,7 +1,9 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.positionslot;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
