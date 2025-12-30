@@ -42,6 +42,17 @@
       <column name="role_id" valueNumeric="3"/>
     </insert>
 
+    <!--
+
+      manual test event roles
+
+      -->
+
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+      <column name="role_id" valueNumeric="11"/>
+    </insert>
+
   </changeSet>
 
 </databaseChangeLog>

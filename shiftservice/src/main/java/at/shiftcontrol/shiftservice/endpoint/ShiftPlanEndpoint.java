@@ -2,34 +2,40 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanPatchStatusDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @Slf4j
 @RestController
@@ -67,7 +73,8 @@ public class ShiftPlanEndpoint {
         description = "Get (volunteer related) schedule content data for a specific day of a specific shift plan of an event"
     )
     public ShiftPlanScheduleContentDto getShiftPlanScheduleContent(@PathVariable String shiftPlanId,
-                                                                   @Valid ShiftPlanScheduleDaySearchDto shiftPlanScheduleSearchDto)
+                                                                   @Valid
+                                                                   ShiftPlanScheduleDaySearchDto shiftPlanScheduleSearchDto)
         throws NotFoundException, ForbiddenException {
         return shiftPlanService.getShiftPlanScheduleContent(ConvertUtil.idToLong(shiftPlanId), shiftPlanScheduleSearchDto);
     }
@@ -78,7 +85,8 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanScheduleFilterValues",
         description = "Get available filter values for the schedule of a specific shift plan of an event"
     )
-    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(@PathVariable String shiftPlanId) throws NotFoundException {
+    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(@PathVariable String shiftPlanId)
+        throws NotFoundException {
         return shiftPlanService.getShiftPlanScheduleFilterValues(ConvertUtil.idToLong(shiftPlanId));
     }
 
@@ -110,7 +118,7 @@ public class ShiftPlanEndpoint {
         operationId = "getShiftPlanInviteDetails",
         description = "Get details about a specific invite code for a shift plan"
     )
-    public ShiftPlanInviteDto getShiftPlanInviteDetails(@PathVariable String inviteCode) throws NotFoundException, ForbiddenException {
+    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(@PathVariable String inviteCode) throws NotFoundException, ForbiddenException {
         return shiftPlanService.getShiftPlanInviteDetails(inviteCode);
     }
 
@@ -134,5 +142,16 @@ public class ShiftPlanEndpoint {
     )
     public ShiftPlanJoinOverviewDto joinShiftPlan(@RequestBody ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
         return shiftPlanService.joinShiftPlanAsVolunteer(requestDto);
+    }
+
+    @PatchMapping("/{shiftPlanId}/status")
+    // TODO Security
+    @Operation(
+        operationId = "editLockStatus",
+        description = "Edit the LockState for a shift plan"
+    )
+    @ResponseStatus(NO_CONTENT)
+    public void patchState(@PathVariable String shiftPlanId, @RequestBody ShiftPlanPatchStatusDto requestDto) throws NotFoundException {
+        shiftPlanService.updateLockStatus(ConvertUtil.idToLong(shiftPlanId), requestDto.getLockStatus());
     }
 }

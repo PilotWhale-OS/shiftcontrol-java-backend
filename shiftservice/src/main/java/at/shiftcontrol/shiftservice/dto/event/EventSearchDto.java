@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.event;
 
 import java.time.Instant;
 
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class EventSearchDto {
     private String name;
     /**
-     *  * The start time of the event search range.
+     * * The start time of the event search range.
      */
     private Instant startTime;
     private Instant endTime;

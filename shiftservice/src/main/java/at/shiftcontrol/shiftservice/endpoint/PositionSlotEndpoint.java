@@ -25,8 +25,8 @@ import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
-import at.shiftcontrol.shiftservice.dto.UserPreferenceUpdateDto;
-import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotPreferenceUpdateDto;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 
 @Slf4j
@@ -79,8 +79,14 @@ public class PositionSlotEndpoint {
         operationId = "setPositionSlotPreference",
         description = "Set preference for a specific position slot"
     )
-    public UserShiftPreferenceDto setPositionSlotPreference(@PathVariable String positionSlotId, @RequestBody UserPreferenceUpdateDto preferenceUpdateDto) {
-        return null; // TODO: implement
+    public PositionSlotPreferenceDto setPositionSlotPreference(@PathVariable String positionSlotId,
+                                                               @RequestBody PositionSlotPreferenceUpdateDto preferenceUpdateDto) {
+        positionSlotService.setPreference(
+            userProvider.getCurrentUser().getUserId(),
+            ConvertUtil.idToLong(positionSlotId),
+            preferenceUpdateDto.getPreferenceValue()
+        );
+        return PositionSlotPreferenceDto.builder().preferenceValue(preferenceUpdateDto.getPreferenceValue()).build();
     }
 
     @GetMapping("/assignments")

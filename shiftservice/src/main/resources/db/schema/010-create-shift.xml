@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="011-create-shift" author="paul">
-    <createTable tableName="shift">
+    <changeSet id="011-create-shift" author="paul">
+        <createTable tableName="shift">
 
-      <column name="id" type="BIGINT" autoIncrement="true">
-        <constraints primaryKey="true" nullable="false"/>
-      </column>
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
 
-      <column name="shift_plan_id" type="BIGINT">
-        <constraints nullable="false" foreignKeyName="fk_shift_shiftplan" references="shift_plan(id)"/>
-      </column>
+            <column name="activity_id" type="BIGINT">
+                <constraints nullable="true" foreignKeyName="fk_shift_activity" references="activity(id)"/>
+            </column>
 
-      <column name="name" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
+            <column name="shift_plan_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_shift_shiftplan" references="shift_plan(id)"/>
+            </column>
 
-      <column name="short_description" type="VARCHAR(255)">
-        <constraints nullable="true"/>
-      </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
 
-      <column name="long_description" type="VARCHAR(1024)">
-        <constraints nullable="true"/>
-      </column>
+            <column name="short_description" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
 
-      <column name="start_time" type="TIMESTAMP">
-        <constraints nullable="false"/>
-      </column>
+            <column name="long_description" type="VARCHAR(1024)">
+                <constraints nullable="true"/>
+            </column>
 
-      <column name="end_time" type="TIMESTAMP">
-        <constraints nullable="false"/>
-      </column>
+            <column name="start_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
 
-      <column name="lock_status" type="VARCHAR(50)">
-        <constraints nullable="false"/>
-      </column>
+            <column name="end_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
 
-      <column name="location_id" type="BIGINT">
-        <constraints nullable="true" foreignKeyName="fk_shift_location_ref" references="location(id)"/>
-      </column>
+            <column name="location_id" type="BIGINT">
+                <constraints nullable="true" foreignKeyName="fk_shift_location_ref" references="location(id)"/>
+            </column>
 
-    </createTable>
+        </createTable>
 
-  </changeSet>
+    </changeSet>
 
 </databaseChangeLog>

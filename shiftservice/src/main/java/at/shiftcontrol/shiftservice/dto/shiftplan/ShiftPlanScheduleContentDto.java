@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -15,7 +15,4 @@ public class ShiftPlanScheduleContentDto {
 
     @NotNull
     private Collection<ScheduleContentDto> scheduleContentDtos;
-
-    @NotNull
-    private ScheduleStatisticsDto scheduleStatistics;
 }

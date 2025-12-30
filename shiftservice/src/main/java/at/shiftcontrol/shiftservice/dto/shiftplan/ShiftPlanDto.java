@@ -1,6 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
-
-import java.time.Instant;
+package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -8,15 +6,11 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EventDto {
+public class ShiftPlanDto {
     @NotNull
     private String id;
     @NotNull
     private String name;
     private String shortDescription;
     private String longDescription;
-    @NotNull
-    private Instant startTime;
-    @NotNull
-    private Instant endTime;
 }

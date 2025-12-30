@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="023-insert-shift-plan-invite" author="paul" context="dev">
+
+    <insert tableName="shift_plan_invite">
+      <column name="id" valueNumeric="1"/>
+      <column name="code" value="testinviterandomstring"/>
+      <column name="type" value="VOLUNTEER_JOIN"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="is_active" valueBoolean="true"/>
+      <column name="uses" valueNumeric="0"/>
+      <column name="created_at" value="2025-09-12T07:00:00Z"/>
+    </insert>
+  </changeSet>
+
+</databaseChangeLog>

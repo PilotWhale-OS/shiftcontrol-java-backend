@@ -1,24 +1,25 @@
 package at.shiftcontrol.shiftservice.dto.invite;
 
+import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import at.shiftcontrol.shiftservice.dto.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
-
 @Data
 @Builder
 public class ShiftPlanJoinOverviewDto {
-    @NotNull
-    private ShiftPlanDto shiftPlanDto;
 
     @NotNull
     private int attendingVolunteerCount;
 
     @NotNull
-    private ShiftPlanInviteType inviteType;
+    private boolean joined;
 
     @NotNull
-    private boolean joined;
+    private ShiftPlanInviteDto inviteDto;
+
+    @NotNull
+    private EventDto eventDto;
 }

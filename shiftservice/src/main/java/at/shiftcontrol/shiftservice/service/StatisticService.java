@@ -4,7 +4,7 @@ import java.util.List;
 
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
-import at.shiftcontrol.shiftservice.dto.ScheduleStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;

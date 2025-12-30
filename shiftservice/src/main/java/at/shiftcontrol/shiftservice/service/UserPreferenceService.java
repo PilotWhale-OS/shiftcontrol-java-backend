@@ -1,7 +1,7 @@
 package at.shiftcontrol.shiftservice.service;
 
-import at.shiftcontrol.shiftservice.dto.UserShiftPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotPreferenceDto;
 
 public interface UserPreferenceService {
-    UserShiftPreferenceDto getUserPreference(String userId, long shiftId);
+    PositionSlotPreferenceDto getUserPreference(String userId, long shiftId);
 }

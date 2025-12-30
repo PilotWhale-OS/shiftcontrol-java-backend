@@ -24,25 +24,26 @@ import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
-import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.ScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.ScheduleLayoutDto;
-import at.shiftcontrol.shiftservice.dto.ShiftColumnDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
@@ -51,16 +52,18 @@ import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
+import at.shiftcontrol.shiftservice.mapper.EventMapper;
+import at.shiftcontrol.shiftservice.mapper.InviteMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
-import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
+import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +73,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftPlanInviteDao shiftPlanInviteDao;
     private final ShiftDao shiftDao;
-    private final EventDao eventDao;
+    private final ActivityDao activityDao;
     private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
@@ -93,8 +96,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(entry -> buildScheduleLayoutDto(entry.getKey(), entry.getValue()))
             .toList();
 
+        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
+
         return ShiftPlanScheduleLayoutDto.builder()
             .scheduleLayoutDtos(scheduleLayoutDtos)
+            .scheduleStatistics(stats)
             .build();
     }
 
@@ -127,32 +133,21 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue()))
             .toList();
 
-        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
 
         return ShiftPlanScheduleContentDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
             .scheduleContentDtos(scheduleContentDtos)
-            .scheduleStatistics(stats)
             .build();
     }
 
     private Map<Location, List<Shift>> getScheduleShiftsByLocation(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto)
         throws ForbiddenException, NotFoundException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
-        var queriedShifts = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
 
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+        // if param is ShiftPlanScheduleFilterDto filtering is done without date; date filtering is only done if param is ShiftPlanScheduleDaySearchDto instance
+        var filteredShiftsWithoutViewMode = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
 
-        // Get user related shifts via dao if MY_SHIFTS view is requested
-        // Get shifts with signup possible if SIGNUP_POSSIBLE view is requested; This filtering is done here because it depends on business logic
-        // and it wouldn't make sense to implement this existing logic in the DAO layer (which would be quite complex)
-        if (filterDto != null && filterDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
-            queriedShifts = queriedShifts.stream()
-                .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
-                    isSignupPossible(slot, volunteer)
-                ))
-                .toList();
-        }
+        var queriedShifts = getShiftsBasedOnViewModes(shiftPlanId, userId, filterDto, filteredShiftsWithoutViewMode);
 
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
         for (var shift : queriedShifts) {
@@ -172,6 +167,43 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
 
         return currentUser.getUserId();
+    }
+
+    private List<Shift> getShiftsBasedOnViewModes(long shiftPlanId, String userId, ShiftPlanScheduleFilterDto filterDto,
+                                                  List<Shift> filteredShiftsWithoutViewMode) throws NotFoundException {
+
+        if (filterDto != null && filterDto.getShiftRelevances() != null &&
+            !filterDto.getShiftRelevances().isEmpty()) {
+            List<Shift> ownShifts = new ArrayList<>();
+            List<Shift> signUpPossibleShifts = new ArrayList<>();
+            if (filterDto.getShiftRelevances().contains(ShiftRelevance.MY_SHIFTS)) {
+                ownShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
+            }
+            if (filterDto.getShiftRelevances().contains(ShiftRelevance.SIGNUP_POSSIBLE)) {
+                signUpPossibleShifts = new ArrayList<>(filteredShiftsWithoutViewMode);
+                var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+
+                signUpPossibleShifts = signUpPossibleShifts.stream()
+                    .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
+                        isSignupPossible(slot, volunteer)
+                    ))
+                    .toList();
+            }
+            // combine results
+            var combinedShifts = new ArrayList<>(ownShifts);
+            for (var shift : signUpPossibleShifts) {
+                if (!combinedShifts.contains(shift)) {
+                    combinedShifts.add(shift);
+                }
+            }
+
+            // combine combined shifts with filteredShiftsWithoutViewMode to apply other filters
+            return combinedShifts.stream()
+                .filter(filteredShiftsWithoutViewMode::contains)
+                .toList();
+        }
+
+        return filteredShiftsWithoutViewMode;
     }
 
     private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
@@ -201,21 +233,16 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .thenComparing(Shift::getEndTime));
 
         var shiftColumns = calculateShiftColumns(shifts);
-        //TODO
-//        int requiredShiftColumns = shiftColumns.stream()
-//            .mapToInt(ShiftColumnDto::getColumnIndex)
-//            .max()
-//            .orElse(-1) + 1;
 
-        var activities = shifts.stream()
-            .flatMap(s -> s.getRelatedActivities() == null ? Stream.empty() : s.getRelatedActivities().stream())
+        // get activities related to this location (shift unrelated, even when no shifts are present)
+        var activitiesRelatedToLocation = activityDao.findAllByLocationId(location.getId()).stream()
             .distinct()
             .map(ActivityMapper::toActivityDto)
             .toList();
 
         return ScheduleContentDto.builder()
             .location(LocationMapper.toLocationDto(location))
-            .activities(activities)
+            .activities(activitiesRelatedToLocation)
             .shiftColumns(shiftColumns)
             .build();
     }
@@ -277,14 +304,28 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .distinct()
             .toList();
 
-        var firstDate = shifts.stream()
-            .map(Shift::getStartTime)
+        // Determine first and last date from shifts and related activities
+        var firstDate = Stream.concat(
+                shifts.stream().map(Shift::getStartTime),
+                shifts.stream()
+                    .map(Shift::getRelatedActivity)
+                    .filter(Objects::nonNull)
+                    .map(Activity::getStartTime)
+            )
+            .filter(Objects::nonNull)
             .min(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
             .orElse(null);
 
-        var lastDate = shifts.stream()
-            .map(Shift::getEndTime)
+
+        var lastDate = Stream.concat(
+                shifts.stream().map(Shift::getEndTime),
+                shifts.stream()
+                    .map(Shift::getRelatedActivity)
+                    .filter(Objects::nonNull)
+                    .map(Activity::getEndTime)
+            )
+            .filter(Objects::nonNull)
             .max(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
             .orElse(null);
@@ -405,23 +446,24 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanInviteDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException {
+    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException {
+        var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.findByCode(inviteCode)
             .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
 
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
+        var volunteer = volunteerDao.findByUserId(userId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+        boolean alreadyJoined = userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
 
-        return ShiftPlanInviteDto.builder()
-            .code(invite.getCode())
-            .type(invite.getType())
-            .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
-            .active(invite.isActive())
-            .expiresAt(invite.getExpiresAt())
-            .maxUses(invite.getMaxUses())
-            .usedCount(invite.getUses())
-            .autoAssignedRoles(invite.getAutoAssignRoles() == null ? null : RoleMapper.toRoleDto(invite.getAutoAssignRoles()))
-            .createdAt(invite.getCreatedAt())
-            .revokedAt(invite.getRevokedAt())
+        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
+
+        return ShiftPlanJoinOverviewDto.builder()
+            .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
+            .joined(alreadyJoined)
+            .inviteDto(inviteDto)
+            .eventDto(eventDto)
             .build();
     }
 
@@ -439,18 +481,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var invites = shiftPlanInviteDao.findAllByShiftPlanId(shiftPlanId);
 
         return invites.stream()
-            .map(invite -> ShiftPlanInviteDto.builder()
-                .code(invite.getCode())
-                .type(invite.getType())
-                .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
-                .active(invite.isActive())
-                .expiresAt(invite.getExpiresAt())
-                .maxUses(invite.getMaxUses())
-                .usedCount(invite.getUses())
-                .autoAssignedRoles(invite.getAutoAssignRoles() == null ? null : RoleMapper.toRoleDto(invite.getAutoAssignRoles()))
-                .createdAt(invite.getCreatedAt())
-                .revokedAt(invite.getRevokedAt())
-                .build())
+            .map(invite -> InviteMapper.toInviteDto(invite, shiftPlan))
             .toList();
     }
 
@@ -472,10 +503,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElseThrow(() -> new NotFoundException("Invite code not found"));
 
         validateInvite(invite);
-
-        long shiftPlanId = invite.getShiftPlan().getId();
-        ShiftPlan shiftPlan = shiftPlanDao.findById(shiftPlanId)
-            .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+        ShiftPlan shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
 
         Volunteer volunteer = volunteerDao.findByUserId(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
@@ -507,12 +535,26 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
 
+
+        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
+
         return ShiftPlanJoinOverviewDto.builder()
-            .shiftPlanDto(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
             .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
-            .inviteType(invite.getType())
             .joined(joinedNow)
+            .inviteDto(inviteDto)
+            .eventDto(eventDto)
             .build();
+    }
+
+    @Override
+    public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) throws NotFoundException {
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+        if (shiftPlan.getLockStatus().equals(lockStatus)) {
+            throw new BadRequestException("Lock status already in requested state");
+        }
+        shiftPlan.setLockStatus(lockStatus);
+        shiftPlanDao.save(shiftPlan);
     }
 
     private void validateInvite(ShiftPlanInvite invite) {
@@ -544,6 +586,18 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 }
                 shiftPlan.getPlanPlanners().add(volunteer);
                 return true;
+            }
+            default -> throw new BadRequestException("Unknown invite type");
+        }
+    }
+
+    private boolean userIsInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
+        switch (type) {
+            case VOLUNTEER_JOIN -> {
+                return shiftPlan.getPlanVolunteers().contains(volunteer);
+            }
+            case PLANNER_JOIN -> {
+                return shiftPlan.getPlanPlanners().contains(volunteer);
             }
             default -> throw new BadRequestException("Unknown invite type");
         }
