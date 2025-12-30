@@ -23,8 +23,10 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -86,15 +88,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             }
         }
 
-        // check for already existing trades in status OPEN
-        Collection<AssignmentSwitchRequest> existingTrades =
-            assignmentSwitchRequestDao.getOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
-
-        // TODO check if trade already exists
-        // filter assigned volunteers based on existing assignments
-        // filter dtos based on volunteers left
-
-        return slotsToOffer;
+        return removeExistingTrades(slotsToOffer, requestedPositionSlotId, currentUserId);
     }
 
     private Collection<Volunteer> getPossibleUsersForTrade(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot, Collection<Volunteer> volunteers) {
@@ -109,6 +103,52 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             volunteer.getId(), offeredPositionSlot.getShift().getStartTime(), offeredPositionSlot.getShift().getEndTime(), requestedPositionSlot.getId());
 
         return eligible && conflicts.isEmpty();
+    }
+
+    private Collection<TradeCandidatesDto> removeExistingTrades( Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId, String currentUserId) {
+        // check for already existing trades in status OPEN
+        Collection<AssignmentSwitchRequest> existingTrades =
+            assignmentSwitchRequestDao.getOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
+
+        // convert to set of keys for easier lookup
+        Set<AssignmentSwitchRequestId> existingTradeKeys =
+            existingTrades.stream()
+                .map(tr -> new AssignmentSwitchRequestId(
+                    new AssignmentId(
+                        tr.getOfferingAssignment().getPositionSlot().getId(),
+                        tr.getOfferingAssignment().getAssignedVolunteer().getId()),
+                    new AssignmentId(
+                        tr.getRequestedAssignment().getPositionSlot().getId(),
+                        tr.getRequestedAssignment().getAssignedVolunteer().getId())
+                ))
+                .collect(Collectors.toSet());
+
+        // remove all volunteers for each possible slot to offer, where a trade already exists
+        return slotsToOffer.stream()
+            .map(candidate -> {
+                List<AccountInfoDto> filteredVolunteers =
+                    candidate.getAssignedVolunteers().stream()
+                        .filter(volunteer -> {
+                            AssignmentSwitchRequestId key = new AssignmentSwitchRequestId(
+                                new AssignmentId(
+                                    Long.parseLong(candidate.getPositionSlotId()),
+                                    currentUserId),
+                                new AssignmentId(
+                                    requestedPositionSlotId,
+                                    volunteer.getId())
+                            );
+                            // removes volunteers from the candidate list, where a trade already exists
+                            return !existingTradeKeys.contains(key);
+                        })
+                        .toList();
+                return new TradeCandidatesDto(
+                    candidate.getPositionSlotId(),
+                    filteredVolunteers
+                );
+            })
+            // remove dto if no volunteers are left
+            .filter(c -> !c.getAssignedVolunteers().isEmpty())
+            .toList();
     }
 
     @Override
@@ -136,8 +176,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check if eligible and for conflicts
         validateTradePossible(offeredPositionSlot, requestedPositionSlot, currentUser);
 
+        // get Volunteer entity for users to create trades with
         Collection<Volunteer> requestedVolunteers = filterVolunteers(requestedPositionSlot, tradeCreateDto.getRequestedVolunteers());
-
         for (Volunteer v : requestedVolunteers) {
             validateTradePossible(requestedPositionSlot, offeredPositionSlot, v);
         }
@@ -149,7 +189,10 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                     volunteer -> Objects.equals(volunteer.getId(), String.valueOf(assignment.getAssignedVolunteer().getId()))))
             .map(requestedAssignment -> createAssignmentSwitchRequest(requestedAssignment, offeredAssignment)).toList();
 
-        // TODO check if trade already exists (re-request if rejected or canceled)
+        // TODO check if trade already exists (re-request if rejected or canceled) ?
+        // no need to check for existing trades, status will just be updated
+
+        // TODO check if trade in other direction already exists ?
 
         return TradeMapper.toDto(assignmentSwitchRequestDao.saveAll(trades));
     }
@@ -190,10 +233,14 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check for access, eligibility and conflicts for both users
-        validateTradePossible(trade.getOfferingAssignment().getPositionSlot(), trade.getRequestedAssignment().getPositionSlot(),
-            trade.getRequestedAssignment().getAssignedVolunteer());
         validateTradePossible(trade.getRequestedAssignment().getPositionSlot(), trade.getOfferingAssignment().getPositionSlot(),
-            trade.getOfferingAssignment().getAssignedVolunteer());
+            trade.getRequestedAssignment().getAssignedVolunteer()); // current user
+        validateTradePossible(trade.getOfferingAssignment().getPositionSlot(), trade.getRequestedAssignment().getPositionSlot(),
+            trade.getOfferingAssignment().getAssignedVolunteer()); // other user
+
+        // TODO check if trade in other direction already exists ?
+        // --> if exists, executing trade would result in same pk
+        //      therefore dont create second trade and accept first one
 
         // cancel all trades for involved assignments
         cancelOtherTrades(trade);
@@ -277,6 +324,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private void executeTrade(AssignmentSwitchRequest trade) {
+        // TODO think about changing PKs
         Volunteer requestedAssignmentVolunteer = trade.getRequestedAssignment().getAssignedVolunteer();
         Volunteer offeringAssignmentVolunteer = trade.getOfferingAssignment().getAssignedVolunteer();
         updateVolunteer(trade.getOfferingAssignment(), offeringAssignmentVolunteer);
@@ -284,6 +332,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // in case an assignment was up for auction
         trade.getOfferingAssignment().setStatus(AssignmentStatus.ACCEPTED);
         trade.getRequestedAssignment().setStatus(AssignmentStatus.ACCEPTED);
+        // !!! trade requests in status ACCEPTED have a different key compared to the other states (volunteers swapped)
+        //      changing an ACCEPTED trade back to OPEN would mean a new trade request to swap the assignments back
         trade.setStatus(TradeStatus.ACCEPTED);
     }
 

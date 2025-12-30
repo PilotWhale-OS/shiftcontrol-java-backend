@@ -41,14 +41,31 @@ public class AssignmentSwitchRequestServiceIT {
     @MockitoBean
     UserProfileService userProfileService;
 
+
+    @Test
+    void testGetPositionSlotsToOffer() throws NotFoundException {
+        String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        long positionSlotId = 3L;
+        Mockito.when(userProfileService.getUserProfile(any()))
+            .thenReturn(getUserProfileDtoWithId("28c02050-4f90-4f3a-b1df-3c7d27a166e7"));
+
+        Collection<TradeCandidatesDto> result = assignmentSwitchRequestService.getPositionSlotsToOffer(positionSlotId, currentUserId);
+
+        Assertions.assertFalse(result.isEmpty());
+        Assertions.assertNotEquals(String.valueOf(positionSlotId), result.stream().findFirst().get().getPositionSlotId());
+    }
+
     @Test
     @Disabled
     void testCreateTrade() throws ConflictException, NotFoundException {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        Mockito.when(userProfileService.getUserProfile(any()))
+            .thenReturn(getUserProfileDtoWithId(currentUserId));
         TradeCreateDto createDto = TradeCreateDto.builder()
             .offeredPositionSlotId("1")
-            .requestedPositionSlotId("3")
-            .requestedVolunteers(List.of(VolunteerDto.builder().id("3").build()))
+            .requestedPositionSlotId("5")
+            .requestedVolunteers(List.of(
+                VolunteerDto.builder().id("28c02050-4f90-4f3a-b1df-3c7d27a166e8").build()))
             .build();
 
         Collection<TradeDto> dtos = assignmentSwitchRequestService.createTrade(createDto, currentUserId);
@@ -59,24 +76,13 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testGetPositionSlotsToOffer() throws NotFoundException {
-        String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
-        long positionSlotId = 3L;
-        Mockito.when(userProfileService.getUserProfile(any())).thenReturn(getUserProfileDto());
-
-        Collection<TradeCandidatesDto> result = assignmentSwitchRequestService.getPositionSlotsToOffer(positionSlotId, currentUserId);
-
-        Assertions.assertFalse(result.isEmpty());
-        Assertions.assertNotEquals(String.valueOf(positionSlotId), result.stream().findFirst().get().getPositionSlotId());
-    }
-
-    @Test
-    @Disabled
     void testAcceptTrade() throws ConflictException, NotFoundException {
-        String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
+        Mockito.when(userProfileService.getUserProfile(any()))
+            .thenReturn(getUserProfileDtoWithId(currentUserId));
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, "1"),
-            new AssignmentId(2L, "2")
+            new AssignmentId(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5"),
+            new AssignmentId(2L, currentUserId)
         );
 
         TradeDto dto = assignmentSwitchRequestService.acceptTrade(id, currentUserId);
@@ -86,12 +92,11 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    @Disabled
     void testDeclineTrade() throws NotFoundException {
-        String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, "1"),
-            new AssignmentId(2L, "2")
+            new AssignmentId(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5"),
+            new AssignmentId(2L, currentUserId)
         );
 
         TradeDto dto = assignmentSwitchRequestService.declineTrade(id, currentUserId);
@@ -101,12 +106,11 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    @Disabled
     void testCancelTrade() throws NotFoundException {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, "1"),
-            new AssignmentId(2L, "2")
+            new AssignmentId(1L, currentUserId),
+            new AssignmentId(2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6")
         );
 
         TradeDto dto = assignmentSwitchRequestService.cancelTrade(id, currentUserId);
@@ -115,10 +119,10 @@ public class AssignmentSwitchRequestServiceIT {
         Assertions.assertEquals(TradeStatus.CANCELED, dto.getStatus());
     }
 
-    private UserProfileDto getUserProfileDto() {
+    private UserProfileDto getUserProfileDtoWithId(String userId) {
         UserProfileDto profile = new UserProfileDto();
         AccountInfoDto info = new AccountInfoDto(
-            "userId",
+            userId,
             "Test Username",
             "first name",
             "last name",
