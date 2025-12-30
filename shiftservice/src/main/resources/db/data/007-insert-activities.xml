@@ -172,8 +172,8 @@
         <column name="location_id" valueNumeric="11"/>
         <column name="name" value="Open Mic Acoustic Experiments"/>
         <column name="description" value="Ever wondered why professors complain about acoustics in Inf HS? Experience it first-hand!"/>
-        <column name="start_time" value="2025-11-20T13:00:00Z"/>
-        <column name="end_time" value="2025-11-20T18:00:00Z"/>
+        <column name="start_time" value="2026-11-20T13:00:00Z"/>
+        <column name="end_time" value="2026-11-20T18:00:00Z"/>
       </insert>
 
       <insert tableName="activity">
@@ -182,8 +182,8 @@
         <column name="location_id" valueNumeric="15"/>
         <column name="name" value="Freihausblick Nonstop Rave"/>
         <column name="description" value="Music. Drinks. Stunning view of Freihaus. What more could you possibly want?"/>
-        <column name="start_time" value="2025-11-20T18:00:00Z"/>
-        <column name="end_time" value="2025-11-25T05:00:00Z"/>
+        <column name="start_time" value="2026-11-20T18:00:00Z"/>
+        <column name="end_time" value="2026-11-25T05:00:00Z"/>
       </insert>
 
       <!-- day 3 -->
@@ -194,8 +194,8 @@
         <column name="location_id" valueNumeric="14"/>
         <column name="name" value="Langos and Punch"/>
         <column name="description" value="Enjoy some langos and punch served by the incredible FET team."/>
-        <column name="start_time" value="2025-11-22T15:00:00Z"/>
-        <column name="end_time" value="2025-11-23T20:00:00Z"/>
+        <column name="start_time" value="2026-11-22T15:00:00Z"/>
+        <column name="end_time" value="2026-11-23T20:00:00Z"/>
       </insert>
 
     </changeSet>

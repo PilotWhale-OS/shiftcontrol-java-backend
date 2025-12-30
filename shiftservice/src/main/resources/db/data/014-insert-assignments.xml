@@ -61,6 +61,20 @@
       <column name="status" value="PENDING_MANUAL_ASSIGNED"/>
     </insert>
 
+    <!--
+
+      manual test event shifts
+
+      -->
+
+    <insert tableName="assignment">
+      <column name="position_slot_id" valueNumeric="23"/>
+      <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+      <column name="status" value="ACCEPTED"/>
+    </insert>
+
+
+
   </changeSet>
 
 </databaseChangeLog>
