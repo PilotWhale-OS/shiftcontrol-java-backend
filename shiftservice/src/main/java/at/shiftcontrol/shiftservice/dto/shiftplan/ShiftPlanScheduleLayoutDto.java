@@ -11,4 +11,7 @@ import lombok.Data;
 public class ShiftPlanScheduleLayoutDto {
     @NotNull
     private Collection<ScheduleLayoutDto> scheduleLayoutDtos;
+
+    @NotNull
+    private ScheduleStatisticsDto scheduleStatistics;
 }

@@ -11,12 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -30,7 +24,6 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
@@ -58,7 +51,6 @@ import at.shiftcontrol.shiftservice.mapper.InviteMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
-import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
@@ -102,8 +94,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(entry -> buildScheduleLayoutDto(entry.getKey(), entry.getValue()))
             .toList();
 
+        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
+
         return ShiftPlanScheduleLayoutDto.builder()
             .scheduleLayoutDtos(scheduleLayoutDtos)
+            .scheduleStatistics(stats)
             .build();
     }
 
@@ -136,18 +131,18 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue()))
             .toList();
 
-        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
 
         return ShiftPlanScheduleContentDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
             .scheduleContentDtos(scheduleContentDtos)
-            .scheduleStatistics(stats)
             .build();
     }
 
     private Map<Location, List<Shift>> getScheduleShiftsByLocation(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto)
         throws ForbiddenException, NotFoundException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
+
+        // if param is ShiftPlanScheduleFilterDto filtering is done without date; date filtering is only done if param is ShiftPlanScheduleDaySearchDto instance
         var filteredShiftsWithoutViewMode = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
 
         var queriedShifts = getShiftsBasedOnViewModes(shiftPlanId, userId, filterDto, filteredShiftsWithoutViewMode);
@@ -537,7 +532,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanDao.save(shiftPlan);
 
 
-        var eventDto =EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
         return ShiftPlanJoinOverviewDto.builder()
