@@ -10,6 +10,8 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
@@ -18,6 +20,7 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesD
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
+import at.shiftcontrol.shiftservice.service.ShiftService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ShiftPlanEndpoint {
     private final ShiftPlanService shiftPlanService;
+    private final ShiftService shiftService;
     private final DashboardService dashboardService;
 
     @GetMapping("/{shiftPlanId}/dashboard")
@@ -136,5 +140,16 @@ public class ShiftPlanEndpoint {
     )
     public ShiftPlanJoinOverviewDto joinShiftPlan(@RequestBody ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
         return shiftPlanService.joinShiftPlanAsVolunteer(requestDto);
+    }
+
+    @PostMapping("/{shiftPlanId}/shift")
+    // TODO Security
+    @Operation(
+        operationId = "createShift",
+        description = "Create a new shift in a specific shift plan"
+    )
+    public ShiftDto createShift(@PathVariable String shiftPlanId, @RequestBody @Valid ShiftModificationDto shiftModificationDto)
+        throws NotFoundException, ForbiddenException {
+        return shiftService.createShift(ConvertUtil.idToLong(shiftPlanId), shiftModificationDto);
     }
 }

@@ -2,6 +2,22 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceUpdateDto;
+import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,24 +26,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotPreferenceDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotPreferenceUpdateDto;
-import at.shiftcontrol.shiftservice.service.PositionSlotService;
 
 @Slf4j
 @RestController
@@ -46,6 +44,8 @@ public class PositionSlotEndpoint {
     public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException {
         return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
+
+    // TODO Update and Delete endpoints (Create endpoint is done in ShiftEndpoint)
 
     @PostMapping("/join")
     // TODO Security

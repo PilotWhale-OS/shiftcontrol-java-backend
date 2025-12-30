@@ -2,12 +2,11 @@ package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 
-import lombok.NonNull;
-
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import lombok.NonNull;
 
 public interface PositionSlotService {
     PositionSlotDto findById(@NonNull Long id) throws NotFoundException;

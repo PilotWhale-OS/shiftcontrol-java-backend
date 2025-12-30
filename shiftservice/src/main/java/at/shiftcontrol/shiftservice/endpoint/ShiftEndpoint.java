@@ -1,20 +1,24 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
 import at.shiftcontrol.shiftservice.service.ShiftService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -33,6 +37,34 @@ public class ShiftEndpoint {
     public ShiftDetailsDto getShiftDetails(@PathVariable String shiftId) throws NotFoundException {
         return shiftService.getShiftDetails(ConvertUtil.idToLong(shiftId), userProvider.getCurrentUser().getUserId());
     }
+
+    // Shift create is done in ShiftPlanEndpoint
+
+    @PutMapping()
+    // TODO Security
+    @Operation(
+        operationId = "updateShift",
+        description = "Update a specific shift of a shift plan"
+    )
+    public ShiftDto updateShift(@PathVariable String shiftId, @RequestBody @Valid ShiftModificationDto shiftModificationDto) throws NotFoundException {
+        return shiftService.updateShift(ConvertUtil.idToLong(shiftId), shiftModificationDto);
+    }
+
+    @DeleteMapping()
+    // TODO Security
+    @Operation(
+        operationId = "deleteShift",
+        description = "Delete a specific shift of a shift plan"
+    )
+    public void deleteShift(@PathVariable String shiftId) throws NotFoundException {
+        shiftService.deleteShift(ConvertUtil.idToLong(shiftId));
+    }
+
+
+    // TODO suggestActivity endpoint
+
+    // TODO Create PositionSlot endpoint 
+
 
     //     @PostMapping("/auction")
     //     // TODO Security
