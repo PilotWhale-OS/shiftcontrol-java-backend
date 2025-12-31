@@ -42,7 +42,7 @@ public class SecurityHelper {
     }
 
     public void assertUserIsPlanner(ShiftPlan shiftPlan, Volunteer volunteer) throws ForbiddenException {
-        assertUserIsPlanner(shiftPlan.getEvent(),  volunteer);
+        assertUserIsPlanner(shiftPlan.getEvent(), volunteer);
     }
 
     public void assertUserIsPlanner(ShiftPlan shiftPlan) throws ForbiddenException {
@@ -63,5 +63,47 @@ public class SecurityHelper {
 
     public void assertUserIsPlanner(PositionSlot positionSlot) throws ForbiddenException {
         assertUserIsPlanner(positionSlot.getShift());
+    }
+
+    public void asserUserIsVolunteer(Event event, Volunteer volunteer) throws ForbiddenException {
+        List<@NotNull Event> volunteeringPlans = volunteer
+            .getVolunteeringPlans()
+            .stream()
+            .map(ShiftPlan::getEvent)
+            .toList();
+        if (!volunteeringPlans.contains(event)) {
+            throw new ForbiddenException();
+        }
+    }
+
+    public void asserUserIsVolunteer(Event event) throws ForbiddenException {
+        String userId = userProvider.getCurrentUser().getUserId();
+        Volunteer volunteer = volunteerDao.findById(userId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
+        asserUserIsVolunteer(event, volunteer);
+    }
+
+    public void asserUserIsVolunteer(ShiftPlan shiftPlan, Volunteer volunteer) throws ForbiddenException {
+        asserUserIsVolunteer(shiftPlan.getEvent(), volunteer);
+    }
+
+    public void asserUserIsVolunteer(ShiftPlan shiftPlan) throws ForbiddenException {
+        asserUserIsVolunteer(shiftPlan.getEvent());
+    }
+
+    public void asserUserIsVolunteer(Shift shift, Volunteer volunteer) throws ForbiddenException {
+        asserUserIsVolunteer(shift.getShiftPlan(), volunteer);
+    }
+
+    public void asserUserIsVolunteer(Shift shift) throws ForbiddenException {
+        asserUserIsVolunteer(shift.getShiftPlan());
+    }
+
+    public void asserUserIsVolunteer(PositionSlot positionSlot, Volunteer volunteer) throws ForbiddenException {
+        asserUserIsVolunteer(positionSlot.getShift(), volunteer);
+    }
+
+    public void asserUserIsVolunteer(PositionSlot positionSlot) throws ForbiddenException {
+        asserUserIsVolunteer(positionSlot.getShift());
     }
 }

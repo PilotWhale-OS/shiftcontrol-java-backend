@@ -31,32 +31,33 @@ import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 public class Assignment {
     @EmbeddedId
     private AssignmentId id;
+
     @NotNull
     @MapsId("positionSlotId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "position_slot_id", nullable = false)
     private PositionSlot positionSlot;
+
     @NotNull
     @MapsId("volunteerId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "assigned_volunteer_id", nullable = false)
     private Volunteer assignedVolunteer;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AssignmentStatus status;
+
     @OneToMany(mappedBy = "offeringAssignment")
     private Collection<AssignmentSwitchRequest> outgoingSwitchRequests;
+
     @OneToMany(mappedBy = "requestedAssignment")
     private Collection<AssignmentSwitchRequest> incomingSwitchRequests;
 
     @Override
     public String toString() {
-        return "Assignment{"
-            + "id=" + id
-            + ", status=" + status
-            + ", outgoingSwitchRequests=" + outgoingSwitchRequests
-            + ", incomingSwitchRequests=" + incomingSwitchRequests
-            + '}';
+        return "Assignment{id=%s, status=%s, outgoingSwitchRequests=%s, incomingSwitchRequests=%s}"
+            .formatted(id, status, outgoingSwitchRequests, incomingSwitchRequests);
     }
 }
