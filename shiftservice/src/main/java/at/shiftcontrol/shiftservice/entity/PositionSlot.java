@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.entity.role.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,8 +19,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import at.shiftcontrol.shiftservice.entity.role.Role;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,6 +30,11 @@ public class PositionSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @NotNull
+    private String name;
+    private String description;
+    @NotNull
+    private boolean skipAutoAssignment;
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "shift_id", nullable = false)

@@ -4,15 +4,14 @@ import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
+import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import at.shiftcontrol.shiftservice.dto.role.RoleDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +20,15 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 public class PositionSlotDto {
     @NotNull
     private String id;
+
+    @NotNull
+    private String name;
+
+    private String description;
+
+    @NotNull
+    private boolean skipAutoAssignment;
+
     @NotNull
     private String associatedShiftId;
 

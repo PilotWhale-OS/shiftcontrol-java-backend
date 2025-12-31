@@ -53,6 +53,9 @@ public class PositionSlotAssemblingMapper {
 
         return new PositionSlotDto(
             String.valueOf(positionSlot.getId()),
+            positionSlot.getName(),
+            positionSlot.getDescription(),
+            positionSlot.isSkipAutoAssignment(),
             String.valueOf(positionSlot.getShift().getId()),
             RoleMapper.toRoleDto(positionSlot.getRole()),
             VolunteerMapper.toDto(volunteers),

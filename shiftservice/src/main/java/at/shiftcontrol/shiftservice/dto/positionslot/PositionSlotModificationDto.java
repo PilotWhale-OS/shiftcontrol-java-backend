@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.dto.positionslot;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,8 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PositionSlotModificationDto {
     @NotNull
+    @Max(255)
     private String name;
 
+    @Max(1024)
     private String description;
 
     @NotNull
@@ -23,8 +27,10 @@ public class PositionSlotModificationDto {
     private String roleId;
 
     @NotNull
+    @Min(0)
     private int desiredVolunteerCount;
 
     @NotNull
+    @Min(0)
     private int rewardPoints;
 }

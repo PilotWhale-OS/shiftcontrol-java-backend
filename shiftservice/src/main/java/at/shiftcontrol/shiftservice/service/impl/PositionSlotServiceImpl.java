@@ -5,14 +5,19 @@ import java.util.Collection;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
+import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentId;
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
@@ -29,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PositionSlotServiceImpl implements PositionSlotService {
     private final PositionSlotDao positionSlotDao;
+    private final ShiftDao shiftDao;
+    private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
     private final AssignmentDao assignmentDao;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
@@ -185,5 +192,59 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     public int getPreference(@NonNull String volunteerId, long positionSlotId) {
         return positionSlotDao.getPreference(volunteerId, positionSlotId);
+    }
+
+    @Override
+    public PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException {
+        // TODO check permissions
+
+        var shift = shiftDao.findById(shiftId)
+            .orElseThrow(() -> new NotFoundException("Shift not found"));
+
+        var newPositionSlot = PositionSlot.builder()
+            .shift(shift)
+            .build();
+
+        validateModificationDtoAndSetPositionSlotFields(modificationDto, newPositionSlot);
+
+        newPositionSlot = positionSlotDao.save(newPositionSlot);
+        return positionSlotAssemblingMapper.assemble(newPositionSlot);
+    }
+
+    @Override
+    public PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException {
+        // TODO check permissions
+
+        var positionSlot = positionSlotDao.findById(positionSlotId)
+            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+
+        validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
+
+        positionSlot = positionSlotDao.save(positionSlot);
+        return positionSlotAssemblingMapper.assemble(positionSlot);
+    }
+
+    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot) {
+        if (modificationDto == null) {
+            throw new IllegalArgumentException("Modification data must be provided");
+        }
+
+        positionSlot.setName(modificationDto.getName());
+        positionSlot.setDescription(modificationDto.getDescription());
+        positionSlot.setSkipAutoAssignment(modificationDto.isSkipAutoAssignment());
+        var role = roleDao.findById(ConvertUtil.idToLong(modificationDto.getRoleId()))
+            .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        positionSlot.setRole(role);
+        positionSlot.setDesiredVolunteerCount(modificationDto.getDesiredVolunteerCount());
+        positionSlot.setRewardPoints(modificationDto.getRewardPoints());
+    }
+
+    @Override
+    public void deletePositionSlot(@NonNull Long positionSlotId) throws NotFoundException {
+        // TODO check permissions
+
+        var positionSlot = positionSlotDao.findById(positionSlotId)
+            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        positionSlotDao.delete(positionSlot);
     }
 }
