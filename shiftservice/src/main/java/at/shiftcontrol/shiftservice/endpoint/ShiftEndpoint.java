@@ -3,9 +3,12 @@ package at.shiftcontrol.shiftservice.endpoint;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
+import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -15,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ShiftEndpoint {
     private final ApplicationUserProvider userProvider;
     private final ShiftService shiftService;
+    private final PositionSlotService positionSlotService;
 
     @GetMapping()
     // TODO Security
@@ -63,8 +68,17 @@ public class ShiftEndpoint {
 
     // TODO suggestActivity endpoint
 
-    // TODO Create PositionSlot endpoint 
 
+    @PostMapping("/position-slot")
+    // TODO Security
+    @Operation(
+        operationId = "createPositionSlotInShift",
+        description = "Create position slot in a specific shift"
+    )
+    public PositionSlotDto createPositionSlotsInShift(@PathVariable String shiftId, @RequestBody @Valid PositionSlotModificationDto positionSlotModificationDto)
+        throws NotFoundException {
+        return positionSlotService.createPositionSlot(ConvertUtil.idToLong(shiftId), positionSlotModificationDto);
+    }
 
     //     @PostMapping("/auction")
     //     // TODO Security

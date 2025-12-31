@@ -6,6 +6,7 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import lombok.NonNull;
 
 public interface PositionSlotService {
@@ -27,4 +28,10 @@ public interface PositionSlotService {
         throws NotFoundException, ConflictException;
 
     AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
+
+    PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException;
+
+    PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException;
+
+    void deletePositionSlot(@NonNull Long positionSlotId) throws NotFoundException;
 }
