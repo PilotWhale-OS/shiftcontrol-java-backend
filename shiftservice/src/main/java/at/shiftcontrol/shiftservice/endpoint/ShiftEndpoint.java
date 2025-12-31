@@ -65,10 +65,6 @@ public class ShiftEndpoint {
         shiftService.deleteShift(ConvertUtil.idToLong(shiftId));
     }
 
-
-    // TODO suggestActivity endpoint
-
-
     @PostMapping("/position-slot")
     // TODO Security
     @Operation(

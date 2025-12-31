@@ -7,6 +7,8 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
@@ -18,6 +20,7 @@ import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.EventService;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -146,5 +149,16 @@ public class EventEndpoint {
         // Check that the time constraint belongs to the current user (throws NotFoundException if not)
         timeConstraintService.getTimeConstraints(userProvider.getCurrentUser().getUserId(), ConvertUtil.idToLong(eventId));
         timeConstraintService.delete(ConvertUtil.idToLong(timeConstraintId));
+    }
+
+    @PostMapping("/{eventId}/suggest-activities")
+    // TODO Security
+    @Operation(
+        operationId = "suggestActivitiesForShift",
+        description = "Suggest activities for a specific shift based on its time and optional name filter"
+    )
+    public Collection<ActivityDto> suggestActivitiesForShift(@PathVariable String eventId, @RequestBody @Valid ActivitySuggestionDto suggestionDto)
+        throws NotFoundException {
+        return eventService.suggestActivitiesForShift(ConvertUtil.idToLong(eventId), suggestionDto);
     }
 }
