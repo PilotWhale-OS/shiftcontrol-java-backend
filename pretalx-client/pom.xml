@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>at.shiftcontrol</groupId>
+    <artifactId>shiftcontrol-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>pretalx-client</artifactId>
+
+  <properties>
+    <maven.compiler.source>23</maven.compiler.source>
+    <maven.compiler.target>23</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <!-- For blocking RestClient-based clients -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+
+    <!-- JSON -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <!-- Optional: validation annotations support -->
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.openapitools</groupId>
+      <artifactId>jackson-databind-nullable</artifactId>
+      <version>0.2.8</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>4.2.1</version>
+
+        <!-- IMPORTANT: provide Groovy runtime to the plugin -->
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>4.0.26</version>
+          </dependency>
+
+          <!-- For YAML patching -->
+          <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.2</version>
+          </dependency>
+        </dependencies>
+
+        <executions>
+          <execution>
+            <id>patch-openapi</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <scripts>
+                <script><![CDATA[
+            @Grab('org.yaml:snakeyaml:2.2')
+            import org.yaml.snakeyaml.Yaml
+            import org.yaml.snakeyaml.DumperOptions
+
+            def baseDir = project.basedir
+            def src = new File(baseDir, "src/main/openapi/pretalx.yaml")
+            def dst = new File(project.build.directory, "pretalx.patched.yaml")
+
+            def yaml = new Yaml()
+            def data = yaml.load(src.text)
+
+            def schemas = data.components.schemas
+
+            // Remove invalid enums
+            schemas.remove("NullEnum")
+
+            // Recursively fix oneOf + NullEnum patterns
+            def fix(node) {
+              if (!(node instanceof Map)) return
+              if (node.oneOf instanceof List &&
+                  node.oneOf.any { it['$ref']?.endsWith('/NullEnum') }) {
+                node.remove('oneOf')
+                node.nullable = true
+              }
+              node.values().each { fix(it) }
+            }
+            fix(data)
+
+            def fixStrTypes
+            fixStrTypes = { node ->
+              if (node instanceof Map) {
+                if (node.type == 'str') {
+                  node.type = 'string'
+                }
+                node.values().each { fixStrTypes(it) }
+              } else if (node instanceof List) {
+                node.each { fixStrTypes(it) }
+              }
+            }
+            fixStrTypes(data)
+
+            // Fix TimezoneEnum: empty enum -> plain string schema
+            def tz = schemas.get("TimezoneEnum")
+            if (tz instanceof Map) {
+              tz.remove("enum")            // removes enum: []
+              tz.type = "string"
+              tz.example = tz.example ?: "Europe/Vienna"
+              tz.description = tz.description ?: "IANA timezone name (e.g. Europe/Vienna)"
+            } else {
+              // If it's missing entirely, create it
+              schemas["TimezoneEnum"] = [
+                type: "string",
+                example: "Europe/Vienna",
+                description: "IANA timezone name (e.g. Europe/Vienna)"
+              ]
+            }
+
+            dst.parentFile.mkdirs()
+
+            def opts = new DumperOptions()
+            opts.setPrettyFlow(true)
+            opts.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK)
+
+            new Yaml(opts).dump(data, dst.newWriter())
+
+            println "OpenAPI spec patched successfully! => ${dst}"
+          ]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>7.18.0</version>
+        <executions>
+          <execution>
+            <id>generate-pretalx-client</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>
+                ${project.build.directory}/pretalx.patched.yaml
+              </inputSpec>
+              <skipValidateSpec>true</skipValidateSpec>
+
+              <!-- Most common for client generation -->
+              <generatorName>java</generatorName>
+
+              <!-- Pick ONE:
+                   - restclient (blocking, modern Spring)
+                   - webclient (reactive)
+              -->
+              <library>restclient</library>
+
+              <apiPackage>at.shiftcontrol.pretalxclient.api</apiPackage>
+              <modelPackage>at.shiftcontrol.pretalxclient.model</modelPackage>
+              <invokerPackage>at.shiftcontrol.pretalxclient.invoker</invokerPackage>
+
+              <generateApiTests>false</generateApiTests>
+              <generateModelTests>false</generateModelTests>
+              <generateApiDocumentation>true</generateApiDocumentation>
+              <generateModelDocumentation>true</generateModelDocumentation>
+
+              <configOptions>
+                <!-- Commonly useful knobs -->
+                <dateLibrary>java8</dateLibrary>
+                <useJakartaEe>true</useJakartaEe>
+                <serializationLibrary>jackson</serializationLibrary>
+              </configOptions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Ensure generated sources are compiled (plugin usually does this,
+           but keeping it explicit can help in some setups) -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-generated-sources</id>
+            <phase>generate-sources</phase>
+            <goals><goal>add-source</goal></goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
