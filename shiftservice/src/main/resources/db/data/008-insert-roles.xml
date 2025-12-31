@@ -73,6 +73,19 @@
       <column name="shift_plan_id" valueNumeric="1"/>
       <column name="name" value="HOSPITALITY"/>
     </insert>
+
+    <!--
+
+      manual test event roles
+
+      -->
+
+    <insert tableName="role">
+      <column name="id" valueNumeric="11"/>
+      <column name="shift_plan_id" valueNumeric="13"/>
+      <column name="name" value="Photographer"/>
+      <column name="description" value="Professional photographer, equipped with camera tech"/>
+    </insert>
   </changeSet>
 
 </databaseChangeLog>

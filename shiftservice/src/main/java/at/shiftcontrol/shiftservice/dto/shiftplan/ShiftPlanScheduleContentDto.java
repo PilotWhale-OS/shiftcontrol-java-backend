@@ -15,7 +15,4 @@ public class ShiftPlanScheduleContentDto {
 
     @NotNull
     private Collection<ScheduleContentDto> scheduleContentDtos;
-
-    @NotNull
-    private ScheduleStatisticsDto scheduleStatistics;
 }

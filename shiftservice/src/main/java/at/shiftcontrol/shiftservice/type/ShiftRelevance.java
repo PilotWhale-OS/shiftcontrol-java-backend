@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.type;
 
-public enum ScheduleViewType {
+public enum ShiftRelevance {
     MY_SHIFTS,
     SIGNUP_POSSIBLE,
 }
