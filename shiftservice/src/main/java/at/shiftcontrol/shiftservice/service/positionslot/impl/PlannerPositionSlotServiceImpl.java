@@ -41,7 +41,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
             case AUCTION_REQUEST_FOR_UNASSIGN -> assignmentDao.delete(assignment);
-            case REQUEST_FOR_ASSIGNMENT -> scceptAssignment(assignment);
+            case REQUEST_FOR_ASSIGNMENT -> acceptAssignment(assignment);
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
     }
@@ -52,13 +52,13 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not declineable");
-            case AUCTION_REQUEST_FOR_UNASSIGN -> scceptAssignment(assignment);
+            case AUCTION_REQUEST_FOR_UNASSIGN -> acceptAssignment(assignment);
             case REQUEST_FOR_ASSIGNMENT -> assignmentDao.delete(assignment);
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
     }
 
-    private void scceptAssignment(Assignment assignment) {
+    private void acceptAssignment(Assignment assignment) {
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignmentRepository.save(assignment);
     }
