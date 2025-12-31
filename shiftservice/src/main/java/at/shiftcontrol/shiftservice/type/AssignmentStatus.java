@@ -13,5 +13,8 @@ public enum AssignmentStatus {
      * The assignment is in the auction state, but the assigned user has requested the shiftplanner to unassign themselves.
      */
     AUCTION_REQUEST_FOR_UNASSIGN,
+    /**
+     * The volunteer wants to join an assignment when planning phase is over.
+     */
     REQUEST_FOR_ASSIGNMENT
 }

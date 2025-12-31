@@ -2,11 +2,9 @@ package at.shiftcontrol.shiftservice.service.role.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -19,13 +17,12 @@ import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +31,7 @@ public class RoleServiceImpl implements RoleService {
     private final ShiftPlanDao shiftPlanDao;
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
+    private final SecurityHelper securityHelper;
 
     @Override
     public Collection<RoleDto> getRoles(Long shiftPlanId) {
@@ -133,17 +131,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     private void assertUserIsPlanner(Volunteer volunteer, Long shiftPlanId) throws ForbiddenException {
-        if (volunteer.getPlanningPlans() == null) {
-            throw new ForbiddenException();
-        }
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
-        List<@NotNull Event> planningPlans = volunteer
-            .getPlanningPlans()
-            .stream()
-            .map(ShiftPlan::getEvent)
-            .toList();
-        if (!planningPlans.contains(shiftPlan.getEvent())) {
-            throw new ForbiddenException();
-        }
+        securityHelper.assertUserIsPlanner(shiftPlan, volunteer);
     }
 }

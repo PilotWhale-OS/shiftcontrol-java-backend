@@ -23,13 +23,7 @@ public class SecurityHelper {
     private final ApplicationUserProvider userProvider;
     private final VolunteerDao volunteerDao;
 
-    public void assertUserIsPlanner(Event event) throws ForbiddenException {
-        String userId = userProvider.getCurrentUser().getUserId();
-        Volunteer volunteer = volunteerDao.findById(userId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
-        if (volunteer.getPlanningPlans() == null) {
-            throw new ForbiddenException();
-        }
+    public void assertUserIsPlanner(Event event, Volunteer volunteer) throws ForbiddenException {
         List<@NotNull Event> planningPlans = volunteer
             .getPlanningPlans()
             .stream()
@@ -40,12 +34,31 @@ public class SecurityHelper {
         }
     }
 
+    public void assertUserIsPlanner(Event event) throws ForbiddenException {
+        String userId = userProvider.getCurrentUser().getUserId();
+        Volunteer volunteer = volunteerDao.findById(userId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
+        assertUserIsPlanner(event, volunteer);
+    }
+
+    public void assertUserIsPlanner(ShiftPlan shiftPlan, Volunteer volunteer) throws ForbiddenException {
+        assertUserIsPlanner(shiftPlan.getEvent(),  volunteer);
+    }
+
     public void assertUserIsPlanner(ShiftPlan shiftPlan) throws ForbiddenException {
         assertUserIsPlanner(shiftPlan.getEvent());
     }
 
+    public void assertUserIsPlanner(Shift shift, Volunteer volunteer) throws ForbiddenException {
+        assertUserIsPlanner(shift.getShiftPlan(), volunteer);
+    }
+
     public void assertUserIsPlanner(Shift shift) throws ForbiddenException {
         assertUserIsPlanner(shift.getShiftPlan());
+    }
+
+    public void assertUserIsPlanner(PositionSlot positionSlot, Volunteer volunteer) throws ForbiddenException {
+        assertUserIsPlanner(positionSlot.getShift(), volunteer);
     }
 
     public void assertUserIsPlanner(PositionSlot positionSlot) throws ForbiddenException {
