@@ -105,10 +105,6 @@ public class ShiftServiceImpl implements ShiftService {
             shift.setLocation(location);
             shift.setRelatedActivity(null);
         }
-
-        if (shift.getLockStatus() == null) {
-            // TODO 
-        }
     }
 
     @Override
