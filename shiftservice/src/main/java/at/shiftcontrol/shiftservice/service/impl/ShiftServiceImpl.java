@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -65,27 +66,27 @@ public class ShiftServiceImpl implements ShiftService {
 
     private void validateModificationDtoAndSetShiftFields(ShiftModificationDto modificationDto, Shift shift) throws NotFoundException {
         if (modificationDto == null) {
-            throw new IllegalArgumentException("Modification data must be provided");
+            throw new BadRequestException("Modification data must be provided");
         }
 
         if (StringUtils.isNotBlank(modificationDto.getActivityId()) && StringUtils.isNotBlank(modificationDto.getLocationId())) {
-            throw new IllegalArgumentException("Cannot set both related activity and location");
+            throw new BadRequestException("Cannot set both related activity and location");
         }
 
         if (StringUtils.isBlank(modificationDto.getActivityId()) && StringUtils.isBlank(modificationDto.getLocationId())) {
-            throw new IllegalArgumentException("Either related activity or location must be set");
+            throw new BadRequestException("Either related activity or location must be set");
         }
 
         var event = shift.getShiftPlan().getEvent();
 
         if (modificationDto.getStartTime().isAfter(modificationDto.getEndTime())) {
-            throw new IllegalArgumentException("Shift start time must be before end time");
+            throw new BadRequestException("Shift start time must be before end time");
         }
 
         if (modificationDto.getStartTime().isBefore(event.getStartTime()) ||
             modificationDto.getEndTime().isAfter(event.getEndTime()) ||
             modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
-            throw new IllegalArgumentException("Shift time must be within event time range");
+            throw new BadRequestException("Shift time must be within event time range");
         }
 
         shift.setName(modificationDto.getName());
@@ -103,6 +104,10 @@ public class ShiftServiceImpl implements ShiftService {
                 .orElseThrow(() -> new NotFoundException("Location not found"));
             shift.setLocation(location);
             shift.setRelatedActivity(null);
+        }
+
+        if (shift.getLockStatus() == null) {
+            // TODO 
         }
     }
 

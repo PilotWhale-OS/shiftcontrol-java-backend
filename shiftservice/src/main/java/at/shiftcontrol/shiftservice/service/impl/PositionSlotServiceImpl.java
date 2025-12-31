@@ -107,7 +107,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         if (auction == null
             || (auction.getStatus() != AssignmentStatus.AUCTION
             && auction.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN)) {
-            throw new IllegalArgumentException("assignment not up for auction");
+            throw new BadRequestException("assignment not up for auction");
         }
 
         // get current user (volunteer)
@@ -150,7 +150,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private Assignment getAssignmentForUser(Long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
         if (assignment == null) {
-            throw new IllegalArgumentException("not assigned to position slot");
+            throw new BadRequestException("not assigned to position slot");
         }
         return assignment;
     }
@@ -224,16 +224,17 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
-    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot) {
+    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot)
+        throws NotFoundException {
         if (modificationDto == null) {
-            throw new IllegalArgumentException("Modification data must be provided");
+            throw new BadRequestException("Modification data must be provided");
         }
 
         positionSlot.setName(modificationDto.getName());
         positionSlot.setDescription(modificationDto.getDescription());
         positionSlot.setSkipAutoAssignment(modificationDto.isSkipAutoAssignment());
         var role = roleDao.findById(ConvertUtil.idToLong(modificationDto.getRoleId()))
-            .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+            .orElseThrow(() -> new NotFoundException("Role not found"));
         positionSlot.setRole(role);
         positionSlot.setDesiredVolunteerCount(modificationDto.getDesiredVolunteerCount());
         positionSlot.setRewardPoints(modificationDto.getRewardPoints());
