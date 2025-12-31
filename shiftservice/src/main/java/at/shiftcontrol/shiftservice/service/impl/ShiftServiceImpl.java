@@ -41,7 +41,7 @@ public class ShiftServiceImpl implements ShiftService {
     @Override
     public ShiftDto createShift(long shiftPlanId, ShiftModificationDto modificationDto) throws NotFoundException {
         // TODO check permissions
-        
+
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found"));
         var newShift = Shift.builder()
             .shiftPlan(shiftPlan)
@@ -74,6 +74,18 @@ public class ShiftServiceImpl implements ShiftService {
 
         if (StringUtils.isBlank(modificationDto.getActivityId()) && StringUtils.isBlank(modificationDto.getLocationId())) {
             throw new IllegalArgumentException("Either related activity or location must be set");
+        }
+
+        var event = shift.getShiftPlan().getEvent();
+
+        if (modificationDto.getStartTime().isAfter(modificationDto.getEndTime())) {
+            throw new IllegalArgumentException("Shift start time must be before end time");
+        }
+
+        if (modificationDto.getStartTime().isBefore(event.getStartTime()) ||
+            modificationDto.getEndTime().isAfter(event.getEndTime()) ||
+            modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
+            throw new IllegalArgumentException("Shift time must be within event time range");
         }
 
         shift.setName(modificationDto.getName());
