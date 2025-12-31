@@ -24,7 +24,6 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
@@ -52,13 +51,13 @@ import at.shiftcontrol.shiftservice.mapper.InviteMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
-import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import at.shiftcontrol.shiftservice.type.ScheduleViewType;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
+import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -95,8 +94,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(entry -> buildScheduleLayoutDto(entry.getKey(), entry.getValue()))
             .toList();
 
+        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
+
         return ShiftPlanScheduleLayoutDto.builder()
             .scheduleLayoutDtos(scheduleLayoutDtos)
+            .scheduleStatistics(stats)
             .build();
     }
 
@@ -129,32 +131,21 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue()))
             .toList();
 
-        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
 
         return ShiftPlanScheduleContentDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
             .scheduleContentDtos(scheduleContentDtos)
-            .scheduleStatistics(stats)
             .build();
     }
 
     private Map<Location, List<Shift>> getScheduleShiftsByLocation(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto)
         throws ForbiddenException, NotFoundException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
-        var queriedShifts = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
 
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+        // if param is ShiftPlanScheduleFilterDto filtering is done without date; date filtering is only done if param is ShiftPlanScheduleDaySearchDto instance
+        var filteredShiftsWithoutViewMode = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
 
-        // Get user related shifts via dao if MY_SHIFTS view is requested
-        // Get shifts with signup possible if SIGNUP_POSSIBLE view is requested; This filtering is done here because it depends on business logic
-        // and it wouldn't make sense to implement this existing logic in the DAO layer (which would be quite complex)
-        if (filterDto != null && filterDto.getScheduleViewType() == ScheduleViewType.SIGNUP_POSSIBLE) {
-            queriedShifts = queriedShifts.stream()
-                .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
-                    isSignupPossible(slot, volunteer)
-                ))
-                .toList();
-        }
+        var queriedShifts = getShiftsBasedOnViewModes(shiftPlanId, userId, filterDto, filteredShiftsWithoutViewMode);
 
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
         for (var shift : queriedShifts) {
@@ -174,6 +165,43 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
 
         return currentUser.getUserId();
+    }
+
+    private List<Shift> getShiftsBasedOnViewModes(long shiftPlanId, String userId, ShiftPlanScheduleFilterDto filterDto,
+                                                  List<Shift> filteredShiftsWithoutViewMode) throws NotFoundException {
+
+        if (filterDto != null && filterDto.getShiftRelevances() != null &&
+            !filterDto.getShiftRelevances().isEmpty()) {
+            List<Shift> ownShifts = new ArrayList<>();
+            List<Shift> signUpPossibleShifts = new ArrayList<>();
+            if (filterDto.getShiftRelevances().contains(ShiftRelevance.MY_SHIFTS)) {
+                ownShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
+            }
+            if (filterDto.getShiftRelevances().contains(ShiftRelevance.SIGNUP_POSSIBLE)) {
+                signUpPossibleShifts = new ArrayList<>(filteredShiftsWithoutViewMode);
+                var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+
+                signUpPossibleShifts = signUpPossibleShifts.stream()
+                    .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
+                        isSignupPossible(slot, volunteer)
+                    ))
+                    .toList();
+            }
+            // combine results
+            var combinedShifts = new ArrayList<>(ownShifts);
+            for (var shift : signUpPossibleShifts) {
+                if (!combinedShifts.contains(shift)) {
+                    combinedShifts.add(shift);
+                }
+            }
+
+            // combine combined shifts with filteredShiftsWithoutViewMode to apply other filters
+            return combinedShifts.stream()
+                .filter(filteredShiftsWithoutViewMode::contains)
+                .toList();
+        }
+
+        return filteredShiftsWithoutViewMode;
     }
 
     private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
@@ -471,10 +499,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElseThrow(() -> new NotFoundException("Invite code not found"));
 
         validateInvite(invite);
-
-        long shiftPlanId = invite.getShiftPlan().getId();
-        ShiftPlan shiftPlan = shiftPlanDao.findById(shiftPlanId)
-            .orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+        ShiftPlan shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
 
         Volunteer volunteer = volunteerDao.findByUserId(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
@@ -507,7 +532,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanDao.save(shiftPlan);
 
 
-        var eventDto =EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
         return ShiftPlanJoinOverviewDto.builder()
@@ -516,6 +541,16 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .inviteDto(inviteDto)
             .eventDto(eventDto)
             .build();
+    }
+
+    @Override
+    public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) throws NotFoundException {
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+        if (shiftPlan.getLockStatus().equals(lockStatus)) {
+            throw new BadRequestException("Lock status already in requested state");
+        }
+        shiftPlan.setLockStatus(lockStatus);
+        shiftPlanDao.save(shiftPlan);
     }
 
     private void validateInvite(ShiftPlanInvite invite) {

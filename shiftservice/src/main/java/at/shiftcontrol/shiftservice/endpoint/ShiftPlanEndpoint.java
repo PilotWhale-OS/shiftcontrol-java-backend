@@ -2,6 +2,22 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -13,6 +29,7 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanPatchStatusDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
@@ -20,6 +37,7 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesD
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -140,6 +158,17 @@ public class ShiftPlanEndpoint {
     )
     public ShiftPlanJoinOverviewDto joinShiftPlan(@RequestBody ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
         return shiftPlanService.joinShiftPlanAsVolunteer(requestDto);
+    }
+
+    @PatchMapping("/{shiftPlanId}/status")
+    // TODO Security
+    @Operation(
+        operationId = "editLockStatus",
+        description = "Edit the LockState for a shift plan"
+    )
+    @ResponseStatus(NO_CONTENT)
+    public void patchState(@PathVariable String shiftPlanId, @RequestBody ShiftPlanPatchStatusDto requestDto) throws NotFoundException {
+        shiftPlanService.updateLockStatus(ConvertUtil.idToLong(shiftPlanId), requestDto.getLockStatus());
     }
 
     @PostMapping("/{shiftPlanId}/shift")

@@ -13,6 +13,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import at.shiftcontrol.shiftservice.dto.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.LocationDto;
+import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,8 +35,6 @@ public class ShiftDto {
     private ActivityDto relatedActivity;
     @NotNull
     private Collection<PositionSlotDto> positionSlots;
-    @NotNull
-    private LockStatus lockStatus;
     @NotNull
     private LocationDto location;
 }

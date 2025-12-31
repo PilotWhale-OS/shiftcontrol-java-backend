@@ -82,11 +82,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         // check for signup phase
-        LockStatus lockStatus = assignment.getPositionSlot().getShift().getLockStatus();
+        LockStatus lockStatus = assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus();
         switch (lockStatus) {
-            case SELF_ASSIGNABLE:
+            case SELF_SIGNUP:
                 throw new IllegalStateException("Auction not possible, unassign instead");
-            case SELF_ASSIGNABLE_NO_UNASSIGN:
+            case SUPERVISED:
                 // proceed with auction
                 assignment.setStatus(AssignmentStatus.AUCTION);
                 break;

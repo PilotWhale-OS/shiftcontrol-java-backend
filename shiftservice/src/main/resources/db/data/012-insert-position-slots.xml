@@ -186,6 +186,28 @@
             <column name="desired_volunteer_count" valueNumeric="1"/>
         </insert>
 
-    </changeSet>
+    <!--
+
+      manual test event shifts
+
+      -->
+
+    <!-- slot for photo sesh shift -->
+    <insert tableName="position_slot">
+      <column name="id" valueNumeric="22"/>
+      <column name="shift_id" valueNumeric="37"/>
+      <column name="role_id" valueNumeric="11"/>
+      <column name="desired_volunteer_count" valueNumeric="5"/>
+    </insert>
+
+    <!-- slot for photo open mic -->
+    <insert tableName="position_slot">
+      <column name="id" valueNumeric="23"/>
+      <column name="shift_id" valueNumeric="34"/>
+      <column name="role_id" valueNumeric="11"/>
+      <column name="desired_volunteer_count" valueNumeric="5"/>
+    </insert>
+
+  </changeSet>
 
 </databaseChangeLog>

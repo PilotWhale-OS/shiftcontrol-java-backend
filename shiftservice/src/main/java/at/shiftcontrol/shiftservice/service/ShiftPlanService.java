@@ -14,6 +14,7 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.type.LockStatus;
 
 public interface ShiftPlanService {
     ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto) throws NotFoundException, ForbiddenException;
@@ -33,4 +34,6 @@ public interface ShiftPlanService {
     Collection<ShiftPlanInviteDto> listShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException;
 
     ShiftPlanJoinOverviewDto joinShiftPlanAsVolunteer(ShiftPlanJoinRequestDto requestDto) throws NotFoundException;
+
+    void updateLockStatus(long shiftPlanId, LockStatus lockStatus) throws NotFoundException;
 }
