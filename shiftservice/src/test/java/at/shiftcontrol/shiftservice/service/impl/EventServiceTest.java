@@ -3,6 +3,12 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -15,12 +21,6 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -70,7 +70,7 @@ class EventServiceTest {
         when(volunteerDao.findById("420696742")).thenReturn(Optional.of(volunteer));
 
         // Expected result is only the relevant event mapped
-        var expected = EventMapper.toEventOverviewDto(List.of(relevantEvent));
+        var expected = EventMapper.toEventDto(List.of(relevantEvent));
 
         // Act
         var result = eventService.search(new EventSearchDto(), "420696742");
@@ -146,7 +146,7 @@ class EventServiceTest {
         var result = eventService.getEventShiftPlansOverview(eventId, userId);
 
         // expected pieces
-        var expectedEventOverview = EventMapper.toEventOverviewDto(event);
+        var expectedEventOverview = EventMapper.toEventDto(event);
         var expectedShiftPlans = ShiftPlanMapper.toShiftPlanDto(List.of(spRelevant));
 
         assertThat(result.getEventOverview()).isEqualTo(expectedEventOverview);

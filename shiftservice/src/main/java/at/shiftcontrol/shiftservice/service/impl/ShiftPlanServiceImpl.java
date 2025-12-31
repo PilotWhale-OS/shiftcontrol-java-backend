@@ -11,6 +11,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -58,10 +64,6 @@ import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -452,7 +454,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
         boolean alreadyJoined = userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
 
-        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
         return ShiftPlanJoinOverviewDto.builder()
@@ -532,7 +534,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanDao.save(shiftPlan);
 
 
-        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
         return ShiftPlanJoinOverviewDto.builder()

@@ -2,6 +2,20 @@ package at.shiftcontrol.shiftservice.endpoint;
 
 import java.util.Collection;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -17,18 +31,6 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.EventService;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
-import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -58,7 +60,7 @@ public class EventEndpoint {
         description = "Create a new event"
     )
     public EventDto createEvent(@RequestBody EventModificationDto modificationDto) {
-        return null; // TODO implement service method (ensure that only admin can do this (planner and volunteer are not allowed))
+        return eventService.createEvent(modificationDto);
     }
 
     @PutMapping("/{eventId}")
@@ -68,7 +70,7 @@ public class EventEndpoint {
         description = "Update an existing event"
     )
     public EventDto updateEvent(@PathVariable String eventId, @RequestBody EventModificationDto modificationDto) throws NotFoundException {
-        return null; // TODO implement service method (ensure that only admin can do this (planner and volunteer are not allowed))
+        return eventService.updateEvent(ConvertUtil.idToLong(eventId), modificationDto);
     }
 
     @DeleteMapping("/{eventId}")
@@ -78,7 +80,7 @@ public class EventEndpoint {
         description = "Delete an existing event"
     )
     public void deleteEvent(@PathVariable String eventId) throws NotFoundException {
-        // TODO implement service method (ensure that only admin can do this (planner and volunteer are not allowed))
+        eventService.deleteEvent(ConvertUtil.idToLong(eventId));
     }
 
 

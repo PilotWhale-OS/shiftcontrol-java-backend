@@ -30,39 +30,48 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @NotNull
     @Size(max = 255)
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String name;
+
     @Size(max = 255)
-    @Column(nullable = true, length = 255)
+    @Column()
     private String shortDescription;
+
     @Size(max = 1025)
-    @Column(nullable = true, length = 1024)
+    @Column(length = 1024)
     private String longDescription;
+
     @NotNull
     @Column(nullable = false)
     private Instant startTime;
+
     @NotNull
     @Column(nullable = false)
     private Instant endTime;
+
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Location> locations;
+
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Attendance> attendances;  // TODO only relevant for magament view (not for volunteer) --> not included in volunteer DTOs
+
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<ShiftPlan> shiftPlans;
 
     @Override
     public String toString() {
-        return "Event{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", startTime=" + startTime +
-            ", endTime=" + endTime +
-            ", locations=" + locations.stream().map(Location::getId).toList() +
-            ", attendances=" + attendances +
-            ", shiftPlans=" + shiftPlans.stream().map(ShiftPlan::getId).toList() +
-            '}';
+        return "Event{id=%d, name='%s', startTime=%s, endTime=%s, locations=%s, attendances=%s, shiftPlans=%s}"
+            .formatted(
+                id,
+                name,
+                startTime,
+                endTime,
+                locations.stream().map(Location::getId).toList(),
+                attendances,
+                shiftPlans.stream().map(ShiftPlan::getId).toList()
+            );
     }
 }
