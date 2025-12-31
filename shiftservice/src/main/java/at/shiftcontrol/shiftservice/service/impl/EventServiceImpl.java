@@ -27,7 +27,6 @@ public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
     private final VolunteerDao volunteerDao;
     private final StatisticService statisticService;
-    private final EventService eventService;
 
     @Override
     public List<EventDto> search(EventSearchDto searchDto, String userId) throws NotFoundException {

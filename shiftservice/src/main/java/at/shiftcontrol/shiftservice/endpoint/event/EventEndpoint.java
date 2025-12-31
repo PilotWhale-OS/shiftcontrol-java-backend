@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.endpoint;
+package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
@@ -16,13 +16,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
-import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
@@ -30,7 +27,6 @@ import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.EventService;
-import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 
 @Slf4j
 @RestController
@@ -40,7 +36,6 @@ public class EventEndpoint {
     private final ApplicationUserProvider userProvider;
     private final EventService eventService;
     private final DashboardService dashboardService;
-    private final TimeConstraintService timeConstraintService;
 
     @GetMapping()
     //TODO: @Secured({"planner.event.read", "volunteer.event.read"})
@@ -112,41 +107,5 @@ public class EventEndpoint {
     )
     public EventsDashboardOverviewDto getEventsDashboard() throws NotFoundException, ForbiddenException {
         return dashboardService.getDashboardOverviewsOfAllShiftPlans(userProvider.getCurrentUser().getUserId());
-    }
-
-    @GetMapping("/{eventId}/time-constraints")
-    // TODO Security
-    @Operation(
-        operationId = "getTimeConstraints",
-        description = "Get time constraints of the current user"
-    )
-    public Collection<TimeConstraintDto> getTimeConstraints(@PathVariable String eventId) {
-        return timeConstraintService.getTimeConstraints(userProvider.getCurrentUser().getUserId(), ConvertUtil.idToLong(eventId));
-    }
-
-    @PostMapping("/{eventId}/time-constraints")
-    // TODO Security
-    @Operation(
-        operationId = "createTimeConstraint",
-        description = "Create a new time constraint for the current user"
-    )
-    public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto) throws ConflictException {
-        return timeConstraintService.createTimeConstraint(
-            createDto,
-            userProvider.getCurrentUser().getUserId(),
-            ConvertUtil.idToLong(eventId)
-        );
-    }
-
-    @DeleteMapping("/{eventId}/time-constraints/{timeConstraintId}")
-    // TODO Security
-    @Operation(
-        operationId = "deleteTimeConstraint",
-        description = "Delete an existing time constraint of the current user"
-    )
-    public void deleteTimeConstraint(@PathVariable String eventId, @PathVariable String timeConstraintId) throws NotFoundException {
-        // Check that the time constraint belongs to the current user (throws NotFoundException if not)
-        timeConstraintService.getTimeConstraints(userProvider.getCurrentUser().getUserId(), ConvertUtil.idToLong(eventId));
-        timeConstraintService.delete(ConvertUtil.idToLong(timeConstraintId));
     }
 }
