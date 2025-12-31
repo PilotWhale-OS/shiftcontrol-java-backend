@@ -38,20 +38,27 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) throws ForbiddenException {
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
-        if (assignment.getStatus().equals(AssignmentStatus.ACCEPTED)) {
-            throw new IllegalArgumentException("Assignment is already accepted");
+        switch (assignment.getStatus()) {
+            case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
+            case AUCTION_REQUEST_FOR_UNASSIGN -> assignmentDao.delete(assignment);
+            case REQUEST_FOR_ASSIGNMENT -> scceptAssignment(assignment);
+            default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
-        assignment.setAssignedVolunteer(null);
-        assignmentRepository.save(assignment);
     }
 
     @Override
     public void declineRequest(long shiftPlanId, long positionSlotId, String userId) throws ForbiddenException {
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
-        if (assignment.getStatus().equals(AssignmentStatus.ACCEPTED)) {
-            throw new IllegalArgumentException("Assignment is already accepted");
+        switch (assignment.getStatus()) {
+            case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not declineable");
+            case AUCTION_REQUEST_FOR_UNASSIGN -> scceptAssignment(assignment);
+            case REQUEST_FOR_ASSIGNMENT -> assignmentDao.delete(assignment);
+            default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
+    }
+
+    private void scceptAssignment(Assignment assignment) {
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignmentRepository.save(assignment);
     }

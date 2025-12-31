@@ -11,6 +11,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -58,10 +64,7 @@ import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +79,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
     private final ShiftAssemblingMapper shiftMapper;
+    private final SecurityHelper securityHelper;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -159,12 +163,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
-        var currentUser = userProvider.getCurrentUser();
-        if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
-            throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
-        }
-
-        return currentUser.getUserId();
+        securityHelper.assertUserIsinPlan(shiftPlanId);
+        return userProvider.getCurrentUser().getUserId();
     }
 
     private List<Shift> getShiftsBasedOnViewModes(long shiftPlanId, String userId, ShiftPlanScheduleFilterDto filterDto,

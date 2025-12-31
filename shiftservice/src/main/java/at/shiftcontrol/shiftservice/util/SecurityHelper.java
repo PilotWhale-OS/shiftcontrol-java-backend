@@ -1,17 +1,14 @@
 package at.shiftcontrol.shiftservice.util;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
@@ -23,34 +20,38 @@ public class SecurityHelper {
     private final ApplicationUserProvider userProvider;
     private final VolunteerDao volunteerDao;
 
-    public void assertUserIsPlanner(Event event, Volunteer volunteer) throws ForbiddenException {
-        List<@NotNull Event> planningPlans = volunteer
-            .getPlanningPlans()
-            .stream()
-            .map(ShiftPlan::getEvent)
-            .toList();
-        if (!planningPlans.contains(event)) {
+    public void assertUserIsPlanner(long shiftPlanId, ShiftControlUser user) throws ForbiddenException {
+        if (!user.isPlannerInPlan(shiftPlanId)) {
+            throw new ForbiddenException("User is not a Planner in plan: " + shiftPlanId);
+        }
+    }
+
+    public void assertUserIsPlanner(long shiftPlanId) throws ForbiddenException {
+        assertUserIsPlanner(shiftPlanId, userProvider.getCurrentUser());
+    }
+
+    public void assertUserIsPlanner(ShiftPlan shiftPlan, Volunteer volunteer) throws ForbiddenException {
+        if (!volunteer.getPlanningPlans().contains(shiftPlan)) {
             throw new ForbiddenException();
         }
     }
 
-    public void assertUserIsPlanner(Event event) throws ForbiddenException {
-        String userId = userProvider.getCurrentUser().getUserId();
+    public void assertUserIsPlanner(ShiftPlan shiftPlan, String userId) throws ForbiddenException {
         Volunteer volunteer = volunteerDao.findById(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
-        assertUserIsPlanner(event, volunteer);
-    }
-
-    public void assertUserIsPlanner(ShiftPlan shiftPlan, Volunteer volunteer) throws ForbiddenException {
-        assertUserIsPlanner(shiftPlan.getEvent(), volunteer);
+        assertUserIsPlanner(shiftPlan, volunteer);
     }
 
     public void assertUserIsPlanner(ShiftPlan shiftPlan) throws ForbiddenException {
-        assertUserIsPlanner(shiftPlan.getEvent());
+        assertUserIsPlanner(shiftPlan.getId());
     }
 
     public void assertUserIsPlanner(Shift shift, Volunteer volunteer) throws ForbiddenException {
         assertUserIsPlanner(shift.getShiftPlan(), volunteer);
+    }
+
+    public void assertUserIsPlanner(Shift shift, String userId) throws ForbiddenException {
+        assertUserIsPlanner(shift.getShiftPlan(), userId);
     }
 
     public void assertUserIsPlanner(Shift shift) throws ForbiddenException {
@@ -61,38 +62,47 @@ public class SecurityHelper {
         assertUserIsPlanner(positionSlot.getShift(), volunteer);
     }
 
+    public void assertUserIsPlanner(PositionSlot positionSlot, String userId) throws ForbiddenException {
+        assertUserIsPlanner(positionSlot.getShift(), userId);
+    }
+
     public void assertUserIsPlanner(PositionSlot positionSlot) throws ForbiddenException {
         assertUserIsPlanner(positionSlot.getShift());
     }
+    //     --------------------- Volunteer ---------------------
 
-    public void asserUserIsVolunteer(Event event, Volunteer volunteer) throws ForbiddenException {
-        List<@NotNull Event> volunteeringPlans = volunteer
-            .getVolunteeringPlans()
-            .stream()
-            .map(ShiftPlan::getEvent)
-            .toList();
-        if (!volunteeringPlans.contains(event)) {
+    public void asserUserIsVolunteer(long shiftPlanId, ShiftControlUser user) throws ForbiddenException {
+        if (!user.isVolunteerInPlan(shiftPlanId)) {
+            throw new ForbiddenException("User is not a volunteer in plan: " + shiftPlanId);
+        }
+    }
+
+    public void asserUserIsVolunteer(long shiftPlanId) throws ForbiddenException {
+        asserUserIsVolunteer(shiftPlanId, userProvider.getCurrentUser());
+    }
+
+    public void asserUserIsVolunteer(ShiftPlan shiftPlan, Volunteer volunteer) throws ForbiddenException {
+        if (!volunteer.getVolunteeringPlans().contains(shiftPlan)) {
             throw new ForbiddenException();
         }
     }
 
-    public void asserUserIsVolunteer(Event event) throws ForbiddenException {
-        String userId = userProvider.getCurrentUser().getUserId();
+    public void asserUserIsVolunteer(ShiftPlan shiftPlan, String userId) throws ForbiddenException {
         Volunteer volunteer = volunteerDao.findById(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
-        asserUserIsVolunteer(event, volunteer);
-    }
-
-    public void asserUserIsVolunteer(ShiftPlan shiftPlan, Volunteer volunteer) throws ForbiddenException {
-        asserUserIsVolunteer(shiftPlan.getEvent(), volunteer);
+        asserUserIsVolunteer(shiftPlan, volunteer);
     }
 
     public void asserUserIsVolunteer(ShiftPlan shiftPlan) throws ForbiddenException {
-        asserUserIsVolunteer(shiftPlan.getEvent());
+        asserUserIsVolunteer(shiftPlan.getId());
     }
 
     public void asserUserIsVolunteer(Shift shift, Volunteer volunteer) throws ForbiddenException {
         asserUserIsVolunteer(shift.getShiftPlan(), volunteer);
+    }
+
+    public void asserUserIsVolunteer(Shift shift, String userId) throws ForbiddenException {
+        asserUserIsVolunteer(shift.getShiftPlan(), userId);
     }
 
     public void asserUserIsVolunteer(Shift shift) throws ForbiddenException {
@@ -103,7 +113,19 @@ public class SecurityHelper {
         asserUserIsVolunteer(positionSlot.getShift(), volunteer);
     }
 
+    public void asserUserIsVolunteer(PositionSlot positionSlot, String userId) throws ForbiddenException {
+        asserUserIsVolunteer(positionSlot.getShift(), userId);
+    }
+
     public void asserUserIsVolunteer(PositionSlot positionSlot) throws ForbiddenException {
         asserUserIsVolunteer(positionSlot.getShift());
+    }
+    //     --------------------- Volunteer or Planner ---------------------
+
+    public void assertUserIsinPlan(long shiftPlanId) throws ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+        if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
+            throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
+        }
     }
 }
