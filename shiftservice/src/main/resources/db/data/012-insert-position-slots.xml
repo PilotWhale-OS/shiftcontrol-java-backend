@@ -186,28 +186,32 @@
             <column name="desired_volunteer_count" valueNumeric="1"/>
         </insert>
 
-    <!--
+        <!--
+    
+          manual test event shifts
+    
+          -->
 
-      manual test event shifts
+        <!-- slot for photo sesh shift -->
+        <insert tableName="position_slot">
+            <column name="id" valueNumeric="22"/>
+            <column name="name" value="Photo Session Volunteer"/>
+            <column name="skip_auto_assignment" valueBoolean="false"/>
+            <column name="shift_id" valueNumeric="37"/>
+            <column name="role_id" valueNumeric="11"/>
+            <column name="desired_volunteer_count" valueNumeric="5"/>
+        </insert>
 
-      -->
+        <!-- slot for photo open mic -->
+        <insert tableName="position_slot">
+            <column name="id" valueNumeric="23"/>
+            <column name="name" value="Photo Open Mic Volunteer"/>
+            <column name="skip_auto_assignment" valueBoolean="false"/>
+            <column name="shift_id" valueNumeric="34"/>
+            <column name="role_id" valueNumeric="11"/>
+            <column name="desired_volunteer_count" valueNumeric="5"/>
+        </insert>
 
-    <!-- slot for photo sesh shift -->
-    <insert tableName="position_slot">
-      <column name="id" valueNumeric="22"/>
-      <column name="shift_id" valueNumeric="37"/>
-      <column name="role_id" valueNumeric="11"/>
-      <column name="desired_volunteer_count" valueNumeric="5"/>
-    </insert>
-
-    <!-- slot for photo open mic -->
-    <insert tableName="position_slot">
-      <column name="id" valueNumeric="23"/>
-      <column name="shift_id" valueNumeric="34"/>
-      <column name="role_id" valueNumeric="11"/>
-      <column name="desired_volunteer_count" valueNumeric="5"/>
-    </insert>
-
-  </changeSet>
+    </changeSet>
 
 </databaseChangeLog>

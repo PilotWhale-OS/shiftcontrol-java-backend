@@ -15,7 +15,8 @@ public class ShiftAssemblingMapper {
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
 
     public ShiftDto assemble(@NonNull Shift shift) {
-        return toDto(shift, positionSlotAssemblingMapper.assemble(shift.getSlots()));
+        var positionSlots = shift.getSlots() == null ? null : positionSlotAssemblingMapper.assemble(shift.getSlots());
+        return toDto(shift, positionSlots);
     }
 
     public Collection<ShiftDto> assemble(@NonNull Collection<Shift> shifts) {
