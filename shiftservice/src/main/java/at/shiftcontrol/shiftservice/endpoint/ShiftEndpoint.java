@@ -75,7 +75,7 @@ public class ShiftEndpoint {
         operationId = "createPositionSlotInShift",
         description = "Create position slot in a specific shift"
     )
-    public PositionSlotDto createPositionSlotsInShift(@PathVariable String shiftId, @RequestBody @Valid PositionSlotModificationDto positionSlotModificationDto)
+    public PositionSlotDto createPositionSlotInShift(@PathVariable String shiftId, @RequestBody @Valid PositionSlotModificationDto positionSlotModificationDto)
         throws NotFoundException {
         return positionSlotService.createPositionSlot(ConvertUtil.idToLong(shiftId), positionSlotModificationDto);
     }
