@@ -59,8 +59,14 @@ public class RoleServiceImpl implements RoleService {
         assertUserIsPlanner(shiftPlanId);
         Role existing = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         assertRoleBelongsToShiftPlan(existing, shiftPlanId);
-        RoleMapper.updateRole(roleDto, existing);
+        updateRole(roleDto, existing);
         return RoleMapper.toRoleDto(roleDao.save(existing));
+    }
+
+    public void updateRole(@NonNull RoleModificationDto roleDto, Role role) {
+        role.setName(roleDto.getName());
+        role.setDescription(roleDto.getDescription());
+        role.setSelfAssignable(roleDto.isSelfAssignable());
     }
 
     @Override

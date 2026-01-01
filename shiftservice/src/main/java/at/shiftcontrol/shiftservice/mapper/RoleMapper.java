@@ -34,10 +34,4 @@ public class RoleMapper {
             .selfAssignable(roleDto.isSelfAssignable())
             .build();
     }
-
-    public static void updateRole(@NonNull RoleModificationDto roleDto, Role role) {
-        role.setName(roleDto.getName());
-        role.setDescription(roleDto.getDescription());
-        role.setSelfAssignable(roleDto.isSelfAssignable());
-    }
 }

@@ -36,12 +36,4 @@ public class EventMapper {
             .endTime(modificationDto.getEndTime())
             .build();
     }
-
-    public static void updateEvent(Event event, EventModificationDto eventModificationDto) {
-        event.setName(eventModificationDto.getName());
-        event.setShortDescription(eventModificationDto.getShortDescription());
-        event.setLongDescription(eventModificationDto.getLongDescription());
-        event.setStartTime(eventModificationDto.getStartTime());
-        event.setEndTime(eventModificationDto.getEndTime());
-    }
 }

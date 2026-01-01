@@ -90,7 +90,7 @@ public class EventServiceImpl implements EventService {
         validateEventModificationDto(modificationDto);
 
         Event event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
-        EventMapper.updateEvent(event, modificationDto);
+        updateEvent(event, modificationDto);
         eventDao.save(event);
         return EventMapper.toEventDto(event);
     }
@@ -99,6 +99,14 @@ public class EventServiceImpl implements EventService {
         if (modificationDto.getStartTime().isAfter(modificationDto.getEndTime())) {
             throw new BadRequestException("Event end time must be after start time");
         }
+    }
+
+    public void updateEvent(Event event, EventModificationDto eventModificationDto) {
+        event.setName(eventModificationDto.getName());
+        event.setShortDescription(eventModificationDto.getShortDescription());
+        event.setLongDescription(eventModificationDto.getLongDescription());
+        event.setStartTime(eventModificationDto.getStartTime());
+        event.setEndTime(eventModificationDto.getEndTime());
     }
 
     @Override
