@@ -26,7 +26,6 @@ public class EventMapper {
             .toList();
     }
 
-    // TODO move to service layer
     public static Event toEvent(EventModificationDto modificationDto) {
         return Event.builder()
             .name(modificationDto.getName())
