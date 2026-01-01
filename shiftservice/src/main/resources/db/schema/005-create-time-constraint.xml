@@ -5,18 +5,18 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="005-create-attendance-time-constraint" author="paul">
-    <createTable tableName="attendance_time_constraint">
+  <changeSet id="005-create-time-constraint" author="paul">
+    <createTable tableName="time_constraint">
 
       <column name="id" type="BIGINT" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
 
-      <column name="attendance_volunteer_id" type="VARCHAR(255)">
+      <column name="volunteer_id" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
 
-      <column name="attendance_event_id" type="BIGINT">
+      <column name="event_id" type="BIGINT">
         <constraints nullable="false"/>
       </column>
 
@@ -34,13 +34,21 @@
 
     </createTable>
 
-    <!-- Foreign key to attendance (composite FK) -->
+    <!-- Foreign key to event -->
     <addForeignKeyConstraint
-      baseTableName="attendance_time_constraint"
-      baseColumnNames="attendance_volunteer_id, attendance_event_id"
-      referencedTableName="attendance"
-      referencedColumnNames="volunteer_id, event_id"
-      constraintName="fk_atc_attendance"/>
+      baseTableName="time_constraint"
+      baseColumnNames="event_id"
+      referencedTableName="event"
+      referencedColumnNames="id"
+      constraintName="fk_tc_event"/>
+
+    <!-- Foreign key to volunteer -->
+    <addForeignKeyConstraint
+      baseTableName="time_constraint"
+      baseColumnNames="volunteer_id"
+      referencedTableName="volunteer"
+      referencedColumnNames="id"
+      constraintName="fk_tc_volunteer"/>
 
   </changeSet>
 
