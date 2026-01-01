@@ -17,6 +17,7 @@ import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import io.micrometer.common.util.StringUtils;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public ShiftDto createShift(long shiftPlanId, ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
+    public ShiftDto createShift(long shiftPlanId, @NonNull ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
         securityHelper.assertUserIsPlanner(shiftPlanId);
 
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found"));
@@ -57,7 +58,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public ShiftDto updateShift(long shiftId, ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
+    public ShiftDto updateShift(long shiftId, @NonNull ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
         var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
         securityHelper.assertUserIsPlanner(shift);
 
@@ -68,10 +69,6 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     private void validateModificationDtoAndSetShiftFields(ShiftModificationDto modificationDto, Shift shift) throws NotFoundException {
-        if (modificationDto == null) {
-            throw new BadRequestException("Modification data must be provided");
-        }
-
         if (StringUtils.isNotBlank(modificationDto.getActivityId()) && StringUtils.isNotBlank(modificationDto.getLocationId())) {
             throw new BadRequestException("Cannot set both related activity and location");
         }
