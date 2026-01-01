@@ -1,8 +1,28 @@
-package at.shiftcontrol.shiftservice.endpoint;
+package at.shiftcontrol.shiftservice.endpoint.positionslot;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceUpdateDto;
+import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +54,7 @@ import at.shiftcontrol.shiftservice.service.PositionSlotService;
 @RestController
 @RequestMapping(value = "api/v1/position-slots/{positionSlotId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class PositionSlotEndpoint {
+public class PositionSlotItemEndpoint {
     private final PositionSlotService positionSlotService;
     private final ApplicationUserProvider userProvider;
 
@@ -46,6 +66,29 @@ public class PositionSlotEndpoint {
     )
     public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
         return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
+    }
+
+    // PositionSlot create is done in ShiftEndpoint
+
+    @PutMapping()
+    // TODO Security
+    @Operation(
+        operationId = "updatePositionSlot",
+        description = "Update a specific position slot in a shift"
+    )
+    public PositionSlotDto updatePositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotModificationDto modificationDto)
+        throws NotFoundException, ForbiddenException {
+        return positionSlotService.updatePositionSlot(ConvertUtil.idToLong(positionSlotId), modificationDto);
+    }
+
+    @DeleteMapping()
+    // TODO Security
+    @Operation(
+        operationId = "deletePositionSlot",
+        description = "Delete a specific position slot in a shift"
+    )
+    public void deletePositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
+        positionSlotService.deletePositionSlot(ConvertUtil.idToLong(positionSlotId));
     }
 
     @PostMapping("/join")

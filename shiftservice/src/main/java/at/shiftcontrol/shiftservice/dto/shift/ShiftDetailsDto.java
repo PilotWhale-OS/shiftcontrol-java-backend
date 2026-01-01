@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.dto.shift;
 
-import at.shiftcontrol.shiftservice.dto.PositionSlotPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
