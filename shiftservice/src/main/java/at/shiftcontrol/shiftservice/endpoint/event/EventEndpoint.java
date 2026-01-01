@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +55,7 @@ public class EventEndpoint {
         operationId = "createEvent",
         description = "Create a new event"
     )
-    public EventDto createEvent(@RequestBody EventModificationDto modificationDto) {
+    public EventDto createEvent(@RequestBody @Valid EventModificationDto modificationDto) {
         return eventService.createEvent(modificationDto);
     }
 
@@ -64,7 +65,7 @@ public class EventEndpoint {
         operationId = "updateEvent",
         description = "Update an existing event"
     )
-    public EventDto updateEvent(@PathVariable String eventId, @RequestBody EventModificationDto modificationDto) throws NotFoundException {
+    public EventDto updateEvent(@PathVariable String eventId, @RequestBody @Valid EventModificationDto modificationDto) throws NotFoundException {
         return eventService.updateEvent(ConvertUtil.idToLong(eventId), modificationDto);
     }
 

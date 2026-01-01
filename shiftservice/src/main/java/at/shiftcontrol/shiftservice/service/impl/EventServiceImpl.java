@@ -68,11 +68,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto createEvent(EventModificationDto modificationDto) {
         Event event = EventMapper.toEvent(modificationDto);
+        event = eventDao.save(event);
         return EventMapper.toEventDto(event);
     }
 
     @Override
-    public EventDto updateEvent(long eventId, EventModificationDto eventModificationDto) throws NotFoundException { // todo check if belongs
+    public EventDto updateEvent(long eventId, EventModificationDto eventModificationDto) throws NotFoundException {
         Event event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         EventMapper.updateEvent(event, eventModificationDto);
         eventDao.save(event);
