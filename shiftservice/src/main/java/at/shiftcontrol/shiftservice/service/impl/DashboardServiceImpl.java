@@ -1,21 +1,27 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
+import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +30,8 @@ public class DashboardServiceImpl implements DashboardService {
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftDao shiftDao;
     private final EventDao eventDao;
+    private final AssignmentDao assignmentDao;
+    private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
     private final ApplicationUserProvider userProvider;
     private final ShiftAssemblingMapper shiftMapper;
 
@@ -42,8 +50,8 @@ public class DashboardServiceImpl implements DashboardService {
             .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlan))
             .rewardPoints(-1) // TODO
             .shifts(shiftMapper.assemble(userShifts))
-            .trades(null) // TODO implement when trades are available
-            .auctions(null) // TODO
+            .trades(TradeMapper.toDto(assignmentSwitchRequestDao.findTradesForShiftPlanAndUser(shiftPlanId, userId)))
+            .auctions(AssignmentMapper.toDto(assignmentDao.findAuctionsByShiftPlanId(shiftPlanId)))
             .build();
     }
 

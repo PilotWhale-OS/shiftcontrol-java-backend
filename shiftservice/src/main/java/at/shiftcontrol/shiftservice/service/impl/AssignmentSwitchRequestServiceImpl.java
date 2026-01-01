@@ -109,7 +109,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private Collection<TradeCandidatesDto> removeExistingTrades( Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId, String currentUserId) {
         // check for already existing trades in status OPEN
         Collection<AssignmentSwitchRequest> existingTrades =
-            assignmentSwitchRequestDao.getOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
+            assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
 
         // convert to set of keys for easier lookup
         Set<AssignmentSwitchRequestId> existingTradeKeys =
@@ -200,7 +200,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Optional<AssignmentSwitchRequest> inverse = getInverseTrade(trade.getId());
             if (inverse.isPresent()) {
                 // TODO how will frontend know if created or accepted ?
-                return List.of(acceptTrade(inverse.get().getId(),currentUserId));
+                return List.of(acceptTrade(inverse.get().getId(), currentUserId));
             }
         }
 

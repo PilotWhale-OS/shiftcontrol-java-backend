@@ -44,6 +44,11 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
+    public Collection<Assignment> findAuctionsByShiftPlanIdExcludingUser(long shiftPlanId, String userId) {
+        return assignmentRepository.findAuctionsByShiftPlanIdExcludingUser(shiftPlanId, userId);
+    }
+
+    @Override
     public Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
         return assignmentRepository.getConflictingAssignments(volunteerId, startTime, endTime);
     }

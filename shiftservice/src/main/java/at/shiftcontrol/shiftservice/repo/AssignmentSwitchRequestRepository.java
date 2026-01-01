@@ -31,7 +31,7 @@ public interface AssignmentSwitchRequestRepository extends JpaRepository<Assignm
               AND ra.positionSlot.id = :positionSlotId
               AND ra.assignedVolunteer.id = :assignedUser
         )
-        """)
+    """)
     void cancelTradesForAssignment(Long positionSlotId, String assignedUser, TradeStatus status);
 
     @Query("""
@@ -39,6 +39,16 @@ public interface AssignmentSwitchRequestRepository extends JpaRepository<Assignm
         WHERE a.requestedAssignment.positionSlot.id = :positionSlotId
         AND a.offeringAssignment.assignedVolunteer.id = :userId
         AND a.status = :status
-        """)
-    Collection<AssignmentSwitchRequest> getOpenTradesForRequestedPositionAndOfferingUser(long positionSlotId, String userId, TradeStatus status);
+    """)
+    Collection<AssignmentSwitchRequest> findOpenTradesForRequestedPositionAndOfferingUser(long positionSlotId, String userId, TradeStatus status);
+
+    @Query("""
+        SELECT a FROM AssignmentSwitchRequest a
+        WHERE (a.offeringAssignment.positionSlot.shift.shiftPlan.id = :shiftPlanId
+        AND a.offeringAssignment.assignedVolunteer.id = :userId)
+        OR (a.requestedAssignment.positionSlot.shift.shiftPlan.id = :shiftPlanId
+        AND a.requestedAssignment.assignedVolunteer.id = :userId)
+    """)
+    Collection<AssignmentSwitchRequest> findTradesForShiftPlanAndUser(long shiftPlanId, String userId);
+
 }

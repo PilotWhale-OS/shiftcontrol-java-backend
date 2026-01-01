@@ -32,7 +32,6 @@ import static org.mockito.ArgumentMatchers.any;
 @AutoConfigureTestDatabase
 @Transactional
 public class AssignmentSwitchRequestServiceIT {
-    // TODO update tests after implementation
 
     @Autowired
     AssignmentSwitchRequestServiceImpl assignmentSwitchRequestService;

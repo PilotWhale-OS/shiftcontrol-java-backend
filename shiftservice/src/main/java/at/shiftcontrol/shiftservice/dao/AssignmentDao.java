@@ -9,6 +9,8 @@ import at.shiftcontrol.shiftservice.entity.AssignmentId;
 public interface AssignmentDao extends BasicDao<Assignment, AssignmentId> {
     Collection<Assignment> findAuctionsByShiftPlanId(long shiftPlanId);
 
+    Collection<Assignment> findAuctionsByShiftPlanIdExcludingUser(long shiftPlanId, String userId);
+
     Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
 
     Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlotId);

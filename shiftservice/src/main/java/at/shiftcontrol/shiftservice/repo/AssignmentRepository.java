@@ -21,6 +21,14 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Assignme
 
     @Query("""
         SELECT a FROM Assignment a
+        WHERE a.positionSlot.shift.shiftPlan.id = :spId
+        AND a.status IN ('AUCTION_REQUEST_FOR_UNASSIGN', 'AUCTION')
+        AND a.assignedVolunteer.id != :userId
+        """)
+    Collection<Assignment> findAuctionsByShiftPlanIdExcludingUser(long spId, String userId);
+
+    @Query("""
+        SELECT a FROM Assignment a
         WHERE a.assignedVolunteer.id = :volunteerId
         AND a.positionSlot.shift.endTime > :startTime
         AND a.positionSlot.shift.startTime < :endTime
