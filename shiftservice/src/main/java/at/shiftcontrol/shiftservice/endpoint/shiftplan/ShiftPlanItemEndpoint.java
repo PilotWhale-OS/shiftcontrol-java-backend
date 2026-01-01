@@ -39,7 +39,7 @@ public class ShiftPlanItemEndpoint {
     // TODO: Security
     @Operation(
         operationId = "getShiftPlan",
-        description = "Find all (volunteer related) shiftPlans"
+        description = "Find shiftPlans by its id"
     )
     public ShiftPlanDto getAllShiftPlans(@PathVariable String shiftPlanId) throws NotFoundException {
         return shiftPlanService.get(ConvertUtil.idToLong(shiftPlanId));

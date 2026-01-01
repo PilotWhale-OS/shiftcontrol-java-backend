@@ -24,7 +24,6 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
-import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 
 @Slf4j
@@ -33,8 +32,6 @@ import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 @RequiredArgsConstructor
 public class ShiftPlanInviteEndpoint {
     private final ShiftPlanService shiftPlanService;
-    private final DashboardService dashboardService;
-
 
     // endpoint to list all codes for shiftPlan
     @GetMapping("/{shiftPlanId}/invites")
