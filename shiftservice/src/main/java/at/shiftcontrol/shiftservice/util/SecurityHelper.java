@@ -128,4 +128,17 @@ public class SecurityHelper {
             throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
         }
     }
+
+    public void assertUserIsInPlan(ShiftPlan shiftPlan) throws ForbiddenException {
+        assertUserIsInPlan(shiftPlan.getId());
+    }
+
+    public void assertUserIsInPlan(Shift shift) throws ForbiddenException {
+        assertUserIsInPlan(shift.getShiftPlan());
+    }
+
+    public void assertUserIsInPlan(PositionSlot positionSlot) throws ForbiddenException {
+        assertUserIsInPlan(positionSlot.getShift());
+    }
+
 }
