@@ -30,6 +30,7 @@ public class PositionSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @NotNull
     private String name;
     private String description;
@@ -39,27 +40,25 @@ public class PositionSlot {
     @ManyToOne(optional = false)
     @JoinColumn(name = "shift_id", nullable = false)
     private Shift shift;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "role_id", nullable = true)
+    @JoinColumn(name = "role_id")
     private Role role;
+
     @OneToMany(mappedBy = "positionSlot")
     private Collection<Assignment> assignments;
+
     @NotNull
     @Column(nullable = false)
     private int desiredVolunteerCount;
+
     @NotNull
     @Column(nullable = false)
     private int rewardPoints;
 
     @Override
     public String toString() {
-        return "PositionSlot{" +
-            "id=" + id +
-            ", shift=" + shift.getId() +
-            ", role=" + role +
-            ", assignments=" + assignments +
-            ", desiredVolunteerCount=" + desiredVolunteerCount +
-            ", rewardPoints=" + rewardPoints +
-            '}';
+        return "PositionSlot{id=%d, shift=%d, role=%s, assignments=%s, desiredVolunteerCount=%d, rewardPoints=%d}"
+            .formatted(id, shift.getId(), role, assignments, desiredVolunteerCount, rewardPoints);
     }
 }
