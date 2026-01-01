@@ -4,8 +4,6 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
@@ -19,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +40,7 @@ public class ShiftItemEndpoint {
     public ShiftDetailsDto getShiftDetails(@PathVariable String shiftId) throws NotFoundException {
         return shiftService.getShiftDetails(ConvertUtil.idToLong(shiftId), userProvider.getCurrentUser().getUserId());
     }
-    
+
     @PutMapping()
     // TODO Security
     @Operation(
@@ -63,18 +60,6 @@ public class ShiftItemEndpoint {
     )
     public void deleteShift(@PathVariable String shiftId) throws NotFoundException, ForbiddenException {
         shiftService.deleteShift(ConvertUtil.idToLong(shiftId));
-    }
-
-
-    @PostMapping("/position-slot")
-    // TODO Security
-    @Operation(
-        operationId = "createPositionSlotInShift",
-        description = "Create position slot in a specific shift"
-    )
-    public PositionSlotDto createPositionSlotInShift(@PathVariable String shiftId, @RequestBody @Valid PositionSlotModificationDto positionSlotModificationDto)
-        throws NotFoundException, ForbiddenException {
-        return positionSlotService.createPositionSlot(ConvertUtil.idToLong(shiftId), positionSlotModificationDto);
     }
 
     //     @PostMapping("/auction")

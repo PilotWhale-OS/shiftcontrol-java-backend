@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.endpoint;
+package at.shiftcontrol.shiftservice.endpoint.positionslot;
 
 import java.util.Collection;
 
@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "api/v1/position-slots/{positionSlotId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class PositionSlotEndpoint {
+public class PositionSlotItemEndpoint {
     private final PositionSlotService positionSlotService;
     private final ApplicationUserProvider userProvider;
 
