@@ -148,6 +148,12 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
+    public void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot) throws ConflictException {
+        validateHasConflictingAssignments(volunteerId,
+            positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
+    }
+
+    @Override
     public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
         return assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
     }

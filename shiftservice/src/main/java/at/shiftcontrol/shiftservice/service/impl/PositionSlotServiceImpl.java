@@ -93,9 +93,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
 
-        // no security check necessary, because user is already assigned to position
-
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
+        // no security check necessary, because user is already assigned to position,
+        //  if not, assignment would not be found
+
         // check for signup phase
         LockStatus lockStatus = assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus();
         switch (lockStatus) {
@@ -117,6 +118,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Transactional
     public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
         throws NotFoundException, ConflictException, ForbiddenException {
+
         // get auction-assignment
         Assignment auction = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
         if (auction == null
@@ -129,7 +131,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("user not found"));
 
-
         // check if volunteer has access to shift plan
         securityHelper.assertUserIsVolunteer(auction.getPositionSlot(), currentUser);
 
@@ -140,8 +141,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // check if any current assignments overlap with auction position slot
         eligibilityService.validateHasConflictingAssignments(
-            currentUser.getId(), auction.getPositionSlot().getShift().getStartTime(),
-            auction.getPositionSlot().getShift().getEndTime());
+            currentUser.getId(), auction.getPositionSlot());
 
         // cancel existing trades
         assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
@@ -184,7 +184,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             .forEach(req -> req.setRequestedAssignment(newAssignment));
         newAssignment.getOutgoingSwitchRequests()
             .forEach(req -> req.setOfferingAssignment(newAssignment));
-
         assignmentSwitchRequestDao.saveAll(oldAssignment.getIncomingSwitchRequests());
         assignmentSwitchRequestDao.saveAll(oldAssignment.getOutgoingSwitchRequests());
 

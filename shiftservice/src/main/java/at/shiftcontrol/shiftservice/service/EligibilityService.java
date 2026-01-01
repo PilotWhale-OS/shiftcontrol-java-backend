@@ -93,6 +93,15 @@ public interface EligibilityService {
     void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) throws ConflictException;
 
     /**
+     * checks if the user has any conflicting assignments with a given positionSlot
+     *
+     * @param volunteerId The volunteer to check
+     * @param positionSlot positionSlot to check
+     * @throws ConflictException if overlapping assignments exist
+     */
+    void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot) throws ConflictException;
+
+    /**
      * returns all conflicting assignments within a given time for a specific user, ignoring the provided position slot
      *
      * @param volunteerId The volunteer to check
