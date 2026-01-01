@@ -26,9 +26,9 @@ import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -77,18 +77,28 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto createEvent(EventModificationDto modificationDto) {
+    public EventDto createEvent(@NonNull EventModificationDto modificationDto) {
+        validateEventModificationDto(modificationDto);
+
         Event event = EventMapper.toEvent(modificationDto);
         event = eventDao.save(event);
         return EventMapper.toEventDto(event);
     }
 
     @Override
-    public EventDto updateEvent(long eventId, EventModificationDto eventModificationDto) throws NotFoundException {
+    public EventDto updateEvent(long eventId, @NonNull EventModificationDto modificationDto) throws NotFoundException {
+        validateEventModificationDto(modificationDto);
+
         Event event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
-        EventMapper.updateEvent(event, eventModificationDto);
+        EventMapper.updateEvent(event, modificationDto);
         eventDao.save(event);
         return EventMapper.toEventDto(event);
+    }
+
+    private void validateEventModificationDto(EventModificationDto modificationDto) {
+        if (modificationDto.getStartTime().isAfter(modificationDto.getEndTime())) {
+            throw new BadRequestException("Event end time must be after start time");
+        }
     }
 
     @Override
