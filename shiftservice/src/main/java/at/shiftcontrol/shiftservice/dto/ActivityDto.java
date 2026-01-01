@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dto;
 
 import java.time.Instant;
 
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
