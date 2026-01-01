@@ -56,9 +56,6 @@ public class Event {
     private Collection<Location> locations;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<Attendance> attendances;  // TODO only relevant for magament view (not for volunteer) --> not included in volunteer DTOs
-
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<ShiftPlan> shiftPlans;
 
     @Override
@@ -70,7 +67,6 @@ public class Event {
                 startTime,
                 endTime,
                 locations.stream().map(Location::getId).toList(),
-                attendances,
                 shiftPlans.stream().map(ShiftPlan::getId).toList()
             );
     }

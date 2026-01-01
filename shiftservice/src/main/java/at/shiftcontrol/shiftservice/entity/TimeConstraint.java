@@ -1,13 +1,16 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,7 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import at.shiftcontrol.shiftservice.type.AttendanceStatus;
+import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 
 @Getter
 @Setter
@@ -24,30 +27,41 @@ import at.shiftcontrol.shiftservice.type.AttendanceStatus;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "attendance")
-public class Attendance {
-    @EmbeddedId
-    private AttendanceId id;
+@Table(name = "time_constraint")
+public class TimeConstraint {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
     @NotNull
-    @MapsId("volunteerId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "volunteer_id", nullable = false)
     private Volunteer volunteer;
+
     @NotNull
-    @MapsId("eventId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AttendanceStatus status;
+    private TimeConstraintType type;
+
+    @NotNull
+    @Column(name = "start_time", nullable = false)
+    private Instant startTime;
+
+    @NotNull
+    @Column(name = "end_time", nullable = false)
+    private Instant endTime;
 
     @Override
     public String toString() {
-        return "Attendance{"
+        return "TimeConstraint{"
             + "id=" + id
-            + ", status=" + status
+            + ", event=" + event.getId()
+            + ", volunteer=" + volunteer.getId()
             + '}';
     }
 }

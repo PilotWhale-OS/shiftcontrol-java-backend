@@ -11,8 +11,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.Attendance;
-import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
+import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionConstraint;
@@ -24,8 +23,7 @@ import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
-import at.shiftcontrol.shiftservice.repo.AttendanceRepository;
-import at.shiftcontrol.shiftservice.repo.AttendanceTimeConstraintRepository;
+import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
 import at.shiftcontrol.shiftservice.repo.PositionConstraintRepository;
@@ -48,9 +46,7 @@ public class TestEntityFactory {
     @Autowired
     private LocationRepository locationRepository;
     @Autowired
-    private AttendanceRepository attendanceRepository;
-    @Autowired
-    private AttendanceTimeConstraintRepository attendanceTimeConstraintRepository;
+    private TimeConstraintRepository timeConstraintRepository;
     @Autowired
     private VolunteerRepository volunteerRepository;
     @Autowired
@@ -97,11 +93,7 @@ public class TestEntityFactory {
         throw new NotImplementedException();
     }
 
-    public Attendance createPersistedAttendance() {
-        throw new NotImplementedException();
-    }
-
-    public AttendanceTimeConstraint createPersistedAttendanceTimeConstraint() {
+    public TimeConstraint createPersistedAttendanceTimeConstraint() {
         throw new NotImplementedException();
     }
 
