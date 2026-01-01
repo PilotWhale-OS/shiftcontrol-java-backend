@@ -11,10 +11,14 @@ import lombok.Data;
 public class EventModificationDto {
     @NotNull
     private String name;
+
     private String shortDescription;
+
     private String longDescription;
+
     @NotNull
     private Instant startTime;
+
     @NotNull
     private Instant endTime;
 }

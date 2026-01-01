@@ -66,6 +66,7 @@ import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
@@ -80,6 +81,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
     private final ShiftAssemblingMapper shiftMapper;
+    private final SecurityHelper securityHelper;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -187,12 +189,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
-        var currentUser = userProvider.getCurrentUser();
-        if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
-            throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
-        }
-
-        return currentUser.getUserId();
+        securityHelper.assertUserIsinPlan(shiftPlanId);
+        return userProvider.getCurrentUser().getUserId();
     }
 
     private List<Shift> getShiftsBasedOnViewModes(long shiftPlanId, String userId, ShiftPlanScheduleFilterDto filterDto,
@@ -459,7 +457,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
-        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN && !currentUser.isPlannerInPlan(shiftPlanId)) {
+        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN) {
+            securityHelper.assertUserIsPlanner(shiftPlanId, currentUser);
             throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
         }
 
@@ -480,7 +479,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
         boolean alreadyJoined = userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
 
-        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
         return ShiftPlanJoinOverviewDto.builder()
@@ -560,7 +559,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanDao.save(shiftPlan);
 
 
-        var eventDto = EventMapper.toEventOverviewDto(shiftPlan.getEvent());
+        var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
         return ShiftPlanJoinOverviewDto.builder()
