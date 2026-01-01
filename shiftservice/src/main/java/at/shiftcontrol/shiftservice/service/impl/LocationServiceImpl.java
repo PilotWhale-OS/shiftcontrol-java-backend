@@ -38,6 +38,8 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto) throws NotFoundException {
+        // TODO ensure admin only call
+
         var event = eventDao.findById(eventId)
             .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
 
@@ -55,6 +57,8 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public LocationDto updateLocation(long locationId, @NonNull LocationModificationDto modificationDto) throws NotFoundException {
+        // TODO ensure admin only call
+
         var location = getLocationOrThrow(locationId);
 
         location.setName(modificationDto.getName());
@@ -67,6 +71,8 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public void deleteLocation(long locationId) throws NotFoundException {
+        // TODO ensure admin only call
+
         var location = getLocationOrThrow(locationId);
 
         locationDao.delete(location);
