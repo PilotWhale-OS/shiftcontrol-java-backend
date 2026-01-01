@@ -45,7 +45,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         return ShiftPlanDashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
-            .eventOverview(EventMapper.toEventOverviewDto(event))
+            .eventOverview(EventMapper.toEventDto(event))
             .ownShiftPlanStatistics(statisticService.getOwnStatisticsOfShifts(userShifts)) // directly pass user shifts here to avoid redundant filtering
             .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlan))
             .rewardPoints(-1) // TODO

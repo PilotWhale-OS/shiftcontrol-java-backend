@@ -16,13 +16,13 @@
     <insert tableName="assignment">
       <column name="position_slot_id" valueNumeric="2"/>
       <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
-      <column name="status" value="PENDING_MANUAL_ASSIGNED"/>
+      <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
     </insert>
 
     <insert tableName="assignment">
       <column name="position_slot_id" valueNumeric="3"/>
       <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e7"/>
-      <column name="status" value="PENDING_AUTO_ASSIGNED"/>
+      <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
     </insert>
 
     <insert tableName="assignment">
@@ -52,13 +52,13 @@
     <insert tableName="assignment">
       <column name="position_slot_id" valueNumeric="13"/>
       <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e7"/>
-      <column name="status" value="PENDING_MANUAL_ASSIGNED"/>
+      <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
     </insert>
 
     <insert tableName="assignment">
       <column name="position_slot_id" valueNumeric="14"/>
       <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
-      <column name="status" value="PENDING_MANUAL_ASSIGNED"/>
+      <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
     </insert>
 
     <!--
