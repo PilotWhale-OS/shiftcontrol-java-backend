@@ -11,6 +11,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -32,6 +38,8 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
@@ -58,10 +66,6 @@ import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +87,30 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private static final String INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private static final int INVITE_CODE_LENGTH = 8;
     private static final int MAX_INVITE_CODE_GENERATION_ATTEMPTS = 10;
+
+    @Override
+    public Collection<ShiftPlanDto> getAll(long eventId) throws NotFoundException {
+        return List.of();
+    }
+
+    @Override
+    public Collection<ShiftPlanDto> get(long shiftPlanId) {
+        return List.of();
+    }
+
+    @Override
+    public ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
+        return null;
+    }
+
+    @Override
+    public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
+        return null;
+    }
+
+    @Override
+    public void delete(long shiftPlanId) throws NotFoundException {
+    }
 
     @Override
     public ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto)
