@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -49,7 +50,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "getPositionSlotsToOffer",
         description = "Get position slots that can be offered in a trade for the given position slot, based on eligible volunteers"
     )
-    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(@PathVariable String positionSlotId) throws NotFoundException {
+    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
         return assignmentSwitchRequestService.getPositionSlotsToOffer(
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());
@@ -61,7 +62,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "createTrade",
         description = "Create trade request for a specific position slot in a shift"
     )
-    public Collection<TradeDto> createTrade(@RequestBody TradeCreateDto tradeCreateDto) throws NotFoundException, ConflictException {
+    public Collection<TradeDto> createTrade(@RequestBody TradeCreateDto tradeCreateDto) throws NotFoundException, ConflictException, ForbiddenException {
         return assignmentSwitchRequestService.createTrade(
             tradeCreateDto,
             userProvider.getCurrentUser().getUserId());
@@ -73,7 +74,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptTrade(@RequestBody TradeDto tradeDto) throws NotFoundException, ConflictException {
+    public TradeDto acceptTrade(@RequestBody TradeDto tradeDto) throws NotFoundException, ConflictException, ForbiddenException {
         return assignmentSwitchRequestService.acceptTrade(
             TradeMapper.toEntityId(tradeDto),
             userProvider.getCurrentUser().getUserId());

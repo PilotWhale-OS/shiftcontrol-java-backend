@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -60,10 +61,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     @Override
-    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId) throws NotFoundException {
+    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId) throws NotFoundException, ForbiddenException {
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.findById(requestedPositionSlotId)
             .orElseThrow(() -> new NotFoundException("requested PositionSlot not found"));
+
+        securityHelper.assertUserIsVolunteer(requestedPositionSlot);
+
         // get volunteers assigned to PositionSlot
         Collection<Volunteer> assignedVolunteers = requestedPositionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
         // return if no volunteers exist to trade with
@@ -157,7 +161,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
-    public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) throws NotFoundException, ConflictException {
+    public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("user not found"));
@@ -220,7 +224,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
-    public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException, ConflictException {
+    public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("user not found"));
@@ -300,13 +304,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         );
     }
 
-    private void validateTradePossible(PositionSlot ownedSlot, PositionSlot slotToBeTaken, Volunteer volunteer) throws ConflictException {
+    private void validateTradePossible(PositionSlot ownedSlot, PositionSlot slotToBeTaken, Volunteer volunteer) throws ConflictException, ForbiddenException {
         if (ownedSlot.getShift().getShiftPlan().getId() != slotToBeTaken.getShift().getShiftPlan().getId()) {
             throw new IllegalArgumentException("position slots belong to different shift plans");
         }
 
         // check if volunteer has access to shift plan
-        eligibilityService.validateHasAccessToPositionSlot(slotToBeTaken, volunteer.getId());
+        securityHelper.assertUserIsVolunteer(slotToBeTaken, volunteer);
 
         // check if user is eligible for the requested position slot
         eligibilityService.validateIsTradePossible(slotToBeTaken, volunteer);

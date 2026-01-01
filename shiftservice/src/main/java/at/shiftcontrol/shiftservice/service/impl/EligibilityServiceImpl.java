@@ -48,15 +48,6 @@ public class EligibilityServiceImpl implements EligibilityService {
             ));
     }
 
-    // TODO this method is replaced by securiyHelper
-    @Override
-    public void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId) throws IllegalArgumentException {
-        Collection<Volunteer> shiftPlanVolunteers = positionSlot.getShift().getShiftPlan().getPlanVolunteers();
-        if (shiftPlanVolunteers.stream().noneMatch(v -> v.getId().equals(volunteerId))) {
-            throw new IllegalArgumentException("Volunteer not assigned to shift plan");
-        }
-    }
-
     @Override
     public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Volunteer volunteer) {
         if (isSignedUp(positionSlot, volunteer)) {

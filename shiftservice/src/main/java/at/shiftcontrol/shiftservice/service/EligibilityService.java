@@ -126,12 +126,4 @@ public interface EligibilityService {
      */
     PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) throws NotFoundException;
 
-    /**
-     * checks if the user is assigned to the shift plan, that includes the given position slot
-     *
-     * @param positionSlot the position to check
-     * @param volunteerId the volunteer to check
-     * @throws IllegalArgumentException if the user has no access to the position slot
-     */
-    void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId) throws IllegalArgumentException;
 }

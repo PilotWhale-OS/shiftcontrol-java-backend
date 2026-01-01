@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
@@ -41,7 +42,7 @@ public class AssignmentSwitchRequestServiceIT {
 
 
     @Test
-    void testGetPositionSlotsToOffer() throws NotFoundException {
+    void testGetPositionSlotsToOffer() throws NotFoundException, ForbiddenException {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long positionSlotId = 3L;
         Mockito.when(userProfileService.getUserProfile(any()))
@@ -54,7 +55,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testCreateTrade() throws ConflictException, NotFoundException {
+    void testCreateTrade() throws ConflictException, NotFoundException, ForbiddenException {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         String offeredPosition = "11";
@@ -81,7 +82,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testAcceptTrade() throws ConflictException, NotFoundException {
+    void testAcceptTrade() throws ConflictException, NotFoundException, ForbiddenException {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         Mockito.when(userProfileService.getUserProfile(any()))
             .thenReturn(getUserProfileDtoWithId(currentUserId));
