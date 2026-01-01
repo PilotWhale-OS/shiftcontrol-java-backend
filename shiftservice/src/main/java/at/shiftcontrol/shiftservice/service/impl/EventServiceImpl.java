@@ -3,11 +3,9 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -20,8 +18,8 @@ import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.Activity;
+import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
@@ -90,7 +88,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         EventMapper.updateEvent(event, eventModificationDto);
         eventDao.save(event);
-        return  EventMapper.toEventDto(event);
+        return EventMapper.toEventDto(event);
     }
 
     @Override
