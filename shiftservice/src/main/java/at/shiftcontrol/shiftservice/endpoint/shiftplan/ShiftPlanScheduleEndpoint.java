@@ -25,7 +25,7 @@ import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 @RestController
 @RequestMapping(value = "api/v1/shift-plans/{shiftPlanId}/schedule", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class ShiftPlanSceduleEndpoint {
+public class ShiftPlanScheduleEndpoint {
     private final ShiftPlanService shiftPlanService;
 
     @GetMapping("/layout")
