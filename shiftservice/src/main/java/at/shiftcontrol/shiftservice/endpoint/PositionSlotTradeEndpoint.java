@@ -91,7 +91,7 @@ public class PositionSlotTradeEndpoint {
             userProvider.getCurrentUser().getUserId());
     }
 
-    @PutMapping("/cancel") // TODO tell tobeh about new mappings
+    @PutMapping("/cancel")
     // TODO Security
     @Operation(
         operationId = "cancelTrade",

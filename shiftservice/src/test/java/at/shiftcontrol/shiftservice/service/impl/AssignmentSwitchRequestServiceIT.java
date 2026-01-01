@@ -10,7 +10,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -56,7 +55,6 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    @Disabled
     void testCreateTrade() throws ConflictException, NotFoundException {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,7 +53,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) throws NotFoundException {
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
-            .orElseThrow(() -> new NotFoundException("Trade not found")); // TODO move check into dao?
+            .orElseThrow(() -> new NotFoundException("Trade not found"));
         return TradeMapper.toDto(trade);
     }
 
@@ -124,6 +125,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                 .collect(Collectors.toSet());
 
         // remove all volunteers for each possible slot to offer, where a trade already exists
+        //  this does not check for existing inverse trade requests
         return slotsToOffer.stream()
             .map(candidate -> {
                 List<AccountInfoDto> filteredVolunteers =
@@ -189,10 +191,18 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                     volunteer -> Objects.equals(volunteer.getId(), String.valueOf(assignment.getAssignedVolunteer().getId()))))
             .map(requestedAssignment -> createAssignmentSwitchRequest(offeredAssignment, requestedAssignment)).toList();
 
-        // TODO check if trade already exists (re-request if rejected or canceled) ?
         // no need to check for existing trades, status will just be updated
 
-        // TODO check if trade in other direction already exists ?
+        // check if trade in other direction already exists
+        // --> if exists, executing trade would result in same pk
+        //      therefore dont create second trade and accept first one
+        for (AssignmentSwitchRequest trade : trades) {
+            Optional<AssignmentSwitchRequest> inverse = getInverseTrade(trade.getId());
+            if (inverse.isPresent()) {
+                // TODO how will frontend know if created or accepted ?
+                return List.of(acceptTrade(inverse.get().getId(),currentUserId));
+            }
+        }
 
         return TradeMapper.toDto(assignmentSwitchRequestDao.saveAll(trades));
     }
@@ -238,9 +248,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         validateTradePossible(trade.getOfferingAssignment().getPositionSlot(), trade.getRequestedAssignment().getPositionSlot(),
             trade.getOfferingAssignment().getAssignedVolunteer()); // other user
 
-        // TODO check if trade in other direction already exists ?
-        // --> if exists, executing trade would result in same pk
-        //      therefore dont create second trade and accept first one
+        // delete inverse trade if exists, because accepting the other would result in the same primary key !
+        getInverseTrade(id).ifPresent(assignmentSwitchRequestDao::delete);
 
         // cancel all trades for involved assignments
         cancelOtherTrades(trade);
@@ -316,15 +325,14 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private void cancelOtherTrades(AssignmentSwitchRequest trade) {
+        // this trade does not need to be excluded because it will be set to ACCEPTED in the next step
         assignmentSwitchRequestDao.cancelTradesForAssignment(
             trade.getRequestedAssignment().getPositionSlot().getId(), trade.getRequestedAssignment().getAssignedVolunteer().getId());
         assignmentSwitchRequestDao.cancelTradesForAssignment(
             trade.getOfferingAssignment().getPositionSlot().getId(), trade.getOfferingAssignment().getAssignedVolunteer().getId());
-        // TODO exclude this trade?
     }
 
     private void executeTrade(AssignmentSwitchRequest trade) {
-        // TODO think about changing PKs
         Volunteer requestedAssignmentVolunteer = trade.getRequestedAssignment().getAssignedVolunteer();
         Volunteer offeringAssignmentVolunteer = trade.getOfferingAssignment().getAssignedVolunteer();
         updateVolunteer(trade.getOfferingAssignment(), offeringAssignmentVolunteer);
@@ -340,5 +348,14 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private void updateVolunteer(Assignment assignment, Volunteer volunteer) {
         assignment.setAssignedVolunteer(volunteer);
         assignment.getId().setVolunteerId(volunteer.getId());
+    }
+
+    private Optional<AssignmentSwitchRequest> getInverseTrade(AssignmentSwitchRequestId id) {
+        return assignmentSwitchRequestDao.findById(
+            new AssignmentSwitchRequestId(
+                id.getRequested(),
+                id.getOffering()
+            )
+        );
     }
 }
