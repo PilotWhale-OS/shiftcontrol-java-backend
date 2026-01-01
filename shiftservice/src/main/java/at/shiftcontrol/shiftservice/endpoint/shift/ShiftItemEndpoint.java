@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.endpoint;
+package at.shiftcontrol.shiftservice.endpoint.shift;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "api/v1/shifts/{shiftId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class ShiftEndpoint {
+public class ShiftItemEndpoint {
     private final ApplicationUserProvider userProvider;
     private final ShiftService shiftService;
     private final PositionSlotService positionSlotService;
@@ -43,9 +43,7 @@ public class ShiftEndpoint {
     public ShiftDetailsDto getShiftDetails(@PathVariable String shiftId) throws NotFoundException {
         return shiftService.getShiftDetails(ConvertUtil.idToLong(shiftId), userProvider.getCurrentUser().getUserId());
     }
-
-    // Shift create is done in ShiftPlanEndpoint
-
+    
     @PutMapping()
     // TODO Security
     @Operation(
@@ -66,6 +64,7 @@ public class ShiftEndpoint {
     public void deleteShift(@PathVariable String shiftId) throws NotFoundException, ForbiddenException {
         shiftService.deleteShift(ConvertUtil.idToLong(shiftId));
     }
+
 
     @PostMapping("/position-slot")
     // TODO Security

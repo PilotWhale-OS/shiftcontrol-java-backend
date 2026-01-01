@@ -10,8 +10,6 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
-import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
-import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanPatchStatusDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
@@ -21,7 +19,6 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesD
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
-import at.shiftcontrol.shiftservice.service.ShiftService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +42,6 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @RequiredArgsConstructor
 public class ShiftPlanEndpoint {
     private final ShiftPlanService shiftPlanService;
-    private final ShiftService shiftService;
     private final DashboardService dashboardService;
 
     @GetMapping("/{shiftPlanId}/dashboard")
@@ -156,16 +152,5 @@ public class ShiftPlanEndpoint {
     @ResponseStatus(NO_CONTENT)
     public void patchState(@PathVariable String shiftPlanId, @RequestBody ShiftPlanPatchStatusDto requestDto) throws NotFoundException {
         shiftPlanService.updateLockStatus(ConvertUtil.idToLong(shiftPlanId), requestDto.getLockStatus());
-    }
-
-    @PostMapping("/{shiftPlanId}/shift")
-    // TODO Security
-    @Operation(
-        operationId = "createShift",
-        description = "Create a new shift in a specific shift plan"
-    )
-    public ShiftDto createShift(@PathVariable String shiftPlanId, @RequestBody @Valid ShiftModificationDto shiftModificationDto)
-        throws NotFoundException, ForbiddenException {
-        return shiftService.createShift(ConvertUtil.idToLong(shiftPlanId), shiftModificationDto);
     }
 }
