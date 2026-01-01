@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint.shiftplan;
 
-import java.util.Collection;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +41,7 @@ public class ShiftPlanItemEndpoint {
         operationId = "getShiftPlan",
         description = "Find all (volunteer related) shiftPlans"
     )
-    public Collection<ShiftPlanDto> getAllShiftPlans(@PathVariable String shiftPlanId) throws NotFoundException, ForbiddenException {
+    public ShiftPlanDto getAllShiftPlans(@PathVariable String shiftPlanId) throws NotFoundException {
         return shiftPlanService.get(ConvertUtil.idToLong(shiftPlanId));
     }
 
@@ -87,7 +85,7 @@ public class ShiftPlanItemEndpoint {
         description = "Edit the LockState for a shift plan"
     )
     @ResponseStatus(NO_CONTENT)
-    public void patchState(@PathVariable String shiftPlanId, @RequestBody ShiftPlanPatchStatusDto requestDto) throws NotFoundException {
+    public void patchState(@PathVariable String shiftPlanId, @Valid @RequestBody ShiftPlanPatchStatusDto requestDto) throws NotFoundException {
         shiftPlanService.updateLockStatus(ConvertUtil.idToLong(shiftPlanId), requestDto.getLockStatus());
     }
 }

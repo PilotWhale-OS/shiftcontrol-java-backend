@@ -21,7 +21,7 @@ import at.shiftcontrol.shiftservice.type.LockStatus;
 public interface ShiftPlanService {
     Collection<ShiftPlanDto> getAll(long eventId) throws NotFoundException;
 
-    Collection<ShiftPlanDto> get(long shiftPlanId);
+    ShiftPlanDto get(long shiftPlanId) throws NotFoundException;
 
     ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto)throws NotFoundException;
 

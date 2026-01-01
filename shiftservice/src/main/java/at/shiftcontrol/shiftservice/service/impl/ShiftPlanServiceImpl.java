@@ -25,6 +25,7 @@ import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
+import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -59,6 +60,7 @@ import at.shiftcontrol.shiftservice.mapper.InviteMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
+import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
@@ -82,6 +84,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ApplicationUserProvider userProvider;
     private final ShiftAssemblingMapper shiftMapper;
     private final SecurityHelper securityHelper;
+    private final EventDao eventDao;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -92,26 +95,33 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     public Collection<ShiftPlanDto> getAll(long eventId) throws NotFoundException {
-        return List.of();
+        eventDao.findById(eventId).orElseThrow(NotFoundException::new);
+        return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findByEventId(eventId));
     }
 
     @Override
-    public Collection<ShiftPlanDto> get(long shiftPlanId) {
-        return List.of();
+    public ShiftPlanDto get(long shiftPlanId) throws NotFoundException {
+        return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new));
     }
 
     @Override
     public ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
-        return null;
+        var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
+        var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
+        plan.setEvent(event);
+        return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
     @Override
     public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
-        return null;
+        var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+        ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
+        return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
     @Override
     public void delete(long shiftPlanId) throws NotFoundException {
+        shiftPlanDao.delete(shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new));
     }
 
     @Override
@@ -469,7 +479,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException {
+    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException {
         var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.findByCode(inviteCode)
             .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));

@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
@@ -35,7 +34,7 @@ public class SiftPlanCollectionEndpoint {
         operationId = "getAllshiftPlans",
         description = "Find all (volunteer related) shiftPlans"
     )
-    public Collection<ShiftPlanDto> getAllShiftPlans(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
+    public Collection<ShiftPlanDto> getAllShiftPlans(@PathVariable String eventId) throws NotFoundException {
         return shiftPlanService.getAll(ConvertUtil.idToLong(eventId));
     }
     //Todo: Add search capability in future
