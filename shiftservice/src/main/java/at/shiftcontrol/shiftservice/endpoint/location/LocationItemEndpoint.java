@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.endpoint.location;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 import at.shiftcontrol.shiftservice.service.LocationService;
@@ -32,7 +33,7 @@ public class LocationItemEndpoint {
         description = "Find a location by its id"
     )
     public LocationDto getLocation(@PathVariable String locationId) throws NotFoundException {
-        return locationService.getLocation(locationId);
+        return locationService.getLocation(ConvertUtil.idToLong(locationId));
     }
 
     @PutMapping()
@@ -43,7 +44,7 @@ public class LocationItemEndpoint {
     )
     public LocationDto updateLocation(@PathVariable String locationId, @RequestBody @Valid LocationModificationDto modificationDto)
         throws NotFoundException, ForbiddenException {
-        return locationService.updateLocation(locationId, modificationDto);
+        return locationService.updateLocation(ConvertUtil.idToLong(locationId), modificationDto);
     }
 
     @DeleteMapping()
@@ -53,6 +54,6 @@ public class LocationItemEndpoint {
         description = "Delete a location by its id"
     )
     public void deleteLocation(@PathVariable String locationId) throws NotFoundException, ForbiddenException {
-        locationService.deleteLocation(locationId);
+        locationService.deleteLocation(ConvertUtil.idToLong(locationId));
     }
 }

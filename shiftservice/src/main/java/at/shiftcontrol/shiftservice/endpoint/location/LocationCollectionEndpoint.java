@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 import at.shiftcontrol.shiftservice.service.LocationService;
@@ -32,8 +33,8 @@ public class LocationCollectionEndpoint {
         operationId = "getAllLocationsForEvent",
         description = "Find all locations for a specific event"
     )
-    public Collection<LocationDto> getAllLocationsForEvent(@PathVariable long eventId) throws NotFoundException, ForbiddenException {
-        return locationService.getAllLocationsForEvent(eventId);
+    public Collection<LocationDto> getAllLocationsForEvent(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
+        return locationService.getAllLocationsForEvent(ConvertUtil.idToLong(eventId));
     }
 
     @PostMapping()
@@ -42,8 +43,8 @@ public class LocationCollectionEndpoint {
         operationId = "createLocation",
         description = "Create a new location for a specific event"
     )
-    public LocationDto createLocation(@PathVariable long eventId, @RequestBody @Valid LocationModificationDto modificationDto)
+    public LocationDto createLocation(@PathVariable String eventId, @RequestBody @Valid LocationModificationDto modificationDto)
         throws NotFoundException, ForbiddenException {
-        return locationService.createLocation(eventId, modificationDto);
+        return locationService.createLocation(ConvertUtil.idToLong(eventId), modificationDto);
     }
 }

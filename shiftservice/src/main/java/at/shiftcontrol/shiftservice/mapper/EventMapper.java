@@ -2,11 +2,10 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.List;
 
-import lombok.NoArgsConstructor;
-
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.entity.Event;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EventMapper {
@@ -27,6 +26,7 @@ public class EventMapper {
             .toList();
     }
 
+    // TODO move to service layer
     public static Event toEvent(EventModificationDto modificationDto) {
         return Event.builder()
             .name(modificationDto.getName())
