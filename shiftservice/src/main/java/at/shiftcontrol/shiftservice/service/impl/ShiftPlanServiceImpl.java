@@ -431,7 +431,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
-        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN && !currentUser.isPlannerInPlan(shiftPlanId)) {
+        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN) {
+            securityHelper.assertUserIsPlanner(shiftPlanId, currentUser);
             throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
         }
 
