@@ -3,10 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -14,7 +10,7 @@ import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.PositionSlotJoinErrorDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
@@ -22,6 +18,8 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -62,12 +60,12 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.SIGNED_UP;
         }
 
-        boolean eligibleForRole = volunteer.getRoles().contains(positionSlot.getRole());
+        boolean eligibleForRole = positionSlot.getRole() == null || (volunteer.getRoles() != null && volunteer.getRoles().contains(positionSlot.getRole()));
         if (!eligibleForRole) {
             return PositionSignupState.NOT_ELIGIBLE;
         }
 
-        boolean hasCapacity = positionSlot.getAssignments().size() < positionSlot.getDesiredVolunteerCount();
+        boolean hasCapacity = positionSlot.getAssignments() == null || positionSlot.getAssignments().size() < positionSlot.getDesiredVolunteerCount();
         if (hasCapacity) {
             return PositionSignupState.SIGNUP_POSSIBLE;
         }
@@ -139,7 +137,9 @@ public class EligibilityServiceImpl implements EligibilityService {
     @Override
     public void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) throws ConflictException {
         var a = assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
-        if (a.isEmpty()) return;
+        if (a.isEmpty()) {
+            return;
+        }
         throw new ConflictException("User has conflicting assignments");
     }
 
@@ -152,13 +152,19 @@ public class EligibilityServiceImpl implements EligibilityService {
     public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot)
         throws ConflictException {
         var a = assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
-        if (a.isEmpty()) return;
+        if (a.isEmpty()) {
+            return;
+        }
         throw new ConflictException("User has conflicting assignments");
     }
 
     private boolean isSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
+        if (positionSlot.getAssignments() == null) {
+            return false;
+        }
+
         for (var assignment : positionSlot.getAssignments()) {
-            if (assignment.getAssignedVolunteer().getId().equals(volunteer.getId())) {
+            if (assignment.getAssignedVolunteer() != null && assignment.getAssignedVolunteer().getId().equals(volunteer.getId())) {
                 return true;
             }
         }
@@ -166,13 +172,13 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     private boolean hasAuction(PositionSlot slot) {
-        return slot.getAssignments().stream()
+        return slot.getAssignments() != null && slot.getAssignments().stream()
             .anyMatch(a -> a.getStatus() == AssignmentStatus.AUCTION);
     }
 
     // trade requests where the requested assignment is assigned to the user
     private boolean hasOpenTradeForUser(PositionSlot slot, String userId) {
-        return slot.getAssignments().stream().anyMatch(assignment ->
+        return slot.getAssignments() != null && slot.getAssignments().stream().anyMatch(assignment ->
             assignment.getOutgoingSwitchRequests().stream().anyMatch(req ->
                 req.getStatus() == TradeStatus.OPEN
                     && req.getRequestedAssignment() != null

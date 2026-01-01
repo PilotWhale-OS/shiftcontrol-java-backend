@@ -14,4 +14,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
         WHERE a.location.id = :locationId
         """)
     Collection<Activity> findAllByLocationId(Long locationId);
+
+    @Query("""
+        SELECT a FROM Activity a
+        WHERE a.event.id = :eventId
+        """)
+    Collection<Activity> findAllByEventId(Long eventId);
 }
