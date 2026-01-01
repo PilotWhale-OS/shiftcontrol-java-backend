@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -14,6 +15,7 @@ import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class ShiftServiceImpl implements ShiftService {
     private final LocationDao locationDao;
     private final UserPreferenceService userPreferenceService;
     private final ShiftAssemblingMapper shiftAssemblingMapper;
+    private final SecurityHelper securityHelper;
 
     @Override
     public ShiftDetailsDto getShiftDetails(long shiftId, String userId) throws NotFoundException {
@@ -40,8 +43,8 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public ShiftDto createShift(long shiftPlanId, ShiftModificationDto modificationDto) throws NotFoundException {
-        // TODO check permissions
+    public ShiftDto createShift(long shiftPlanId, ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
+        securityHelper.assertUserIsPlanner(shiftPlanId);
 
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found"));
         var newShift = Shift.builder()
@@ -54,10 +57,10 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public ShiftDto updateShift(long shiftId, ShiftModificationDto modificationDto) throws NotFoundException {
-        // TODO check permissions
-
+    public ShiftDto updateShift(long shiftId, ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
         var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
+        securityHelper.assertUserIsPlanner(shift);
+
         validateModificationDtoAndSetShiftFields(modificationDto, shift);
 
         shift = shiftDao.save(shift);
@@ -108,10 +111,10 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public void deleteShift(long shiftId) throws NotFoundException {
-        // TODO check permissions
-
+    public void deleteShift(long shiftId) throws NotFoundException, ForbiddenException {
         var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
+        securityHelper.assertUserIsPlanner(shift);
+
         shiftDao.delete(shift);
     }
 }

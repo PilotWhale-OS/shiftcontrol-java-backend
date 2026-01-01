@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -25,6 +26,7 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     private final EligibilityService eligibilityService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
+    private final SecurityHelper securityHelper;
 
     @Override
     public PositionSlotDto findById(@NonNull Long id) throws NotFoundException {
@@ -195,11 +198,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException {
-        // TODO check permissions
-
+    public PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto)
+        throws NotFoundException, ForbiddenException {
         var shift = shiftDao.findById(shiftId)
             .orElseThrow(() -> new NotFoundException("Shift not found"));
+        securityHelper.assertUserIsPlanner(shift);
 
         var newPositionSlot = PositionSlot.builder()
             .shift(shift)
@@ -212,11 +215,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException {
-        // TODO check permissions
-
+    public PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto)
+        throws NotFoundException, ForbiddenException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        securityHelper.assertUserIsPlanner(positionSlot);
 
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
 
@@ -241,11 +244,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public void deletePositionSlot(@NonNull Long positionSlotId) throws NotFoundException {
-        // TODO check permissions
-
+    public void deletePositionSlot(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        securityHelper.assertUserIsPlanner(positionSlot);
+
         positionSlotDao.delete(positionSlot);
     }
 }

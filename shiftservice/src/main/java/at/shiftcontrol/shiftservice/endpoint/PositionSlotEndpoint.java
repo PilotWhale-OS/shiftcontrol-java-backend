@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.endpoint;
 import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -57,7 +58,7 @@ public class PositionSlotEndpoint {
         description = "Update a specific position slot in a shift"
     )
     public PositionSlotDto updatePositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotModificationDto modificationDto)
-        throws NotFoundException {
+        throws NotFoundException, ForbiddenException {
         return positionSlotService.updatePositionSlot(ConvertUtil.idToLong(positionSlotId), modificationDto);
     }
 
@@ -67,7 +68,7 @@ public class PositionSlotEndpoint {
         operationId = "deletePositionSlot",
         description = "Delete a specific position slot in a shift"
     )
-    public void deletePositionSlot(@PathVariable String positionSlotId) throws NotFoundException {
+    public void deletePositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
         positionSlotService.deletePositionSlot(ConvertUtil.idToLong(positionSlotId));
     }
 

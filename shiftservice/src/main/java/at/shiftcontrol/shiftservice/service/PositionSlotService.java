@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service;
 import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
@@ -29,9 +30,11 @@ public interface PositionSlotService {
 
     AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
 
-    PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException;
+    PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException,
+        ForbiddenException;
 
-    PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException;
+    PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto)
+        throws NotFoundException, ForbiddenException;
 
-    void deletePositionSlot(@NonNull Long positionSlotId) throws NotFoundException;
+    void deletePositionSlot(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException;
 }

@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -51,7 +52,8 @@ public class ShiftEndpoint {
         operationId = "updateShift",
         description = "Update a specific shift of a shift plan"
     )
-    public ShiftDto updateShift(@PathVariable String shiftId, @RequestBody @Valid ShiftModificationDto shiftModificationDto) throws NotFoundException {
+    public ShiftDto updateShift(@PathVariable String shiftId, @RequestBody @Valid ShiftModificationDto shiftModificationDto)
+        throws NotFoundException, ForbiddenException {
         return shiftService.updateShift(ConvertUtil.idToLong(shiftId), shiftModificationDto);
     }
 
@@ -61,7 +63,7 @@ public class ShiftEndpoint {
         operationId = "deleteShift",
         description = "Delete a specific shift of a shift plan"
     )
-    public void deleteShift(@PathVariable String shiftId) throws NotFoundException {
+    public void deleteShift(@PathVariable String shiftId) throws NotFoundException, ForbiddenException {
         shiftService.deleteShift(ConvertUtil.idToLong(shiftId));
     }
 
@@ -72,7 +74,7 @@ public class ShiftEndpoint {
         description = "Create position slot in a specific shift"
     )
     public PositionSlotDto createPositionSlotInShift(@PathVariable String shiftId, @RequestBody @Valid PositionSlotModificationDto positionSlotModificationDto)
-        throws NotFoundException {
+        throws NotFoundException, ForbiddenException {
         return positionSlotService.createPositionSlot(ConvertUtil.idToLong(shiftId), positionSlotModificationDto);
     }
 
