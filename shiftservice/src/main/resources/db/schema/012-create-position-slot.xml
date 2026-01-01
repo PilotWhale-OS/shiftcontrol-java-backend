@@ -30,7 +30,7 @@
             </column>
 
             <column name="role_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_position_slot_role" references="role(id)"/>
+                <constraints nullable="true" foreignKeyName="fk_position_slot_role" references="role(id)"/>
             </column>
 
             <column name="desired_volunteer_count" type="INT">

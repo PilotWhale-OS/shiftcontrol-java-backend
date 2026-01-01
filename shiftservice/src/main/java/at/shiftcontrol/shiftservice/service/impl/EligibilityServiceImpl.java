@@ -60,7 +60,7 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.SIGNED_UP;
         }
 
-        boolean eligibleForRole = volunteer.getRoles() != null && volunteer.getRoles().contains(positionSlot.getRole());
+        boolean eligibleForRole = positionSlot.getRole() == null || (volunteer.getRoles() != null && volunteer.getRoles().contains(positionSlot.getRole()));
         if (!eligibleForRole) {
             return PositionSignupState.NOT_ELIGIBLE;
         }

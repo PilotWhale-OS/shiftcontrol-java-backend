@@ -32,7 +32,6 @@ public class PositionSlotDto {
     @NotNull
     private String associatedShiftId;
 
-    @NotNull
     private RoleDto role;
 
     @NotNull

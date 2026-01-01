@@ -23,7 +23,6 @@ public class PositionSlotModificationDto {
     @NotNull
     private boolean skipAutoAssignment;
 
-    @NotNull
     private String roleId;
 
     @NotNull

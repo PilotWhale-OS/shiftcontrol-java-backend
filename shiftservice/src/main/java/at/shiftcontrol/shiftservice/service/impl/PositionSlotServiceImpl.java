@@ -29,6 +29,7 @@ import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -234,11 +235,15 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
 
         positionSlot.setName(modificationDto.getName());
-        positionSlot.setDescription(modificationDto.getDescription());
+        if (StringUtils.isNotBlank(modificationDto.getDescription())) {
+            positionSlot.setDescription(modificationDto.getDescription());
+        }
         positionSlot.setSkipAutoAssignment(modificationDto.isSkipAutoAssignment());
-        var role = roleDao.findById(ConvertUtil.idToLong(modificationDto.getRoleId()))
-            .orElseThrow(() -> new NotFoundException("Role not found"));
-        positionSlot.setRole(role);
+        if (StringUtils.isNotBlank(modificationDto.getRoleId())) {
+            var role = roleDao.findById(ConvertUtil.idToLong(modificationDto.getRoleId()))
+                .orElseThrow(() -> new NotFoundException("Role not found"));
+            positionSlot.setRole(role);
+        }
         positionSlot.setDesiredVolunteerCount(modificationDto.getDesiredVolunteerCount());
         positionSlot.setRewardPoints(modificationDto.getRewardPoints());
     }

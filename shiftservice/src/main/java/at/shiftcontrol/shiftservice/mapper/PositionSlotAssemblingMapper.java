@@ -76,7 +76,7 @@ public class PositionSlotAssemblingMapper {
             positionSlot.getDescription(),
             positionSlot.isSkipAutoAssignment(),
             String.valueOf(positionSlot.getShift().getId()),
-            RoleMapper.toRoleDto(positionSlot.getRole()),
+            positionSlot.getRole() == null ? null : RoleMapper.toRoleDto(positionSlot.getRole()),
             assignedVolunteers,
             positionSlot.getDesiredVolunteerCount(),
             positionSlot.getRewardPoints(),

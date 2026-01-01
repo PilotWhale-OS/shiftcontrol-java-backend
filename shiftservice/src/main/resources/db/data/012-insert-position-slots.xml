@@ -49,7 +49,6 @@
             <column name="name" value="Cool Slot Name 5"/>
             <column name="skip_auto_assignment" valueBoolean="false"/>
             <column name="shift_id" valueNumeric="3"/>
-            <column name="role_id" valueNumeric="2"/>
             <column name="desired_volunteer_count" valueNumeric="2"/>
         </insert>
         <insert tableName="position_slot">
@@ -84,7 +83,6 @@
             <column name="name" value="Cool Slot Name 9"/>
             <column name="skip_auto_assignment" valueBoolean="false"/>
             <column name="shift_id" valueNumeric="5"/>
-            <column name="role_id" valueNumeric="3"/>
             <column name="desired_volunteer_count" valueNumeric="2"/>
         </insert>
         <insert tableName="position_slot">

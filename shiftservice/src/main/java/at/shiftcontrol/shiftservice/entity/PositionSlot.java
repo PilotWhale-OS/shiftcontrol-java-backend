@@ -41,7 +41,7 @@ public class PositionSlot {
     @JoinColumn(name = "shift_id", nullable = false)
     private Shift shift;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
 
