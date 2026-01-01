@@ -48,6 +48,7 @@ public class EligibilityServiceImpl implements EligibilityService {
             ));
     }
 
+    // TODO this method is replaced by securiyHelper
     @Override
     public void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId) throws IllegalArgumentException {
         Collection<Volunteer> shiftPlanVolunteers = positionSlot.getShift().getShiftPlan().getPlanVolunteers();

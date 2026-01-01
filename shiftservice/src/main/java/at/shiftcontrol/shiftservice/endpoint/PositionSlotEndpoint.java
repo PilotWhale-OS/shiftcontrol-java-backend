@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -43,7 +44,7 @@ public class PositionSlotEndpoint {
         operationId = "getPositionSlot",
         description = "Get details for a specific position slot in a shift"
     )
-    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException {
+    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
         return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
 
@@ -80,7 +81,7 @@ public class PositionSlotEndpoint {
         description = "Set preference for a specific position slot"
     )
     public PositionSlotPreferenceDto setPositionSlotPreference(@PathVariable String positionSlotId,
-                                                               @RequestBody PositionSlotPreferenceUpdateDto preferenceUpdateDto) {
+                                                               @RequestBody PositionSlotPreferenceUpdateDto preferenceUpdateDto) throws ForbiddenException, NotFoundException {
         positionSlotService.setPreference(
             userProvider.getCurrentUser().getUserId(),
             ConvertUtil.idToLong(positionSlotId),
@@ -117,7 +118,7 @@ public class PositionSlotEndpoint {
         operationId = "claimAuction",
         description = "Assign the logged in user to the auctions PositionSlot"
     )
-    public AssignmentDto claimAssignment(@PathVariable String positionSlotId, @PathVariable String offeringUserId) throws NotFoundException, ConflictException {
+    public AssignmentDto claimAssignment(@PathVariable String positionSlotId, @PathVariable String offeringUserId) throws NotFoundException, ConflictException, ForbiddenException {
         return positionSlotService.claimAuction(
             ConvertUtil.idToLong(positionSlotId), offeringUserId,
             userProvider.getCurrentUser().getUserId());
@@ -129,7 +130,7 @@ public class PositionSlotEndpoint {
         operationId = "cancelAuction",
         description = "Cancel the logged in users auction for the PositionSlot"
     )
-    public AssignmentDto cancelAuction(@PathVariable String positionSlotId) throws NotFoundException {
+    public AssignmentDto cancelAuction(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
         return positionSlotService.cancelAuction(
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());

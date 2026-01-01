@@ -39,6 +39,7 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +50,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final VolunteerDao volunteerDao;
     private final EligibilityService eligibilityService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
+    private final SecurityHelper securityHelper;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) throws NotFoundException {
@@ -199,7 +201,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         for (AssignmentSwitchRequest trade : trades) {
             Optional<AssignmentSwitchRequest> inverse = getInverseTrade(trade.getId());
             if (inverse.isPresent()) {
-                // TODO how will frontend know if created or accepted ?
                 return List.of(acceptTrade(inverse.get().getId(), currentUserId));
             }
         }
