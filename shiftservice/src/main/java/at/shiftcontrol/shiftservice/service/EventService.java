@@ -1,8 +1,11 @@
 package at.shiftcontrol.shiftservice.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.dto.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
@@ -21,4 +24,6 @@ public interface EventService {
     EventDto updateEvent(long eventId, EventModificationDto eventModificationDto) throws NotFoundException;
 
     void deleteEvent(long eventId) throws NotFoundException;
+
+    Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException;
 }

@@ -39,4 +39,9 @@ public class ActivityDaoImpl implements ActivityDao {
     public Collection<Activity> findAllByLocationId(Long locationId) {
         return activityRepository.findAllByLocationId(locationId);
     }
+
+    @Override
+    public Collection<Activity> findAllByEventId(Long eventId) {
+        return activityRepository.findAllByEventId(eventId);
+    }
 }

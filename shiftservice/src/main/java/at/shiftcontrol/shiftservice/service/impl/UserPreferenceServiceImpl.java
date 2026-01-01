@@ -1,11 +1,9 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
-import at.shiftcontrol.shiftservice.dto.PositionSlotPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

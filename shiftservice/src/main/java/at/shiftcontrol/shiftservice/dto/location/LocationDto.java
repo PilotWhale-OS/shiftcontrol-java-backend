@@ -1,6 +1,5 @@
-package at.shiftcontrol.shiftservice.dto.shiftplan;
+package at.shiftcontrol.shiftservice.dto.location;
 
-import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,10 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ScheduleLayoutDto {
+public class LocationDto {
     @NotNull
-    private LocationDto location;
-
+    private String id;
     @NotNull
-    private int requiredShiftColumns;
+    private String name;
+    private String description;
+    private String url;
+    // TODO add additionalProperties?
 }
