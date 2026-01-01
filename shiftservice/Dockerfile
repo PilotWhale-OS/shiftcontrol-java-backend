@@ -5,12 +5,14 @@ WORKDIR /app
 COPY pom.xml .
 COPY shiftcontrol-lib/pom.xml shiftcontrol-lib/
 COPY shiftservice/pom.xml shiftservice/
+COPY pretalx-client/pom.xml pretalx-client/
 
 RUN mvn -pl shiftservice -am dependency:go-offline
 
 # 3️⃣ Copy actual source
 COPY shiftcontrol-lib shiftcontrol-lib
 COPY shiftservice shiftservice
+COPY pretalx-client pretalx-client
 
 RUN mvn -pl shiftservice -am clean package -DskipTests
 
