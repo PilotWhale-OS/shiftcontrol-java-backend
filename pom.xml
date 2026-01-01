@@ -23,6 +23,7 @@
   <modules>
     <module>shiftservice</module>
     <module>shiftcontrol-lib</module>
+    <module>pretalx-client</module>
   </modules>
 
   <build>

@@ -39,12 +39,20 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+
         <dependency>
             <groupId>at.shiftcontrol</groupId>
             <artifactId>shiftcontrol-lib</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+      <dependency>
+        <groupId>at.shiftcontrol</groupId>
+        <artifactId>pretalx-client</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <scope>compile</scope>
+      </dependency>
+
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
