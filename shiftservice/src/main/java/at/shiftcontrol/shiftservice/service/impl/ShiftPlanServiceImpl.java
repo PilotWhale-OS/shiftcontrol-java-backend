@@ -163,7 +163,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
-        securityHelper.assertUserIsinPlan(shiftPlanId);
+        securityHelper.assertUserIsInPlan(shiftPlanId);
         return userProvider.getCurrentUser().getUserId();
     }
 
