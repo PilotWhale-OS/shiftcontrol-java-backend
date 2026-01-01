@@ -74,20 +74,21 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         if (assignedVolunteers.isEmpty()) {
             return List.of();
         }
-        // check if user is already assigned
+        // check if user is already assigned to requested position slot
         if (assignedVolunteers.stream().anyMatch(v -> currentUserId.equals(v.getId()))) {
             throw new IllegalArgumentException("already assigned to position slot");
         }
 
         // only check for locked, eligibility and conflict of current user when creating actual trade
 
-        // get all assignments for current user in this shift-plan
+        // get all assignments in this shift-plan the current user can offer
         Collection<Assignment> assignments = assignmentDao.findAssignmentsForShiftPlanAndUser(
             requestedPositionSlot.getShift().getShiftPlan().getId(), currentUserId);
 
         // for each assignment, check to which volunteers (of the requested slot) it can be offered
         Collection<TradeCandidatesDto> slotsToOffer = new LinkedList<>();
         for (Assignment a : assignments) {
+            // only offer the position to eligible volunteers with no conflicts
             Collection<Volunteer> usersToTradeWith = getPossibleUsersForTrade(a.getPositionSlot(), requestedPositionSlot, assignedVolunteers);
             if (!usersToTradeWith.isEmpty()) {
                 slotsToOffer.add(
@@ -95,6 +96,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             }
         }
 
+        // remove candidates where the current user already requested a trade
         return removeExistingTrades(slotsToOffer, requestedPositionSlotId, currentUserId);
     }
 
@@ -185,8 +187,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         validateTradePossible(offeredPositionSlot, requestedPositionSlot, currentUser);
 
         // get Volunteer entity for users to create trades with
-        Collection<Volunteer> requestedVolunteers = filterVolunteers(requestedPositionSlot, tradeCreateDto.getRequestedVolunteers());
+        Collection<Volunteer> requestedVolunteers = getVolunteersToTradeWith(requestedPositionSlot, tradeCreateDto.getRequestedVolunteers());
         for (Volunteer v : requestedVolunteers) {
+            // check if eligible and for conflicts
             validateTradePossible(requestedPositionSlot, offeredPositionSlot, v);
         }
 
@@ -200,8 +203,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // no need to check for existing trades, status will just be updated
 
         // check if trade in other direction already exists
-        // --> if exists, executing trade would result in same pk
-        //      therefore dont create second trade and accept first one
+        // --> if exists, executing trade would result in same primary key
+        //      therefore do not create second trade and accept first one
         for (AssignmentSwitchRequest trade : trades) {
             Optional<AssignmentSwitchRequest> inverse = getInverseTrade(trade.getId());
             if (inverse.isPresent()) {
@@ -212,7 +215,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return TradeMapper.toDto(assignmentSwitchRequestDao.saveAll(trades));
     }
 
-    private Collection<Volunteer> filterVolunteers(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
+    private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
         Set<String> dtoUserIds = volunteerDtos.stream()
             .map(VolunteerDto::getId)
             .collect(Collectors.toSet());
@@ -229,6 +232,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("user not found"));
 
+        // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
             .orElseThrow(() -> new NotFoundException("Trade not found"));
 
@@ -267,28 +271,34 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     public TradeDto declineTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException {
+        // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
             .orElseThrow(() -> new NotFoundException("Trade not found"));
+        // check if user can decline
         if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("not involved in trade");
         }
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
             throw new IllegalStateException("trade not open");
         }
+
         trade.setStatus(TradeStatus.REJECTED);
         return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
     }
 
     @Override
     public TradeDto cancelTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException {
+        // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
             .orElseThrow(() -> new NotFoundException("Trade not found"));
+        // check if user can cancel
         if (!trade.getOfferingAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("not involved in trade");
         }
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
             throw new IllegalStateException("trade not open");
         }
+
         trade.setStatus(TradeStatus.CANCELED);
         return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
     }
@@ -305,6 +315,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private void validateTradePossible(PositionSlot ownedSlot, PositionSlot slotToBeTaken, Volunteer volunteer) throws ConflictException, ForbiddenException {
+        // check if position slots belong to same shift plan
         if (ownedSlot.getShift().getShiftPlan().getId() != slotToBeTaken.getShift().getShiftPlan().getId()) {
             throw new IllegalArgumentException("position slots belong to different shift plans");
         }
