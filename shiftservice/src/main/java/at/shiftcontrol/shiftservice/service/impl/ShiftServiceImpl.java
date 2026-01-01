@@ -98,10 +98,22 @@ public class ShiftServiceImpl implements ShiftService {
             var activity = activityDao.findById(ConvertUtil.idToLong(modificationDto.getActivityId()))
                 .orElseThrow(() -> new NotFoundException("Activity not found"));
             shift.setRelatedActivity(activity);
-            shift.setLocation(activity.getLocation());
+
+            if (activity.getLocation() != null) {
+                var eventLocations = shift.getShiftPlan().getEvent().getLocations();
+                if (!eventLocations.contains(activity.getLocation())) {
+                    throw new BadRequestException("Activity location does not belong to the same event as the shift");
+                }
+                shift.setLocation(activity.getLocation());
+            }
         } else {
             var location = locationDao.findById(ConvertUtil.idToLong(modificationDto.getLocationId()))
                 .orElseThrow(() -> new NotFoundException("Location not found"));
+
+            var eventLocations = shift.getShiftPlan().getEvent().getLocations();
+            if (!eventLocations.contains(location)) {
+                throw new BadRequestException("Location does not belong to the same event as the shift");
+            }
             shift.setLocation(location);
             shift.setRelatedActivity(null);
         }
