@@ -235,14 +235,15 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
 
         positionSlot.setName(modificationDto.getName());
-        if (StringUtils.isNotBlank(modificationDto.getDescription())) {
-            positionSlot.setDescription(modificationDto.getDescription());
-        }
+        positionSlot.setDescription(modificationDto.getDescription());
+
         positionSlot.setSkipAutoAssignment(modificationDto.isSkipAutoAssignment());
         if (StringUtils.isNotBlank(modificationDto.getRoleId())) {
             var role = roleDao.findById(ConvertUtil.idToLong(modificationDto.getRoleId()))
                 .orElseThrow(() -> new NotFoundException("Role not found"));
             positionSlot.setRole(role);
+        } else {
+            positionSlot.setRole(null);
         }
         positionSlot.setDesiredVolunteerCount(modificationDto.getDesiredVolunteerCount());
         positionSlot.setRewardPoints(modificationDto.getRewardPoints());
