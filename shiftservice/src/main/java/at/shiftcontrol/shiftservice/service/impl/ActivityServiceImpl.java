@@ -32,10 +32,6 @@ public class ActivityServiceImpl implements ActivityService {
     private final EventDao eventDao;
     private final ActivityDao activityDao;
     private final LocationDao locationDao;
-    private final VolunteerDao volunteerDao;
-    private final StatisticService statisticService;
-    private final ApplicationUserProvider userProvider;
-    private final SecurityHelper securityHelper;
 
     @Override
     public ActivityDto getActivity(long activityId) throws NotFoundException {
@@ -54,6 +50,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         var newActivity = Activity.builder()
             .event(event)
+            .readOnly(false)
             .build();
 
         var activity = validateModificationDtoAndSetActivityFields(modificationDto, newActivity);
@@ -76,10 +73,14 @@ public class ActivityServiceImpl implements ActivityService {
 
         return ActivityMapper.toActivityDto(activity);
     }
-    
+
     Activity validateModificationDtoAndSetActivityFields(ActivityModificationDto modificationDto, Activity activity) throws NotFoundException {
         if (modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
             throw new BadRequestException("End time must be after start time");
+        }
+
+        if (activity.isReadOnly()) {
+            throw new BadRequestException("Cannot modify read-only activity");
         }
 
         activity.setName(modificationDto.getName());
@@ -99,6 +100,10 @@ public class ActivityServiceImpl implements ActivityService {
 
         var activity = activityDao.findById(activityId)
             .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
+
+        if (activity.isReadOnly()) {
+            throw new BadRequestException("Cannot modify read-only activity");
+        }
 
         activityDao.delete(activity);
     }

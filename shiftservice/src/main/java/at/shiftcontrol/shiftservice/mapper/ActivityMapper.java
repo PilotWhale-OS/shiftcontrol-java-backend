@@ -15,7 +15,8 @@ public class ActivityMapper {
             activity.getDescription(),
             activity.getStartTime(),
             activity.getEndTime(),
-            LocationMapper.toLocationDto(activity.getLocation())
+            LocationMapper.toLocationDto(activity.getLocation()),
+            activity.isReadOnly()
         );
     }
 

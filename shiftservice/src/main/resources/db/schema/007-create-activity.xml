@@ -35,6 +35,10 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="read_only" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
         </createTable>
 
     </changeSet>

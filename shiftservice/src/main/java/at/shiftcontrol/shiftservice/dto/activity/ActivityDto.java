@@ -24,4 +24,6 @@ public class ActivityDto {
     @NotNull
     private Instant endTime;
     private LocationDto location;
+    @NotNull
+    private boolean readOnly;
 }
