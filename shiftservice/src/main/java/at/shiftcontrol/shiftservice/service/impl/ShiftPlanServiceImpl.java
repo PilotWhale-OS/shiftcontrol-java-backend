@@ -201,7 +201,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
-        securityHelper.assertUserIsinPlan(shiftPlanId);
+        securityHelper.assertUserIsInPlan(shiftPlanId);
         return userProvider.getCurrentUser().getUserId();
     }
 
@@ -250,13 +250,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             return false;
         }
 
+        boolean freeAndOpenTrade = state == PositionSignupState.SIGNUP_OR_TRADE;
+
         boolean freeAndEligible = state == PositionSignupState.SIGNUP_POSSIBLE;
 
         boolean hasOpenTrade = state == PositionSignupState.SIGNUP_VIA_TRADE;
 
         boolean hasAuction = state == PositionSignupState.SIGNUP_VIA_AUCTION;
 
-        return freeAndEligible || hasOpenTrade || hasAuction;
+        return freeAndEligible || freeAndOpenTrade || hasOpenTrade || hasAuction;
     }
 
 

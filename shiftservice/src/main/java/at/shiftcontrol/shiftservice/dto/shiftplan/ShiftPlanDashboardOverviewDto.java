@@ -2,14 +2,16 @@ package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import java.util.Collection;
 
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Data;
+
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
-import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
 
 @Data
 @Builder
@@ -32,5 +34,5 @@ public class ShiftPlanDashboardOverviewDto {
     @NotNull
     private Collection<TradeDto> trades;
     @NotNull
-    private Collection<ShiftDto> auctions; // TODO this should be Collection<Assignment>
+    private Collection<AssignmentDto> auctions;
 }
