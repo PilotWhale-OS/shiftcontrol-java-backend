@@ -10,6 +10,8 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 public interface ActivityService {
     ActivityDto getActivity(long activityId) throws NotFoundException;
 
+    Collection<ActivityDto> getActivitiesForEvent(long eventId) throws NotFoundException;
+
     ActivityDto createActivity(long eventId, ActivityModificationDto modificationDto) throws NotFoundException;
 
     ActivityDto updateActivity(long activityId, ActivityModificationDto modificationDto) throws NotFoundException;

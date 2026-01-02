@@ -38,6 +38,16 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    public Collection<ActivityDto> getActivitiesForEvent(long eventId) throws NotFoundException {
+        eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        var activities = activityDao.findAllByEventId(eventId);
+
+        return activities.stream()
+            .map(ActivityMapper::toActivityDto)
+            .toList();
+    }
+
+    @Override
     public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
         // TODO assert admin only
 
@@ -113,7 +123,6 @@ public class ActivityServiceImpl implements ActivityService {
         // TODO assert admin only
 
         eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
-
         var activitiesOfEvent = activityDao.findAllByEventId(eventId);
 
         if (suggestionDto == null || (suggestionDto.getName() == null && suggestionDto.getTimeFilter() == null)) {
