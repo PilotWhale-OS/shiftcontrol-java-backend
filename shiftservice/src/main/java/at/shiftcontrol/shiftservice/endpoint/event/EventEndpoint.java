@@ -46,7 +46,7 @@ public class EventEndpoint {
         operationId = "getEventById",
         description = "Find event by id"
     )
-    public EventDto getEvent(@PathVariable String eventId) throws NotFoundException {
+    public EventDto getEvent(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
         return eventService.getEvent(ConvertUtil.idToLong(eventId));
     }
 
@@ -67,7 +67,8 @@ public class EventEndpoint {
         operationId = "getEventSchedule",
         description = "Get the schedule of an event"
     )
-    public EventScheduleDto getEventSchedule(@PathVariable String eventId, @Valid EventScheduleDaySearchDto searchDto) throws NotFoundException {
+    public EventScheduleDto getEventSchedule(@PathVariable String eventId, @Valid EventScheduleDaySearchDto searchDto)
+        throws NotFoundException, ForbiddenException {
         return eventService.getEventSchedule(ConvertUtil.idToLong(eventId), searchDto);
     }
 
