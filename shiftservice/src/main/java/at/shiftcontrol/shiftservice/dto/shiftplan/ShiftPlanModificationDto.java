@@ -4,11 +4,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import at.shiftcontrol.shiftservice.type.LockStatus;
-
 @Data
 @Builder
-public class ShiftPlanPatchStatusDto {
+public class ShiftPlanModificationDto {
     @NotNull
-    private LockStatus lockStatus;
+    private String name;
+
+    private String shortDescription;
+
+    private String longDescription;
 }

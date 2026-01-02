@@ -11,24 +11,24 @@ import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto
 import lombok.NonNull;
 
 public interface PositionSlotService {
-    PositionSlotDto findById(@NonNull Long id) throws NotFoundException;
+    PositionSlotDto findById(@NonNull Long id) throws NotFoundException, ForbiddenException;
 
-    AssignmentDto join(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ConflictException;
+    AssignmentDto join(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ConflictException, ForbiddenException;
 
-    void leave(@NonNull Long positionSlotId, @NonNull Long volunteerId);
+    void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ForbiddenException;
 
-    Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) throws NotFoundException;
+    Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException;
 
-    void setPreference(@NonNull String volunteerId, long positionSlotId, int preference);
+    void setPreference(@NonNull String volunteerId, long positionSlotId, int preference) throws NotFoundException, ForbiddenException;
 
-    int getPreference(@NonNull String volunteerId, long positionSlotId);
+    int getPreference(@NonNull String volunteerId, long positionSlotId) throws ForbiddenException, NotFoundException;
 
     AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
 
     AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
-        throws NotFoundException, ConflictException;
+        throws NotFoundException, ConflictException, ForbiddenException;
 
-    AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
+    AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException;
 
     PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) throws NotFoundException,
         ForbiddenException;
