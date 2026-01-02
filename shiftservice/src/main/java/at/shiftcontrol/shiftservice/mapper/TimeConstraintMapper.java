@@ -2,16 +2,18 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.entity.Event;
+import at.shiftcontrol.shiftservice.entity.Volunteer;
+
 import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
-import at.shiftcontrol.shiftservice.entity.Attendance;
-import at.shiftcontrol.shiftservice.entity.AttendanceTimeConstraint;
+import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class TimeConstraintMapper {
-    public static TimeConstraintDto toDto(AttendanceTimeConstraint e) {
+    public static TimeConstraintDto toDto(TimeConstraint e) {
         return new TimeConstraintDto(
                 String.valueOf(e.getId()),
                 e.getType(),
@@ -20,16 +22,17 @@ public class TimeConstraintMapper {
             );
     }
 
-    public static Collection<TimeConstraintDto> toDto(Collection<AttendanceTimeConstraint> entities) {
+    public static Collection<TimeConstraintDto> toDto(Collection<TimeConstraint> entities) {
         return entities.stream()
             .map(TimeConstraintMapper::toDto)
             .toList();
     }
 
     // Create entity from create DTO and resolved Attendance
-    public static AttendanceTimeConstraint fromCreateDto(TimeConstraintCreateDto dto, Attendance attendance) {
-        return AttendanceTimeConstraint.builder()
-            .attendance(attendance)
+    public static TimeConstraint fromCreateDto(TimeConstraintCreateDto dto, Volunteer volunteer, Event event) {
+        return TimeConstraint.builder()
+            .event(event)
+            .volunteer(volunteer)
             .type(dto.getType())
             .startTime(dto.getFrom())
             .endTime(dto.getTo())
