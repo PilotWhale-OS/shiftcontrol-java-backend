@@ -7,11 +7,9 @@ import java.util.stream.Stream;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
-import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
@@ -19,8 +17,6 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
-import at.shiftcontrol.shiftservice.service.StatisticService;
-import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -90,6 +86,10 @@ public class ActivityServiceImpl implements ActivityService {
 
         var location = locationDao.findById(ConvertUtil.idToLong(modificationDto.getLocationId()))
             .orElseThrow(() -> new NotFoundException("Location not found with id: " + modificationDto.getLocationId()));
+        if (location.isReadOnly()) {
+            throw new BadRequestException("Cannot assign read-only location to activity");
+        }
+
         activity.setLocation(location);
         return activity;
     }

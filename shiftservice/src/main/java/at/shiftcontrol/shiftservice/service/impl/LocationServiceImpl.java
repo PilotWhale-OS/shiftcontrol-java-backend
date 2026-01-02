@@ -48,6 +48,7 @@ public class LocationServiceImpl implements LocationService {
             .name(modificationDto.getName())
             .description(modificationDto.getDescription())
             .url(modificationDto.getUrl())
+            .readOnly(false)
             .build();
 
         newLocation = locationDao.save(newLocation);
@@ -60,6 +61,10 @@ public class LocationServiceImpl implements LocationService {
         // TODO ensure admin only call
 
         var location = getLocationOrThrow(locationId);
+
+        if (location.isReadOnly()) {
+            throw new NotFoundException("Cannot modify read-only location");
+        }
 
         location.setName(modificationDto.getName());
         location.setDescription(modificationDto.getDescription());
@@ -74,6 +79,10 @@ public class LocationServiceImpl implements LocationService {
         // TODO ensure admin only call
 
         var location = getLocationOrThrow(locationId);
+
+        if (location.isReadOnly()) {
+            throw new NotFoundException("Cannot modify read-only location");
+        }
 
         locationDao.delete(location);
     }
