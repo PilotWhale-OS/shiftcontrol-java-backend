@@ -121,9 +121,13 @@ public class SecurityHelper {
     }
     //     --------------------- Volunteer or Planner ---------------------
 
-    public void assertUserIsInPlan(long shiftPlanId) throws ForbiddenException {
+    private boolean isUserInPlan(long shiftPlanId) {
         var currentUser = userProvider.getCurrentUser();
-        if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
+        return currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId);
+    }
+
+    public void assertUserIsInPlan(long shiftPlanId) throws ForbiddenException {
+        if (!isUserInPlan(shiftPlanId)) {
             throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
         }
     }
@@ -142,17 +146,14 @@ public class SecurityHelper {
 
 
     public void assertUserIsinAnyPlanOfEvent(Event event) throws ForbiddenException {
-        var plans = event.getShiftPlans();
+        boolean hasAccess = event.getShiftPlans()
+            .stream()
+            .anyMatch(shiftPlan -> isUserInPlan(shiftPlan.getId()));
 
-        // call existing assertUserIsinPlan method for each plan
-        for (var plan : plans) {
-            try {
-                assertUserIsInPlan(plan.getId());
-                return; // if no exception, user has access
-            } catch (ForbiddenException e) {
-                // continue checking other plans
-            }
+        if (!hasAccess) {
+            throw new ForbiddenException(
+                "User has no access to any shift plan of event with id: " + event.getId()
+            );
         }
-        throw new ForbiddenException("User has no access to any shift plan of event with id: " + event.getId());
     }
 }
