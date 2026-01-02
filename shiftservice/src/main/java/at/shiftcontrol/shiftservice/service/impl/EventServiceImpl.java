@@ -26,6 +26,7 @@ import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,16 @@ public class EventServiceImpl implements EventService {
     private final ActivityDao activityDao;
     private final VolunteerDao volunteerDao;
     private final StatisticService statisticService;
+    private final SecurityHelper securityHelper;
+
+    @Override
+    public EventDto getEvent(long eventId) throws NotFoundException {
+        // TODO assert admin only permission
+
+        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+
+        return EventMapper.toEventDto(event);
+    }
 
     @Override
     public List<EventDto> search(EventSearchDto searchDto, String userId) throws NotFoundException {

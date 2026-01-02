@@ -38,6 +38,16 @@ public class EventEndpoint {
     private final EventService eventService;
     private final DashboardService dashboardService;
 
+    @GetMapping("/{eventId}")
+    // TODO Security
+    @Operation(
+        operationId = "getEventById",
+        description = "Find event by id"
+    )
+    public EventDto getEvent(@PathVariable String eventId) throws NotFoundException {
+        return eventService.getEvent(ConvertUtil.idToLong(eventId));
+    }
+
     @GetMapping()
     //TODO: @Secured({"planner.event.read", "volunteer.event.read"})
     @Operation(
