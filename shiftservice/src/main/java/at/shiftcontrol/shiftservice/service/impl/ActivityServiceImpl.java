@@ -89,17 +89,16 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BadRequestException("Cannot modify read-only activity");
         }
 
-        activity.setName(modificationDto.getName());
-        activity.setDescription(modificationDto.getDescription());
-        activity.setStartTime(modificationDto.getStartTime());
-        activity.setEndTime(modificationDto.getEndTime());
-
         var location = locationDao.findById(ConvertUtil.idToLong(modificationDto.getLocationId()))
             .orElseThrow(() -> new NotFoundException("Location not found with id: " + modificationDto.getLocationId()));
         if (location.isReadOnly()) {
             throw new BadRequestException("Cannot assign read-only location to activity");
         }
 
+        activity.setName(modificationDto.getName());
+        activity.setDescription(modificationDto.getDescription());
+        activity.setStartTime(modificationDto.getStartTime());
+        activity.setEndTime(modificationDto.getEndTime());
         activity.setLocation(location);
         return activity;
     }
