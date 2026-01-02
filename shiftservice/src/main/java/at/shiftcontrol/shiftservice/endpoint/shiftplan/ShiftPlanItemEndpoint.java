@@ -41,7 +41,7 @@ public class ShiftPlanItemEndpoint {
         operationId = "getShiftPlan",
         description = "Find shiftPlans by its id"
     )
-    public ShiftPlanDto getAllShiftPlans(@PathVariable String shiftPlanId) throws NotFoundException {
+    public ShiftPlanDto getShiftPlan(@PathVariable String shiftPlanId) throws NotFoundException {
         return shiftPlanService.get(ConvertUtil.idToLong(shiftPlanId));
     }
 
