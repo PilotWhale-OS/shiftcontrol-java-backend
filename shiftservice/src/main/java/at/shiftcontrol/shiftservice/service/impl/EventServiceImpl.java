@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
@@ -47,10 +48,9 @@ public class EventServiceImpl implements EventService {
     private final SecurityHelper securityHelper;
 
     @Override
-    public EventDto getEvent(long eventId) throws NotFoundException {
-        // TODO assert admin only permission
-
+    public EventDto getEvent(long eventId) throws NotFoundException, ForbiddenException {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        securityHelper.assertUserIsinAnyPlanOfEvent(event);
 
         return EventMapper.toEventDto(event);
     }
@@ -103,17 +103,19 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) throws NotFoundException {
+    public EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) throws NotFoundException, ForbiddenException {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        securityHelper.assertUserIsinAnyPlanOfEvent(event);
+
         var activitiesOfEvent = activityDao.searchActivitiesInEvent(eventId, searchDto).stream().toList();
 
         return EventMapper.toEventScheduleDto(event, activitiesOfEvent);
-
-        // TODO perms (also for get event and other methods)
     }
 
     @Override
     public EventDto createEvent(@NonNull EventModificationDto modificationDto) {
+        // TODO assert admin only
+
         validateEventModificationDto(modificationDto);
 
         Event event = EventMapper.toEvent(modificationDto);
@@ -123,6 +125,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDto updateEvent(long eventId, @NonNull EventModificationDto modificationDto) throws NotFoundException {
+        // TODO assert admin only
+
         validateEventModificationDto(modificationDto);
 
         Event event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
@@ -137,7 +141,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    public void updateEvent(Event event, EventModificationDto eventModificationDto) {
+    private void updateEvent(Event event, EventModificationDto eventModificationDto) {
         event.setName(eventModificationDto.getName());
         event.setShortDescription(eventModificationDto.getShortDescription());
         event.setLongDescription(eventModificationDto.getLongDescription());
@@ -147,6 +151,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void deleteEvent(long eventId) throws NotFoundException {
+        // TODO assert admin only
         eventDao.delete(eventDao.findById(eventId).orElseThrow(NotFoundException::new));
     }
 
@@ -156,15 +161,18 @@ public class EventServiceImpl implements EventService {
         var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));
 
         var volunteerShiftPlans = volunteer.getVolunteeringPlans();
+        var planningShiftPlans = volunteer.getPlanningPlans();
 
         // filter shiftPlans that the volunteer is part of (volunteerShiftPlans)
         return shiftPlans.stream()
-            .filter(volunteerShiftPlans::contains)
+            .filter(shiftPlan -> volunteerShiftPlans.contains(shiftPlan) || planningShiftPlans.contains(shiftPlan))
             .toList();
     }
 
     @Override
     public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException {
+        // TODO assert admin only
+
         eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
 
         var activitiesOfEvent = activityDao.findAllByEventId(eventId);

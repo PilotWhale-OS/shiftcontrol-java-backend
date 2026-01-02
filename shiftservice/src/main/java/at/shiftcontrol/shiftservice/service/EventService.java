@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service;
 import java.util.Collection;
 import java.util.List;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.ActivitySuggestionDto;
@@ -15,7 +16,7 @@ import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 
 public interface EventService {
-    EventDto getEvent(long eventId) throws NotFoundException;
+    EventDto getEvent(long eventId) throws NotFoundException, ForbiddenException;
 
     List<EventDto> search(EventSearchDto searchDto) throws NotFoundException;
 
@@ -23,7 +24,7 @@ public interface EventService {
 
     EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId) throws NotFoundException;
 
-    EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) throws NotFoundException;
+    EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) throws NotFoundException, ForbiddenException;
 
     EventDto createEvent(EventModificationDto modificationDto);
 

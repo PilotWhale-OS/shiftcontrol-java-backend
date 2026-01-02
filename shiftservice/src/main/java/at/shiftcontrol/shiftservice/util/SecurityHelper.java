@@ -1,18 +1,17 @@
 package at.shiftcontrol.shiftservice.util;
 
-import org.springframework.stereotype.Service;
-
-import jakarta.ws.rs.NotFoundException;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import jakarta.ws.rs.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -127,5 +126,20 @@ public class SecurityHelper {
         if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
             throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
         }
+    }
+
+    public void assertUserIsinAnyPlanOfEvent(Event event) throws ForbiddenException {
+        var plans = event.getShiftPlans();
+
+        // call existing assertUserIsinPlan method for each plan
+        for (var plan : plans) {
+            try {
+                assertUserIsinPlan(plan.getId());
+                return; // if no exception, user has access
+            } catch (ForbiddenException e) {
+                // continue checking other plans
+            }
+        }
+        throw new ForbiddenException("User has no access to any shift plan of event with id: " + event.getId());
     }
 }
