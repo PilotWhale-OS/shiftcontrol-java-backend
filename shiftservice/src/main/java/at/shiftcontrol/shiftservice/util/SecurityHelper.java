@@ -147,7 +147,7 @@ public class SecurityHelper {
         // call existing assertUserIsinPlan method for each plan
         for (var plan : plans) {
             try {
-                assertUserIsinPlan(plan.getId());
+                assertUserIsInPlan(plan.getId());
                 return; // if no exception, user has access
             } catch (ForbiddenException e) {
                 // continue checking other plans

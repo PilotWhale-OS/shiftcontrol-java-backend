@@ -2,6 +2,12 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
+
+import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
+
+import at.shiftcontrol.shiftservice.service.ActivityService;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +44,7 @@ public class EventEndpoint {
     private final ApplicationUserProvider userProvider;
     private final EventService eventService;
     private final DashboardService dashboardService;
+    private final ActivityService activityService;
 
     @GetMapping("/{eventId}")
     // TODO Security
@@ -129,6 +136,6 @@ public class EventEndpoint {
     )
     public Collection<ActivityDto> suggestActivitiesForShift(@PathVariable String eventId, @RequestBody @Valid ActivitySuggestionDto suggestionDto)
         throws NotFoundException {
-        return eventService.suggestActivitiesForShift(ConvertUtil.idToLong(eventId), suggestionDto);
+        return activityService.suggestActivitiesForShift(ConvertUtil.idToLong(eventId), suggestionDto);
     }
 }
