@@ -1,8 +1,7 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.activity;
 
 import java.time.Instant;
 
-import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ActivityDto {
-    @NotNull
-    private String id;
+public class ActivityModificationDto {
     @NotNull
     private String name;
     private String description;
@@ -23,5 +20,5 @@ public class ActivityDto {
     private Instant startTime;
     @NotNull
     private Instant endTime;
-    private LocationDto location;
+    private String locationId;
 }

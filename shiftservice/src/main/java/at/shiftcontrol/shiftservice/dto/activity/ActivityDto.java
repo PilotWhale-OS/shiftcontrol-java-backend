@@ -1,11 +1,8 @@
-package at.shiftcontrol.shiftservice.dto.shift;
+package at.shiftcontrol.shiftservice.dto.activity;
 
 import java.time.Instant;
-import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,23 +10,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class ShiftDto {
+public class ActivityDto {
     @NotNull
     private String id;
     @NotNull
     private String name;
-    private String shortDescription;
-    private String longDescription;
+    private String description;
     @NotNull
     private Instant startTime;
     @NotNull
     private Instant endTime;
-    private ActivityDto relatedActivity;
-    @NotNull
-    private Collection<PositionSlotDto> positionSlots;
-    @NotNull
     private LocationDto location;
 }

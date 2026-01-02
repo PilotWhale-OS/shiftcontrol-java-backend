@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import jakarta.validation.constraints.NotNull;

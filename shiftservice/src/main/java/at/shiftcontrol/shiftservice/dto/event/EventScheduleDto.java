@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.dto.event;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import lombok.Builder;
 import lombok.Data;
 

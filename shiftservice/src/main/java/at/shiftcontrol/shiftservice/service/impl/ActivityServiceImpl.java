@@ -6,13 +6,16 @@ import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.ActivityDto;
-import at.shiftcontrol.shiftservice.dto.ActivitySuggestionDto;
-import at.shiftcontrol.shiftservice.dto.ActivityTimeFilterDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
@@ -28,10 +31,77 @@ import org.springframework.stereotype.Service;
 public class ActivityServiceImpl implements ActivityService {
     private final EventDao eventDao;
     private final ActivityDao activityDao;
+    private final LocationDao locationDao;
     private final VolunteerDao volunteerDao;
     private final StatisticService statisticService;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
+
+    @Override
+    public ActivityDto getActivity(long activityId) throws NotFoundException {
+        var activity = activityDao.findById(activityId)
+            .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
+
+        return ActivityMapper.toActivityDto(activity);
+    }
+
+    @Override
+    public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
+        // TODO assert admin only
+
+        var event = eventDao.findById(eventId)
+            .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+
+        var newActivity = Activity.builder()
+            .event(event)
+            .build();
+
+        var activity = validateModificationDtoAndSetActivityFields(modificationDto, newActivity);
+
+        activity = activityDao.save(activity);
+
+        return ActivityMapper.toActivityDto(activity);
+    }
+
+    @Override
+    public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
+        // TODO assert admin only
+
+        var activity = activityDao.findById(activityId)
+            .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
+
+        activity = validateModificationDtoAndSetActivityFields(modificationDto, activity);
+
+        activity = activityDao.save(activity);
+
+        return ActivityMapper.toActivityDto(activity);
+    }
+    
+    Activity validateModificationDtoAndSetActivityFields(ActivityModificationDto modificationDto, Activity activity) throws NotFoundException {
+        if (modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
+            throw new BadRequestException("End time must be after start time");
+        }
+
+        activity.setName(modificationDto.getName());
+        activity.setDescription(modificationDto.getDescription());
+        activity.setStartTime(modificationDto.getStartTime());
+        activity.setEndTime(modificationDto.getEndTime());
+
+        var location = locationDao.findById(ConvertUtil.idToLong(modificationDto.getLocationId()))
+            .orElseThrow(() -> new NotFoundException("Location not found with id: " + modificationDto.getLocationId()));
+        activity.setLocation(location);
+        return activity;
+    }
+
+    @Override
+    public void deleteActivity(long activityId) throws NotFoundException {
+        // TODO assert admin only
+
+        var activity = activityDao.findById(activityId)
+            .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
+
+        activityDao.delete(activity);
+    }
 
     @Override
     public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException {

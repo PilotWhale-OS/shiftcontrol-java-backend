@@ -4,8 +4,9 @@ import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.ActivityDto;
-import at.shiftcontrol.shiftservice.dto.ActivitySuggestionDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -20,14 +21,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "api/v1/events", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "api/v1/events/{eventId}/activities", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ActivityCollectionEndpoint {
     private final ActivityService activityService;
 
     // TODO: Get all, create
 
-    @PostMapping("/{eventId}/suggest-activities")
+    @PostMapping("")
+    // TODO Security
+    @Operation(
+        operationId = "createActivity",
+        description = "Create a new activity for a specific event"
+    )
+    public ActivityDto createActivity(@PathVariable String eventId, @RequestBody @Valid ActivityModificationDto modificationDto)
+        throws NotFoundException {
+        return activityService.createActivity(ConvertUtil.idToLong(eventId), modificationDto);
+    }
+
+    @PostMapping("/suggest")
     // TODO Security
     @Operation(
         operationId = "suggestActivitiesForShift",
