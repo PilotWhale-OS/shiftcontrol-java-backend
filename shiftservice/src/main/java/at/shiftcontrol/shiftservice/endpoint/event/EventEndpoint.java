@@ -10,6 +10,8 @@ import at.shiftcontrol.shiftservice.dto.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
+import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
@@ -58,6 +60,16 @@ public class EventEndpoint {
         return eventService.search(null);
     }
     //Todo: Add search capability in future
+
+    @GetMapping("/{eventId}/schedule")
+    // TODO Security
+    @Operation(
+        operationId = "getEventSchedule",
+        description = "Get the schedule of an event"
+    )
+    public EventScheduleDto getEventSchedule(@PathVariable String eventId, @Valid EventScheduleDaySearchDto searchDto) throws NotFoundException {
+        return eventService.getEventSchedule(ConvertUtil.idToLong(eventId), searchDto);
+    }
 
     @PostMapping()
     // TODO: Security

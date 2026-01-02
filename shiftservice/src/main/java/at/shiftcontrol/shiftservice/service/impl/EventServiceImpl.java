@@ -17,6 +17,8 @@ import at.shiftcontrol.shiftservice.dto.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.dto.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
+import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
@@ -57,7 +59,7 @@ public class EventServiceImpl implements EventService {
     public List<EventDto> search(EventSearchDto searchDto) throws NotFoundException {
         var filteredEvents = eventDao.search(searchDto);
         var currentUser = userProvider.getCurrentUser();
-        
+
         // skip filtering for admin users
         if (currentUser instanceof AdminUser) {
             return EventMapper.toEventDto(filteredEvents);
@@ -98,6 +100,16 @@ public class EventServiceImpl implements EventService {
             .ownEventStatistics(statisticService.getOwnStatisticsOfShiftPlans(userRelevantShiftPlans, userId))
             .overallEventStatistics(statisticService.getOverallEventStatistics(event))
             .build();
+    }
+
+    @Override
+    public EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) throws NotFoundException {
+        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        var activitiesOfEvent = activityDao.searchActivitiesInEvent(eventId, searchDto).stream().toList();
+
+        return EventMapper.toEventScheduleDto(event, activitiesOfEvent);
+
+        // TODO perms (also for get event and other methods)
     }
 
     @Override

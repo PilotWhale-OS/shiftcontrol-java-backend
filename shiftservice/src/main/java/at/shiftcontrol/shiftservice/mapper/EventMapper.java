@@ -4,6 +4,8 @@ import java.util.List;
 
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
+import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
+import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Event;
 import lombok.NoArgsConstructor;
 
@@ -33,6 +35,13 @@ public class EventMapper {
             .longDescription(modificationDto.getLongDescription())
             .startTime(modificationDto.getStartTime())
             .endTime(modificationDto.getEndTime())
+            .build();
+    }
+
+    public static EventScheduleDto toEventScheduleDto(Event event, List<Activity> activities) {
+        return EventScheduleDto.builder()
+            .event(toEventDto(event))
+            .activities(ActivityMapper.toActivityDto(activities))
             .build();
     }
 }
