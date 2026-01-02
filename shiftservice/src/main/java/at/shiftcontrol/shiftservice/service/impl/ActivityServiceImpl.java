@@ -95,12 +95,7 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BadRequestException("Cannot assign read-only location to activity");
         }
 
-        activity.setName(modificationDto.getName());
-        activity.setDescription(modificationDto.getDescription());
-        activity.setStartTime(modificationDto.getStartTime());
-        activity.setEndTime(modificationDto.getEndTime());
-        activity.setLocation(location);
-        return activity;
+        return ActivityMapper.updateActivity(modificationDto, location, activity);
     }
 
     @Override

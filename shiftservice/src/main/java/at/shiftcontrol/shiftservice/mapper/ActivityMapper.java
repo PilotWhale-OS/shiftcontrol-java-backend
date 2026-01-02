@@ -3,7 +3,9 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
+import at.shiftcontrol.shiftservice.entity.Location;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -24,5 +26,15 @@ public class ActivityMapper {
         return activities.stream()
             .map(ActivityMapper::toActivityDto)
             .toList();
+    }
+
+    public static Activity updateActivity(ActivityModificationDto modificationDto, Location location, Activity activity) {
+        activity.setName(modificationDto.getName());
+        activity.setDescription(modificationDto.getDescription());
+        activity.setStartTime(modificationDto.getStartTime());
+        activity.setEndTime(modificationDto.getEndTime());
+        activity.setLocation(location);
+        return activity;
+
     }
 }
