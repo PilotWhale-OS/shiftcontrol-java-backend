@@ -24,4 +24,11 @@ public class AssignmentId implements Serializable {
                 .build();
     }
 
+    public static AssignmentId of(Assignment assignment) {
+        return AssignmentId.builder()
+                .positionSlotId(assignment.getPositionSlot().getId())
+                .volunteerId(assignment.getAssignedVolunteer().getId())
+                .build();
+    }
+
 }
