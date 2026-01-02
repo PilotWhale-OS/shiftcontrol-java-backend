@@ -55,7 +55,7 @@ public class EventEndpoint {
         description = "Find all (volunteer related) events"
     )
     public Collection<EventDto> getAllEvents() throws NotFoundException {
-        return eventService.search(null, userProvider.getCurrentUser().getUserId());
+        return eventService.search(null);
     }
     //Todo: Add search capability in future
 

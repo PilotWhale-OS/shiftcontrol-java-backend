@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -39,6 +41,7 @@ public class EventServiceImpl implements EventService {
     private final ActivityDao activityDao;
     private final VolunteerDao volunteerDao;
     private final StatisticService statisticService;
+    private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
 
     @Override
@@ -51,15 +54,25 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> search(EventSearchDto searchDto, String userId) throws NotFoundException {
+    public List<EventDto> search(EventSearchDto searchDto) throws NotFoundException {
         var filteredEvents = eventDao.search(searchDto);
+        var currentUser = userProvider.getCurrentUser();
+        
+        // skip filtering for admin users
+        if (currentUser instanceof AdminUser) {
+            return EventMapper.toEventDto(filteredEvents);
+        }
+        String userId = currentUser.getUserId();
+
         var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));
         var volunteerShiftPlans = volunteer.getVolunteeringPlans();
+        var planningShiftPlans = volunteer.getPlanningPlans();
 
         // filter events that the volunteer is part of
         var relevantEvents = filteredEvents.stream()
             .filter(event -> event.getShiftPlans().stream()
-                .anyMatch(volunteerShiftPlans::contains))
+                .anyMatch(shiftPlan -> volunteerShiftPlans.contains(shiftPlan) || planningShiftPlans.contains(shiftPlan))
+            )
             .toList();
 
         return EventMapper.toEventDto(relevantEvents);
