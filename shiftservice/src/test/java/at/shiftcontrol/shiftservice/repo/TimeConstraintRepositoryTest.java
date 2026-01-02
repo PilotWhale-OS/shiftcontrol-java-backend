@@ -10,17 +10,17 @@ import config.TestConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.Attendance;
+import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 
 @DataJpaTest
 @Import({TestConfig.class})
-public class AttendanceRepositoryTest {
+public class TimeConstraintRepositoryTest {
     @Autowired
-    private AttendanceRepository attendanceRepository;
+    private TimeConstraintRepository timeConstraintRepository;
 
     @Test
-    void testGetAllAttendances() {
-        List<Attendance> attendances = attendanceRepository.findAll();
-        Assertions.assertFalse(attendances.isEmpty());
+    void testGetAllAttendanceTimeConstraints() {
+        List<TimeConstraint> attendanceTimeConstraints = timeConstraintRepository.findAll();
+        Assertions.assertFalse(attendanceTimeConstraints.isEmpty());
     }
 }

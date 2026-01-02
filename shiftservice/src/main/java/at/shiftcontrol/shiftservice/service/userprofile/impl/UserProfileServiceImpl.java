@@ -1,24 +1,19 @@
 package at.shiftcontrol.shiftservice.service.userprofile.impl;
 
-import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.type.NotificationType;
-
-import org.antlr.v4.runtime.atn.SemanticContext;
-
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
+import java.util.Set;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
-
-import java.util.Set;
+import at.shiftcontrol.shiftservice.type.NotificationType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +32,8 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         /* fetch persistent notification settings and add empty set to missing types */
         var notifications = notificationService.getNotificationsForUser(userId);
-        for(NotificationType type : NotificationType.values()) {
-            if(notifications.stream().noneMatch(n -> n.getType() == type)) {
+        for (NotificationType type : NotificationType.values()) {
+            if (notifications.stream().noneMatch(n -> n.getType() == type)) {
                 notifications.add(NotificationSettingsDto
                     .builder()
                     .type(type)
@@ -49,7 +44,10 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
 
         profile.setNotifications(notifications);
-        profile.setAssignedRoles(RoleMapper.toRoleDto(volunteer.getRoles()));
+
+        if (volunteer.getRoles() != null) {
+            profile.setAssignedRoles(RoleMapper.toRoleDto(volunteer.getRoles()));
+        }
 
         return profile;
     }

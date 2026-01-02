@@ -18,12 +18,15 @@
       <column name="end_time" value="2025-09-12T08:00:01Z"/>
     </insert>
 
-    <insert tableName="position_slot">
-      <column name="id" valueNumeric="21"/>
-      <column name="shift_id" valueNumeric="21"/>
-      <column name="role_id" valueNumeric="1"/>
-      <column name="desired_volunteer_count" valueNumeric="2"/>
-    </insert>
+        <insert tableName="position_slot">
+            <column name="id" valueNumeric="21"/>
+            <column name="name" value="Noon Registration Slot"/>
+            <column name="description" value="This is a description for Noon Registration Slot"/>
+            <column name="skip_auto_assignment" valueBoolean="false"/>
+            <column name="shift_id" valueNumeric="21"/>
+            <column name="role_id" valueNumeric="1"/>
+            <column name="desired_volunteer_count" valueNumeric="2"/>
+        </insert>
 
   </changeSet>
 

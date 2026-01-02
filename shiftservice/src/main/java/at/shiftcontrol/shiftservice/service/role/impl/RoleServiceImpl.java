@@ -3,11 +3,6 @@ package at.shiftcontrol.shiftservice.service.role.impl;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.springframework.stereotype.Service;
-
-import jakarta.ws.rs.NotFoundException;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -23,6 +18,10 @@ import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.ws.rs.NotFoundException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +46,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto createRole(Long shiftPlanId, RoleModificationDto roleDto) throws ForbiddenException {
+    public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
         assertUserIsPlanner(shiftPlanId);
         Role entity = RoleMapper.toRole(roleDto);
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
@@ -56,12 +55,18 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto updateRole(Long shiftPlanId, Long roleId, RoleModificationDto roleDto) throws ForbiddenException {
+    public RoleDto updateRole(Long shiftPlanId, Long roleId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
         assertUserIsPlanner(shiftPlanId);
         Role existing = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         assertRoleBelongsToShiftPlan(existing, shiftPlanId);
-        RoleMapper.updateRole(roleDto, existing);
+        updateRole(roleDto, existing);
         return RoleMapper.toRoleDto(roleDao.save(existing));
+    }
+
+    public void updateRole(@NonNull RoleModificationDto roleDto, Role role) {
+        role.setName(roleDto.getName());
+        role.setDescription(roleDto.getDescription());
+        role.setSelfAssignable(roleDto.isSelfAssignable());
     }
 
     @Override
@@ -84,7 +89,7 @@ public class RoleServiceImpl implements RoleService {
         Volunteer volunteer = volunteerDao.findById(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
         if (!role.isSelfAssignable()) {
-            assertUserIsPlanner(volunteer,  shiftPlanId);
+            assertUserIsPlanner(volunteer, shiftPlanId);
         }
         if (volunteer.getRoles() != null && volunteer.getRoles().stream().anyMatch(r -> r.getId() == role.getId())) {
             throw new ForbiddenException("Role already assigned to user.");
@@ -108,7 +113,7 @@ public class RoleServiceImpl implements RoleService {
         Volunteer volunteer = volunteerDao.findById(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
         if (!role.isSelfAssignable()) {
-            assertUserIsPlanner(volunteer,  shiftPlanId);
+            assertUserIsPlanner(volunteer, shiftPlanId);
         }
         boolean removed = volunteer.getRoles().removeIf(r -> r.getId() == roleId);
         if (!removed) {

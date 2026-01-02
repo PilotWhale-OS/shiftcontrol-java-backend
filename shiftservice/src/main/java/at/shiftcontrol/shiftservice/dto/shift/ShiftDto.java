@@ -3,15 +3,14 @@ package at.shiftcontrol.shiftservice.dto.shift;
 import java.time.Instant;
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import at.shiftcontrol.shiftservice.dto.ActivityDto;
-import at.shiftcontrol.shiftservice.dto.LocationDto;
-import at.shiftcontrol.shiftservice.dto.PositionSlotDto;
 
 @Data
 @NoArgsConstructor

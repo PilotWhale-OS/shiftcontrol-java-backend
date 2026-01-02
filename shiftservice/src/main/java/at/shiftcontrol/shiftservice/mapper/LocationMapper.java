@@ -2,10 +2,9 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.List;
 
-import lombok.NoArgsConstructor;
-
-import at.shiftcontrol.shiftservice.dto.LocationDto;
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.entity.Location;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class LocationMapper {

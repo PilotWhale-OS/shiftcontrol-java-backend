@@ -13,7 +13,7 @@
     <sql>ALTER TABLE event
       ALTER COLUMN id RESTART WITH 100;</sql>
 
-    <sql>ALTER TABLE attendance_time_constraint
+    <sql>ALTER TABLE time_constraint
       ALTER COLUMN id RESTART WITH 100;</sql>
 
     <sql>ALTER TABLE location

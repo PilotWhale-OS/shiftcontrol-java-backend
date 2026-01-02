@@ -1,11 +1,10 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.positionslot;
 
+import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
 
 @Data
 @NoArgsConstructor
