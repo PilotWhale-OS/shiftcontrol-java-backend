@@ -169,7 +169,7 @@ public class ActivityServiceImpl implements ActivityService {
     private @NonNull Stream<Activity> filterByName(@NonNull Stream<Activity> filteredByTime, String name) {
         Stream<Activity> finalFiltered = filteredByTime;
         if (StringUtils.isNotBlank(name)) {
-            String nameFilterLower = name.toLowerCase();
+            String nameFilterLower = name.toLowerCase().trim();
             finalFiltered = filteredByTime.filter(activity ->
                 activity.getName() != null && activity.getName().toLowerCase().contains(nameFilterLower)
             );
