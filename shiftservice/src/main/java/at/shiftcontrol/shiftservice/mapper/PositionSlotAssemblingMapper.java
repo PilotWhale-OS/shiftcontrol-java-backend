@@ -100,7 +100,7 @@ public class PositionSlotAssemblingMapper {
                 try {
                     return userProfileService.getUserProfile(v.getId()).getAccount();
                 } catch (NotFoundException e) {
-                    throw new RuntimeException(e); // TODO just ignore ?
+                    throw new RuntimeException(e);
                 }
             }).toList();
         return new TradeCandidatesDto(

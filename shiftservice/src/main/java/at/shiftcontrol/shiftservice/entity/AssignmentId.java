@@ -23,4 +23,5 @@ public class AssignmentId implements Serializable {
                 .volunteerId(volunteerId)
                 .build();
     }
+
 }

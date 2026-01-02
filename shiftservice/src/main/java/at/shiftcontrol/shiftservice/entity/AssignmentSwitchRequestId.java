@@ -34,4 +34,15 @@ public class AssignmentSwitchRequestId implements Serializable {
                 .requested(requested)
                 .build();
     }
+
+    public static AssignmentSwitchRequestId of(Assignment offering, Assignment requested) {
+        return new AssignmentSwitchRequestId(
+            AssignmentId.of(
+                offering.getPositionSlot().getId(),
+                offering.getAssignedVolunteer().getId()),
+            AssignmentId.of(
+                requested.getPositionSlot().getId(),
+                requested.getAssignedVolunteer().getId())
+        );
+    }
 }

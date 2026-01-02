@@ -122,13 +122,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // convert to set of keys for easier lookup
         Set<AssignmentSwitchRequestId> existingTradeKeys =
             existingTrades.stream()
-                .map(tr -> new AssignmentSwitchRequestId(
-                    new AssignmentId(
-                        tr.getOfferingAssignment().getPositionSlot().getId(),
-                        tr.getOfferingAssignment().getAssignedVolunteer().getId()),
-                    new AssignmentId(
-                        tr.getRequestedAssignment().getPositionSlot().getId(),
-                        tr.getRequestedAssignment().getAssignedVolunteer().getId())
+                .map(tr -> AssignmentSwitchRequestId.of(
+                    tr.getOfferingAssignment(),
+                    tr.getRequestedAssignment()
                 ))
                 .collect(Collectors.toSet());
 
@@ -139,11 +135,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                 List<AccountInfoDto> filteredVolunteers =
                     candidate.getAssignedVolunteers().stream()
                         .filter(volunteer -> {
-                            AssignmentSwitchRequestId key = new AssignmentSwitchRequestId(
-                                new AssignmentId(
+                            AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
+                                AssignmentId.of(
                                     Long.parseLong(candidate.getPositionSlotId()),
                                     currentUserId),
-                                new AssignmentId(
+                                AssignmentId.of(
                                     requestedPositionSlotId,
                                     volunteer.getId())
                             );
