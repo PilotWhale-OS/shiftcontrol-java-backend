@@ -117,6 +117,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
         var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
+        shiftPlanDao.save(plan);
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
