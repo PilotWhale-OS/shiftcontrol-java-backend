@@ -154,6 +154,14 @@ public abstract class RestITBase {
         return doRequest(Method.DELETE, uri, "", 200, null);
     }
 
+    public <T> T deleteRequestAsAdmin(final String uri) {
+        return doRequest(Method.DELETE, uri, "", new HashMap<>(), asAdminHeaders(), 200, null);
+    }
+
+    public <T> T deleteRequestAsAdmin(final String uri, final Class<T> expectedObject) {
+        return doRequest(Method.DELETE, uri, "", new HashMap<>(), asAdminHeaders(), 200, expectedObject);
+    }
+
     public <T> T deleteRequest(final String uri, final Class<T> expectedObject) {
         return doRequest(Method.DELETE, uri, "", 200, expectedObject);
     }
