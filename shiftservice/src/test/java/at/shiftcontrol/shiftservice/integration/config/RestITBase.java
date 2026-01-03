@@ -15,32 +15,42 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers
 public abstract class RestITBase {
     @LocalServerPort
     protected int port;
+
     protected RestAssuredConfig config;
 
-    public RestITBase() {
-    }
+    private static PostgreSQLContainer<?> postgres;
 
-    @Container
-    static final PostgreSQLContainer<?> POSTGRES =
-        new PostgreSQLContainer<>("postgres:16-alpine")
+    @DynamicPropertySource
+    static void dbProps(DynamicPropertyRegistry r) {
+        // CI path: GitLab service provides these
+        String url = System.getenv("SPRING_DATASOURCE_URL");
+        String user = System.getenv("SPRING_DATASOURCE_USERNAME");
+        String pass = System.getenv("SPRING_DATASOURCE_PASSWORD");
+
+        if (url != null && url.startsWith("jdbc:")) {
+            r.add("spring.datasource.url", () -> url);
+            r.add("spring.datasource.username", () -> user);
+            r.add("spring.datasource.password", () -> pass);
+            return;
+        }
+
+        // Local path: start Testcontainers
+        postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("test")
             .withUsername("test")
             .withPassword("test");
 
-    @DynamicPropertySource
-    static void dbProps(DynamicPropertyRegistry r) {
-        r.add("spring.datasource.url", POSTGRES::getJdbcUrl);
-        r.add("spring.datasource.username", POSTGRES::getUsername);
-        r.add("spring.datasource.password", POSTGRES::getPassword);
+        postgres.start();
+
+        r.add("spring.datasource.url", postgres::getJdbcUrl);
+        r.add("spring.datasource.username", postgres::getUsername);
+        r.add("spring.datasource.password", postgres::getPassword);
     }
 
     @BeforeEach
