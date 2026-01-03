@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dto.shift;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,5 +16,6 @@ public class ShiftColumnDto {
     private int columnIndex;
 
     @NotNull
+    @Valid
     private ShiftDto shiftDto;
 }

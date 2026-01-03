@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,8 +17,11 @@ import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 public class AssignmentDto {
     @NotNull
     private String positionSlotId;
+
     @NotNull
+    @Valid
     private VolunteerDto assignedVolunteer;
+
     @NotNull
     private AssignmentStatus status;
 }

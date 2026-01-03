@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dto;
 
 import java.util.Collection;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,8 @@ import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 public class TradeCandidatesDto {
     @NotNull
     private String positionSlotId;
+
     @NotNull
+    @Valid
     private Collection<AccountInfoDto> assignedVolunteers;
 }
