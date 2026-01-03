@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
+import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
@@ -32,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class LocationIT extends RestITBase {
     private static final String LOCATION_PATH = "/locations";
     private static final String EVENT_LOCATION_PATH = "/events/%d/locations";
-
 
     @Autowired
     LocationRepository locationRepository;
@@ -98,6 +98,7 @@ class LocationIT extends RestITBase {
             .event(eventA)
             .description("AddressA")
             .url("http://locationa.com")
+            .readOnly(false)
             .build();
         locations.add(locationA);
 
@@ -106,6 +107,7 @@ class LocationIT extends RestITBase {
             .event(eventA)
             .description("AddressB")
             .url("http://locationb.com")
+            .readOnly(true)
             .build();
         locations.add(locationB);
 
@@ -114,6 +116,7 @@ class LocationIT extends RestITBase {
             .event(eventB)
             .description("AddressC")
             .url("http://locationc.com")
+            .readOnly(false)
             .build();
         locations.add(locationC);
 
@@ -171,5 +174,100 @@ class LocationIT extends RestITBase {
         doRequestAndAssertMessage(Method.GET, EVENT_LOCATION_PATH.formatted(999), "", NOT_FOUND.getStatusCode(), "Event not found with id: 999", true);
     }
 
-    // TODO tests for create, update, delete and get all locations for event
+    @Test
+    void createLocationForNonExistingEventReturnsNotFound() {
+        var newLocationModificationDto = LocationModificationDto.builder()
+            .name("New Location")
+            .description("New Address")
+            .url("http://newlocation.com")
+            .build();
+
+        doRequestAndAssertMessage(Method.POST, EVENT_LOCATION_PATH.formatted(999), newLocationModificationDto, NOT_FOUND.getStatusCode(),
+            "Event not found with id: 999", true);
+    }
+
+    @Test
+    void createLocationForExistingEventReturnsLocationSuccessfully() {
+        var newLocationModificationDto = LocationModificationDto.builder()
+            .name("New Location")
+            .description("New Address")
+            .url("http://newlocation.com")
+            .build();
+
+        var response = postRequest(EVENT_LOCATION_PATH.formatted(eventA.getId()), newLocationModificationDto, LocationDto.class);
+
+        assertAll(
+            () -> assertThat(response).isNotNull(),
+            () -> assertThat(response.getId()).isNotNull(),
+            () -> assertThat(response.getName()).isEqualTo(newLocationModificationDto.getName()),
+            () -> assertThat(response.getDescription()).isEqualTo(newLocationModificationDto.getDescription()),
+            () -> assertThat(response.getUrl()).isEqualTo(newLocationModificationDto.getUrl()),
+            () -> assertThat(response.isReadOnly()).isFalse()
+        );
+    }
+
+    @Test
+    void updateNonExistingLocationReturnsNotFound() {
+        var updateLocationModificationDto = LocationModificationDto.builder()
+            .name("Updated Location")
+            .description("Updated Address")
+            .url("http://updatedlocation.com")
+            .build();
+
+        doRequestAndAssertMessage(Method.PUT, LOCATION_PATH + "/999", updateLocationModificationDto, NOT_FOUND.getStatusCode(),
+            "Location not found with id: 999", true);
+    }
+
+    @Test
+    void updateReadOnlyLocationReturnsBadRequest() {
+        var updateLocationModificationDto = LocationModificationDto.builder()
+            .name("Updated Location")
+            .description("Updated Address")
+            .url("http://updatedlocation.com")
+            .build();
+
+        doRequestAndAssertMessage(Method.PUT, LOCATION_PATH + "/" + locationB.getId(), updateLocationModificationDto, 400,
+            "Cannot modify read-only location", true);
+    }
+
+    @Test
+    void updateLocationReturnsLocationSuccessfully() {
+        var updateLocationModificationDto = LocationModificationDto.builder()
+            .name("Updated Location")
+            .description("Updated Address")
+            .url("http://updatedlocation.com")
+            .build();
+
+        var response = putRequest(LOCATION_PATH + "/" + locationA.getId(), updateLocationModificationDto, LocationDto.class);
+
+        assertAll(
+            () -> assertThat(response).isNotNull(),
+            () -> assertThat(response.getId()).isEqualTo(String.valueOf(locationA.getId())),
+            () -> assertThat(response.getName()).isEqualTo(updateLocationModificationDto.getName()),
+            () -> assertThat(response.getDescription()).isEqualTo(updateLocationModificationDto.getDescription()),
+            () -> assertThat(response.getUrl()).isEqualTo(updateLocationModificationDto.getUrl()),
+            () -> assertThat(response.isReadOnly()).isFalse()
+        );
+    }
+
+    @Test
+    void deleteNonExistingLocationReturnsNotFound() {
+        doRequestAndAssertMessage(Method.DELETE, LOCATION_PATH + "/999", "", NOT_FOUND.getStatusCode(),
+            "Location not found with id: 999", true);
+    }
+
+    @Test
+    void deleteReadOnlyLocationReturnsBadRequest() {
+        doRequestAndAssertMessage(Method.DELETE, LOCATION_PATH + "/" + locationB.getId(), "", 400,
+            "Cannot modify read-only location", true);
+    }
+
+    @Test
+    void deleteLocationDeletesLocationSuccessfully() {
+        deleteRequest(LOCATION_PATH + "/" + locationA.getId());
+
+        assertThat(locationRepository.existsById(locationA.getId())).isFalse();
+    }
+    
+    // TODO check admin only callable methods
 }
