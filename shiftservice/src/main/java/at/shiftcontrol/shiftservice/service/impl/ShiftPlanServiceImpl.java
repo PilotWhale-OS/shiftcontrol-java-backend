@@ -11,12 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -70,6 +64,10 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -475,7 +473,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
         if (type == ShiftPlanInviteType.VOLUNTEER_JOIN) {
             securityHelper.assertUserIsPlanner(shiftPlanId, currentUser);
-            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
         }
 
         // only allowed by admins
