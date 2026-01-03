@@ -109,6 +109,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
+        plan.setLockStatus(LockStatus.SELF_SIGNUP);
         shiftPlanDao.save(plan);
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }

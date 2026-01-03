@@ -25,7 +25,7 @@ import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 @RestController
 @RequestMapping(value = "api/v1/events/{eventId}/shift-plans", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class SiftPlanCollectionEndpoint {
+public class ShiftPlanCollectionEndpoint {
     private final ShiftPlanService shiftPlanService;
 
     @GetMapping()
