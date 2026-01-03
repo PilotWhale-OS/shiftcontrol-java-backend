@@ -1,15 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint.activity;
 
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
-import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
-import at.shiftcontrol.shiftservice.service.ActivityService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +9,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
+import at.shiftcontrol.shiftservice.service.ActivityService;
+
+@Tag(
+    name = "activity-endpoint"
+)
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/activities/{activityId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ActivityItemEndpoint {
-    private final ApplicationUserProvider userProvider;
     private final ActivityService activityService;
 
     // TODO: Get single, update, delete
@@ -58,5 +62,4 @@ public class ActivityItemEndpoint {
     public void deleteActivity(@PathVariable String activityId) throws NotFoundException {
         activityService.deleteActivity(ConvertUtil.idToLong(activityId));
     }
-
 }

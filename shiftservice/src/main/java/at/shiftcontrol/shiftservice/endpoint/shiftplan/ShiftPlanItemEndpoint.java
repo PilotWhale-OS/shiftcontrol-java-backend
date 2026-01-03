@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,9 @@ import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
+@Tag(
+    name = "shift-plan-endpoint"
+)
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/shift-plans/{shiftPlanId}", produces = MediaType.APPLICATION_JSON_VALUE)

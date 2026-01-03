@@ -2,16 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint.activity;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
-import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
-import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
-import at.shiftcontrol.shiftservice.service.ActivityService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +10,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
+import at.shiftcontrol.shiftservice.service.ActivityService;
+
+@Tag(
+    name = "activity-endpoint"
+)
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/events/{eventId}/activities", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,5 +64,4 @@ public class ActivityCollectionEndpoint {
         throws NotFoundException {
         return activityService.suggestActivitiesForShift(ConvertUtil.idToLong(eventId), suggestionDto);
     }
-
 }
