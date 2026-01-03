@@ -26,6 +26,26 @@ public abstract class RestITBase {
 
     private static PostgreSQLContainer<?> postgres;
 
+    protected static final String HDR_TEST_USER_TYPE = "X-Test-UserType";
+    protected static final String HDR_TEST_USER_ID = "X-Test-UserId";
+    protected static final String HDR_TEST_USERNAME = "X-Test-Username";
+
+    protected Map<String, String> asAdminHeaders() {
+        return Map.of(
+            HDR_TEST_USER_TYPE, "ADMIN",
+            HDR_TEST_USER_ID, "admin-1",
+            HDR_TEST_USERNAME, "admin"
+        );
+    }
+
+    protected Map<String, String> asAssignedHeaders(String userId) {
+        return Map.of(
+            HDR_TEST_USER_TYPE, "ASSIGNED",
+            HDR_TEST_USER_ID, userId,
+            HDR_TEST_USERNAME, "assigned-" + userId
+        );
+    }
+
     @DynamicPropertySource
     static void dbProps(DynamicPropertyRegistry r) {
         // CI path: GitLab service provides these
@@ -102,6 +122,10 @@ public abstract class RestITBase {
         return this.doRequest(Method.GET, uri, "", params, 200, expectedObject);
     }
 
+    public <T> T getRequestAsAdmin(String uri, Class<T> expected) {
+        return doRequest(Method.GET, uri, "", new HashMap<>(), asAdminHeaders(), 200, expected);
+    }
+
     public <T> List<T> getRequestList(final String uri, final Class<T> expectedObject) {
         return this.doRequestList(Method.GET, uri, "", 200, expectedObject);
     }
@@ -114,8 +138,16 @@ public abstract class RestITBase {
         return doRequest(Method.PUT, uri, body, 200, expectedObject);
     }
 
+    public <T> T putRequestAsAdmin(String uri, Object body, Class<T> expected) {
+        return doRequest(Method.PUT, uri, body, new HashMap<>(), asAdminHeaders(), 200, expected);
+    }
+
     public <T> T postRequest(final String uri, final Object body, final Class<T> expectedObject) {
         return doRequest(Method.POST, uri, body, 200, expectedObject);
+    }
+
+    public <T> T postRequestAsAdmin(String uri, Object body, Class<T> expected) {
+        return doRequest(Method.POST, uri, body, new HashMap<>(), asAdminHeaders(), 200, expected);
     }
 
     public <T> T deleteRequest(final String uri) {
@@ -173,6 +205,27 @@ public abstract class RestITBase {
             .getList(".", elementType); // Explicitly convert LinkedHashMap to T
     }
 
+    public <T> T doRequest(Method method, String url, Object body, Map<String, String> params, Map<String, String> headers, int expectedStatusCode,
+                           Class<T> expectedObject
+    ) {
+        var req = RestAssured.given()
+            .headers(headers)
+            .body(body)
+            .params(params);
+
+        if (expectedObject == null) {
+            req.request(method, url).then().statusCode(expectedStatusCode);
+            return null;
+        }
+
+        return req.request(method, url)
+            .then()
+            .statusCode(expectedStatusCode)
+            .extract()
+            .body()
+            .as(expectedObject);
+    }
+
     public void doRequestWithoutResponseContent(final Method method, final String url, final Object body) {
         RestAssured.given()
             .body(body)
@@ -194,6 +247,14 @@ public abstract class RestITBase {
     }
 
     // note: if more advanced assertions are needed, a custom matcher should be created (instead of just checking the detail like here)
+    public void doRequestAndAssertAndAssertStausCode(final Method method, final String url, final Object body, final int expectedStatusCode) {
+        RestAssured.given()
+            .body(body)
+            .request(method, url, new Object[0])
+            .then()
+            .statusCode(expectedStatusCode);
+    }
+
     public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode, final String message) {
         doRequestAndAssertMessage(method, url, body, expectedStatusCode, message, true);
     }
@@ -206,6 +267,30 @@ public abstract class RestITBase {
     public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
                                           final int expectedStatusCode, final String message) {
         doRequestAndAssertMessage(method, url, body, params, expectedStatusCode, message, true);
+    }
+
+    public void doRequestAsAdminAndAssertMessage(final Method method, final String url, final Object body,
+                                                 final int expectedStatusCode, final String message, final boolean matchDetailExactly) {
+        doRequestAsAdminAndAssertMessage(method, url, body, new HashMap<>(), expectedStatusCode, message, matchDetailExactly);
+    }
+
+    public void doRequestAsAdminAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
+                                                 final int expectedStatusCode, final String message, final boolean matchDetailExactly) {
+        String actual = RestAssured.given()
+            .headers(asAdminHeaders())
+            .body(body)
+            .params(params)
+            .request(method, url, new Object[0])
+            .then()
+            .statusCode(expectedStatusCode)
+            .extract()
+            .asString();
+
+        if (matchDetailExactly) {
+            assertThat(actual).isEqualTo(message);
+        } else {
+            assertThat(actual).contains(message);
+        }
     }
 
     public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
