@@ -4,10 +4,8 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-
-import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
-import at.shiftcontrol.shiftservice.service.ApplicationEventService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +21,7 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
@@ -34,7 +33,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
     private final PositionSlotDao positionSlotDao;
     private final EligibilityService eligibilityService;
-    private final ApplicationEventService eventService;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) throws NotFoundException {
@@ -136,7 +135,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         updateVolunteer(trade.getRequestedAssignment(), requestedAssignmentVolunteer);
         trade.setStatus(TradeStatus.ACCEPTED);
 
-        eventService.publishEvent(AssignmentSwitchEvent.of(trade.getRequestedAssignment(), trade.getOfferingAssignment()), "assignment.switch");
+        publisher.publishEvent(AssignmentSwitchEvent.of(trade.getRequestedAssignment(), trade.getOfferingAssignment()));
     }
 
     private void updateVolunteer(Assignment assignment, Volunteer volunteer) {

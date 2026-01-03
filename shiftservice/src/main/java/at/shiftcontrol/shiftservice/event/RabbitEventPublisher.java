@@ -1,30 +1,33 @@
-package at.shiftcontrol.shiftservice.service.impl;
+package at.shiftcontrol.shiftservice.event;
 
 import java.time.Instant;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.config.RabbitMqConfig;
-import at.shiftcontrol.shiftservice.event.ApplicationEvent;
-import at.shiftcontrol.shiftservice.event.ApplicationEventWrapper;
-import at.shiftcontrol.shiftservice.event.EventClassifier;
-import at.shiftcontrol.shiftservice.service.ApplicationEventService;
 
 @Service
 @RequiredArgsConstructor
-public class ApplicationEventServiceImpl implements ApplicationEventService {
+public class RabbitEventPublisher {
     private final RabbitTemplate rabbitTemplate;
     private final ApplicationUserProvider userProvider;
     private final Tracer tracer;
 
-    @Override
-    public void publishEvent(ApplicationEvent event, String routingKey) {
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void on(ApplicationEvent event) {
         var wrappedEvent = wrapEvent(event);
+        var routingKey = event.getRoutingKey();
+        if (routingKey == null || routingKey.isBlank()) {
+            throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key");
+        }
+
         rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, routingKey, wrappedEvent);
     }
 

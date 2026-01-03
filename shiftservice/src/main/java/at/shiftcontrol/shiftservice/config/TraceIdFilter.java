@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.filter;
+package at.shiftcontrol.shiftservice.config;
 
 import java.io.IOException;
 
