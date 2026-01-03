@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +63,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "createTrade",
         description = "Create trade request for a specific position slot in a shift"
     )
-    public Collection<TradeDto> createTrade(@RequestBody TradeCreateDto tradeCreateDto) throws NotFoundException, ConflictException, ForbiddenException {
+    public Collection<TradeDto> createTrade(@RequestBody @Valid TradeCreateDto tradeCreateDto) throws NotFoundException, ConflictException, ForbiddenException {
         return assignmentSwitchRequestService.createTrade(
             tradeCreateDto,
             userProvider.getCurrentUser().getUserId());
@@ -74,7 +75,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptTrade(@RequestBody TradeDto tradeDto) throws NotFoundException, ConflictException, ForbiddenException {
+    public TradeDto acceptTrade(@RequestBody @Valid TradeDto tradeDto) throws NotFoundException, ConflictException, ForbiddenException {
         return assignmentSwitchRequestService.acceptTrade(
             TradeMapper.toEntityId(tradeDto),
             userProvider.getCurrentUser().getUserId());
@@ -86,7 +87,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "declineTrade",
         description = "Decline a trade request for a specific position slot in a shift"
     )
-    public TradeDto declineTrade(@RequestBody TradeDto tradeDto) throws NotFoundException {
+    public TradeDto declineTrade(@RequestBody @Valid TradeDto tradeDto) throws NotFoundException {
         return assignmentSwitchRequestService.declineTrade(
             TradeMapper.toEntityId(tradeDto),
             userProvider.getCurrentUser().getUserId());

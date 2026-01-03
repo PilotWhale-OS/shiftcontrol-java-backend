@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +48,8 @@ public class TimeConstraintEndpoint {
         operationId = "createTimeConstraint",
         description = "Create a new time constraint for the current user"
     )
-    public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto) throws ConflictException {
+    public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody @Valid TimeConstraintCreateDto createDto)
+        throws ConflictException {
         return timeConstraintService.createTimeConstraint(
             createDto,
             userProvider.getCurrentUser().getUserId(),

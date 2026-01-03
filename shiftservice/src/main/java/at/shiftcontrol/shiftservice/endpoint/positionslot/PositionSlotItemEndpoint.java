@@ -54,7 +54,6 @@ public class PositionSlotItemEndpoint {
     public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
         return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
-
     // PositionSlot create is done in ShiftEndpoint
 
     @PutMapping()
@@ -110,8 +109,11 @@ public class PositionSlotItemEndpoint {
         operationId = "setPositionSlotPreference",
         description = "Set preference for a specific position slot"
     )
-    public PositionSlotPreferenceDto setPositionSlotPreference(@PathVariable String positionSlotId,
-                                                               @RequestBody PositionSlotPreferenceUpdateDto preferenceUpdateDto) throws ForbiddenException, NotFoundException {
+    public PositionSlotPreferenceDto setPositionSlotPreference(
+        @PathVariable String positionSlotId,
+        @RequestBody @Valid PositionSlotPreferenceUpdateDto preferenceUpdateDto
+    )
+        throws ForbiddenException, NotFoundException {
         positionSlotService.setPreference(
             userProvider.getCurrentUser().getUserId(),
             ConvertUtil.idToLong(positionSlotId),
@@ -148,7 +150,11 @@ public class PositionSlotItemEndpoint {
         operationId = "claimAuction",
         description = "Assign the logged in user to the auctions PositionSlot"
     )
-    public AssignmentDto claimAssignment(@PathVariable String positionSlotId, @PathVariable String offeringUserId) throws NotFoundException, ConflictException, ForbiddenException {
+    public AssignmentDto claimAssignment(
+        @PathVariable String positionSlotId,
+        @PathVariable String offeringUserId
+    )
+        throws NotFoundException, ConflictException, ForbiddenException {
         return positionSlotService.claimAuction(
             ConvertUtil.idToLong(positionSlotId), offeringUserId,
             userProvider.getCurrentUser().getUserId());
@@ -165,7 +171,6 @@ public class PositionSlotItemEndpoint {
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());
     }
-
     // TODO positionSlot unassign
     // TODO positionSlot request unassign
     // TODO positionSlot request signup

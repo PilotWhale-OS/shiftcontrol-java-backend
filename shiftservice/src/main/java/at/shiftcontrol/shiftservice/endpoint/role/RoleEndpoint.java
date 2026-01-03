@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,7 +64,7 @@ public class RoleEndpoint {
     )
     public RoleDto createRole(
         @PathVariable String shiftPlanId,
-        @RequestBody RoleModificationDto role
+        @RequestBody @Valid RoleModificationDto role
     ) throws ForbiddenException {
         return roleService.createRole(ConvertUtil.idToLong(shiftPlanId), role);
     }
@@ -77,7 +78,7 @@ public class RoleEndpoint {
     public RoleDto updateRole(
         @PathVariable String shiftPlanId,
         @PathVariable String roleId,
-        @RequestBody RoleModificationDto role
+        @RequestBody @Valid RoleModificationDto role
     ) throws ForbiddenException {
         return roleService.updateRole(ConvertUtil.idToLong(shiftPlanId), ConvertUtil.idToLong(roleId), role);
     }

@@ -65,34 +65,4 @@ public class ShiftItemEndpoint {
     public void deleteShift(@PathVariable String shiftId) throws NotFoundException, ForbiddenException {
         shiftService.deleteShift(ConvertUtil.idToLong(shiftId));
     }
-
-    //     @PostMapping("/auction")
-    //     // TODO Security
-    //     @Operation(
-    //         operationId = "auctionShift",
-    //         description = "Auction a specific position slot in a shift"
-    //     )
-    //     public AuctionDto auctionShift(@PathVariable String shiftId) {
-    //         return null; // TODO: implement
-    //     }
-
-    //     @PostMapping("/join")
-    //     // TODO Security
-    //     @Operation(
-    //         operationId = "joinShift",
-    //         description = "Join a specific shift"
-    //     )
-    //     public ShiftDto joinShift(@PathVariable String shiftId) {
-    //         return null; // TODO: implement
-    //     }
-
-    //     @PutMapping("/preference")
-    //     // TODO Security
-    //     @Operation(
-    //         operationId = "setShiftPreference",
-    //         description = "Set preference for a specific shift"
-    //     )
-    //     public UserShiftPreferenceDto setShiftPreference(@PathVariable String shiftId, @RequestBody UserPreferenceUpdateDto preferenceUpdateDto) {
-    //         return null; // TODO: implement
-    //     }
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +39,7 @@ public class RoleUserAssignmentEndpoint {
     public VolunteerDto createUserRoleAssignment(
         @PathVariable String shiftPlanId,
         @PathVariable String userId,
-        @RequestBody UserRoleAssignmentAssignDto roleAssignmentAssign
+        @RequestBody @Valid UserRoleAssignmentAssignDto roleAssignmentAssign
     ) throws ForbiddenException {
         return roleService.createUserRoleAssignment(ConvertUtil.idToLong(shiftPlanId), userId, roleAssignmentAssign);
     }
