@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -175,26 +176,37 @@ class LocationIT extends RestITBase {
     }
 
     @Test
-    void createLocationForNonExistingEventReturnsNotFound() {
+    void createLocationAsNonAdminReturnsForbidden() {
         var newLocationModificationDto = LocationModificationDto.builder()
             .name("New Location")
             .description("New Address")
             .url("http://newlocation.com")
             .build();
 
-        doRequestAndAssertMessage(Method.POST, EVENT_LOCATION_PATH.formatted(999), newLocationModificationDto, NOT_FOUND.getStatusCode(),
+        doRequestAndAssertAndAssertStausCode(Method.POST, EVENT_LOCATION_PATH.formatted(eventA.getId()), newLocationModificationDto, FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    void createLocationAsAdminForNonExistingEventReturnsNotFound() {
+        var newLocationModificationDto = LocationModificationDto.builder()
+            .name("New Location")
+            .description("New Address")
+            .url("http://newlocation.com")
+            .build();
+
+        doRequestAsAdminAndAssertMessage(Method.POST, EVENT_LOCATION_PATH.formatted(999), newLocationModificationDto, NOT_FOUND.getStatusCode(),
             "Event not found with id: 999", true);
     }
 
     @Test
-    void createLocationForExistingEventReturnsLocationSuccessfully() {
+    void createLocationAsAdminForExistingEventReturnsLocationSuccessfully() {
         var newLocationModificationDto = LocationModificationDto.builder()
             .name("New Location")
             .description("New Address")
             .url("http://newlocation.com")
             .build();
 
-        var response = postRequest(EVENT_LOCATION_PATH.formatted(eventA.getId()), newLocationModificationDto, LocationDto.class);
+        var response = postRequestAsAdmin(EVENT_LOCATION_PATH.formatted(eventA.getId()), newLocationModificationDto, LocationDto.class);
 
         assertAll(
             () -> assertThat(response).isNotNull(),
@@ -207,38 +219,49 @@ class LocationIT extends RestITBase {
     }
 
     @Test
-    void updateNonExistingLocationReturnsNotFound() {
+    void updateLocationAsNonAdminReturnsForbidden() {
         var updateLocationModificationDto = LocationModificationDto.builder()
             .name("Updated Location")
             .description("Updated Address")
             .url("http://updatedlocation.com")
             .build();
 
-        doRequestAndAssertMessage(Method.PUT, LOCATION_PATH + "/999", updateLocationModificationDto, NOT_FOUND.getStatusCode(),
+        doRequestAndAssertAndAssertStausCode(Method.PUT, LOCATION_PATH + "/" + locationA.getId(), updateLocationModificationDto, FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    void updateNonExistingLocationAsAdminReturnsNotFound() {
+        var updateLocationModificationDto = LocationModificationDto.builder()
+            .name("Updated Location")
+            .description("Updated Address")
+            .url("http://updatedlocation.com")
+            .build();
+
+        doRequestAsAdminAndAssertMessage(Method.PUT, LOCATION_PATH + "/999", updateLocationModificationDto, NOT_FOUND.getStatusCode(),
             "Location not found with id: 999", true);
     }
 
     @Test
-    void updateReadOnlyLocationReturnsBadRequest() {
+    void updateReadOnlyLocationAsAdminReturnsBadRequest() {
         var updateLocationModificationDto = LocationModificationDto.builder()
             .name("Updated Location")
             .description("Updated Address")
             .url("http://updatedlocation.com")
             .build();
 
-        doRequestAndAssertMessage(Method.PUT, LOCATION_PATH + "/" + locationB.getId(), updateLocationModificationDto, 400,
+        doRequestAsAdminAndAssertMessage(Method.PUT, LOCATION_PATH + "/" + locationB.getId(), updateLocationModificationDto, 400,
             "Cannot modify read-only location", true);
     }
 
     @Test
-    void updateLocationReturnsLocationSuccessfully() {
+    void updateLocationAsAdminReturnsLocationSuccessfully() {
         var updateLocationModificationDto = LocationModificationDto.builder()
             .name("Updated Location")
             .description("Updated Address")
             .url("http://updatedlocation.com")
             .build();
 
-        var response = putRequest(LOCATION_PATH + "/" + locationA.getId(), updateLocationModificationDto, LocationDto.class);
+        var response = putRequestAsAdmin(LOCATION_PATH + "/" + locationA.getId(), updateLocationModificationDto, LocationDto.class);
 
         assertAll(
             () -> assertThat(response).isNotNull(),
@@ -251,23 +274,26 @@ class LocationIT extends RestITBase {
     }
 
     @Test
-    void deleteNonExistingLocationReturnsNotFound() {
-        doRequestAndAssertMessage(Method.DELETE, LOCATION_PATH + "/999", "", NOT_FOUND.getStatusCode(),
+    void deleteLocationAsNonAdminReturnsForbidden() {
+        doRequestAndAssertAndAssertStausCode(Method.DELETE, LOCATION_PATH + "/" + locationA.getId(), "", FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    void deleteNonExistingLocationAsAdminReturnsNotFound() {
+        doRequestAsAdminAndAssertMessage(Method.DELETE, LOCATION_PATH + "/999", "", NOT_FOUND.getStatusCode(),
             "Location not found with id: 999", true);
     }
 
     @Test
-    void deleteReadOnlyLocationReturnsBadRequest() {
-        doRequestAndAssertMessage(Method.DELETE, LOCATION_PATH + "/" + locationB.getId(), "", 400,
+    void deleteReadOnlyLocationAsAdminReturnsBadRequest() {
+        doRequestAsAdminAndAssertMessage(Method.DELETE, LOCATION_PATH + "/" + locationB.getId(), "", 400,
             "Cannot modify read-only location", true);
     }
 
     @Test
-    void deleteLocationDeletesLocationSuccessfully() {
-        deleteRequest(LOCATION_PATH + "/" + locationA.getId());
+    void deleteLocationAsAdminDeletesLocationSuccessfully() {
+        deleteRequestAsAdmin(LOCATION_PATH + "/" + locationA.getId());
 
         assertThat(locationRepository.existsById(locationA.getId())).isFalse();
     }
-    
-    // TODO check admin only callable methods
 }
