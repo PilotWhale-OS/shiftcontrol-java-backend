@@ -13,8 +13,9 @@ import lombok.NoArgsConstructor;
 public class RoleModificationDto {
     @NotNull
     private String name;
-    @NotNull
+
     private String description;
+
     @NotNull
     private boolean selfAssignable;
 }
