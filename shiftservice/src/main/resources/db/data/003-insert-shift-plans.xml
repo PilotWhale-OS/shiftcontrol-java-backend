@@ -14,7 +14,7 @@
       <column name="name" value="Morning Shift Plan"/>
       <column name="short_description" value="Morning volunteer shifts for Tech Innovators Summit 2025"/>
       <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="LOCKED"/>
+      <column name="lock_status" value="SELF_SIGNUP"/>
     </insert>
 
     <insert tableName="shift_plan">

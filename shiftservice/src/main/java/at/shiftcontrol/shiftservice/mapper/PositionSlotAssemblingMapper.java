@@ -3,25 +3,33 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
+import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class PositionSlotAssemblingMapper {
     private final EligibilityService eligibilityService;
+    private final UserProfileService userProfileService;
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
     private final PositionSlotDao positionSlotDao;
@@ -84,5 +92,20 @@ public class PositionSlotAssemblingMapper {
             TradeMapper.toTradeInfoDto(tradesForUser),
             assignmentsDtos,
             preferenceValue);
+    }
+
+    public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {
+        Collection<AccountInfoDto> accountInfoDtos = volunteers.stream().map(
+            v-> {
+                try {
+                    return userProfileService.getUserProfile(v.getId()).getAccount();
+                } catch (NotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).toList();
+        return new TradeCandidatesDto(
+            String.valueOf(positionSlot.getId()),
+            accountInfoDtos
+        );
     }
 }

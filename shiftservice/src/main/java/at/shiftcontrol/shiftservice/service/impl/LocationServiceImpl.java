@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
@@ -50,6 +51,7 @@ public class LocationServiceImpl implements LocationService {
             .name(modificationDto.getName())
             .description(modificationDto.getDescription())
             .url(modificationDto.getUrl())
+            .readOnly(false)
             .build();
 
         newLocation = locationDao.save(newLocation);
@@ -62,6 +64,10 @@ public class LocationServiceImpl implements LocationService {
         // TODO ensure admin only call
 
         var location = getLocationOrThrow(locationId);
+
+        if (location.isReadOnly()) {
+            throw new BadRequestException("Cannot modify read-only location");
+        }
 
         location.setName(modificationDto.getName());
         location.setDescription(modificationDto.getDescription());
@@ -76,6 +82,10 @@ public class LocationServiceImpl implements LocationService {
         // TODO ensure admin only call
 
         var location = getLocationOrThrow(locationId);
+
+        if (location.isReadOnly()) {
+            throw new BadRequestException("Cannot modify read-only location");
+        }
 
         locationDao.delete(location);
     }

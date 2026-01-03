@@ -32,14 +32,35 @@ public class AssignmentRepositoryTest {
 
     @Test
     void testFindAuctionsByShiftPlanId() {
-        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanId(3L);
+        long shiftPlanId = 3L;
+
+        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanId(shiftPlanId);
+
         Assertions.assertFalse(assignments.isEmpty());
         assignments.forEach(
             a -> Assertions.assertAll(
-                () -> Assertions.assertEquals(3L, a.getPositionSlot().getShift().getShiftPlan().getId()),
+                () -> Assertions.assertEquals(shiftPlanId, a.getPositionSlot().getShift().getShiftPlan().getId()),
                 () -> Assertions.assertTrue(
                     EnumSet.of(AssignmentStatus.AUCTION, AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN).contains(a.getStatus())
                 )
+            )
+        );
+    }
+
+    @Test
+    void findAuctionsByShiftPlanIdExcludingUser() {
+        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        long shiftPlanId = 3L;
+
+        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanIdExcludingUser(shiftPlanId, userId);
+
+        Assertions.assertFalse(assignments.isEmpty());
+        assignments.forEach(
+            a -> Assertions.assertAll(
+                () -> Assertions.assertEquals(shiftPlanId, a.getPositionSlot().getShift().getShiftPlan().getId()),
+                () -> Assertions.assertTrue(
+                    EnumSet.of(AssignmentStatus.AUCTION, AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN).contains(a.getStatus())),
+                () -> Assertions.assertNotEquals(userId, a.getAssignedVolunteer().getId())
             )
         );
     }

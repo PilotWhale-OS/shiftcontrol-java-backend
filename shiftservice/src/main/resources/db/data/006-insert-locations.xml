@@ -1,147 +1,165 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="006-insert-locations" author="paul" context="dev">
+    <changeSet id="006-insert-locations" author="paul" context="dev">
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="1"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="name" value="Main Hall"/>
-      <column name="description" value="Primary conference hall for keynote sessions"/>
-      <column name="url" value="https://maps.example.com/mainhall"/>
-      <column name="additional_properties" value='{"capacity":500,"floor":"1"}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="1"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="name" value="Main Hall"/>
+            <column name="description" value="Primary conference hall for keynote sessions"/>
+            <column name="url" value="https://maps.example.com/mainhall"/>
+            <column name="additional_properties" value='{"capacity":500,"floor":"1"}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="2"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="name" value="Workshop Room A"/>
-      <column name="description" value="Room for technical workshops"/>
-      <column name="url" value="https://maps.example.com/workshopA"/>
-      <column name="additional_properties" value='{"capacity":50,"floor":"2"}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="2"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="name" value="Workshop Room A"/>
+            <column name="description" value="Room for technical workshops"/>
+            <column name="url" value="https://maps.example.com/workshopA"/>
+            <column name="additional_properties" value='{"capacity":50,"floor":"2"}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="3"/>
-      <column name="event_id" valueNumeric="2"/>
-      <column name="name" value="Exhibition Hall"/>
-      <column name="description" value="Area for sponsors and exhibitors"/>
-      <column name="url" value="https://maps.example.com/exhibition"/>
-      <column name="additional_properties" value='{"capacity":300,"floor":"1"}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="3"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="name" value="Exhibition Hall"/>
+            <column name="description" value="Area for sponsors and exhibitors"/>
+            <column name="url" value="https://maps.example.com/exhibition"/>
+            <column name="additional_properties" value='{"capacity":300,"floor":"1"}'/>
+            <column name="read_only" valueBoolean="false"/>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="4"/>
-      <column name="event_id" valueNumeric="2"/>
-      <column name="name" value="Breakout Room 1"/>
-      <column name="description" value="Room for smaller group sessions"/>
-      <column name="url" value="https://maps.example.com/breakout1"/>
-      <column name="additional_properties" value='{"capacity":40,"beamer":true}'/>
-    </insert>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="5"/>
-      <column name="event_id" valueNumeric="3"/>
-      <column name="name" value="Auditorium"/>
-      <column name="description" value="Large auditorium for talks and panels"/>
-      <column name="url" value="https://maps.example.com/auditorium"/>
-      <column name="additional_properties" value='{"capacity":200,"floor":"1"}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="4"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="name" value="Breakout Room 1"/>
+            <column name="description" value="Room for smaller group sessions"/>
+            <column name="url" value="https://maps.example.com/breakout1"/>
+            <column name="additional_properties" value='{"capacity":40,"beamer":true}'/>
+            <column name="read_only" valueBoolean="false"/>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="6"/>
-      <column name="event_id" valueNumeric="3"/>
-      <column name="name" value="Workshop Room B"/>
-      <column name="url" value="https://maps.example.com/workshopB"/>
-      <column name="additional_properties" value='{"capacity":30,"floor":"2"}'/>
-    </insert>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="7"/>
-      <column name="event_id" valueNumeric="4"/>
-      <column name="name" value="Main Conference Hall"/>
-      <column name="description" value="Hall for plenary sessions"/>
-      <column name="url" value="https://maps.example.com/mainconferencehall"/>
-      <column name="additional_properties" value='{"capacity":400}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="5"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="name" value="Auditorium"/>
+            <column name="description" value="Large auditorium for talks and panels"/>
+            <column name="url" value="https://maps.example.com/auditorium"/>
+            <column name="additional_properties" value='{"capacity":200,"floor":"1"}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="8"/>
-      <column name="event_id" valueNumeric="4"/>
-      <column name="name" value="Workshop Room C"/>
-      <column name="additional_properties" value='{"floor":"2"}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="6"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="name" value="Workshop Room B"/>
+            <column name="url" value="https://maps.example.com/workshopB"/>
+            <column name="additional_properties" value='{"capacity":30,"floor":"2"}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="9"/>
-      <column name="event_id" valueNumeric="5"/>
-      <column name="name" value="Expo Hall"/>
-      <column name="description" value="Exposition area for cloud computing exhibitors"/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="7"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="name" value="Main Conference Hall"/>
+            <column name="description" value="Hall for plenary sessions"/>
+            <column name="url" value="https://maps.example.com/mainconferencehall"/>
+            <column name="additional_properties" value='{"capacity":400}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="10"/>
-      <column name="event_id" valueNumeric="5"/>
-      <column name="name" value="Breakout Room D"/>
-      <column name="description" value="Room for workshops and panels"/>
-      <column name="url" value="https://maps.example.com/breakoutD"/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="8"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="name" value="Workshop Room C"/>
+            <column name="additional_properties" value='{"floor":"2"}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <!-- manual test event locations -->
+        <insert tableName="location">
+            <column name="id" valueNumeric="9"/>
+            <column name="event_id" valueNumeric="5"/>
+            <column name="name" value="Expo Hall"/>
+            <column name="description" value="Exposition area for cloud computing exhibitors"/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="11"/>
-      <column name="event_id" valueNumeric="6"/>
-      <column name="name" value="Informatik Hörsaaal"/>
-      <column name="description" value="Two-story lecture room near Resslpark with great acoustics"/>
-      <column name="url" value="https://maps.example.com/Informatik"/>
-      <column name="additional_properties" value='{}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="10"/>
+            <column name="event_id" valueNumeric="5"/>
+            <column name="name" value="Breakout Room D"/>
+            <column name="description" value="Room for workshops and panels"/>
+            <column name="url" value="https://maps.example.com/breakoutD"/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="12"/>
-      <column name="event_id" valueNumeric="6"/>
-      <column name="name" value="Freihaus Erdgeschoss"/>
-      <column name="description" value="The whole entry area and open floor in the Freihaus"/>
-      <column name="url" value="https://maps.example.com/Freihaus"/>
-      <column name="additional_properties" value='{}'/>
-    </insert>
+        <!-- manual test event locations -->
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="13"/>
-      <column name="event_id" valueNumeric="6"/>
-      <column name="name" value="EI7"/>
-      <column name="description" value="Big lecture hall with modern tech in Gusshaus"/>
-      <column name="url" value="https://maps.example.com/EI7"/>
-      <column name="additional_properties" value='{}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="11"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="name" value="Informatik Hörsaaal"/>
+            <column name="description" value="Two-story lecture room near Resslpark with great acoustics"/>
+            <column name="url" value="https://maps.example.com/Informatik"/>
+            <column name="additional_properties" value='{}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="14"/>
-      <column name="event_id" valueNumeric="6"/>
-      <column name="name" value="Gusshaus Innenhof"/>
-      <column name="additional_properties" value='{}'/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="12"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="name" value="Freihaus Erdgeschoss"/>
+            <column name="description" value="The whole entry area and open floor in the Freihaus"/>
+            <column name="url" value="https://maps.example.com/Freihaus"/>
+            <column name="additional_properties" value='{}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="15"/>
-      <column name="event_id" valueNumeric="6"/>
-      <column name="name" value="Gusshaus Rooftop"/>
-      <column name="description" value="Entrance via elevator or staircase"/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="13"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="name" value="EI7"/>
+            <column name="description" value="Big lecture hall with modern tech in Gusshaus"/>
+            <column name="url" value="https://maps.example.com/EI7"/>
+            <column name="additional_properties" value='{}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-    <insert tableName="location">
-      <column name="id" valueNumeric="16"/>
-      <column name="event_id" valueNumeric="6"/>
-      <column name="name" value="Audimax"/>
-      <column name="description" value="Top-tier lecture room with massive capacity at Getreidemarkt"/>
-      <column name="url" value="https://maps.example.com/Audimax"/>
-    </insert>
+        <insert tableName="location">
+            <column name="id" valueNumeric="14"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="name" value="Gusshaus Innenhof"/>
+            <column name="additional_properties" value='{}'/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-  </changeSet>
+        <insert tableName="location">
+            <column name="id" valueNumeric="15"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="name" value="Gusshaus Rooftop"/>
+            <column name="description" value="Entrance via elevator or staircase"/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="id" valueNumeric="16"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="name" value="Audimax"/>
+            <column name="description" value="Top-tier lecture room with massive capacity at Getreidemarkt"/>
+            <column name="url" value="https://maps.example.com/Audimax"/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
+
+    </changeSet>
 
 </databaseChangeLog>

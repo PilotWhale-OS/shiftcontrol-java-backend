@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.activity;
 
 import java.time.Instant;
 
@@ -24,4 +24,6 @@ public class ActivityDto {
     @NotNull
     private Instant endTime;
     private LocationDto location;
+    @NotNull
+    private boolean readOnly;
 }

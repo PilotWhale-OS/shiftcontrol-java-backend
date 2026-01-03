@@ -20,6 +20,14 @@
         <lombok.version>1.18.42</lombok.version>
         <rest-assured.version>6.0.0</rest-assured.version>
         <hamcrest.version>3.0</hamcrest.version>
+
+        <!-- default -->
+        <skipUnitTests>false</skipUnitTests>
+        <skipITs>false</skipITs>
+
+        <!-- if user passes -DskipTests=true, treat it as skipUnitTests + skipITs too -->
+        <skipUnitTests>${skipTests}</skipUnitTests>
+        <skipITs>${skipTests}</skipITs>
     </properties>
 
     <modules>
@@ -84,6 +92,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.5.2</version>
                 <configuration>
+                    <skipITs>${skipITs}</skipITs>
                     <!-- run only integration-tagged tests -->
                     <groups>integration</groups>
                 </configuration>

@@ -53,6 +53,9 @@ public class Activity {
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Location location;
+    @NotNull
+    @Column(nullable = false)
+    private boolean readOnly;
 
     @Override
     public String toString() {

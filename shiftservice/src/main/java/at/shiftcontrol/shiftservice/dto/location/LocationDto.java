@@ -17,5 +17,6 @@ public class LocationDto {
     private String name;
     private String description;
     private String url;
-    // TODO add additionalProperties?
+    @NotNull
+    private boolean readOnly;
 }

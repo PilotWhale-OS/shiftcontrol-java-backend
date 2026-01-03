@@ -63,7 +63,7 @@ public class RoleServiceImpl implements RoleService {
         return RoleMapper.toRoleDto(roleDao.save(existing));
     }
 
-    public void updateRole(@NonNull RoleModificationDto roleDto, Role role) {
+    private void updateRole(@NonNull RoleModificationDto roleDto, Role role) {
         role.setName(roleDto.getName());
         role.setDescription(roleDto.getDescription());
         role.setSelfAssignable(roleDto.isSelfAssignable());
