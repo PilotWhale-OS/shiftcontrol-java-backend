@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
@@ -207,9 +208,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     private List<Shift> getShiftsBasedOnViewModes(long shiftPlanId, String userId, ShiftPlanScheduleFilterDto filterDto,
                                                   List<Shift> filteredShiftsWithoutViewMode) throws NotFoundException {
-
-        if (filterDto != null && filterDto.getShiftRelevances() != null &&
-            !filterDto.getShiftRelevances().isEmpty()) {
+        if (filterDto != null
+            && filterDto.getShiftRelevances() != null
+            && !filterDto.getShiftRelevances().isEmpty()) {
             List<Shift> ownShifts = new ArrayList<>();
             List<Shift> signUpPossibleShifts = new ArrayList<>();
             if (filterDto.getShiftRelevances().contains(ShiftRelevance.MY_SHIFTS)) {
@@ -395,7 +396,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         Collection<Role> rolesToAssign = List.of();
         if (requestDto.getAutoAssignRoleIds() != null && !requestDto.getAutoAssignRoleIds().isEmpty()) {
-            rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds());
+            rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds().stream().map(ConvertUtil::idToLong).toList());
 
             if (rolesToAssign.size() != requestDto.getAutoAssignRoleIds().size()) {
                 throw new BadRequestException("One or more roleIds are invalid");
@@ -456,11 +457,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public void revokeShiftPlanInviteCode(String inviteCode) throws NotFoundException, ForbiddenException {
+    public void revokeShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        var invite = shiftPlanInviteDao.findByCode(inviteCode)
-            .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
+        var invite = shiftPlanInviteDao.findById(inviteId)
+            .orElseThrow(() -> new NotFoundException("Invite not found with id: " + inviteId));
 
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
 
@@ -505,7 +506,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public Collection<ShiftPlanInviteDto> listShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
+    public Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
         // both planners and admins can list invites

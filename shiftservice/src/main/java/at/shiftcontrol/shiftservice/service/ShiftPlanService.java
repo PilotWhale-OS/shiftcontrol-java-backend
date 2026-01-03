@@ -39,11 +39,11 @@ public interface ShiftPlanService {
     ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
         throws NotFoundException, ForbiddenException;
 
-    void revokeShiftPlanInviteCode(String inviteCode) throws NotFoundException, ForbiddenException;
+    void revokeShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException;
 
     ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException;
 
-    Collection<ShiftPlanInviteDto> listShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException;
+    Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException;
 
     ShiftPlanJoinOverviewDto joinShiftPlanAsVolunteer(ShiftPlanJoinRequestDto requestDto) throws NotFoundException;
 
