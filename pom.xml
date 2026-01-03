@@ -21,6 +21,14 @@
         <rest-assured.version>6.0.0</rest-assured.version>
         <hamcrest.version>3.0</hamcrest.version>
         <org-testcontainers.version>1.21.4</org-testcontainers.version>
+
+        <!-- default -->
+        <skipUnitTests>false</skipUnitTests>
+        <skipITs>false</skipITs>
+
+        <!-- if user passes -DskipTests=true, treat it as skipUnitTests + skipITs too -->
+        <skipUnitTests>${skipTests}</skipUnitTests>
+        <skipITs>${skipTests}</skipITs>
     </properties>
 
     <modules>
@@ -85,6 +93,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.5.2</version>
                 <configuration>
+                    <skipITs>${skipITs}</skipITs>
                     <!-- run only integration-tagged tests -->
                     <groups>integration</groups>
                 </configuration>

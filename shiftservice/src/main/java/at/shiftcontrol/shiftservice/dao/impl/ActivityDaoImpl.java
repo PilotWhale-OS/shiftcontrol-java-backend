@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.Optional;
 
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
+import at.shiftcontrol.shiftservice.dao.impl.specification.ActivitySpecifications;
+import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -43,5 +46,12 @@ public class ActivityDaoImpl implements ActivityDao {
     @Override
     public Collection<Activity> findAllByEventId(Long eventId) {
         return activityRepository.findAllByEventId(eventId);
+    }
+
+    @Override
+    public Collection<Activity> searchActivitiesInEvent(Long eventId, EventScheduleDaySearchDto searchDto) {
+        Specification<Activity> spec = ActivitySpecifications.matchesSearchDto(searchDto);
+
+        return activityRepository.findAll(spec);
     }
 }

@@ -1,3 +1,4 @@
+
 package at.shiftcontrol.shiftservice.dto.invite;
 
 import java.time.Instant;
@@ -23,5 +24,5 @@ public class ShiftPlanInviteCreateRequestDto {
 
     private Integer maxUses;
 
-    private Collection<Long> autoAssignRoleIds;
+    private Collection<String> autoAssignRoleIds;
 }

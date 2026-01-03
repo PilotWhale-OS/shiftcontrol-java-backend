@@ -1,12 +1,22 @@
 package at.shiftcontrol.shiftservice.config;
 
+import javax.xml.bind.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.xml.bind.ValidationException;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.FileExportException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
+import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
+import at.shiftcontrol.lib.exception.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,15 +27,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
-import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
-import at.shiftcontrol.lib.exception.UnauthorizedException;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -81,6 +83,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotificationSettingAlreadyExistsException.class)
     public ResponseEntity<Object> handleNotificationSettingAlreadyExistsException(Exception ex, WebRequest request) {
         return handleInternal(ex, request, CONFLICT);
+    }
+
+    @ExceptionHandler(value = {BadRequestException.class})
+    protected ResponseEntity<Object> handleBadRequest(Exception ex, WebRequest request) {
+        return handleInternal(ex, request, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {FileExportException.class})
+    protected ResponseEntity<Object> handleFileExport(Exception ex, WebRequest request) {
+        return handleInternal(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<Object> handleInternal(Exception ex, WebRequest request, HttpStatus status) {

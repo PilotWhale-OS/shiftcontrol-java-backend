@@ -20,11 +20,13 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
+import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -38,6 +40,8 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
@@ -57,6 +61,7 @@ import at.shiftcontrol.shiftservice.mapper.InviteMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
+import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
@@ -80,6 +85,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ApplicationUserProvider userProvider;
     private final ShiftAssemblingMapper shiftMapper;
     private final SecurityHelper securityHelper;
+    private final EventDao eventDao;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -87,6 +93,39 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private static final String INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private static final int INVITE_CODE_LENGTH = 8;
     private static final int MAX_INVITE_CODE_GENERATION_ATTEMPTS = 10;
+
+    @Override
+    public Collection<ShiftPlanDto> getAll(long eventId) throws NotFoundException {
+        eventDao.findById(eventId).orElseThrow(NotFoundException::new);
+        return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findByEventId(eventId));
+    }
+
+    @Override
+    public ShiftPlanDto get(long shiftPlanId) throws NotFoundException {
+        return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new));
+    }
+
+    @Override
+    public ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
+        var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
+        var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
+        plan.setEvent(event);
+        shiftPlanDao.save(plan);
+        return ShiftPlanMapper.toShiftPlanDto(plan);
+    }
+
+    @Override
+    public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
+        var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+        ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
+        shiftPlanDao.save(plan);
+        return ShiftPlanMapper.toShiftPlanDto(plan);
+    }
+
+    @Override
+    public void delete(long shiftPlanId) throws NotFoundException {
+        shiftPlanDao.delete(shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new));
+    }
 
     @Override
     public ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto)
@@ -163,15 +202,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
-        securityHelper.assertUserIsinPlan(shiftPlanId);
+        securityHelper.assertUserIsInPlan(shiftPlanId);
         return userProvider.getCurrentUser().getUserId();
     }
 
     private List<Shift> getShiftsBasedOnViewModes(long shiftPlanId, String userId, ShiftPlanScheduleFilterDto filterDto,
                                                   List<Shift> filteredShiftsWithoutViewMode) throws NotFoundException {
-
-        if (filterDto != null && filterDto.getShiftRelevances() != null &&
-            !filterDto.getShiftRelevances().isEmpty()) {
+        if (filterDto != null
+            && filterDto.getShiftRelevances() != null
+            && !filterDto.getShiftRelevances().isEmpty()) {
             List<Shift> ownShifts = new ArrayList<>();
             List<Shift> signUpPossibleShifts = new ArrayList<>();
             if (filterDto.getShiftRelevances().contains(ShiftRelevance.MY_SHIFTS)) {
@@ -212,13 +251,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             return false;
         }
 
+        boolean freeAndOpenTrade = state == PositionSignupState.SIGNUP_OR_TRADE;
+
         boolean freeAndEligible = state == PositionSignupState.SIGNUP_POSSIBLE;
 
         boolean hasOpenTrade = state == PositionSignupState.SIGNUP_VIA_TRADE;
 
         boolean hasAuction = state == PositionSignupState.SIGNUP_VIA_AUCTION;
 
-        return freeAndEligible || hasOpenTrade || hasAuction;
+        return freeAndEligible || freeAndOpenTrade || hasOpenTrade || hasAuction;
     }
 
 
@@ -355,7 +396,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         Collection<Role> rolesToAssign = List.of();
         if (requestDto.getAutoAssignRoleIds() != null && !requestDto.getAutoAssignRoleIds().isEmpty()) {
-            rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds());
+            rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds().stream().map(ConvertUtil::idToLong).toList());
 
             if (rolesToAssign.size() != requestDto.getAutoAssignRoleIds().size()) {
                 throw new BadRequestException("One or more roleIds are invalid");
@@ -416,11 +457,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public void revokeShiftPlanInviteCode(String inviteCode) throws NotFoundException, ForbiddenException {
+    public void revokeShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        var invite = shiftPlanInviteDao.findByCode(inviteCode)
-            .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
+        var invite = shiftPlanInviteDao.findById(inviteId)
+            .orElseThrow(() -> new NotFoundException("Invite not found with id: " + inviteId));
 
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
 
@@ -443,7 +484,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException {
+    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException {
         var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.findByCode(inviteCode)
             .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
@@ -465,7 +506,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public Collection<ShiftPlanInviteDto> listShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
+    public Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
         // both planners and admins can list invites

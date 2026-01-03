@@ -55,22 +55,31 @@ public interface EligibilityService {
     void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
 
     /**
-     * Checks if the volunteer can request a trade for the position slot based on PositionSignUpState
+     * Checks if the volunteer could accept a trade for the given position slot, based on PositionSignUpState
      *
-     * @param positionSlot The requested position slot to check
-     * @param volunteer The volunteer to check
-     * @throws ConflictException if it is not possible for the volunteer to create or accept a trade for this position slot
+     * @param positionSlot that would be offered to the volunteer
+     * @param volunteer to whom a trade might be created
+     * @return true if the user could accept the trade
      */
-    void validateSignUpStateForTrade(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
+    boolean isTradePossible(PositionSlot positionSlot, Volunteer volunteer);
 
     /**
-     * returns all conflicting assignments within a given time for a specific user
+     * Checks if the volunteer could accept a trade for the given position slot, based on PositionSignUpState
      *
-     * @param volunteerId The volunteer to check
-     * @param startTime start of the timespan to check
-     * @param endTime end of the timespan to check
-     * @return the overlapping assignments
+     * @param positionSlot that would be offered to the volunteer
+     * @param volunteer to whom a trade might be created
+     * @throws ConflictException if the user can not accept the trade
      */
+    public void validateIsTradePossible(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException;
+
+        /**
+         * returns all conflicting assignments within a given time for a specific user
+         *
+         * @param volunteerId The volunteer to check
+         * @param startTime start of the timespan to check
+         * @param endTime end of the timespan to check
+         * @return the overlapping assignments
+         */
     Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
 
     /**
@@ -82,6 +91,15 @@ public interface EligibilityService {
      * @throws ConflictException if overlapping assignments exist
      */
     void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) throws ConflictException;
+
+    /**
+     * checks if the user has any conflicting assignments with a given positionSlot
+     *
+     * @param volunteerId The volunteer to check
+     * @param positionSlot positionSlot to check
+     * @throws ConflictException if overlapping assignments exist
+     */
+    void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot) throws ConflictException;
 
     /**
      * returns all conflicting assignments within a given time for a specific user, ignoring the provided position slot
@@ -117,12 +135,4 @@ public interface EligibilityService {
      */
     PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) throws NotFoundException;
 
-    /**
-     * checks if the user is assigned to the shift plan, that includes the given position slot
-     *
-     * @param positionSlot the position to check
-     * @param volunteerId the volunteer to check
-     * @throws IllegalArgumentException if the user has no access to the position slot
-     */
-    void validateHasAccessToPositionSlot(PositionSlot positionSlot, String volunteerId) throws IllegalArgumentException;
 }

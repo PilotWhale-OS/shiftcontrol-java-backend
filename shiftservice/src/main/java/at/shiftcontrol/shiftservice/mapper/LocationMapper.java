@@ -13,7 +13,8 @@ public class LocationMapper {
             String.valueOf(location.getId()),
             location.getName(),
             location.getDescription(),
-            location.getUrl()
+            location.getUrl(),
+            location.isReadOnly()
         );
     }
 
