@@ -38,10 +38,9 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto getRole(Long shiftPlanId, Long roleId) throws ForbiddenException {
-        securityHelper.assertUserIsPlanner(shiftPlanId);
+    public RoleDto getRole(Long roleId) throws ForbiddenException {
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
-        assertRoleBelongsToShiftPlan(role, shiftPlanId);
+        securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         return RoleMapper.toRoleDto(role);
     }
 
@@ -55,10 +54,9 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto updateRole(Long shiftPlanId, Long roleId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
-        securityHelper.assertUserIsPlanner(shiftPlanId);
+    public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
         Role existing = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
-        assertRoleBelongsToShiftPlan(existing, shiftPlanId);
+        securityHelper.assertUserIsPlanner(existing.getShiftPlan().getId());
         updateRole(roleDto, existing);
         return RoleMapper.toRoleDto(roleDao.save(existing));
     }
@@ -70,26 +68,20 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteRole(Long shiftPlanId, Long roleId) throws ForbiddenException {
-        securityHelper.assertUserIsPlanner(shiftPlanId);
+    public void deleteRole(Long roleId) throws ForbiddenException {
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
-        assertRoleBelongsToShiftPlan(role, shiftPlanId);
+        securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         roleDao.delete(role);
     }
 
     @Override
-    public VolunteerDto createUserRoleAssignment(
-        Long shiftPlanId,
-        String userId,
-        UserRoleAssignmentAssignDto assignDto
-    ) throws ForbiddenException {
+    public VolunteerDto createUserRoleAssignment(String userId, UserRoleAssignmentAssignDto assignDto) throws ForbiddenException {
         Role role = roleDao.findById(Long.valueOf(assignDto.getRoleId()))
             .orElseThrow(NotFoundException::new);
-        assertRoleBelongsToShiftPlan(role, shiftPlanId);
         Volunteer volunteer = volunteerDao.findById(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
         if (!role.isSelfAssignable()) {
-            securityHelper.assertUserIsPlanner(shiftPlanId);
+            securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         }
         if (volunteer.getRoles() != null && volunteer.getRoles().stream().anyMatch(r -> r.getId() == role.getId())) {
             throw new ForbiddenException("Role already assigned to user.");
@@ -103,28 +95,17 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteUserRoleAssignment(
-        Long shiftPlanId,
-        String userId,
-        Long roleId
-    ) throws ForbiddenException {
+    public void deleteUserRoleAssignment(String userId, Long roleId) throws ForbiddenException {
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
-        assertRoleBelongsToShiftPlan(role, shiftPlanId);
         Volunteer volunteer = volunteerDao.findById(userId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
         if (!role.isSelfAssignable()) {
-            securityHelper.assertUserIsPlanner(shiftPlanId);
+            securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         }
         boolean removed = volunteer.getRoles().removeIf(r -> r.getId() == roleId);
         if (!removed) {
             throw new NotFoundException("Role is not assigned to this user.");
         }
         volunteerDao.save(volunteer);
-    }
-
-    private void assertRoleBelongsToShiftPlan(Role role, Long shiftPlanId) throws ForbiddenException {
-        if (role.getShiftPlan() == null || role.getShiftPlan().getId() != shiftPlanId) {
-            throw new ForbiddenException("User has not the right permission for this shiftPlan.");
-        }
     }
 }
