@@ -6,6 +6,9 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
+import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
+import at.shiftcontrol.shiftservice.service.ApplicationEventService;
+
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ConflictException;
@@ -31,6 +34,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
     private final PositionSlotDao positionSlotDao;
     private final EligibilityService eligibilityService;
+    private final ApplicationEventService eventService;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) throws NotFoundException {
@@ -131,6 +135,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         updateVolunteer(trade.getOfferingAssignment(), offeringAssignmentVolunteer);
         updateVolunteer(trade.getRequestedAssignment(), requestedAssignmentVolunteer);
         trade.setStatus(TradeStatus.ACCEPTED);
+
+        eventService.publishEvent(AssignmentSwitchEvent.of(trade.getRequestedAssignment(), trade.getOfferingAssignment()), "assignment.switch");
     }
 
     private void updateVolunteer(Assignment assignment, Volunteer volunteer) {

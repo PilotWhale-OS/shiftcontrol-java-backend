@@ -12,5 +12,6 @@ import lombok.RequiredArgsConstructor;
 public class ApplicationEventWrapper {
     private final String actingUserId;
     private final Instant timestamp;
+    private final EventType eventType;
     private final ApplicationEvent event;
 }

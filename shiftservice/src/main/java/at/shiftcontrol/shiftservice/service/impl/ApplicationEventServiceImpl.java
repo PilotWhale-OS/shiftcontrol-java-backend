@@ -5,6 +5,8 @@ import java.time.Instant;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import at.shiftcontrol.shiftservice.event.EventClassifier;
+
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -21,11 +23,22 @@ public class ApplicationEventServiceImpl implements ApplicationEventService {
 
     @Override
     public void publishEvent(ApplicationEvent event, String routingKey) {
-        ApplicationEventWrapper.builder()
+        var wrappedEvent = wrapEvent(event);
+        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, routingKey, wrappedEvent);
+    }
+
+    private ApplicationEventWrapper wrapEvent(ApplicationEvent event) {
+        //Get EventType from EventClassifier annotation and wrap event
+        var classifier = event.getClass().getAnnotation(EventClassifier.class);
+        if (classifier == null) {
+            throw new IllegalArgumentException("Event class " + event.getClass().getName() + " is not annotated with @EventClassifier");
+        }
+        var eventType = classifier.value();
+        return ApplicationEventWrapper.builder()
             .timestamp(Instant.now())
             .actingUserId(userProvider.getCurrentUser().getUserId())
-            .event(event);
-
-        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, routingKey, event);
+            .eventType(eventType)
+            .event(event)
+            .build();
     }
 }
