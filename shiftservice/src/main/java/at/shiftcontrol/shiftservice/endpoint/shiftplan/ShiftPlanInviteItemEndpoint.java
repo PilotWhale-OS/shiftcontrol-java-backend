@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ShiftPlanInviteItemEndpoint {
     private final ShiftPlanService shiftPlanService;
 
-    @DeleteMapping("/invites/{inviteId}")
+    @PostMapping("/invites/{inviteId}")
     // TODO Security
     @Operation(
         operationId = "revokeShiftPlanInvite",
@@ -38,6 +38,17 @@ public class ShiftPlanInviteItemEndpoint {
     public void revokeShiftPlanInvite(@PathVariable String inviteId) throws ForbiddenException, NotFoundException {
         shiftPlanService.revokeShiftPlanInvite(ConvertUtil.idToLong(inviteId));
     }
+
+    @DeleteMapping("/invites/{inviteId}")
+    // TODO Security
+    @Operation(
+        operationId = "deleteShiftPlanInvite",
+        description = "Delete an invite code for a specific shift plan of an event (hard delete)"
+    )
+    public void deleteShiftPlanInvite(@PathVariable String inviteId) throws ForbiddenException, NotFoundException {
+        shiftPlanService.deleteShiftPlanInvite(ConvertUtil.idToLong(inviteId));
+    }
+
 
     @GetMapping("/invites/{inviteCode}")
     // TODO Security

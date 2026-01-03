@@ -41,6 +41,8 @@ public interface ShiftPlanService {
 
     void revokeShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException;
 
+    void deleteShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException;
+
     ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException;
 
     Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException;

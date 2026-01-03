@@ -482,6 +482,18 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
+    public void deleteShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+
+        var invite = shiftPlanInviteDao.findById(inviteId)
+            .orElseThrow(() -> new NotFoundException("Invite not found with id: " + inviteId));
+
+        validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
+
+        shiftPlanInviteDao.delete(invite);
+    }
+
+    @Override
     public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException {
         var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.findByCode(inviteCode)
