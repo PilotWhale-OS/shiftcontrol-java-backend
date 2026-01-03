@@ -4,11 +4,12 @@ import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.entity.Activity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ActivityRepository extends JpaRepository<Activity, Long> {
+public interface ActivityRepository extends JpaRepository<Activity, Long>, JpaSpecificationExecutor<Activity> {
     @Query("""
         SELECT a FROM Activity a
         WHERE a.location.id = :locationId

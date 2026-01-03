@@ -3,13 +3,9 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
@@ -21,6 +17,12 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,6 +43,9 @@ class EventServiceTest {
     @Mock
     private StatisticService statisticService;
 
+    @Mock
+    private ApplicationUserProvider userProvider;
+
     @InjectMocks
     private EventServiceImpl eventService;
 
@@ -60,6 +65,10 @@ class EventServiceTest {
         Event nonRelevantEvent = new Event();
         nonRelevantEvent.setShiftPlans(List.of(spIrrelevant));
 
+        var assignedUser = mock(AssignedUser.class);
+        when(assignedUser.getUserId()).thenReturn("420696742");
+        when(userProvider.getCurrentUser()).thenReturn(assignedUser);
+
         // DAO returns both events
         when(eventDao.search(any(EventSearchDto.class)))
             .thenReturn(List.of(relevantEvent, nonRelevantEvent));
@@ -73,7 +82,7 @@ class EventServiceTest {
         var expected = EventMapper.toEventDto(List.of(relevantEvent));
 
         // Act
-        var result = eventService.search(new EventSearchDto(), "420696742");
+        var result = eventService.search(new EventSearchDto());
 
         // Assert
         verify(eventDao).search(any(EventSearchDto.class));

@@ -54,7 +54,7 @@ public final class ShiftSpecifications {
 
             // shift name contains (case-insensitive)
             if (filterDto.getShiftName() != null && !filterDto.getShiftName().isBlank()) {
-                String pattern = "%" + filterDto.getShiftName().toLowerCase() + "%";
+                String pattern = "%" + filterDto.getShiftName().toLowerCase().trim() + "%";
                 predicates = criteriaBuilder.and(predicates,
                     criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")),

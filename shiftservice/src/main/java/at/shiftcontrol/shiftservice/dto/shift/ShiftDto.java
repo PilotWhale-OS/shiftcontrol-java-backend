@@ -3,7 +3,7 @@ package at.shiftcontrol.shiftservice.dto.shift;
 import java.time.Instant;
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import jakarta.validation.constraints.NotNull;

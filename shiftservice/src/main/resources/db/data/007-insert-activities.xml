@@ -16,6 +16,7 @@
             <!-- linked to shift 1 (2025-09-12 08-12) and shift 2 (2025-09-13 08-12) -->
             <column name="start_time" value="2025-09-12T08:00:00Z"/>
             <column name="end_time" value="2025-09-13T12:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -27,6 +28,7 @@
                     value="Assist attendees with check-in at the registration desk in the afternoon"/>
             <column name="start_time" value="2025-09-12T13:00:00Z"/>
             <column name="end_time" value="2025-09-13T12:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -37,6 +39,7 @@
             <column name="description" value="Prepare Workshop Room A for sessions and equipment setup"/>
             <column name="start_time" value="2025-09-12T08:00:00Z"/>
             <column name="end_time" value="2025-09-12T17:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -46,6 +49,7 @@
             <column name="name" value="Exhibition Hall Support"/>
             <column name="start_time" value="2025-09-12T08:00:00Z"/>
             <column name="end_time" value="2025-09-13T12:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -56,6 +60,7 @@
             <column name="description" value="Support smaller sessions and handle attendee needs"/>
             <column name="start_time" value="2025-09-12T13:00:00Z"/>
             <column name="end_time" value="2025-09-14T17:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -66,6 +71,7 @@
             <column name="description" value="Assist with AV and microphone setup for sessions"/>
             <column name="start_time" value="2025-09-12T08:00:00Z"/>
             <column name="end_time" value="2025-09-13T12:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -75,6 +81,7 @@
             <column name="name" value="Workshop Assistance"/>
             <column name="start_time" value="2025-09-12T13:00:00Z"/>
             <column name="end_time" value="2025-09-13T12:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -85,6 +92,7 @@
             <column name="description" value="Monitor Main Conference Hall and assist speakers"/>
             <column name="start_time" value="2025-09-12T08:00:00Z"/>
             <column name="end_time" value="2025-09-14T17:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -95,6 +103,7 @@
             <column name="description" value="Ensure all sessions run smoothly and equipment works"/>
             <column name="start_time" value="2025-09-12T13:00:00Z"/>
             <column name="end_time" value="2025-09-12T21:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -105,6 +114,7 @@
             <column name="description" value="Assist exhibitors and manage visitor flow in Expo Hall"/>
             <column name="start_time" value="2025-09-13T08:00:00Z"/>
             <column name="end_time" value="2025-09-14T17:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -115,6 +125,7 @@
             <column name="description" value="Help speakers and attendees in Breakout Room D"/>
             <column name="start_time" value="2026-01-20T08:00:00Z"/>
             <column name="end_time" value="2026-01-20T12:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -125,6 +136,7 @@
             <column name="description" value="Set up microphones and audio equipment for workshops"/>
             <column name="start_time" value="2025-09-14T08:00:00Z"/>
             <column name="end_time" value="2025-09-14T12:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -135,6 +147,7 @@
             <column name="description" value="Manage lighting for exhibition hall booths"/>
             <column name="start_time" value="2025-10-06T13:00:00Z"/>
             <column name="end_time" value="2025-10-06T17:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -145,6 +158,7 @@
             <column name="description" value="Distribute materials and handouts to workshop participants"/>
             <column name="start_time" value="2025-11-15T08:00:00Z"/>
             <column name="end_time" value="2025-11-15T12:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
         <insert tableName="activity">
@@ -155,48 +169,54 @@
             <column name="description" value="Clean and organize Workshop Room C after each session"/>
             <column name="start_time" value="2025-12-12T13:00:00Z"/>
             <column name="end_time" value="2025-12-12T17:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
         </insert>
 
-      <!--
+        <!--
+  
+          manual test event activities
+  
+          -->
 
-        manual test event activities
-
-        -->
-
-      <!-- day 1 -->
+        <!-- day 1 -->
 
 
-      <insert tableName="activity">
-        <column name="id" valueNumeric="16"/>
-        <column name="event_id" valueNumeric="6"/>
-        <column name="location_id" valueNumeric="11"/>
-        <column name="name" value="Open Mic Acoustic Experiments"/>
-        <column name="description" value="Ever wondered why professors complain about acoustics in Inf HS? Experience it first-hand!"/>
-        <column name="start_time" value="2026-11-20T13:00:00Z"/>
-        <column name="end_time" value="2026-11-20T18:00:00Z"/>
-      </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="16"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="location_id" valueNumeric="11"/>
+            <column name="name" value="Open Mic Acoustic Experiments"/>
+            <column name="description"
+                    value="Ever wondered why professors complain about acoustics in Inf HS? Experience it first-hand!"/>
+            <column name="start_time" value="2026-11-20T13:00:00Z"/>
+            <column name="end_time" value="2026-11-20T18:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-      <insert tableName="activity">
-        <column name="id" valueNumeric="17"/>
-        <column name="event_id" valueNumeric="6"/>
-        <column name="location_id" valueNumeric="15"/>
-        <column name="name" value="Freihausblick Nonstop Rave"/>
-        <column name="description" value="Music. Drinks. Stunning view of Freihaus. What more could you possibly want?"/>
-        <column name="start_time" value="2026-11-20T18:00:00Z"/>
-        <column name="end_time" value="2026-11-25T05:00:00Z"/>
-      </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="17"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="location_id" valueNumeric="15"/>
+            <column name="name" value="Freihausblick Nonstop Rave"/>
+            <column name="description"
+                    value="Music. Drinks. Stunning view of Freihaus. What more could you possibly want?"/>
+            <column name="start_time" value="2026-11-20T18:00:00Z"/>
+            <column name="end_time" value="2026-11-25T05:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
-      <!-- day 3 -->
+        <!-- day 3 -->
 
-      <insert tableName="activity">
-        <column name="id" valueNumeric="18"/>
-        <column name="event_id" valueNumeric="6"/>
-        <column name="location_id" valueNumeric="14"/>
-        <column name="name" value="Langos and Punch"/>
-        <column name="description" value="Enjoy some langos and punch served by the incredible FET team."/>
-        <column name="start_time" value="2026-11-22T15:00:00Z"/>
-        <column name="end_time" value="2026-11-23T20:00:00Z"/>
-      </insert>
+        <insert tableName="activity">
+            <column name="id" valueNumeric="18"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="location_id" valueNumeric="14"/>
+            <column name="name" value="Langos and Punch"/>
+            <column name="description" value="Enjoy some langos and punch served by the incredible FET team."/>
+            <column name="start_time" value="2026-11-22T15:00:00Z"/>
+            <column name="end_time" value="2026-11-23T20:00:00Z"/>
+            <column name="read_only" valueBoolean="false"/>
+        </insert>
 
     </changeSet>
 
