@@ -11,15 +11,15 @@ import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 public interface RoleService {
     Collection<RoleDto> getRoles(Long shiftPlanId);
 
-    RoleDto getRole(Long shiftPlanId, Long roleId) throws ForbiddenException;
+    RoleDto getRole(Long roleId) throws ForbiddenException;
 
     RoleDto createRole(Long shiftPlanId, RoleModificationDto roleDto) throws ForbiddenException;
 
-    RoleDto updateRole(Long shiftPlanId, Long roleId, RoleModificationDto roleDto) throws ForbiddenException;
+    RoleDto updateRole(Long roleId, RoleModificationDto roleDto) throws ForbiddenException;
 
-    void deleteRole(Long shiftPlanId, Long roleId) throws ForbiddenException;
+    void deleteRole(Long roleId) throws ForbiddenException;
 
-    VolunteerDto createUserRoleAssignment(Long shiftPlanId, String userId, UserRoleAssignmentAssignDto assignDto) throws ForbiddenException;
+    VolunteerDto createUserRoleAssignment(String userId, UserRoleAssignmentAssignDto assignDto) throws ForbiddenException;
 
-    void deleteUserRoleAssignment(Long shiftPlanId, String userId, Long roleId) throws ForbiddenException;
+    void deleteUserRoleAssignment(String userId, Long roleId) throws ForbiddenException;
 }

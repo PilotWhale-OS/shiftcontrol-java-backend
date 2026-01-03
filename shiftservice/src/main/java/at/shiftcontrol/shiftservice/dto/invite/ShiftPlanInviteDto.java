@@ -18,6 +18,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ShiftPlanInviteDto {
     @NotNull
+    private String id;
+
+    @NotNull
     private String code;
 
     @NotNull
