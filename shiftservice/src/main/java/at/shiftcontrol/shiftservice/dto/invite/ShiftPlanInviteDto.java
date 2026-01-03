@@ -39,6 +39,7 @@ public class ShiftPlanInviteDto {
     private int usedCount;
 
     @Valid
+    @NotNull
     private Collection<RoleDto> autoAssignedRoles;
 
     @NotNull

@@ -24,6 +24,7 @@ public class UserProfileDto {
     @Valid
     private Collection<NotificationSettingsDto> notifications;
 
+    @NotNull
     @Valid
     private Collection<RoleDto> assignedRoles;
 }
