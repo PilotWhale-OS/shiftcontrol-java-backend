@@ -64,7 +64,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     @Override
-    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId) throws NotFoundException, ForbiddenException {
+    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId)
+        throws NotFoundException, ForbiddenException {
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.findById(requestedPositionSlotId)
             .orElseThrow(() -> new NotFoundException("requested PositionSlot not found"));
@@ -103,7 +104,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return removeExistingTrades(slotsToOffer, requestedPositionSlotId, currentUserId);
     }
 
-    private Collection<Volunteer> getPossibleUsersForTrade(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot, Collection<Volunteer> volunteers) {
+    private Collection<Volunteer> getPossibleUsersForTrade(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot,
+                                                           Collection<Volunteer> volunteers) {
         return volunteers.stream().filter(v -> isTradePossibleForUser(offeredPositionSlot, requestedPositionSlot, v)).toList();
     }
 
@@ -117,7 +119,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return eligible && conflicts.isEmpty();
     }
 
-    private Collection<TradeCandidatesDto> removeExistingTrades( Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId, String currentUserId) {
+    private Collection<TradeCandidatesDto> removeExistingTrades( Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId,
+                                                                 String currentUserId) {
         // check for already existing trades in status OPEN
         Collection<AssignmentSwitchRequest> existingTrades =
             assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
@@ -162,7 +165,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
-    public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
+    public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId)
+        throws NotFoundException, ConflictException, ForbiddenException {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("user not found"));

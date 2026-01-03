@@ -30,5 +30,4 @@ public class AssignmentId implements Serializable {
                 .volunteerId(assignment.getAssignedVolunteer().getId())
                 .build();
     }
-
 }

@@ -1,10 +1,10 @@
 package at.shiftcontrol.shiftservice.event.events.parts;
 
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-
 import lombok.Builder;
 import lombok.Data;
+
+import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 
 @Data
 @Builder

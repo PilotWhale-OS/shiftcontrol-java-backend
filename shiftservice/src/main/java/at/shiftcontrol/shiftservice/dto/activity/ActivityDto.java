@@ -2,12 +2,13 @@ package at.shiftcontrol.shiftservice.dto.activity;
 
 import java.time.Instant;
 
-import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 
 @Data
 @AllArgsConstructor
