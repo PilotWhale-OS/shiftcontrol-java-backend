@@ -141,6 +141,13 @@ public class EventServiceImpl implements EventService {
     private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) throws NotFoundException {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
         var shiftPlans = event.getShiftPlans();
+
+        // skip filtering for admin users
+        var currentUser = userProvider.getCurrentUser();
+        if (currentUser instanceof AdminUser) {
+            return shiftPlans.stream().toList();
+        }
+
         var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));
 
         var volunteerShiftPlans = volunteer.getVolunteeringPlans();
