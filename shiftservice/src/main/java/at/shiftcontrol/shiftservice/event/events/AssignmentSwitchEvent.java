@@ -1,15 +1,13 @@
 package at.shiftcontrol.shiftservice.event.events;
 
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.event.ApplicationEvent;
-import at.shiftcontrol.shiftservice.event.EventClassifier;
-
-import at.shiftcontrol.shiftservice.event.events.parts.AssignmentPart;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.event.ApplicationEvent;
+import at.shiftcontrol.shiftservice.event.EventClassifier;
+import at.shiftcontrol.shiftservice.event.events.parts.AssignmentPart;
 import static at.shiftcontrol.shiftservice.event.EventType.ASSIGNMENT_SWITCH;
 
 /**
@@ -32,6 +30,6 @@ public class AssignmentSwitchEvent extends ApplicationEvent {
 
     @Override
     public String getRoutingKey() {
-        return "";
+        return "assignment.switch.completed." + offeringAssignment.getVolunteerId();
     }
 }

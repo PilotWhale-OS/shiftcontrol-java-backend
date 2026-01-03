@@ -20,6 +20,8 @@ public class RabbitEventPublisher {
     private final ApplicationUserProvider userProvider;
     private final Tracer tracer;
 
+    private static final String ROUTING_KEY_PREFIX = "shiftcontrol.";
+
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(ApplicationEvent event) {
         var wrappedEvent = wrapEvent(event);
@@ -28,7 +30,7 @@ public class RabbitEventPublisher {
             throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key");
         }
 
-        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, routingKey, wrappedEvent);
+        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, ROUTING_KEY_PREFIX + routingKey, wrappedEvent);
     }
 
     private ApplicationEventWrapper wrapEvent(ApplicationEvent event) {
