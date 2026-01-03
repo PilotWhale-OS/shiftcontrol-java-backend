@@ -31,6 +31,8 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public Collection<LocationDto> getAllLocationsForEvent(long eventId) throws NotFoundException {
+        eventDao.findById(eventId)
+            .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
         var locations = locationDao.findAllByEventId(eventId);
 
         return LocationMapper.toLocationDto(locations.stream().toList());
