@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.util;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.entity.Event;
@@ -145,12 +146,17 @@ public class SecurityHelper {
     }
 
 
-    public void assertUserIsinAnyPlanOfEvent(Event event) throws ForbiddenException {
-        boolean hasAccess = event.getShiftPlans()
+    private boolean isUserInAnyPlanOfEvent(Event event) {
+        return event.getShiftPlans()
             .stream()
             .anyMatch(shiftPlan -> isUserInPlan(shiftPlan.getId()));
+    }
 
-        if (!hasAccess) {
+    public void assertUserIsAllowedToAccessEvent(Event event) throws ForbiddenException {
+        boolean isInAnyPlan = isUserInAnyPlanOfEvent(event); // also false if no shift plans exist
+        var currentUser = userProvider.getCurrentUser();
+
+        if (!isInAnyPlan && !(currentUser instanceof AdminUser)) {
             throw new ForbiddenException(
                 "User has no access to any shift plan of event with id: " + event.getId()
             );
