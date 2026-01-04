@@ -92,6 +92,7 @@ public class NotificationServiceImpl implements NotificationService {
         toAdd.removeAll(existingChannels);
         addNewChannels(userId, toAdd, type);
 
+        //TODO publish event
         return fetchPersistedSettings(userId, type);
     }
 

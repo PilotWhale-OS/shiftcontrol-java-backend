@@ -215,6 +215,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             }
         }
 
+        //TODO publish event
+
         return TradeMapper.toDto(assignmentSwitchRequestDao.saveAll(trades));
     }
 
@@ -286,6 +288,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         trade.setStatus(TradeStatus.REJECTED);
+
+        //TODO publish event
         return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
     }
 
@@ -303,6 +307,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         trade.setStatus(TradeStatus.CANCELED);
+
+        //TODO publish event
         return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
     }
 

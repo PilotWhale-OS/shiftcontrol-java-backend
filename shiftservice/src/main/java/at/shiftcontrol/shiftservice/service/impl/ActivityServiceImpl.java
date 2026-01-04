@@ -65,6 +65,8 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
+        //TODO publish event
+
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -78,6 +80,8 @@ public class ActivityServiceImpl implements ActivityService {
         activity = validateModificationDtoAndSetActivityFields(modificationDto, activity);
 
         activity = activityDao.save(activity);
+
+        //TODO publish event
 
         return ActivityMapper.toActivityDto(activity);
     }
@@ -112,6 +116,8 @@ public class ActivityServiceImpl implements ActivityService {
         }
 
         activityDao.delete(activity);
+
+        //TODO publish event
     }
 
     @Override

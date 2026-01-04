@@ -11,6 +11,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -64,10 +70,6 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -109,7 +111,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
         plan.setLockStatus(LockStatus.SELF_SIGNUP);
-        shiftPlanDao.save(plan);
+        plan = shiftPlanDao.save(plan);
+
+        //TODO publish event
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
@@ -118,11 +122,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
         shiftPlanDao.save(plan);
+
+        //TODO publish event
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
     @Override
     public void delete(long shiftPlanId) throws NotFoundException {
+
+        //TODO publish event
         shiftPlanDao.delete(shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new));
     }
 
@@ -467,6 +475,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         invite.setActive(false);
         invite.setRevokedAt(Instant.now());
 
+        //TODO publish event
         shiftPlanInviteDao.save(invite);
     }
 
@@ -490,6 +499,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
 
+        //TODO publish event
         shiftPlanInviteDao.delete(invite);
     }
 
@@ -587,6 +597,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
+        //TODO publish event
         return ShiftPlanJoinOverviewDto.builder()
             .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
             .joined(joinedNow)
@@ -602,6 +613,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             throw new BadRequestException("Lock status already in requested state");
         }
         shiftPlan.setLockStatus(lockStatus);
+
+        //TODO publish event
         shiftPlanDao.save(shiftPlan);
     }
 

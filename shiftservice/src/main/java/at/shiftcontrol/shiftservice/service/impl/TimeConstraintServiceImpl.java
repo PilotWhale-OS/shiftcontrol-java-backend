@@ -6,10 +6,6 @@ import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Optional;
 
-import at.shiftcontrol.shiftservice.dao.EventDao;
-
-import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -19,7 +15,9 @@ import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
@@ -82,6 +80,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
             default -> throw new IllegalStateException("Unexpected value: " + createDto.getType());
         }
         var entity = timeConstraintDao.save(TimeConstraintMapper.fromCreateDto(createDto, volunteer, event));
+
+        //TODO publish event
         return TimeConstraintMapper.toDto(entity);
     }
 
@@ -99,6 +99,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         if (atcOpt.isEmpty()) {
             throw new NotFoundException("Time constraint not found");
         }
+
+        //TODO publish event
         timeConstraintDao.delete(atcOpt.get());
     }
 

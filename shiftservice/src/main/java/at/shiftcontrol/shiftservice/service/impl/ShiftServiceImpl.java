@@ -1,5 +1,11 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import org.springframework.stereotype.Service;
+
+import io.micrometer.common.util.StringUtils;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -16,10 +22,6 @@ import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import io.micrometer.common.util.StringUtils;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +56,8 @@ public class ShiftServiceImpl implements ShiftService {
 
         validateModificationDtoAndSetShiftFields(modificationDto, newShift);
         newShift = shiftDao.save(newShift);
+
+        //TODO publish event
         return shiftAssemblingMapper.assemble(newShift);
     }
 
@@ -65,6 +69,8 @@ public class ShiftServiceImpl implements ShiftService {
         validateModificationDtoAndSetShiftFields(modificationDto, shift);
 
         shift = shiftDao.save(shift);
+
+        //TODO publish event
         return shiftAssemblingMapper.assemble(shift);
     }
 
@@ -124,6 +130,7 @@ public class ShiftServiceImpl implements ShiftService {
         var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
         securityHelper.assertUserIsPlanner(shift);
 
+        //TODO publish event
         shiftDao.delete(shift);
     }
 }

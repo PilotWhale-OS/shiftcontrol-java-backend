@@ -2,6 +2,13 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
@@ -27,11 +34,6 @@ import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -73,7 +75,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // TODO close trades where this slot was offered to me
 
-        //Todo: Send Eventbus event
+        //TODO publish event
         return null;
     }
 
@@ -83,6 +85,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         //Todo: Checks are needed if the user can leave
 
         // no security check necessary, because user is already assigned to position
+
+        //TODO publish event
     }
 
     @Override
@@ -116,6 +120,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             default:
                 throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
+
+        //TODO publish event
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
@@ -154,6 +160,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // execute claim
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
 
+        //TODO publish event
         return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
     }
 
@@ -164,6 +171,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         securityHelper.assertUserIsVolunteer(assignment.getPositionSlot(), currentUserId);
 
         assignment.setStatus(AssignmentStatus.ACCEPTED);
+
+        //TODO publish event
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
@@ -195,6 +204,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // Delete old assignment
         assignmentDao.delete(oldAssignment);
 
+        //TODO publish event
         return newAssignment;
     }
 
@@ -209,6 +219,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new BadRequestException("preference must be between -10 and 10");
         }
 
+        //TODO publish event
         positionSlotDao.setPreference(volunteerId, positionSlotId, preference);
     }
 
@@ -236,6 +247,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         validateModificationDtoAndSetPositionSlotFields(modificationDto, newPositionSlot);
 
         newPositionSlot = positionSlotDao.save(newPositionSlot);
+
+        //TODO publish event
         return positionSlotAssemblingMapper.assemble(newPositionSlot);
     }
 
@@ -249,6 +262,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
 
         positionSlot = positionSlotDao.save(positionSlot);
+
+        //TODO publish event
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
@@ -279,6 +294,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         securityHelper.assertUserIsPlanner(positionSlot);
 
+        //TODO publish event
         positionSlotDao.delete(positionSlot);
     }
 }

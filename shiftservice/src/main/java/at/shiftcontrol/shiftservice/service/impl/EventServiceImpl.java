@@ -2,6 +2,11 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -24,9 +29,6 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -111,6 +113,8 @@ public class EventServiceImpl implements EventService {
 
         Event event = EventMapper.toEvent(modificationDto);
         event = eventDao.save(event);
+
+        //TODO publish event
         return EventMapper.toEventDto(event);
     }
 
@@ -123,6 +127,8 @@ public class EventServiceImpl implements EventService {
         Event event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         EventMapper.updateEvent(event, modificationDto);
         eventDao.save(event);
+
+        //TODO publish event
         return EventMapper.toEventDto(event);
     }
 
@@ -135,6 +141,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public void deleteEvent(long eventId) throws NotFoundException {
         // TODO assert admin only
+
+        //TODO publish event
         eventDao.delete(eventDao.findById(eventId).orElseThrow(NotFoundException::new));
     }
 

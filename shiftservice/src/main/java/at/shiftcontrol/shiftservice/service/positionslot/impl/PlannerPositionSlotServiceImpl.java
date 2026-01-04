@@ -44,6 +44,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
             case REQUEST_FOR_ASSIGNMENT -> acceptAssignment(assignment);
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
+
+        //TODO publish event
     }
 
     @Override
@@ -56,6 +58,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
             case REQUEST_FOR_ASSIGNMENT -> assignmentDao.delete(assignment);
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
+
+        //TODO publish event
     }
 
     private void acceptAssignment(Assignment assignment) {

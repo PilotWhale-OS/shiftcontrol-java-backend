@@ -3,6 +3,12 @@ package at.shiftcontrol.shiftservice.service.role.impl;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.springframework.stereotype.Service;
+
+import jakarta.ws.rs.NotFoundException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -18,10 +24,6 @@ import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.ws.rs.NotFoundException;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +52,8 @@ public class RoleServiceImpl implements RoleService {
         Role entity = RoleMapper.toRole(roleDto);
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
         entity.setShiftPlan(shiftPlan);
+
+        //TODO publish event
         return RoleMapper.toRoleDto(roleDao.save(entity));
     }
 
@@ -58,6 +62,8 @@ public class RoleServiceImpl implements RoleService {
         Role existing = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsPlanner(existing.getShiftPlan().getId());
         updateRole(roleDto, existing);
+
+        //TODO publish event
         return RoleMapper.toRoleDto(roleDao.save(existing));
     }
 
@@ -71,6 +77,8 @@ public class RoleServiceImpl implements RoleService {
     public void deleteRole(Long roleId) throws ForbiddenException {
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
+
+        //TODO publish event
         roleDao.delete(role);
     }
 
@@ -91,6 +99,8 @@ public class RoleServiceImpl implements RoleService {
         }
         volunteer.getRoles().add(role);
         volunteerDao.save(volunteer);
+
+        //TODO publish event
         return VolunteerMapper.toDto(volunteer);
     }
 
@@ -106,6 +116,8 @@ public class RoleServiceImpl implements RoleService {
         if (!removed) {
             throw new NotFoundException("Role is not assigned to this user.");
         }
+
+        //TODO publish event
         volunteerDao.save(volunteer);
     }
 }

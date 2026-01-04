@@ -2,6 +2,11 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -12,9 +17,6 @@ import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.service.LocationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +57,8 @@ public class LocationServiceImpl implements LocationService {
             .build();
 
         newLocation = locationDao.save(newLocation);
+
+        //TODO publish event
         return LocationMapper.toLocationDto(newLocation);
     }
 
@@ -74,6 +78,8 @@ public class LocationServiceImpl implements LocationService {
         location.setUrl(modificationDto.getUrl());
 
         location = locationDao.save(location);
+
+        //TODO publish event
         return LocationMapper.toLocationDto(location);
     }
 
@@ -87,6 +93,7 @@ public class LocationServiceImpl implements LocationService {
             throw new BadRequestException("Cannot modify read-only location");
         }
 
+        //TODO publish event
         locationDao.delete(location);
     }
 
