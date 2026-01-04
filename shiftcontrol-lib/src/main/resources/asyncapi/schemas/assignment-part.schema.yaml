@@ -14,12 +14,6 @@ properties:
   volunteerId:
     type: string
   status:
-    type: string
-    description: AssignmentStatus enum
-    enum:
-      - REQUESTED
-      - OFFERED
-      - ACCEPTED
-      - REJECTED
+    $ref: "./assignment-status.schema.yaml"
   positionSlot:
     $ref: './position-slot-part.schema.yaml'

@@ -15,6 +15,7 @@ import static at.shiftcontrol.shiftservice.event.EventType.ASSIGNMENT_SWITCH;
  */
 @Data
 @Builder
+@Deprecated
 @AllArgsConstructor
 @EventClassifier(ASSIGNMENT_SWITCH)
 public class AssignmentSwitchEvent extends ApplicationEvent {

@@ -1,0 +1,10 @@
+"$id": assignment-status.schema.yaml
+"$schema": https://json-schema.org/draft/2020-12/schema
+title: AssignmentStatus
+type: string
+description: AssignmentStatus enum
+enum:
+  - REQUESTED
+  - OFFERED
+  - ACCEPTED
+  - REJECTED

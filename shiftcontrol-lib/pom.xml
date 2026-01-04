@@ -19,53 +19,74 @@
 
   <build>
     <plugins>
+      <!-- 1) Ensure Node + npm are available during the build -->
       <plugin>
-        <groupId>org.jsonschema2pojo</groupId>
-        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-        <version>1.2.2</version>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.15.1</version>
         <executions>
           <execution>
-            <id>generate-event-models</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
+            <id>install-node-and-npm</id>
+            <goals><goal>install-node-and-npm</goal></goals>
             <configuration>
-              <!-- Where your schemas live -->
-              <sourceDirectory>${project.basedir}/src/main/resources/asyncapi/schemas</sourceDirectory>
-
-              <!-- Generated sources output -->
-              <outputDirectory>${project.build.directory}/generated-sources/jsonschema2pojo</outputDirectory>
-
-              <!-- Package for generated DTOs -->
-              <targetPackage>at.shiftcontrol.lib.contract.events</targetPackage>
-
-              <!-- Sensible defaults -->
-              <usePrimitives>false</usePrimitives>
-              <includeConstructors>false</includeConstructors>
-              <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
-              <includeToString>true</includeToString>
-              <generateBuilders>true</generateBuilders>
-
-              <!-- Use java.time for date-time -->
-              <dateTimeType>java.time.Instant</dateTimeType>
-              <dateType>java.time.LocalDate</dateType>
-
-              <useLongIntegers>true</useLongIntegers>
-
-              <useJakartaValidation>true</useJakartaValidation>
-
-              <classNameSuffix></classNameSuffix>
-
-              <sourceType>yamlschema</sourceType>
-
-              <!-- If you want Lombok, you can generate plain POJOs and annotate separately,
-                   but jsonschema2pojo's Lombok support is limited/inconsistent across setups. -->
+              <nodeVersion>v25.2.1</nodeVersion>
+              <npmVersion>11.7.0</npmVersion>
             </configuration>
+            <phase>generate-resources</phase>
           </execution>
         </executions>
       </plugin>
 
-      <!-- Make Maven compile the generated sources -->
+      <!-- 2) Run AsyncAPI CLI Modelina model generation -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>gen-asyncapi-models-java</id>
+            <phase>generate-sources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>npx</executable>
+              <arguments>
+                <argument>-y</argument>
+                <argument>@asyncapi/cli</argument>
+                <argument>generate</argument>
+                <argument>models</argument>
+                <argument>java</argument>
+                <argument>${project.basedir}/src/main/resources/asyncapi/asyncapi.yaml</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/generated-sources/asyncapi/java</argument>
+                <argument>--packageName=org.shiftcontrol.lib.asyncapi.events</argument>
+                <argument>--javaJackson</argument>
+                <argument>--javaIncludeComments</argument>
+              </arguments>
+            </configuration>
+          </execution>
+
+<!--          <execution>-->
+<!--            <id>gen-asyncapi-models-csharp</id>-->
+<!--            <phase>generate-sources</phase>-->
+<!--            <goals><goal>exec</goal></goals>-->
+<!--            <configuration>-->
+<!--              <executable>npx</executable>-->
+<!--              <arguments>-->
+<!--                <argument>-y</argument>-->
+<!--                <argument>@asyncapi/cli</argument>-->
+<!--                <argument>generate</argument>-->
+<!--                <argument>models</argument>-->
+<!--                <argument>csharp</argument>-->
+<!--                <argument>${project.basedir}/src/main/resources/asyncapi/asyncapi.yaml</argument>-->
+<!--                <argument>-o</argument>-->
+<!--                <argument>${project.basedir}/../shiftcontrol-csharp-client/src/generated</argument>-->
+<!--              </arguments>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+        </executions>
+      </plugin>
+
+      <!-- 3) Add generated Java sources to compilation -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -74,19 +95,19 @@
           <execution>
             <id>add-generated-sources</id>
             <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
+            <goals><goal>add-source</goal></goals>
             <configuration>
               <sources>
-                <source>${project.build.directory}/generated-sources/jsonschema2pojo</source>
+                <source>${project.build.directory}/generated-sources/asyncapi/java</source>
               </sources>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
     </plugins>
   </build>
+
 
   <dependencies>
     <dependency>
