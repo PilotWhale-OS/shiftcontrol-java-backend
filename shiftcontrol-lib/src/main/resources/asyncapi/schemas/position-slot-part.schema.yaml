@@ -1,0 +1,17 @@
+"$id": position-slot-part.schema.json
+"$schema": https://json-schema.org/draft/2020-12/schema
+title: PositionSlotPart
+javaType: org.shiftcontrol.lib.asyncapi.events.parts.PositionSlotPart
+type: object
+additionalProperties: false
+required:
+  - positionSlotId
+  - positionSlotName
+properties:
+  positionSlotId:
+    type: integer
+    format: int64
+  positionSlotName:
+    type: string
+  positionSlotDescription:
+    type: string

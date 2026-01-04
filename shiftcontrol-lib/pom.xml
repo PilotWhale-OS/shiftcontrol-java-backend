@@ -17,6 +17,75 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>1.2.2</version>
+        <executions>
+          <execution>
+            <id>generate-event-models</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <!-- Where your schemas live -->
+              <sourceDirectory>${project.basedir}/src/main/resources/asyncapi/schemas</sourceDirectory>
+
+              <!-- Generated sources output -->
+              <outputDirectory>${project.build.directory}/generated-sources/jsonschema2pojo</outputDirectory>
+
+              <!-- Package for generated DTOs -->
+              <targetPackage>at.shiftcontrol.lib.contract.events</targetPackage>
+
+              <!-- Sensible defaults -->
+              <usePrimitives>false</usePrimitives>
+              <includeConstructors>false</includeConstructors>
+              <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+              <includeToString>true</includeToString>
+              <generateBuilders>true</generateBuilders>
+
+              <!-- Use java.time for date-time -->
+              <dateTimeType>java.time.Instant</dateTimeType>
+              <dateType>java.time.LocalDate</dateType>
+
+              <useJakartaValidation>true</useJakartaValidation>
+
+              <classNameSuffix></classNameSuffix>
+
+              <sourceType>yamlschema</sourceType>
+
+              <!-- If you want Lombok, you can generate plain POJOs and annotate separately,
+                   but jsonschema2pojo's Lombok support is limited/inconsistent across setups. -->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Make Maven compile the generated sources -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>add-generated-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/jsonschema2pojo</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>

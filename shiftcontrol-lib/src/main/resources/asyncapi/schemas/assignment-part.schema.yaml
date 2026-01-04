@@ -1,0 +1,23 @@
+"$id": assignment-part.schema.json
+"$schema": https://json-schema.org/draft/2020-12/schema
+title: AssignmentPart
+javaType: org.shiftcontrol.lib.asyncapi.events.parts.AssignmentPart
+type: object
+additionalProperties: false
+required:
+  - volunteerId
+  - status
+  - positionSlot
+properties:
+  volunteerId:
+    type: string
+  status:
+    type: string
+    description: AssignmentStatus enum
+    enum:
+    - REQUESTED
+    - OFFERED
+    - ACCEPTED
+    - REJECTED
+  positionSlot:
+    "$ref": "./position-slot-part.schema.yaml"
