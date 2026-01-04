@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,8 @@ import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.TimeConstraint;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.TimeConstraintEvent;
 import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
@@ -83,7 +85,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         }
         var entity = timeConstraintDao.save(TimeConstraintMapper.fromCreateDto(createDto, volunteer, event));
 
-        //TODO publish event
+        publisher.publishEvent(TimeConstraintEvent.of(entity, RoutingKeys.TIMECONSTRAINT_CREATED));
         return TimeConstraintMapper.toDto(entity);
     }
 
@@ -97,13 +99,13 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
     @Override
     public void delete(long timeConstraintId) throws NotFoundException {
-        Optional<TimeConstraint> atcOpt = timeConstraintDao.findById(timeConstraintId);
-        if (atcOpt.isEmpty()) {
-            throw new NotFoundException("Time constraint not found");
-        }
+        var timeConstraint = timeConstraintDao.findById(timeConstraintId)
+            .orElseThrow(() -> new NotFoundException("Time constraint not found"));
 
-        //TODO publish event
-        timeConstraintDao.delete(atcOpt.get());
+        timeConstraintDao.delete(timeConstraint);
+
+        publisher.publishEvent(TimeConstraintEvent.of(timeConstraint, RoutingKeys.formatStrict(RoutingKeys.TIMECONSTRAINT_DELETED,
+            Map.of("timeConstraintId", String.valueOf(timeConstraintId)))));
     }
 
     static void checkForConstraintOverlaps(@NonNull TimeConstraintCreateDto createDto,

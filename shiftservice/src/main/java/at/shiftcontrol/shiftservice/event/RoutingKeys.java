@@ -47,19 +47,20 @@ public final class RoutingKeys {
     public static final String ASSIGNMENT_SWITCH_COMPLETED = "assignment.switch.completed.{requestedVolunteerId}.{offeringVolunteerId}";
 
     public static final String SHIFTPLAN_CREATED = "shiftplan.created";
-    public static final String SHIFTPLAN_UPDATED = "shiftplan.updated.{shiftplanId}";
-    public static final String SHIFTPLAN_DELETED = "shiftplan.deleted.{shiftplanId}";
-    public static final String SHIFTPLAN_INVITE_REVOKED = "shiftplan.invite.revoked.{shiftplanId}.{inviteId}";
-    public static final String SHIFTPLAN_INVITE_DELETED = "shiftplan.invite.deleted.{shiftplanId}.{inviteId}";
-    public static final String SHIFTPLAN_JOINED_VOLUNTEER = "shiftplan.joined.volunteer.{shiftplanId}.{volunteerId}";
-    public static final String SHIFTPLAN_LOCKSTATUS_CHANGED = "shiftplan.lockstatus.changed.{shiftplanId}";
+    public static final String SHIFTPLAN_UPDATED = "shiftplan.updated.{shiftPlanId}";
+    public static final String SHIFTPLAN_DELETED = "shiftplan.deleted.{shiftPlanId}";
+    public static final String SHIFTPLAN_INVITE_CREATED = "shiftplan.invite.created.{shiftPlanId}.{inviteId}";
+    public static final String SHIFTPLAN_INVITE_REVOKED = "shiftplan.invite.revoked.{shiftPlanId}.{inviteId}";
+    public static final String SHIFTPLAN_INVITE_DELETED = "shiftplan.invite.deleted.{shiftPlanId}.{inviteId}";
+    public static final String SHIFTPLAN_JOINED_VOLUNTEER = "shiftplan.joined.volunteer.{shiftPlanId}.{volunteerId}";
+    public static final String SHIFTPLAN_LOCKSTATUS_CHANGED = "shiftplan.lockstatus.changed.{shiftPlanId}";
 
     public static final String SHIFT_CREATED = "shift.created";
     public static final String SHIFT_UPDATED = "shift.updated.{shiftId}";
     public static final String SHIFT_DELETED = "shift.deleted.{shiftId}";
 
     public static final String TIMECONSTRAINT_CREATED = "timeconstraint.created.{volunteerId}";
-    public static final String TIMECONSTRAINT_DELETED = "timeconstraint.deleted.{volunteerId}.{timeconstraintId}";
+    public static final String TIMECONSTRAINT_DELETED = "timeconstraint.deleted.{volunteerId}.{timeConstraintId}";
 
     public static final String ROLE_CREATED = "role.created";
     public static final String ROLE_UPDATED = "role.updated.{roleId}";

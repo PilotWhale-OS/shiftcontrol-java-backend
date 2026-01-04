@@ -24,6 +24,7 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.RoleEvent;
+import at.shiftcontrol.shiftservice.event.events.RoleVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
@@ -110,7 +111,8 @@ public class RoleServiceImpl implements RoleService {
         volunteer.getRoles().add(role);
         volunteerDao.save(volunteer);
 
-        //TODO publish event
+        publisher.publishEvent(RoleVolunteerEvent.of(RoutingKeys.formatStrict(RoutingKeys.ROLE_ASSIGNED,
+            Map.of("roleId", String.valueOf(role.getId()), "volunteerId", volunteer.getId())), role, volunteer.getId()));
         return VolunteerMapper.toDto(volunteer);
     }
 
@@ -127,7 +129,8 @@ public class RoleServiceImpl implements RoleService {
             throw new NotFoundException("Role is not assigned to this user.");
         }
 
-        //TODO publish event
+        publisher.publishEvent(RoleVolunteerEvent.of(RoutingKeys.formatStrict(RoutingKeys.ROLE_UNASSIGNED,
+            Map.of("roleId", String.valueOf(role.getId()), "volunteerId", volunteer.getId())), role, volunteer.getId()));
         volunteerDao.save(volunteer);
     }
 }

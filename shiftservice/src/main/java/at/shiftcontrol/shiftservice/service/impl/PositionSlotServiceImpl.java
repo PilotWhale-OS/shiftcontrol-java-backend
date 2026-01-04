@@ -33,6 +33,7 @@ import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.AssignmentEvent;
 import at.shiftcontrol.shiftservice.event.events.PositionSlotEvent;
 import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.shiftservice.event.events.PreferenceEvent;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
@@ -240,7 +241,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new BadRequestException("preference must be between -10 and 10");
         }
 
-        //TODO publish event
+        publisher.publishEvent(PreferenceEvent.of(RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
+            Map.of("positionSlotId", String.valueOf(positionSlotId),
+                "volunteerId", volunteerId)), volunteerId, preference, positionSlot));
         positionSlotDao.setPreference(volunteerId, positionSlotId, preference);
     }
 
