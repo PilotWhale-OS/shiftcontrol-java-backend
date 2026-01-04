@@ -2,11 +2,12 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
+import lombok.NoArgsConstructor;
+
 import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Location;
-import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class ActivityMapper {

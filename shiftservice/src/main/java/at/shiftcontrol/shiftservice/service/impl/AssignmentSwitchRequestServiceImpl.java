@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
@@ -52,6 +54,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final EligibilityService eligibilityService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) throws NotFoundException {
@@ -61,7 +64,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     @Override
-    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId) throws NotFoundException, ForbiddenException {
+    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId)
+        throws NotFoundException, ForbiddenException {
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.findById(requestedPositionSlotId)
             .orElseThrow(() -> new NotFoundException("requested PositionSlot not found"));
@@ -100,7 +104,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return removeExistingTrades(slotsToOffer, requestedPositionSlotId, currentUserId);
     }
 
-    private Collection<Volunteer> getPossibleUsersForTrade(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot, Collection<Volunteer> volunteers) {
+    private Collection<Volunteer> getPossibleUsersForTrade(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot,
+                                                           Collection<Volunteer> volunteers) {
         return volunteers.stream().filter(v -> isTradePossibleForUser(offeredPositionSlot, requestedPositionSlot, v)).toList();
     }
 
@@ -114,7 +119,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return eligible && conflicts.isEmpty();
     }
 
-    private Collection<TradeCandidatesDto> removeExistingTrades( Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId, String currentUserId) {
+    private Collection<TradeCandidatesDto> removeExistingTrades( Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId,
+                                                                 String currentUserId) {
         // check for already existing trades in status OPEN
         Collection<AssignmentSwitchRequest> existingTrades =
             assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
@@ -159,7 +165,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
-    public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
+    public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId)
+        throws NotFoundException, ConflictException, ForbiddenException {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("user not found"));
@@ -355,6 +362,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // !!! trade requests in status ACCEPTED have a different key compared to the other states (volunteers swapped)
         //      changing an ACCEPTED trade back to OPEN would mean a new trade request to swap the assignments back
         trade.setStatus(TradeStatus.ACCEPTED);
+
+        publisher.publishEvent(AssignmentSwitchEvent.of(trade.getRequestedAssignment(), trade.getOfferingAssignment()));
     }
 
     private void updateVolunteer(Assignment assignment, Volunteer volunteer) {

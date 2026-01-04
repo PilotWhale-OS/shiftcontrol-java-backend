@@ -41,7 +41,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto getEvent(long eventId) throws NotFoundException, ForbiddenException {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
-        securityHelper.assertUserIsinAnyPlanOfEvent(event);
+        securityHelper.assertUserIsAllowedToAccessEvent(event);
 
         return EventMapper.toEventDto(event);
     }
@@ -96,7 +96,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) throws NotFoundException, ForbiddenException {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
-        securityHelper.assertUserIsinAnyPlanOfEvent(event);
+        securityHelper.assertUserIsAllowedToAccessEvent(event);
 
         var activitiesOfEvent = activityDao.searchActivitiesInEvent(eventId, searchDto).stream().toList();
 
@@ -141,6 +141,13 @@ public class EventServiceImpl implements EventService {
     private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) throws NotFoundException {
         var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
         var shiftPlans = event.getShiftPlans();
+
+        // skip filtering for admin users
+        var currentUser = userProvider.getCurrentUser();
+        if (currentUser instanceof AdminUser) {
+            return shiftPlans.stream().toList();
+        }
+
         var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with id: " + userId));
 
         var volunteerShiftPlans = volunteer.getVolunteeringPlans();

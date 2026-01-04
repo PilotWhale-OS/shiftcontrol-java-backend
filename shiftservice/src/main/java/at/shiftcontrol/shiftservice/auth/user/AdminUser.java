@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 
 public class AdminUser extends ShiftControlUser {
-
     public AdminUser(Collection<? extends GrantedAuthority> authorities, String username, String userId) {
         super(authorities, username, userId);
     }

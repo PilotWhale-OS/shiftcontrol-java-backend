@@ -20,6 +20,9 @@ import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 @Builder
 public class ShiftPlanInviteDto {
     @NotNull
+    private String id;
+
+    @NotNull
     private String code;
 
     @NotNull
