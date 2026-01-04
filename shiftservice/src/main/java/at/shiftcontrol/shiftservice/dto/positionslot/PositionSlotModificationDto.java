@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PositionSlotModificationDto {
     @NotNull
-    @Size(max = 255)
+    @Size(max = 50)
     private String name;
 
-    @Size(max = 1024)
+    @Size(max = 255)
     private String description;
 
     @NotNull

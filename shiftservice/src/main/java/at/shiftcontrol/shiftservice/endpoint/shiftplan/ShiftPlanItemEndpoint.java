@@ -1,5 +1,19 @@
 package at.shiftcontrol.shiftservice.endpoint.shiftplan;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanPatchStatusDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
+import at.shiftcontrol.shiftservice.service.ShiftPlanService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,21 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanPatchStatusDto;
-import at.shiftcontrol.shiftservice.service.DashboardService;
-import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @Tag(
@@ -40,7 +39,6 @@ public class ShiftPlanItemEndpoint {
     private final DashboardService dashboardService;
 
     @GetMapping()
-    // TODO: Security
     @Operation(
         operationId = "getShiftPlan",
         description = "Find shiftPlans by its id"
@@ -50,7 +48,6 @@ public class ShiftPlanItemEndpoint {
     }
 
     @PutMapping()
-    // TODO: Security
     @Operation(
         operationId = "updateShiftPlan",
         description = "Update an existing shiftPlan"
@@ -63,7 +60,6 @@ public class ShiftPlanItemEndpoint {
     }
 
     @DeleteMapping()
-    // TODO: Security
     @Operation(
         operationId = "deleteShiftPlan",
         description = "Delete an existing shiftPlan"
@@ -73,7 +69,6 @@ public class ShiftPlanItemEndpoint {
     }
 
     @GetMapping("/dashboard")
-    // TODO Security
     @Operation(
         operationId = "getShiftPlanDashboard",
         description = "Get (volunteer related) dashboard data for a specific shift plan of an event"
@@ -83,7 +78,6 @@ public class ShiftPlanItemEndpoint {
     }
 
     @PatchMapping("/status")
-    // TODO Security
     @Operation(
         operationId = "editLockStatus",
         description = "Edit the LockState for a shift plan"

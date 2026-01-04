@@ -2,10 +2,11 @@ package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 
 @Data
 @RequiredArgsConstructor

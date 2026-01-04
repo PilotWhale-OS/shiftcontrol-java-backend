@@ -2,15 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint.role;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.role.RoleDto;
-import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
-import at.shiftcontrol.shiftservice.service.role.RoleService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +11,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
+import at.shiftcontrol.shiftservice.service.role.RoleService;
+
 
 @Tag(
     name = "role-endpoint"
@@ -35,7 +39,6 @@ public class RoleCollectionEndpoint {
     private final RoleService roleService;
 
     @GetMapping
-    // TODO Security
     @Operation(
         operationId = "getRoles",
         description = "Get roles of this event"
@@ -45,7 +48,6 @@ public class RoleCollectionEndpoint {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    // TODO Security
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
         operationId = "createRole",
@@ -53,7 +55,7 @@ public class RoleCollectionEndpoint {
     )
     public RoleDto createRole(
         @PathVariable String shiftPlanId,
-        @RequestBody RoleModificationDto role
+        @RequestBody @Valid RoleModificationDto role
     ) throws ForbiddenException {
         return roleService.createRole(ConvertUtil.idToLong(shiftPlanId), role);
     }

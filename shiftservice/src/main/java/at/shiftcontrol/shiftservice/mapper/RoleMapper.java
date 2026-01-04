@@ -1,13 +1,16 @@
 package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
+import java.util.Collections;
+
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.entity.role.Role;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -22,6 +25,9 @@ public class RoleMapper {
     }
 
     public static Collection<RoleDto> toRoleDto(Collection<Role> roles) {
+        if (roles == null) {
+            return Collections.emptyList();
+        }
         return roles.stream()
             .map(RoleMapper::toRoleDto)
             .toList();

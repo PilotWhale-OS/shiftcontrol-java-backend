@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dto.plannerdashboard;
 
 import java.util.Collection;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,5 +23,6 @@ public class AssignmentRequestDto {
     private String shiftName;
 
     @NotNull
+    @Valid
     private Collection<AssignmentDto> requests;
 }

@@ -4,6 +4,7 @@ package at.shiftcontrol.shiftservice.dto.invite;
 import java.time.Instant;
 import java.util.Collection;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class ShiftPlanInviteCreateRequestDto {
 
     private Instant expiresAt;
 
+    @Min(0)
     private Integer maxUses;
 
     private Collection<String> autoAssignRoleIds;

@@ -2,27 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
-
-import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
-
-import at.shiftcontrol.shiftservice.service.ActivityService;
-
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -35,6 +14,19 @@ import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.EventService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -44,10 +36,8 @@ public class EventEndpoint {
     private final ApplicationUserProvider userProvider;
     private final EventService eventService;
     private final DashboardService dashboardService;
-    private final ActivityService activityService;
 
     @GetMapping("/{eventId}")
-    // TODO Security
     @Operation(
         operationId = "getEventById",
         description = "Find event by id"
@@ -57,7 +47,6 @@ public class EventEndpoint {
     }
 
     @GetMapping()
-    //TODO: @Secured({"planner.event.read", "volunteer.event.read"})
     @Operation(
         operationId = "getAllEvents",
         description = "Find all (volunteer related) events"
@@ -68,7 +57,6 @@ public class EventEndpoint {
     //Todo: Add search capability in future
 
     @GetMapping("/{eventId}/schedule")
-    // TODO Security
     @Operation(
         operationId = "getEventSchedule",
         description = "Get the schedule of an event"
@@ -79,7 +67,6 @@ public class EventEndpoint {
     }
 
     @PostMapping()
-    // TODO: Security
     @Operation(
         operationId = "createEvent",
         description = "Create a new event"
@@ -89,7 +76,6 @@ public class EventEndpoint {
     }
 
     @PutMapping("/{eventId}")
-    // TODO: Security
     @Operation(
         operationId = "updateEvent",
         description = "Update an existing event"
@@ -99,7 +85,6 @@ public class EventEndpoint {
     }
 
     @DeleteMapping("/{eventId}")
-    // TODO: Security
     @Operation(
         operationId = "deleteEvent",
         description = "Delete an existing event"
@@ -109,7 +94,6 @@ public class EventEndpoint {
     }
 
     @GetMapping("/{eventId}/shift-plans-overview")
-    //TODO Security
     @Operation(
         operationId = "getShiftPlansOverviewOfEvent",
         description = "Get an overview of all (volunteer related) shift plans of an event including statistics and reward points for the current user"
@@ -119,23 +103,11 @@ public class EventEndpoint {
     }
 
     @GetMapping("/dashboard")
-    // TODO Security
     @Operation(
         operationId = "getEventsDashboard",
         description = "Get (volunteer related) dashboard data for all events"
     )
     public EventsDashboardOverviewDto getEventsDashboard() throws NotFoundException, ForbiddenException {
         return dashboardService.getDashboardOverviewsOfAllShiftPlans(userProvider.getCurrentUser().getUserId());
-    }
-
-    @PostMapping("/{eventId}/suggest-activities")
-    // TODO Security
-    @Operation(
-        operationId = "suggestActivitiesForShift",
-        description = "Suggest activities for a specific shift based on its time and optional name filter"
-    )
-    public Collection<ActivityDto> suggestActivitiesForShift(@PathVariable String eventId, @RequestBody @Valid ActivitySuggestionDto suggestionDto)
-        throws NotFoundException {
-        return activityService.suggestActivitiesForShift(ConvertUtil.idToLong(eventId), suggestionDto);
     }
 }

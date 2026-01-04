@@ -10,12 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -46,6 +40,10 @@ import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -123,7 +121,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private Collection<TradeCandidatesDto> removeExistingTrades(Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId,
-                                                                 String currentUserId) {
+                                                                String currentUserId) {
         // check for already existing trades in status OPEN
         Collection<AssignmentSwitchRequest> existingTrades =
             assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
@@ -146,7 +144,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                         .filter(volunteer -> {
                             AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
                                 AssignmentId.of(
-                                    Long.parseLong(candidate.getPositionSlotId()),
+                                    ConvertUtil.idToLong(candidate.getPositionSlotId()),
                                     currentUserId),
                                 AssignmentId.of(
                                     requestedPositionSlotId,
@@ -345,7 +343,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(slotToBeTaken, volunteer);
+        securityHelper.assertUserIsVolunteer(slotToBeTaken);
 
         // check if user is eligible for the requested position slot
         eligibilityService.validateIsTradePossible(slotToBeTaken, volunteer);
@@ -383,7 +381,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // !!! trade requests in status ACCEPTED have a different key compared to the other states (volunteers swapped)
         //      changing an ACCEPTED trade back to OPEN would mean a new trade request to swap the assignments back
         trade.setStatus(TradeStatus.ACCEPTED);
-
 
         publisher.publishEvent(AssignmentSwitchEvent.of(trade.getRequestedAssignment(), trade.getOfferingAssignment()));
     }

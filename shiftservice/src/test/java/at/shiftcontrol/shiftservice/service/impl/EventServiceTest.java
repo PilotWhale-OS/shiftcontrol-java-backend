@@ -17,6 +17,7 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,6 +46,9 @@ class EventServiceTest {
 
     @Mock
     private ApplicationUserProvider userProvider;
+
+    @Mock
+    private SecurityHelper securityHelper;
 
     @InjectMocks
     private EventServiceImpl eventService;

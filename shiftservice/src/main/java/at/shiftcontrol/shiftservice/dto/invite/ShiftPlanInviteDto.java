@@ -3,14 +3,17 @@ package at.shiftcontrol.shiftservice.dto.invite;
 import java.time.Instant;
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.role.RoleDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 
 @Data
 @NoArgsConstructor
@@ -27,17 +30,23 @@ public class ShiftPlanInviteDto {
     private ShiftPlanInviteType type;
 
     @NotNull
+    @Valid
     private ShiftPlanDto shiftPlanDto;
 
     @NotNull
     private boolean active;
 
     private Instant expiresAt;
+
+    @Min(0)
     private Integer maxUses;
 
     @NotNull
+    @Min(0)
     private int usedCount;
 
+    @Valid
+    @NotNull
     private Collection<RoleDto> autoAssignedRoles;
 
     @NotNull
