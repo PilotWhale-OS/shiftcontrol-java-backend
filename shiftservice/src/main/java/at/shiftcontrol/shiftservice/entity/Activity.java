@@ -59,11 +59,11 @@ public class Activity {
 
     @Override
     public String toString() {
-        return "Activity{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", shifts=" + (shifts == null ? "[]" : shifts.stream().map(Shift::getId).toList()) +
-            ", location=" + location +
-            '}';
+        return "Activity{"
+            + "id=" + id
+            + ", name='" + name + '\''
+            + ", shifts=" + (shifts == null ? "[]" : shifts.stream().map(Shift::getId).toList())
+            + ", location=" + location
+            + '}';
     }
 }

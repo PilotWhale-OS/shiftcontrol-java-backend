@@ -23,11 +23,11 @@ public interface ShiftPlanService {
 
     ShiftPlanDto get(long shiftPlanId) throws NotFoundException;
 
-    ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto)throws NotFoundException;
+    ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) throws NotFoundException;
 
-    ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto)throws NotFoundException;
+    ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException;
 
-    void delete(long shiftPlanId)throws NotFoundException;
+    void delete(long shiftPlanId) throws NotFoundException;
 
     ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto) throws NotFoundException, ForbiddenException;
 
@@ -40,6 +40,8 @@ public interface ShiftPlanService {
         throws NotFoundException, ForbiddenException;
 
     void revokeShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException;
+
+    void deleteShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException;
 
     ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException;
 

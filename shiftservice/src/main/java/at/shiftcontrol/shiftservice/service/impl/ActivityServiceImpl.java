@@ -4,6 +4,12 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -18,10 +24,6 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -157,8 +159,8 @@ public class ActivityServiceImpl implements ActivityService {
             .filter(activity -> {
                 Instant activityStart = activity.getStartTime();
                 Instant activityEnd = activity.getEndTime();
-                return !(activityEnd.isBefore(shiftStart.minusSeconds(toleranceMinutes * 60L)) ||
-                    activityStart.isAfter(shiftEnd.plusSeconds(toleranceMinutes * 60L)));
+                return !(activityEnd.isBefore(shiftStart.minusSeconds(toleranceMinutes * 60L))
+                    || activityStart.isAfter(shiftEnd.plusSeconds(toleranceMinutes * 60L)));
             });
     }
 

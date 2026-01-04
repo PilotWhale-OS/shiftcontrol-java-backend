@@ -67,5 +67,4 @@ public class AssignmentDaoImpl implements AssignmentDao {
     public Collection<Assignment> findAssignmentsForShiftPlanAndUser(long shiftPlanId, String userId) {
         return assignmentRepository.findAssignmentsForShiftPlanAndUser(shiftPlanId, userId);
     }
-
 }
