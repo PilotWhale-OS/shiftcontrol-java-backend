@@ -2,19 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint.positionslot;
 
 import java.util.Collection;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -25,6 +12,17 @@ import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -35,7 +33,6 @@ public class PositionSlotTradeEndpoint {
     private final ApplicationUserProvider userProvider;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getTradeById",
         description = "Get trade by id"
@@ -45,7 +42,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @GetMapping("/slots-to-offer/{positionSlotId}")
-    // TODO Security
     @Operation(
         operationId = "getPositionSlotsToOffer",
         description = "Get position slots that can be offered in a trade for the given position slot, based on eligible volunteers"
@@ -57,7 +53,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PostMapping()
-    // TODO Security
     @Operation(
         operationId = "createTrade",
         description = "Create trade request for a specific position slot in a shift"
@@ -69,7 +64,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PutMapping("/accept")
-    // TODO Security
     @Operation(
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
@@ -81,7 +75,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PutMapping("/decline")
-    // TODO Security
     @Operation(
         operationId = "declineTrade",
         description = "Decline a trade request for a specific position slot in a shift"
@@ -93,7 +86,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PutMapping("/cancel")
-    // TODO Security
     @Operation(
         operationId = "cancelTrade",
         description = "Cancel a request for a specific position slot in a shift"

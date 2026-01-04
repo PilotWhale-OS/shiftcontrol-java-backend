@@ -1,22 +1,20 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -28,7 +26,6 @@ public class UserProfileEndpoint {
     private final NotificationService notificationService;
 
     @GetMapping("/profile")
-    // TODO Security
     @Operation(
         operationId = "getCurrentUserProfile",
         description = "Get profile data of the current user (account, notifications, unavailability)"
@@ -38,7 +35,6 @@ public class UserProfileEndpoint {
     }
 
     @PatchMapping("/profile/notifications")
-    // TODO Security
     @Operation(
         operationId = "updateNotificationSettings",
         description = "Update notification settings of the current user"

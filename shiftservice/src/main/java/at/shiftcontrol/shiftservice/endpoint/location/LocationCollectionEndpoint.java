@@ -2,6 +2,17 @@ package at.shiftcontrol.shiftservice.endpoint.location;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
+import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
+import at.shiftcontrol.shiftservice.service.LocationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,19 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.location.LocationDto;
-import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
-import at.shiftcontrol.shiftservice.service.LocationService;
 
 @Tag(
     name = "location-endpoint"
@@ -34,7 +32,6 @@ public class LocationCollectionEndpoint {
     private final LocationService locationService;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getAllLocationsForEvent",
         description = "Find all locations for a specific event"
@@ -44,7 +41,6 @@ public class LocationCollectionEndpoint {
     }
 
     @PostMapping()
-    // TODO Security
     @Operation(
         operationId = "createLocation",
         description = "Create a new location for a specific event"

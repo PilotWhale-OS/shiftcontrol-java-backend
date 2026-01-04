@@ -30,7 +30,6 @@ public class ShiftPlanInviteItemEndpoint {
     private final ShiftPlanService shiftPlanService;
 
     @PostMapping("/invites/{inviteId}")
-    // TODO Security
     @Operation(
         operationId = "revokeShiftPlanInvite",
         description = "Revoke an invite code for a specific shift plan of an event (soft delete)"
@@ -40,7 +39,6 @@ public class ShiftPlanInviteItemEndpoint {
     }
 
     @DeleteMapping("/invites/{inviteId}")
-    // TODO Security
     @Operation(
         operationId = "deleteShiftPlanInvite",
         description = "Delete an invite code for a specific shift plan of an event (hard delete)"
@@ -51,7 +49,6 @@ public class ShiftPlanInviteItemEndpoint {
 
 
     @GetMapping("/invites/{inviteCode}")
-    // TODO Security
     @Operation(
         operationId = "getShiftPlanInviteDetails",
         description = "Get details about a specific invite code for a shift plan"
@@ -61,7 +58,6 @@ public class ShiftPlanInviteItemEndpoint {
     }
 
     @PostMapping("/join")
-    // TODO Security
     @Operation(
         operationId = "joinShiftPlan",
         description = "Join a shift plan using an invite code"

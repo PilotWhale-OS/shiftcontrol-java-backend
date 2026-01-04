@@ -31,7 +31,6 @@ public class TimeConstraintEndpoint {
     private final TimeConstraintService timeConstraintService;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getTimeConstraints",
         description = "Get time constraints of the current user"
@@ -41,7 +40,6 @@ public class TimeConstraintEndpoint {
     }
 
     @PostMapping()
-    // TODO Security
     @Operation(
         operationId = "createTimeConstraint",
         description = "Create a new time constraint for the current user"
@@ -56,7 +54,6 @@ public class TimeConstraintEndpoint {
     }
 
     @DeleteMapping("/{timeConstraintId}")
-    // TODO Security
     @Operation(
         operationId = "deleteTimeConstraint",
         description = "Delete an existing time constraint of the current user"

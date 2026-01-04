@@ -38,7 +38,6 @@ public class EventEndpoint {
     private final DashboardService dashboardService;
 
     @GetMapping("/{eventId}")
-    // TODO Security
     @Operation(
         operationId = "getEventById",
         description = "Find event by id"
@@ -48,7 +47,6 @@ public class EventEndpoint {
     }
 
     @GetMapping()
-    //TODO: @Secured({"planner.event.read", "volunteer.event.read"})
     @Operation(
         operationId = "getAllEvents",
         description = "Find all (volunteer related) events"
@@ -59,7 +57,6 @@ public class EventEndpoint {
     //Todo: Add search capability in future
 
     @GetMapping("/{eventId}/schedule")
-    // TODO Security
     @Operation(
         operationId = "getEventSchedule",
         description = "Get the schedule of an event"
@@ -70,7 +67,6 @@ public class EventEndpoint {
     }
 
     @PostMapping()
-    // TODO: Security
     @Operation(
         operationId = "createEvent",
         description = "Create a new event"
@@ -80,7 +76,6 @@ public class EventEndpoint {
     }
 
     @PutMapping("/{eventId}")
-    // TODO: Security
     @Operation(
         operationId = "updateEvent",
         description = "Update an existing event"
@@ -90,7 +85,6 @@ public class EventEndpoint {
     }
 
     @DeleteMapping("/{eventId}")
-    // TODO: Security
     @Operation(
         operationId = "deleteEvent",
         description = "Delete an existing event"
@@ -100,7 +94,6 @@ public class EventEndpoint {
     }
 
     @GetMapping("/{eventId}/shift-plans-overview")
-    //TODO Security
     @Operation(
         operationId = "getShiftPlansOverviewOfEvent",
         description = "Get an overview of all (volunteer related) shift plans of an event including statistics and reward points for the current user"
@@ -110,7 +103,6 @@ public class EventEndpoint {
     }
 
     @GetMapping("/dashboard")
-    // TODO Security
     @Operation(
         operationId = "getEventsDashboard",
         description = "Get (volunteer related) dashboard data for all events"

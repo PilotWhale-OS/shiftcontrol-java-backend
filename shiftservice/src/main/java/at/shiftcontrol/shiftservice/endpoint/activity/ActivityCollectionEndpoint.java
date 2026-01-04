@@ -33,7 +33,6 @@ public class ActivityCollectionEndpoint {
     private final ActivityService activityService;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getActivitiesForEvent",
         description = "Get all activities for a specific event"
@@ -43,7 +42,6 @@ public class ActivityCollectionEndpoint {
     }
 
     @PostMapping()
-    // TODO Security
     @Operation(
         operationId = "createActivity",
         description = "Create a new activity for a specific event"
@@ -54,7 +52,6 @@ public class ActivityCollectionEndpoint {
     }
 
     @PostMapping("/suggest")
-    // TODO Security
     @Operation(
         operationId = "suggestActivitiesForShift",
         description = "Suggest activities for a specific shift based on its time and optional name filter"
