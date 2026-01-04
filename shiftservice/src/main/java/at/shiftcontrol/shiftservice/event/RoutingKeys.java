@@ -31,21 +31,19 @@ public final class RoutingKeys {
     public static final String LOCATION_DELETED = "location.deleted.{locationId}";
 
     public static final String POSITIONSLOT_CREATED = "positionslot.created";
-    public static final String POSITIONSLOT_UPDATED = "positionslot.updated.{positionslotId}";
-    public static final String POSITIONSLOT_DELETED = "positionslot.deleted.{positionslotId}";
+    public static final String POSITIONSLOT_UPDATED = "positionslot.updated.{positionSlotId}";
+    public static final String POSITIONSLOT_DELETED = "positionslot.deleted.{positionSlotId}";
 
-    public static final String POSITIONSLOT_JOINED = "positionslot.joined.{volunteerId}.{positionslotId}";
-    public static final String POSITIONSLOT_LEFT = "positionslot.left.{volunteerId}.{positionslotId}";
-    public static final String POSITIONSLOT_PREFERENCE_UPDATED = "positionslot.preference.updated.{volunteerId}.{positionslotId}";
-    public static final String POSITIONSLOT_REQUEST_ACCEPTED = "positionslot.request.accepted.{volunteerId}.{positionslotId}";
-    public static final String POSITIONSLOT_REQUEST_DECLINED = "positionslot.request.declined.{volunteerId}.{positionslotId}";
+    public static final String POSITIONSLOT_JOINED = "positionslot.joined.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_LEFT = "positionslot.left.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_PREFERENCE_UPDATED = "positionslot.preference.updated.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_ACCEPTED = "positionslot.request.accepted.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_DECLINED = "positionslot.request.declined.{volunteerId}.{positionSlotId}";
 
-    public static final String AUCTION_CREATED = "auction.created.{positionslotId}";
-    public static final String AUCTION_CLAIMED = "auction.claimed.{positionslotId}.{volunteerId}";
-    public static final String AUCTION_CANCELED = "auction.canceled.{positionslotId}";
+    public static final String AUCTION_CREATED = "auction.created.{positionSlotId}";
+    public static final String AUCTION_CLAIMED = "auction.claimed.{positionSlotId}.{volunteerId}";
+    public static final String AUCTION_CANCELED = "auction.canceled.{positionSlotId}";
 
-    //Todo: Good idea?
-    public static final String ASSIGNMENT_REASSIGNED = "assignment.reassigned.{assignmentId}.{volunteerId}";
     public static final String ASSIGNMENT_SWITCH_COMPLETED = "assignment.switch.completed.{requestedVolunteerId}.{offeringVolunteerId}";
 
     public static final String SHIFTPLAN_CREATED = "shiftplan.created";

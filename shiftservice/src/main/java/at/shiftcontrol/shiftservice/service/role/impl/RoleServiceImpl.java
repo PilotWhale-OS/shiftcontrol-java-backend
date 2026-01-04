@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.role.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.RoleEvent;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
@@ -51,22 +54,26 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
         securityHelper.assertUserIsPlanner(shiftPlanId);
-        Role entity = RoleMapper.toRole(roleDto);
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
-        entity.setShiftPlan(shiftPlan);
 
-        //TODO publish event
-        return RoleMapper.toRoleDto(roleDao.save(entity));
+        var role = RoleMapper.toRole(roleDto);
+        role.setShiftPlan(shiftPlan);
+
+        publisher.publishEvent(RoleEvent.of(role, RoutingKeys.ROLE_CREATED));
+        return RoleMapper.toRoleDto(roleDao.save(role));
     }
 
     @Override
     public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
-        Role existing = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
-        securityHelper.assertUserIsPlanner(existing.getShiftPlan().getId());
-        updateRole(roleDto, existing);
+        var role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
+        securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
-        //TODO publish event
-        return RoleMapper.toRoleDto(roleDao.save(existing));
+        updateRole(roleDto, role);
+        role = roleDao.save(role);
+
+        publisher.publishEvent(RoleEvent.of(role, RoutingKeys.formatStrict(RoutingKeys.ROLE_UPDATED,
+            Map.of("roleId", roleId.toString()))));
+        return RoleMapper.toRoleDto(role);
     }
 
     private void updateRole(@NonNull RoleModificationDto roleDto, Role role) {
@@ -80,7 +87,8 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
-        //TODO publish event
+        publisher.publishEvent(RoleEvent.of(role, RoutingKeys.formatStrict(RoutingKeys.ROLE_DELETED,
+            Map.of("roleId", roleId.toString()))));
         roleDao.delete(role);
     }
 

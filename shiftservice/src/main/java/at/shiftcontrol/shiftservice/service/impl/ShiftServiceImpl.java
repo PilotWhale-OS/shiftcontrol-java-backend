@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.util.Map;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,8 @@ import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.ShiftEvent;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
@@ -59,7 +63,7 @@ public class ShiftServiceImpl implements ShiftService {
         validateModificationDtoAndSetShiftFields(modificationDto, newShift);
         newShift = shiftDao.save(newShift);
 
-        //TODO publish event
+        publisher.publishEvent(ShiftEvent.of(newShift, RoutingKeys.SHIFT_CREATED));
         return shiftAssemblingMapper.assemble(newShift);
     }
 
@@ -72,7 +76,7 @@ public class ShiftServiceImpl implements ShiftService {
 
         shift = shiftDao.save(shift);
 
-        //TODO publish event
+        publisher.publishEvent(ShiftEvent.of(shift, RoutingKeys.formatStrict(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shiftId)))));
         return shiftAssemblingMapper.assemble(shift);
     }
 
@@ -132,7 +136,7 @@ public class ShiftServiceImpl implements ShiftService {
         var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
         securityHelper.assertUserIsPlanner(shift);
 
-        //TODO publish event
         shiftDao.delete(shift);
+        publisher.publishEvent(ShiftEvent.of(shift, RoutingKeys.formatStrict(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shiftId)))));
     }
 }

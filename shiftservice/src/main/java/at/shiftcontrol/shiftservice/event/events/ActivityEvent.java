@@ -20,11 +20,6 @@ public class ActivityEvent extends BaseEvent {
     @JsonIgnore
     private final String routingKey;
 
-    @Override
-    public String getRoutingKey() {
-        return routingKey;
-    }
-
     public static ActivityEvent of(Activity activity, String routingKey) {
         return new ActivityEvent(ActivityPart.of(activity), routingKey);
     }

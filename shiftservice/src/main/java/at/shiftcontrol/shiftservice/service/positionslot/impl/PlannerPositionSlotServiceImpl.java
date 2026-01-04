@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.AssignmentRequestMapper;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
@@ -47,7 +50,10 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
 
-        //TODO publish event
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_REQUEST_ACCEPTED,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", userId)),
+            assignment.getPositionSlot(), userId));
     }
 
     @Override
@@ -61,7 +67,10 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
 
-        //TODO publish event
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_REQUEST_DECLINED,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", userId)),
+            assignment.getPositionSlot(), userId));
     }
 
     private void acceptAssignment(Assignment assignment) {

@@ -5,20 +5,21 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.shiftservice.entity.Event;
+import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.event.BaseEvent;
-import at.shiftcontrol.shiftservice.event.events.parts.EventPart;
+import at.shiftcontrol.shiftservice.event.events.parts.RolePart;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @RequiredArgsConstructor
-public class EventEvent extends BaseEvent {
-    private final EventPart event;
-
+public class RoleEvent extends BaseEvent {
+    private final RolePart role;
     @JsonIgnore
     private final String routingKey;
 
-    public static EventEvent of(Event event, String routingKey) {
-        return new EventEvent(EventPart.of(event), routingKey);
+
+    public static RoleEvent of(Role role, String routingKey) {
+        return new RoleEvent(RolePart.of(role), routingKey);
     }
 }
+

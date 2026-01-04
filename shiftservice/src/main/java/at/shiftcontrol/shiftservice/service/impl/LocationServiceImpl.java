@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 import at.shiftcontrol.shiftservice.entity.Location;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.LocationEvent;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.service.LocationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -60,7 +63,7 @@ public class LocationServiceImpl implements LocationService {
 
         newLocation = locationDao.save(newLocation);
 
-        //TODO publish event
+        publisher.publishEvent(LocationEvent.of(newLocation, RoutingKeys.LOCATION_CREATED));
         return LocationMapper.toLocationDto(newLocation);
     }
 
@@ -81,7 +84,8 @@ public class LocationServiceImpl implements LocationService {
 
         location = locationDao.save(location);
 
-        //TODO publish event
+        publisher.publishEvent(LocationEvent.of(location, RoutingKeys.formatStrict(RoutingKeys.LOCATION_UPDATED,
+            Map.of("locationId", String.valueOf(locationId)))));
         return LocationMapper.toLocationDto(location);
     }
 
@@ -95,8 +99,10 @@ public class LocationServiceImpl implements LocationService {
             throw new BadRequestException("Cannot modify read-only location");
         }
 
-        //TODO publish event
         locationDao.delete(location);
+
+        publisher.publishEvent(LocationEvent.of(location, RoutingKeys.formatStrict(RoutingKeys.LOCATION_DELETED,
+            Map.of("locationId", String.valueOf(locationId)))));
     }
 
     private Location getLocationOrThrow(long locationId) throws NotFoundException {
