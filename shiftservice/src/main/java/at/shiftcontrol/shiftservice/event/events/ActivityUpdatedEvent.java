@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.event.events;
 
+import java.util.Map;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,16 +15,16 @@ import at.shiftcontrol.shiftservice.event.events.parts.ActivityPart;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @RequiredArgsConstructor
-public class ActivityCreatedEvent extends BaseEvent {
+public class ActivityUpdatedEvent extends BaseEvent {
     @NotNull
     private final ActivityPart activity;
 
     @Override
     public String getRoutingKey() {
-        return RoutingKeys.ACTIVITY_CREATED;
+        return RoutingKeys.formatStrict(RoutingKeys.ACTIVITY_UPDATED, Map.of("activityId", String.valueOf(activity.getId())));
     }
 
-    public static ActivityCreatedEvent of(Activity activity) {
-        return new ActivityCreatedEvent(ActivityPart.of(activity));
+    public static ActivityUpdatedEvent of(Activity activity) {
+        return new ActivityUpdatedEvent(ActivityPart.of(activity));
     }
 }

@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.event.ApplicationEvent;
+import at.shiftcontrol.shiftservice.event.BaseEvent;
 import at.shiftcontrol.shiftservice.event.events.parts.AssignmentPart;
 
 /**
@@ -14,7 +14,7 @@ import at.shiftcontrol.shiftservice.event.events.parts.AssignmentPart;
 @Data
 @Builder
 @AllArgsConstructor
-public class AssignmentSwitchEvent extends ApplicationEvent {
+public class AssignmentSwitchEvent extends BaseEvent {
     private final AssignmentPart requestedAssignment;
     private final AssignmentPart offeringAssignment;
 

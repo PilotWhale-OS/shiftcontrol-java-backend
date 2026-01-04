@@ -22,6 +22,9 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
+import at.shiftcontrol.shiftservice.event.events.ActivityCreatedEvent;
+import at.shiftcontrol.shiftservice.event.events.ActivityDeletedEvent;
+import at.shiftcontrol.shiftservice.event.events.ActivityUpdatedEvent;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 
@@ -67,8 +70,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        //TODO publish event
-
+        publisher.publishEvent(ActivityCreatedEvent.of(activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -83,8 +85,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        //TODO publish event
-
+        publisher.publishEvent(ActivityUpdatedEvent.of(activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -119,7 +120,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activityDao.delete(activity);
 
-        //TODO publish event
+        publisher.publishEvent(ActivityDeletedEvent.of(activity));
     }
 
     @Override

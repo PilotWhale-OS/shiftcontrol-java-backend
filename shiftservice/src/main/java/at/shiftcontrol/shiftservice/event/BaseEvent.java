@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public abstract class ApplicationEvent {
+public abstract class BaseEvent {
     public abstract String getRoutingKey();
 }

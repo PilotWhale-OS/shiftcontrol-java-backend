@@ -23,7 +23,7 @@ public class RabbitEventPublisher {
     private static final String ROUTING_KEY_PREFIX = "shiftcontrol.";
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void on(ApplicationEvent event) {
+    public void on(BaseEvent event) {
         var wrappedEvent = wrapEvent(event);
         var routingKey = event.getRoutingKey();
         if (routingKey == null || routingKey.isBlank()) {
@@ -33,7 +33,7 @@ public class RabbitEventPublisher {
         rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, ROUTING_KEY_PREFIX + routingKey, wrappedEvent);
     }
 
-    private ApplicationEventWrapper wrapEvent(ApplicationEvent event) {
+    private ApplicationEventWrapper wrapEvent(BaseEvent event) {
         //Get EventType from EventClassifier annotation and wrap event
 //         var classifier = event.getClass().getAnnotation(EventClassifier.class);
 //         if (classifier == null) {
