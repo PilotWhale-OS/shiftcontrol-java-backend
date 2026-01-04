@@ -9,7 +9,6 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.service.ActivityService;
-import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,8 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ActivityCollectionEndpoint {
     private final ActivityService activityService;
 
-    private final SecurityHelper securityHelper;
-
     @GetMapping()
     // TODO Security
     @Operation(
@@ -42,7 +39,6 @@ public class ActivityCollectionEndpoint {
         description = "Get all activities for a specific event"
     )
     public Collection<ActivityDto> getActivitiesForEvent(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
-        securityHelper.assertUserIsPlannerInAnyPlanOfEvent(eventId);
         return activityService.getActivitiesForEvent(ConvertUtil.idToLong(eventId));
     }
 
@@ -64,7 +60,7 @@ public class ActivityCollectionEndpoint {
         description = "Suggest activities for a specific shift based on its time and optional name filter"
     )
     public Collection<ActivityDto> suggestActivitiesForShift(@PathVariable String eventId, @RequestBody @Valid ActivitySuggestionDto suggestionDto)
-        throws NotFoundException {
+        throws NotFoundException, ForbiddenException {
         return activityService.suggestActivitiesForShift(ConvertUtil.idToLong(eventId), suggestionDto);
     }
 }
