@@ -34,6 +34,7 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
@@ -361,13 +362,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // !!! trade requests in status ACCEPTED have a different key compared to the other states (volunteers swapped)
         //      changing an ACCEPTED trade back to OPEN would mean a new trade request to swap the assignments back
         trade.setStatus(TradeStatus.ACCEPTED);
-        
-//         var event = new AssignmentSwitchEvent()
-//             .withRequestedAssignment(new AssignmentPart()
-//                 .withStatus(trade.getRequestedAssignment().getStatus())
-//                 .withVolunteerId(trade.getRequestedAssignment().getAssignedVolunteer().getId()));
-//
-//         publisher.publishEvent(AssignmentSwitchEvent.of(trade.getRequestedAssignment(), trade.getOfferingAssignment()));
+
+
+        publisher.publishEvent(AssignmentSwitchEvent.of(trade.getRequestedAssignment(), trade.getOfferingAssignment()));
     }
 
     private void updateVolunteer(Assignment assignment, Volunteer volunteer) {
