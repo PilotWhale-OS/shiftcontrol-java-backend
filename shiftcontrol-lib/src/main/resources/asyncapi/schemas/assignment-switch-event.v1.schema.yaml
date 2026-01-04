@@ -1,16 +1,21 @@
-"$id": assignment-switch-event.v1.schema.json
-"$schema": https://json-schema.org/draft/2020-12/schema
 title: AssignmentSwitchEventV1
-javaType: org.shiftcontrol.lib.asyncapi.events.AssignmentSwitchEventV1
 type: object
 additionalProperties: false
-required:
-  - requestedAssignment
-  - offeringAssignment
-properties:
-  allOf:
-    - $ref: './base-event-v1.schema.yaml'
-  requestedAssignment:
-    "$ref": assignment-part.schema.yaml
-  offeringAssignment:
-    "$ref": assignment-part.schema.yaml
+
+allOf:
+  - $ref: './base-event-v1.schema.yaml'
+  - type: object
+    required:
+      - requestedAssignment
+      - offeringAssignment
+    properties:
+      # JSON-Schema way to enforce the discriminator value
+      type:
+        const: assignment.switch.completed
+
+      requestedAssignment:
+        $ref: './assignment-part.schema.yaml'
+      offeringAssignment:
+        $ref: './assignment-part.schema.yaml'
+
+x-javaType: org.shiftcontrol.lib.asyncapi.events.v1.AssignmentSwitchEvent

@@ -1,21 +1,13 @@
-"$id": application-event-envelope.schema.json
-"$schema": https://json-schema.org/draft/2020-12/schema
-title: ApplicationEventEnvelope
-javaType: org.shiftcontrol.lib.asyncapi.events.BaseEvent
+title: BaseEventV1
 type: object
-
-discriminator:
-  propertyName: type
-  mapping:
-    assignment.switch.completed: "./assignment-switch-event.v1.schema.yaml"
-
 additionalProperties: false
+
 required:
   - id
   - timestamp
   - type
   - version
-  - payload
+
 properties:
   id:
     type: string
@@ -32,3 +24,5 @@ properties:
   version:
     type: integer
     minimum: 1
+
+x-javaType: org.shiftcontrol.lib.asyncapi.events.v1.BaseEvent

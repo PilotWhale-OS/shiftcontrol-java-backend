@@ -15,7 +15,7 @@ channels:
     address: shiftcontrol.events.v1.assignment-switch
     messages:
       AssignmentSwitchEventV1:
-        $ref: '#/components/messages/AssignmentSwitchEventV1Message'
+        $ref: '#/components/messages/AssignmentSwitchEventV1'
 
 operations:
   consumeAssignmentSwitchEventV1:
@@ -27,113 +27,7 @@ operations:
 
 components:
   messages:
-    AssignmentSwitchEventV1Message:
-      title: Assignment Switch Event V1
-      contentType: application/json
-      payload:
-        $ref: '#/components/schemas/AssignmentSwitchEventV1'
-
-  schemas:
-    # -------------------------
-    # Base envelope / event
-    # -------------------------
-    BaseEventV1:
-      $id: application-event-envelope.schema.json
-      $schema: https://json-schema.org/draft/2020-12/schema
-      title: ApplicationEventEnvelope
-      javaType: org.shiftcontrol.lib.asyncapi.events.BaseEvent
-      type: object
-      additionalProperties: false
-      required:
-        - id
-        - timestamp
-        - type
-        - version
-
-      properties:
-        id:
-          type: string
-          format: uuid
-        actingUserId:
-          type: string
-        traceId:
-          type: string
-        timestamp:
-          type: string
-          format: date-time
-        type:
-          type: string
-        version:
-          type: integer
-          minimum: 1
-
-    # -------------------------
-    # Event: AssignmentSwitchEventV1
-    # -------------------------
     AssignmentSwitchEventV1:
-      $id: assignment-switch-event.v1.schema.json
-      $schema: https://json-schema.org/draft/2020-12/schema
-      title: AssignmentSwitchEventV1
-      javaType: org.shiftcontrol.lib.asyncapi.events.AssignmentSwitchEventV1
-      type: object
-      additionalProperties: false
-
-      # Merge the base event fields + event-specific fields
-      allOf:
-        - $ref: '#/components/schemas/BaseEventV1'
-        - type: object
-          required:
-            - requestedAssignment
-            - offeringAssignment
-          properties:
-            requestedAssignment:
-              $ref: '#/components/schemas/AssignmentPart'
-            offeringAssignment:
-              $ref: '#/components/schemas/AssignmentPart'
-
-    # -------------------------
-    # Parts
-    # -------------------------
-    AssignmentPart:
-      $id: assignment-part.schema.json
-      $schema: https://json-schema.org/draft/2020-12/schema
-      title: AssignmentPart
-      javaType: org.shiftcontrol.lib.asyncapi.events.parts.AssignmentPart
-      type: object
-      additionalProperties: false
-      required:
-        - volunteerId
-        - status
-        - positionSlot
-      properties:
-        volunteerId:
-          type: string
-        status:
-          type: string
-          description: AssignmentStatus enum
-          enum:
-            - REQUESTED
-            - OFFERED
-            - ACCEPTED
-            - REJECTED
-        positionSlot:
-          $ref: '#/components/schemas/PositionSlotPart'
-
-    PositionSlotPart:
-      $id: position-slot-part.schema.json
-      $schema: https://json-schema.org/draft/2020-12/schema
-      title: PositionSlotPart
-      javaType: org.shiftcontrol.lib.asyncapi.events.parts.PositionSlotPart
-      type: object
-      additionalProperties: false
-      required:
-        - positionSlotId
-        - positionSlotName
-      properties:
-        positionSlotId:
-          type: integer
-          format: int64
-        positionSlotName:
-          type: string
-        positionSlotDescription:
-          type: string
+        title: AssignmentSwitchEventV1
+        payload:
+         $ref: './schemas/assignment-switch-event.v1.schema.yaml'
