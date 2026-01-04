@@ -5,6 +5,7 @@ import java.util.List;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -104,9 +105,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @AdminOnly
     public EventDto createEvent(@NonNull EventModificationDto modificationDto) {
-        // TODO assert admin only
-
         validateEventModificationDto(modificationDto);
 
         Event event = EventMapper.toEvent(modificationDto);
@@ -115,9 +115,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @AdminOnly
     public EventDto updateEvent(long eventId, @NonNull EventModificationDto modificationDto) throws NotFoundException {
-        // TODO assert admin only
-
         validateEventModificationDto(modificationDto);
 
         Event event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
@@ -133,8 +132,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @AdminOnly
     public void deleteEvent(long eventId) throws NotFoundException {
-        // TODO assert admin only
         eventDao.delete(eventDao.findById(eventId).orElseThrow(NotFoundException::new));
     }
 

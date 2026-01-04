@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
@@ -48,9 +49,8 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    @AdminOnly
     public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
-        // TODO assert admin only
-
         var event = eventDao.findById(eventId)
             .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
 
@@ -67,9 +67,8 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    @AdminOnly
     public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
-        // TODO assert admin only
-
         var activity = activityDao.findById(activityId)
             .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
 
@@ -99,9 +98,8 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    @AdminOnly
     public void deleteActivity(long activityId) throws NotFoundException {
-        // TODO assert admin only
-
         var activity = activityDao.findById(activityId)
             .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
 
@@ -114,8 +112,6 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException {
-        // TODO assert admin only
-
         eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
         var activitiesOfEvent = activityDao.findAllByEventId(eventId);
 
