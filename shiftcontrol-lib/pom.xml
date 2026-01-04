@@ -50,6 +50,8 @@
               <dateTimeType>java.time.Instant</dateTimeType>
               <dateType>java.time.LocalDate</dateType>
 
+              <useLongIntegers>true</useLongIntegers>
+
               <useJakartaValidation>true</useJakartaValidation>
 
               <classNameSuffix></classNameSuffix>

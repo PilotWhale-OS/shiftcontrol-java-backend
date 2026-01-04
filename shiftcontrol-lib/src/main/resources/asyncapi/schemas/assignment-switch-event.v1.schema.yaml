@@ -1,24 +1,20 @@
 "$schema": https://json-schema.org/draft/2020-12/schema
 "$id": assignment-switch-event.v1.schema.yaml
 title: AssignmentSwitchEventV1
-javaType: org.shiftcontrol.lib.asyncapi.events.AssignmentSwitchEventV1
+javaType: org.shiftcontrol.lib.asyncapi.events.v1.AssignmentSwitchEvent
 type: object
 additionalProperties: false
 
+# jsonschema2pojo extension: generate "class AssignmentSwitchEventV1 extends BaseEvent"
+extends:
+  $ref: "./base-event-v1.schema.yaml"
 
+required:
+  - requestedAssignment
+  - offeringAssignment
 
-allOf:
-  - $ref: './base-event-v1.schema.yaml'
-  - type: object
-    required:
-      - requestedAssignment
-      - offeringAssignment
-    properties:
-      # JSON-Schema way to enforce the discriminator value
-      type:
-        const: assignment.switch.completed
-
-      requestedAssignment:
-        $ref: './assignment-part.schema.yaml'
-      offeringAssignment:
-        $ref: './assignment-part.schema.yaml'
+properties:
+  requestedAssignment:
+    $ref: "./assignment-part.schema.yaml"
+  offeringAssignment:
+    $ref: "./assignment-part.schema.yaml"
