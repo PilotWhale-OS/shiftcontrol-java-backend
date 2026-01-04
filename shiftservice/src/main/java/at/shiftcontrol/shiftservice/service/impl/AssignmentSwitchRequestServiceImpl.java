@@ -322,7 +322,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(slotToBeTaken, volunteer);
+        securityHelper.assertUserIsVolunteer(slotToBeTaken);
 
         // check if user is eligible for the requested position slot
         eligibilityService.validateIsTradePossible(slotToBeTaken, volunteer);

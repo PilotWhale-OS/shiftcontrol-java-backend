@@ -13,15 +13,15 @@ import lombok.NonNull;
 public interface PositionSlotService {
     PositionSlotDto findById(@NonNull Long id) throws NotFoundException, ForbiddenException;
 
-    AssignmentDto join(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ConflictException, ForbiddenException;
+    AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException;
 
-    void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ForbiddenException;
+    void leave(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ForbiddenException;
 
     Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException;
 
-    void setPreference(@NonNull String volunteerId, long positionSlotId, int preference) throws NotFoundException, ForbiddenException;
+    void setPreference(@NonNull String currentUserId, long positionSlotId, int preference) throws NotFoundException, ForbiddenException;
 
-    int getPreference(@NonNull String volunteerId, long positionSlotId) throws ForbiddenException, NotFoundException;
+    int getPreference(@NonNull String currentUserId, long positionSlotId) throws ForbiddenException, NotFoundException;
 
     AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
 
