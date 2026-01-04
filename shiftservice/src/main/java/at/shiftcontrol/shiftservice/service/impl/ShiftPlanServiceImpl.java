@@ -404,12 +404,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 throw new BadRequestException("One or more roleIds are invalid");
             }
 
-            var roleShiftPlanIds = rolesToAssign.stream()
-                .map(role -> role.getShiftPlan().getId())
-                .distinct()
-                .toList();
-
-            if (roleShiftPlanIds.size() != 1 || !roleShiftPlanIds.get(0).equals(shiftPlanId)) {
+             if (!rolesToAssign.stream().allMatch(role -> role.getShiftPlan().getId() == shiftPlanId)) {
                 throw new BadRequestException("One or more roles do not belong to the specified shift plan");
             }
         }
