@@ -2,25 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint.positionslot;
 
 import java.util.Collection;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -33,6 +14,23 @@ import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceUpdateDto;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(
     name = "position-slot-endpoint"
@@ -46,7 +44,6 @@ public class PositionSlotItemEndpoint {
     private final ApplicationUserProvider userProvider;
 
     @GetMapping
-    // TODO Security
     @Operation(
         operationId = "getPositionSlot",
         description = "Get details for a specific position slot in a shift"
@@ -54,10 +51,8 @@ public class PositionSlotItemEndpoint {
     public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
         return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
-    // PositionSlot create is done in ShiftEndpoint
 
     @PutMapping()
-    // TODO Security
     @Operation(
         operationId = "updatePositionSlot",
         description = "Update a specific position slot in a shift"
@@ -68,7 +63,6 @@ public class PositionSlotItemEndpoint {
     }
 
     @DeleteMapping()
-    // TODO Security
     @Operation(
         operationId = "deletePositionSlot",
         description = "Delete a specific position slot in a shift"
@@ -78,7 +72,6 @@ public class PositionSlotItemEndpoint {
     }
 
     @PostMapping("/join")
-    // TODO Security
     @Operation(
         operationId = "joinPositionSlot",
         description = "Join a specific position slot",
@@ -104,7 +97,6 @@ public class PositionSlotItemEndpoint {
     }
 
     @PutMapping("/preference")
-    // TODO Security
     @Operation(
         operationId = "setPositionSlotPreference",
         description = "Set preference for a specific position slot"
@@ -123,7 +115,6 @@ public class PositionSlotItemEndpoint {
     }
 
     @GetMapping("/assignments")
-    // TODO Security
     @Operation(
         operationId = "getPositionSlotAssignments",
         description = "Get assignments for a specific position slot"
@@ -133,7 +124,6 @@ public class PositionSlotItemEndpoint {
     }
 
     @PostMapping("/auction")
-    // TODO Security
     @Operation(
         operationId = "auctionAssignment",
         description = "Put the logged in users assignment for the PositionSlot up for auction"
@@ -145,7 +135,6 @@ public class PositionSlotItemEndpoint {
     }
 
     @PostMapping("/claim-auction/{offeringUserId}")
-    // TODO Security
     @Operation(
         operationId = "claimAuction",
         description = "Assign the logged in user to the auctions PositionSlot"
@@ -161,7 +150,6 @@ public class PositionSlotItemEndpoint {
     }
 
     @PostMapping("/cancel-auction")
-    // TODO Security
     @Operation(
         operationId = "cancelAuction",
         description = "Cancel the logged in users auction for the PositionSlot"

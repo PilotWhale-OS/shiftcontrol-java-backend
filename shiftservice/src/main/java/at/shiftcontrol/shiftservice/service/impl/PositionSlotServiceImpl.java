@@ -7,6 +7,7 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -58,17 +59,18 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException, ConflictException, ForbiddenException {
+    @IsNotAdmin
+    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        Volunteer volunteer = volunteerDao.findByUserId(volunteerId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found"));
+        securityHelper.assertUserIsVolunteer(positionSlot);
 
-        securityHelper.assertUserIsVolunteer(positionSlot, volunteer);
+        Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
         eligibilityService.validateHasConflictingAssignments(
-            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
+            currentUserId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
         //Todo: Implement actual joining logic
 
         // TODO close trades where this slot was offered to me
@@ -78,7 +80,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws ForbiddenException, NotFoundException {
+    @IsNotAdmin
+    public void leave(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException, NotFoundException {
 
         //Todo: Checks are needed if the user can leave
 
@@ -96,8 +99,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
+    @IsNotAdmin
     public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
-
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         // no security check necessary, because user is already assigned to position,
         //  if not, assignment would not be found
@@ -121,6 +124,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @Transactional
+    @IsNotAdmin
     public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
         throws NotFoundException, ConflictException, ForbiddenException {
 
@@ -131,13 +135,13 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             && auction.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN)) {
             throw new BadRequestException("assignment not up for auction");
         }
+        // check if current user is volunteer in plan
+        securityHelper.assertUserIsVolunteer(auction.getPositionSlot());
 
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("user not found"));
 
-        // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(auction.getPositionSlot(), currentUser);
 
         // check for trade not necessary
 
@@ -158,10 +162,15 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException {
-        Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
+    public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String userId) throws ForbiddenException {
+        Assignment assignment = getAssignmentForUser(positionSlotId, userId);
 
-        securityHelper.assertUserIsVolunteer(assignment.getPositionSlot(), currentUserId);
+        if (!assignment.getAssignedVolunteer().getId().equals(userId)) {
+            securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
+        } else {
+            securityHelper.assertUserIsVolunteer(assignment.getPositionSlot());
+        }
+
 
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
@@ -170,7 +179,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private Assignment getAssignmentForUser(Long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
         if (assignment == null) {
-            throw new BadRequestException("not assigned to position slot");
+            throw new BadRequestException("Not assigned to position slot");
         }
         return assignment;
     }
@@ -199,27 +208,29 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public void setPreference(@NonNull String volunteerId, long positionSlotId, int preference) throws NotFoundException, ForbiddenException {
+    @IsNotAdmin
+    public void setPreference(@NonNull String currentUserId, long positionSlotId, int preference) throws NotFoundException, ForbiddenException {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
 
-        securityHelper.assertUserIsVolunteer(positionSlot, volunteerId);
+        securityHelper.assertUserIsVolunteer(positionSlot);
+
 
         if (preference < -10 || preference > 10) {
             throw new BadRequestException("preference must be between -10 and 10");
         }
 
-        positionSlotDao.setPreference(volunteerId, positionSlotId, preference);
+        positionSlotDao.setPreference(currentUserId, positionSlotId, preference);
     }
 
     @Override
-    public int getPreference(@NonNull String volunteerId, long positionSlotId) throws ForbiddenException, NotFoundException {
+    public int getPreference(@NonNull String currentUserId, long positionSlotId) throws ForbiddenException, NotFoundException {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
 
-        securityHelper.assertUserIsVolunteer(positionSlot, volunteerId);
+        securityHelper.assertUserIsInPlan(positionSlot);
 
-        return positionSlotDao.getPreference(volunteerId, positionSlotId);
+        return positionSlotDao.getPreference(currentUserId, positionSlotId);
     }
 
     @Override

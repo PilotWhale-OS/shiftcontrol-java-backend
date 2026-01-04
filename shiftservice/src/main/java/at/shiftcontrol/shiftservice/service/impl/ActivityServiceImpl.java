@@ -4,15 +4,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
@@ -23,6 +19,11 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class ActivityServiceImpl implements ActivityService {
     private final EventDao eventDao;
     private final ActivityDao activityDao;
     private final LocationDao locationDao;
+    private final SecurityHelper securityHelper;
 
     @Override
     public ActivityDto getActivity(long activityId) throws NotFoundException {
@@ -40,8 +42,10 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Collection<ActivityDto> getActivitiesForEvent(long eventId) throws NotFoundException {
-        eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+    public Collection<ActivityDto> getActivitiesForEvent(long eventId) throws NotFoundException, ForbiddenException {
+        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
+
         var activities = activityDao.findAllByEventId(eventId);
 
         return activities.stream()
@@ -50,9 +54,8 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    @AdminOnly
     public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
-        // TODO assert admin only
-
         var event = eventDao.findById(eventId)
             .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
 
@@ -69,9 +72,8 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    @AdminOnly
     public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
-        // TODO assert admin only
-
         var activity = activityDao.findById(activityId)
             .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
 
@@ -101,9 +103,8 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    @AdminOnly
     public void deleteActivity(long activityId) throws NotFoundException {
-        // TODO assert admin only
-
         var activity = activityDao.findById(activityId)
             .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
 
@@ -115,10 +116,10 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException {
-        // TODO assert admin only
+    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException, ForbiddenException {
+        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 
-        eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
         var activitiesOfEvent = activityDao.findAllByEventId(eventId);
 
         if (suggestionDto == null || (suggestionDto.getName() == null && suggestionDto.getTimeFilter() == null)) {

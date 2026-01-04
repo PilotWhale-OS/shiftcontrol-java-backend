@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
@@ -40,9 +41,8 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @AdminOnly
     public LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto) throws NotFoundException {
-        // TODO ensure admin only call
-
         var event = eventDao.findById(eventId)
             .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
 
@@ -60,9 +60,8 @@ public class LocationServiceImpl implements LocationService {
 
 
     @Override
+    @AdminOnly
     public LocationDto updateLocation(long locationId, @NonNull LocationModificationDto modificationDto) throws NotFoundException {
-        // TODO ensure admin only call
-
         var location = getLocationOrThrow(locationId);
 
         if (location.isReadOnly()) {
@@ -78,9 +77,8 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @AdminOnly
     public void deleteLocation(long locationId) throws NotFoundException {
-        // TODO ensure admin only call
-
         var location = getLocationOrThrow(locationId);
 
         if (location.isReadOnly()) {

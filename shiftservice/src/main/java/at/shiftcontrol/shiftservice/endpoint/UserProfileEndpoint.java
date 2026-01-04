@@ -29,7 +29,6 @@ public class UserProfileEndpoint {
     private final NotificationService notificationService;
 
     @GetMapping("/profile")
-    // TODO Security
     @Operation(
         operationId = "getCurrentUserProfile",
         description = "Get profile data of the current user (account, notifications, unavailability)"
@@ -39,7 +38,6 @@ public class UserProfileEndpoint {
     }
 
     @PatchMapping("/profile/notifications")
-    // TODO Security
     @Operation(
         operationId = "updateNotificationSettings",
         description = "Update notification settings of the current user"

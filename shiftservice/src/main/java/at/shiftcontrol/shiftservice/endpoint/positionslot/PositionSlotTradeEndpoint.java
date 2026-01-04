@@ -36,7 +36,6 @@ public class PositionSlotTradeEndpoint {
     private final ApplicationUserProvider userProvider;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getTradeById",
         description = "Get trade by id"
@@ -46,7 +45,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @GetMapping("/slots-to-offer/{positionSlotId}")
-    // TODO Security
     @Operation(
         operationId = "getPositionSlotsToOffer",
         description = "Get position slots that can be offered in a trade for the given position slot, based on eligible volunteers"
@@ -58,7 +56,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PostMapping()
-    // TODO Security
     @Operation(
         operationId = "createTrade",
         description = "Create trade request for a specific position slot in a shift"
@@ -70,7 +67,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PutMapping("/accept")
-    // TODO Security
     @Operation(
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
@@ -82,7 +78,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PutMapping("/decline")
-    // TODO Security
     @Operation(
         operationId = "declineTrade",
         description = "Decline a trade request for a specific position slot in a shift"
@@ -94,7 +89,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PutMapping("/cancel")
-    // TODO Security
     @Operation(
         operationId = "cancelTrade",
         description = "Cancel a request for a specific position slot in a shift"

@@ -16,8 +16,8 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -104,6 +104,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
+    @AdminOnly
     public ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
         var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
@@ -114,6 +115,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
+    @AdminOnly
     public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
         var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
@@ -122,6 +124,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
+    @AdminOnly
     public void delete(long shiftPlanId) throws NotFoundException {
         shiftPlanDao.delete(shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new));
     }
@@ -401,7 +404,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 throw new BadRequestException("One or more roleIds are invalid");
             }
 
-            // TODO verify roles belong to this shiftPlan
+             if (!rolesToAssign.stream().allMatch(role -> role.getShiftPlan().getId() == shiftPlanId)) {
+                throw new BadRequestException("One or more roles do not belong to the specified shift plan");
+            }
         }
 
         var invite = ShiftPlanInvite.builder()
@@ -470,17 +475,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanInviteDao.save(invite);
     }
 
-    private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
-        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN) {
-            securityHelper.assertUserIsPlanner(shiftPlanId, currentUser);
-        }
-
-        // only allowed by admins
-        if (type == ShiftPlanInviteType.PLANNER_JOIN && !(currentUser instanceof AdminUser)) {
-            throw new ForbiddenException("Only admins can create planner join invite codes");
-        }
-    }
-
     @Override
     public void deleteShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
@@ -491,6 +485,19 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
 
         shiftPlanInviteDao.delete(invite);
+    }
+
+    private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
+        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN) {
+            securityHelper.assertUserIsPlanner(shiftPlanId, currentUser);
+        }
+
+        boolean isNotAdmin = securityHelper.isNotUserAdmin(currentUser);
+
+        // only allowed by admins
+        if (type == ShiftPlanInviteType.PLANNER_JOIN && isNotAdmin) {
+            throw new ForbiddenException("Only admins can create planner join invite codes");
+        }
     }
 
     @Override
@@ -515,14 +522,22 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
+    private boolean userIsInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
+        switch (type) {
+            case VOLUNTEER_JOIN -> {
+                return shiftPlan.getPlanVolunteers().contains(volunteer);
+            }
+            case PLANNER_JOIN -> {
+                return shiftPlan.getPlanPlanners().contains(volunteer);
+            }
+            default -> throw new BadRequestException("Unknown invite type");
+        }
+    }
+
     @Override
     public Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
-        var currentUser = userProvider.getCurrentUser();
-
         // both planners and admins can list invites
-        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
-            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
-        }
+        securityHelper.assertUserIsPlanner(shiftPlanId);
 
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
 
@@ -539,7 +554,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @Transactional
-    public ShiftPlanJoinOverviewDto joinShiftPlanAsVolunteer(ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+    public ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
         String userId = userProvider.getCurrentUser().getUserId();
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
             throw new BadRequestException("inviteCode is null or empty");
@@ -625,7 +640,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     return false;
                 }
                 shiftPlan.getPlanVolunteers().add(volunteer);
-                // TODO add plan to volunteeringPlans too ?? Is this needed or resolved by ManyToMany mapping ??
                 return true;
             }
             case PLANNER_JOIN -> {
@@ -633,19 +647,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     return false;
                 }
                 shiftPlan.getPlanPlanners().add(volunteer);
-                return true;
-            }
-            default -> throw new BadRequestException("Unknown invite type");
-        }
-    }
+                shiftPlan.getPlanVolunteers().add(volunteer); // planners are also volunteers
 
-    private boolean userIsInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
-        switch (type) {
-            case VOLUNTEER_JOIN -> {
-                return shiftPlan.getPlanVolunteers().contains(volunteer);
-            }
-            case PLANNER_JOIN -> {
-                return shiftPlan.getPlanPlanners().contains(volunteer);
+                return true;
             }
             default -> throw new BadRequestException("Unknown invite type");
         }

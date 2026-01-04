@@ -36,7 +36,6 @@ public class ShiftItemEndpoint {
     private final ShiftService shiftService;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getShiftDetails",
         description = "Get details for a specific shift of a shift plan"
@@ -46,7 +45,6 @@ public class ShiftItemEndpoint {
     }
 
     @PutMapping()
-    // TODO Security
     @Operation(
         operationId = "updateShift",
         description = "Update a specific shift of a shift plan"
@@ -57,7 +55,6 @@ public class ShiftItemEndpoint {
     }
 
     @DeleteMapping()
-    // TODO Security
     @Operation(
         operationId = "deleteShift",
         description = "Delete a specific shift of a shift plan"

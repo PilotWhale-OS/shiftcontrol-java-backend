@@ -39,7 +39,6 @@ public class RoleCollectionEndpoint {
     private final RoleService roleService;
 
     @GetMapping
-    // TODO Security
     @Operation(
         operationId = "getRoles",
         description = "Get roles of this event"
@@ -49,7 +48,6 @@ public class RoleCollectionEndpoint {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    // TODO Security
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
         operationId = "createRole",

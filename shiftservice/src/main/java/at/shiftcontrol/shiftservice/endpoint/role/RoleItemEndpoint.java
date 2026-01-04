@@ -34,7 +34,6 @@ public class RoleItemEndpoint {
     private final RoleService roleService;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getRole",
         description = "Get role by id"
@@ -44,7 +43,6 @@ public class RoleItemEndpoint {
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    // TODO Security
     @Operation(
         operationId = "updateRole",
         description = "Update a role of this event"
@@ -57,7 +55,6 @@ public class RoleItemEndpoint {
     }
 
     @DeleteMapping()
-    // TODO Security
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
         operationId = "deleteRole",
