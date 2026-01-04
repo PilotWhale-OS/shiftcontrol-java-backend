@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.EventEvent;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
@@ -116,7 +119,7 @@ public class EventServiceImpl implements EventService {
         Event event = EventMapper.toEvent(modificationDto);
         event = eventDao.save(event);
 
-        //TODO publish event
+        publisher.publishEvent(EventEvent.of(event, RoutingKeys.EVENT_CREATED));
         return EventMapper.toEventDto(event);
     }
 
@@ -130,7 +133,7 @@ public class EventServiceImpl implements EventService {
         EventMapper.updateEvent(event, modificationDto);
         eventDao.save(event);
 
-        //TODO publish event
+        publisher.publishEvent(EventEvent.of(event, RoutingKeys.formatStrict(RoutingKeys.EVENT_CREATED, Map.of("eventId", String.valueOf(eventId)))));
         return EventMapper.toEventDto(event);
     }
 
@@ -143,9 +146,10 @@ public class EventServiceImpl implements EventService {
     @Override
     public void deleteEvent(long eventId) throws NotFoundException {
         // TODO assert admin only
+        var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
 
-        //TODO publish event
-        eventDao.delete(eventDao.findById(eventId).orElseThrow(NotFoundException::new));
+        publisher.publishEvent(EventEvent.of(event, RoutingKeys.formatStrict(RoutingKeys.EVENT_CREATED, Map.of("eventId", String.valueOf(eventId)))));
+        eventDao.delete(event);
     }
 
     private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) throws NotFoundException {
