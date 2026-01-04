@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,10 +24,13 @@ public class ShiftDto {
     private String id;
 
     @NotNull
+    @Size(max = 50)
     private String name;
 
+    @Size(max = 255)
     private String shortDescription;
 
+    @Size(max = 1024)
     private String longDescription;
 
     @NotNull

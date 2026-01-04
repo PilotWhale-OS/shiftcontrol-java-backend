@@ -3,7 +3,10 @@ package at.shiftcontrol.shiftservice.dto.positionslot;
 import java.util.Collection;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,8 +27,10 @@ public class PositionSlotDto {
     private String id;
 
     @NotNull
+    @Size(max = 50)
     private String name;
 
+    @Size(max = 255)
     private String description;
 
     @NotNull
@@ -42,9 +47,11 @@ public class PositionSlotDto {
     private Collection<VolunteerDto> assignedVolunteers;
 
     @NotNull
+    @Min(0)
     private int desiredVolunteerCount;
 
     @NotNull
+    @Min(0)
     private int rewardPoints;
 
     /**
@@ -71,5 +78,7 @@ public class PositionSlotDto {
      * Specific for the current user's preference value for this position slot.
      */
     @NotNull
+    @Min(-10)
+    @Max(10)
     private int preferenceValue;
 }

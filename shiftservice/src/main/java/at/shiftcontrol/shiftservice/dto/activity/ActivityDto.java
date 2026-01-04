@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,8 +21,10 @@ public class ActivityDto {
     private String id;
 
     @NotNull
+    @Size(max = 50)
     private String name;
 
+    @Size(max = 255)
     private String description;
 
     @NotNull

@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dto.activity;
 
 import java.time.Instant;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,5 +21,6 @@ public class ActivityTimeFilterDto {
     private Instant endTime;
 
     @NotNull
-    private Integer toleranceInMinutes;
+    @Min(0)
+    private int toleranceInMinutes;
 }

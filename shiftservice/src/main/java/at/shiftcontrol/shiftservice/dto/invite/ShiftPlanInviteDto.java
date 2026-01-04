@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,9 +37,12 @@ public class ShiftPlanInviteDto {
     private boolean active;
 
     private Instant expiresAt;
+
+    @Min(0)
     private Integer maxUses;
 
     @NotNull
+    @Min(0)
     private int usedCount;
 
     @Valid

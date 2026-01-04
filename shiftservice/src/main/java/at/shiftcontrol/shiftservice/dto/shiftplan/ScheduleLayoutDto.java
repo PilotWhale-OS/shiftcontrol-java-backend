@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.dto.shiftplan;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,5 +20,6 @@ public class ScheduleLayoutDto {
     private LocationDto location;
 
     @NotNull
+    @Min(0)
     private int requiredShiftColumns;
 }

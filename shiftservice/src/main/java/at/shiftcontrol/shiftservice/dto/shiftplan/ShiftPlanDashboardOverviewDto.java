@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.dto.shiftplan;
 import java.util.Collection;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class ShiftPlanDashboardOverviewDto {
     private OverallStatisticsDto overallShiftPlanStatistics;
 
     @NotNull
+    @Min(0)
     private int rewardPoints;
 
     @NotNull
