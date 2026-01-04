@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.event.events.parts;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
@@ -14,7 +15,8 @@ public class AssignmentPart {
 
     private PositionSlotPart positionSlot;
 
-    public static AssignmentPart of(Assignment assignment) {
+    @NonNull
+    public static AssignmentPart of(@NonNull Assignment assignment) {
         return AssignmentPart.builder()
             .volunteerId(assignment.getId().getVolunteerId())
             .status(assignment.getStatus())

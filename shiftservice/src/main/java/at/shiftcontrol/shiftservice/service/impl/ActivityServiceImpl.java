@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,9 +23,8 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
-import at.shiftcontrol.shiftservice.event.events.ActivityCreatedEvent;
-import at.shiftcontrol.shiftservice.event.events.ActivityDeletedEvent;
-import at.shiftcontrol.shiftservice.event.events.ActivityUpdatedEvent;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.ActivityEvent;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 
@@ -70,7 +70,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityCreatedEvent.of(activity));
+        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.ACTIVITY_CREATED));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -85,7 +85,8 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityUpdatedEvent.of(activity));
+        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.formatStrict(RoutingKeys.ACTIVITY_UPDATED,
+            Map.of("activityId", String.valueOf(activityId)))));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -120,7 +121,8 @@ public class ActivityServiceImpl implements ActivityService {
 
         activityDao.delete(activity);
 
-        publisher.publishEvent(ActivityDeletedEvent.of(activity));
+        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.formatStrict(RoutingKeys.ACTIVITY_DELETED,
+            Map.of("activityId", String.valueOf(activityId)))));
     }
 
     @Override

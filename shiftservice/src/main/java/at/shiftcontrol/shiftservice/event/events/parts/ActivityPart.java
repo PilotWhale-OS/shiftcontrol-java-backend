@@ -5,6 +5,7 @@ import java.time.Instant;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NonNull;
 
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
@@ -25,7 +26,8 @@ public class ActivityPart {
     @NotNull
     private final boolean readOnly;
 
-    public static ActivityPart of(Activity activity) {
+    @NonNull
+    public static ActivityPart of(@NonNull Activity activity) {
         return new ActivityPart(
             String.valueOf(activity.getId()),
             activity.getName(),
