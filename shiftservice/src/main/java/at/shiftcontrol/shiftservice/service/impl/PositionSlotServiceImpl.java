@@ -7,6 +7,7 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -58,11 +59,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
+    @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        securityHelper.assertUserIsInPlan(positionSlot); // TODO is this correct?? Also: Shouldnt we assert here that user is not already assigned instead?
-        securityHelper.assertUserIsNotAdmin(); // Admins cannot join shifts
+        securityHelper.assertUserIsVolunteer(positionSlot);
 
         Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
@@ -79,10 +80,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
+    @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException, NotFoundException {
 
         //Todo: Checks are needed if the user can leave
-        securityHelper.assertUserIsNotAdmin(); // Admins cannot leave shifts TODO: I think this can be removed since admins cannot join shifts in the first place
 
         // no security check necessary, because user is already assigned to position
     }
@@ -98,8 +99,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
+    @IsNotAdmin
     public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
-
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         // no security check necessary, because user is already assigned to position,
         //  if not, assignment would not be found
@@ -123,6 +124,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @Transactional
+    @IsNotAdmin
     public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
         throws NotFoundException, ConflictException, ForbiddenException {
 
@@ -133,9 +135,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             && auction.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN)) {
             throw new BadRequestException("assignment not up for auction");
         }
-        // check if current user has access to the position slot (dont have to be volunteer itself, since planner should also be able to claim)
-        securityHelper.assertUserIsInPlan(auction.getPositionSlot()); // TODO is this correct??
-        securityHelper.assertUserIsNotAdmin(); // Admins cannot claim auctions
+        // check if current user is volunteer in plan
+        securityHelper.assertUserIsVolunteer(auction.getPositionSlot());
 
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
@@ -161,12 +162,15 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException {
-        Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
+    public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String userId) throws ForbiddenException {
+        Assignment assignment = getAssignmentForUser(positionSlotId, userId);
 
-        // check if current user has access to the position slot (dont have to be volunteer itself, since planner should also be able to cancel in special scenarios)
-        securityHelper.assertUserIsInPlan(assignment.getPositionSlot()); // TODO is this correct??
-        securityHelper.assertUserIsNotAdmin(); // Admins cannot claim auctions
+        if (!assignment.getAssignedVolunteer().getId().equals(userId)) {
+            securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
+        } else {
+            securityHelper.assertUserIsVolunteer(assignment.getPositionSlot());
+        }
+
 
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
@@ -204,12 +208,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
+    @IsNotAdmin
     public void setPreference(@NonNull String currentUserId, long positionSlotId, int preference) throws NotFoundException, ForbiddenException {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
 
-        securityHelper.assertUserIsInPlan(positionSlot); // TODO is this correct??
-        securityHelper.assertUserIsNotAdmin(); // Admins cannot set preferences
+        securityHelper.assertUserIsVolunteer(positionSlot);
 
 
         if (preference < -10 || preference > 10) {
@@ -224,7 +228,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
 
-        securityHelper.assertUserIsInPlan(positionSlot); // TODO is this correct??
+        securityHelper.assertUserIsInPlan(positionSlot);
 
         return positionSlotDao.getPreference(currentUserId, positionSlotId);
     }

@@ -645,7 +645,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     return false;
                 }
                 shiftPlan.getPlanVolunteers().add(volunteer);
-                // TODO add plan to volunteeringPlans too ?? Is this needed or resolved by ManyToMany mapping ??
                 return true;
             }
             case PLANNER_JOIN -> {
@@ -653,6 +652,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     return false;
                 }
                 shiftPlan.getPlanPlanners().add(volunteer);
+                shiftPlan.getPlanVolunteers().add(volunteer); // planners are also volunteers
+
                 return true;
             }
             default -> throw new BadRequestException("Unknown invite type");

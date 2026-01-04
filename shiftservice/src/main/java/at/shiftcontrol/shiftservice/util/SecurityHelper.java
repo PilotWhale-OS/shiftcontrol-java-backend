@@ -28,7 +28,7 @@ public class SecurityHelper {
         }
     }
 
-    private boolean isUserPlanner(long shiftPlanId, ShiftControlUser user) {
+    public boolean isUserPlanner(long shiftPlanId, ShiftControlUser user) {
         return user.isPlannerInPlan(shiftPlanId);
     }
 
@@ -36,7 +36,7 @@ public class SecurityHelper {
         assertUserIsPlanner(shiftPlanId, userProvider.getCurrentUser());
     }
 
-    private boolean isUserPlanner(long shiftPlanId) {
+    public boolean isUserPlanner(long shiftPlanId) {
         var currentUser = userProvider.getCurrentUser();
         return isUserPlanner(shiftPlanId, currentUser);
     }
@@ -73,8 +73,22 @@ public class SecurityHelper {
     }
     //     --------------------- Volunteer ---------------------
 
+    public boolean isVolunteerInPlan(long shiftPlanId, ShiftControlUser user) {
+        return user.isVolunteerInPlan(shiftPlanId);
+    }
+
+    public boolean isVolunteerInPlan(long shiftPlanId) {
+        var currentUser = userProvider.getCurrentUser();
+        return isVolunteerInPlan(shiftPlanId, currentUser);
+    }
+
+    public boolean isUserOnlyVolunteerInPlan(long shiftPlanId) {
+        var currentUser = userProvider.getCurrentUser();
+        return isVolunteerInPlan(shiftPlanId, currentUser) && !isUserPlanner(shiftPlanId, currentUser);
+    }
+
     public void assertUserIsVolunteer(long shiftPlanId, ShiftControlUser user) throws ForbiddenException {
-        if (!user.isVolunteerInPlan(shiftPlanId)) {
+        if (!isVolunteerInPlan(shiftPlanId, user)) {
             throw new ForbiddenException("User is not a volunteer in plan: " + shiftPlanId);
         }
     }
@@ -153,11 +167,5 @@ public class SecurityHelper {
 
     public boolean isNotUserAdmin(ShiftControlUser user) {
         return !isUserAdmin(user);
-    }
-
-    public void assertUserIsNotAdmin() throws ForbiddenException {
-        if (isUserAdmin()) {
-            throw new ForbiddenException("Admin users are not allowed to perform this action.");
-        }
     }
 }
