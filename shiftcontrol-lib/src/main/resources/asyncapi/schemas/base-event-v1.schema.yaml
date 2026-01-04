@@ -1,4 +1,7 @@
+"$schema": https://json-schema.org/draft/2020-12/schema
+"$id": base-event-v1.schema.yaml
 title: BaseEventV1
+javaType: org.shiftcontrol.lib.asyncapi.events.v1.BaseEvent
 type: object
 additionalProperties: false
 
@@ -24,5 +27,3 @@ properties:
   version:
     type: integer
     minimum: 1
-
-x-javaType: org.shiftcontrol.lib.asyncapi.events.v1.BaseEvent

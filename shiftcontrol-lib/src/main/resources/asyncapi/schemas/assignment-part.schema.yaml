@@ -1,5 +1,8 @@
+"$id": assignment-part.schema.yaml
+"$schema": https://json-schema.org/draft/2020-12/schema
 title: AssignmentPart
 type: object
+javaType: org.shiftcontrol.lib.asyncapi.events.parts.AssignmentPart
 additionalProperties: false
 
 required:
@@ -20,5 +23,3 @@ properties:
       - REJECTED
   positionSlot:
     $ref: './position-slot-part.schema.yaml'
-
-x-javaType: org.shiftcontrol.lib.asyncapi.events.parts.AssignmentPart

@@ -1,6 +1,11 @@
+"$schema": https://json-schema.org/draft/2020-12/schema
+"$id": assignment-switch-event.v1.schema.yaml
 title: AssignmentSwitchEventV1
+javaType: org.shiftcontrol.lib.asyncapi.events.AssignmentSwitchEventV1
 type: object
 additionalProperties: false
+
+
 
 allOf:
   - $ref: './base-event-v1.schema.yaml'
@@ -17,5 +22,3 @@ allOf:
         $ref: './assignment-part.schema.yaml'
       offeringAssignment:
         $ref: './assignment-part.schema.yaml'
-
-x-javaType: org.shiftcontrol.lib.asyncapi.events.v1.AssignmentSwitchEvent
