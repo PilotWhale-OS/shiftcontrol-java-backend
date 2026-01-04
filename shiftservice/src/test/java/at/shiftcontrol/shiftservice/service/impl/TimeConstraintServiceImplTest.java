@@ -22,6 +22,7 @@ import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -47,6 +48,9 @@ class TimeConstraintServiceImplTest {
     private EventDao eventDao;
     @Mock
     private AssignmentDao assignmentDao;
+
+    @Mock
+    private SecurityHelper securityHelper;
 
     @InjectMocks
     private TimeConstraintServiceImpl service;
