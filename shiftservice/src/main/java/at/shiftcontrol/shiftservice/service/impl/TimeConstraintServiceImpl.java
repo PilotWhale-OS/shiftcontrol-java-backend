@@ -10,6 +10,7 @@ import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
@@ -41,9 +42,9 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     @Override
+    @IsNotAdmin
     public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId)
         throws ConflictException, ForbiddenException {
-        securityHelper.assertUserIsNotAdmin();
 
         // Validate date range
         Instant from = createDto.getFrom();
@@ -96,8 +97,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     @Override
+    @IsNotAdmin
     public void delete(long timeConstraintId) throws NotFoundException, ForbiddenException {
-        securityHelper.assertUserIsNotAdmin();
         Optional<TimeConstraint> atcOpt = timeConstraintDao.findById(timeConstraintId);
         if (atcOpt.isEmpty()) {
             throw new NotFoundException("Time constraint not found");
