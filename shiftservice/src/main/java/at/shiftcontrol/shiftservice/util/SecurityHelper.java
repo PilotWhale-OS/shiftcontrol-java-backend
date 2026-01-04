@@ -154,4 +154,10 @@ public class SecurityHelper {
     public boolean isNotUserAdmin(ShiftControlUser user) {
         return !isUserAdmin(user);
     }
+
+    public void assertUserIsNotAdmin() throws ForbiddenException {
+        if (isUserAdmin()) {
+            throw new ForbiddenException("Admin users are not allowed to perform this action.");
+        }
+    }
 }

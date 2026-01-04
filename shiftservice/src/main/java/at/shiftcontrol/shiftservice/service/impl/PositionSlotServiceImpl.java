@@ -61,7 +61,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        securityHelper.assertUserIsVolunteer(positionSlot);
+        securityHelper.assertUserIsInPlan(positionSlot); // TODO is this correct?? Also: Shouldnt we assert here that user is not already assigned instead?
+        securityHelper.assertUserIsNotAdmin(); // Admins cannot join shifts
 
         Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
@@ -81,6 +82,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public void leave(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException, NotFoundException {
 
         //Todo: Checks are needed if the user can leave
+        securityHelper.assertUserIsNotAdmin(); // Admins cannot leave shifts TODO: I think this can be removed since admins cannot join shifts in the first place
 
         // no security check necessary, because user is already assigned to position
     }
@@ -131,8 +133,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             && auction.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN)) {
             throw new BadRequestException("assignment not up for auction");
         }
-        // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(auction.getPositionSlot());
+        // check if current user has access to the position slot (dont have to be volunteer itself, since planner should also be able to claim)
+        securityHelper.assertUserIsInPlan(auction.getPositionSlot()); // TODO is this correct??
+        securityHelper.assertUserIsNotAdmin(); // Admins cannot claim auctions
 
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
@@ -161,7 +164,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException {
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
 
-        securityHelper.assertUserIsVolunteer(assignment.getPositionSlot());
+        // check if current user has access to the position slot (dont have to be volunteer itself, since planner should also be able to cancel in special scenarios)
+        securityHelper.assertUserIsInPlan(assignment.getPositionSlot()); // TODO is this correct??
+        securityHelper.assertUserIsNotAdmin(); // Admins cannot claim auctions
 
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
@@ -170,7 +175,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private Assignment getAssignmentForUser(Long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
         if (assignment == null) {
-            throw new BadRequestException("not assigned to position slot");
+            throw new BadRequestException("Not assigned to position slot");
         }
         return assignment;
     }
@@ -203,7 +208,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
 
-        securityHelper.assertUserIsVolunteer(positionSlot);
+        securityHelper.assertUserIsInPlan(positionSlot); // TODO is this correct??
+        securityHelper.assertUserIsNotAdmin(); // Admins cannot set preferences
+
 
         if (preference < -10 || preference > 10) {
             throw new BadRequestException("preference must be between -10 and 10");
@@ -217,7 +224,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
 
-        securityHelper.assertUserIsVolunteer(positionSlot);
+        securityHelper.assertUserIsInPlan(positionSlot); // TODO is this correct??
 
         return positionSlotDao.getPreference(currentUserId, positionSlotId);
     }
