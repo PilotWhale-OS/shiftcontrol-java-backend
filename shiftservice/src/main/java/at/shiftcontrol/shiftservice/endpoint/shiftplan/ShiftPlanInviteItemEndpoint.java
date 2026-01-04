@@ -67,6 +67,6 @@ public class ShiftPlanInviteItemEndpoint {
         description = "Join a shift plan using an invite code"
     )
     public ShiftPlanJoinOverviewDto joinShiftPlan(@RequestBody ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
-        return shiftPlanService.joinShiftPlanAsVolunteer(requestDto);
+        return shiftPlanService.joinShiftPlan(requestDto);
     }
 }
