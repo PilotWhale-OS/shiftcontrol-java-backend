@@ -367,8 +367,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElse(null);
 
         return ShiftPlanScheduleFilterValuesDto.builder()
-            .locations(locations.isEmpty() ? null : LocationMapper.toLocationDto(locations))
-            .roles(roles.isEmpty() ? null : RoleMapper.toRoleDto(roles))
+            .locations(locations.isEmpty() ? List.of() : LocationMapper.toLocationDto(locations))
+            .roles(roles.isEmpty() ? List.of() : RoleMapper.toRoleDto(roles))
             .firstDate(firstDate)
             .lastDate(lastDate)
             .build();
