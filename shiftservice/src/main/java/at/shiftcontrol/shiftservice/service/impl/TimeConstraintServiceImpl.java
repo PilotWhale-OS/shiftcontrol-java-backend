@@ -6,20 +6,14 @@ import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Optional;
 
-import at.shiftcontrol.shiftservice.dao.EventDao;
-
-import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
@@ -27,6 +21,10 @@ import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +33,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final AssignmentDao assignmentDao;
     private final EventDao eventDao;
     private final VolunteerDao volunteerDao;
+    private final SecurityHelper securityHelper;
 
     @Override
     public Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId) {
@@ -42,7 +41,10 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     @Override
-    public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId) throws ConflictException {
+    public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId)
+        throws ConflictException, ForbiddenException {
+        securityHelper.assertUserIsNotAdmin();
+
         // Validate date range
         Instant from = createDto.getFrom();
         Instant to = createDto.getTo();
@@ -94,7 +96,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     @Override
-    public void delete(long timeConstraintId) throws NotFoundException {
+    public void delete(long timeConstraintId) throws NotFoundException, ForbiddenException {
+        securityHelper.assertUserIsNotAdmin();
         Optional<TimeConstraint> atcOpt = timeConstraintDao.findById(timeConstraintId);
         if (atcOpt.isEmpty()) {
             throw new NotFoundException("Time constraint not found");

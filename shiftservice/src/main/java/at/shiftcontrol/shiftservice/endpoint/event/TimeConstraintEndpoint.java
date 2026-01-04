@@ -2,6 +2,17 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
+import at.shiftcontrol.shiftservice.service.TimeConstraintService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,18 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
-import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
-import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 
 @Slf4j
 @RestController
@@ -47,7 +46,8 @@ public class TimeConstraintEndpoint {
         operationId = "createTimeConstraint",
         description = "Create a new time constraint for the current user"
     )
-    public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto) throws ConflictException {
+    public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto)
+        throws ConflictException, ForbiddenException {
         return timeConstraintService.createTimeConstraint(
             createDto,
             userProvider.getCurrentUser().getUserId(),
@@ -61,7 +61,7 @@ public class TimeConstraintEndpoint {
         operationId = "deleteTimeConstraint",
         description = "Delete an existing time constraint of the current user"
     )
-    public void deleteTimeConstraint(@PathVariable String eventId, @PathVariable String timeConstraintId) throws NotFoundException {
+    public void deleteTimeConstraint(@PathVariable String eventId, @PathVariable String timeConstraintId) throws NotFoundException, ForbiddenException {
         // Check that the time constraint belongs to the current user (throws NotFoundException if not)
         timeConstraintService.getTimeConstraints(userProvider.getCurrentUser().getUserId(), ConvertUtil.idToLong(eventId));
         timeConstraintService.delete(ConvertUtil.idToLong(timeConstraintId));
