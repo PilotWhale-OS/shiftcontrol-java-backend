@@ -13,6 +13,7 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 @Builder
 public class EventScheduleDto {
     @Valid
+    @NotNull
     private EventDto event;
 
     @NotNull

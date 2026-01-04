@@ -2,6 +2,10 @@ package at.shiftcontrol.shiftservice.service.userprofile.impl;
 
 import java.util.Set;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -12,8 +16,6 @@ import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.NotificationType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +27,6 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public UserProfileDto getUserProfile(String userId) throws NotFoundException {
         var user = kcService.getUserById(userId);
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(NotFoundException::new);
-
         var profile = new UserProfileDto();
         profile.setAccount(UserProfileMapper.toAccountInfoDto(user));
 
@@ -42,13 +42,9 @@ public class UserProfileServiceImpl implements UserProfileService {
                 );
             }
         }
-
         profile.setNotifications(notifications);
-
-        if (volunteer.getRoles() != null) {
-            profile.setAssignedRoles(RoleMapper.toRoleDto(volunteer.getRoles()));
-        }
-
+        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(NotFoundException::new);
+        profile.setAssignedRoles(RoleMapper.toRoleDto(volunteer.getRoles()));
         return profile;
     }
 }

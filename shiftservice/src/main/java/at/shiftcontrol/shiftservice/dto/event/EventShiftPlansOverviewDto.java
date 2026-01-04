@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.dto.event;
 import java.util.Collection;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +32,7 @@ public class EventShiftPlansOverviewDto {
     private OverallStatisticsDto overallEventStatistics;
 
     @NotNull
-    @Valid
+    @Min(0)
     private int rewardPoints;
 
     @NotNull
