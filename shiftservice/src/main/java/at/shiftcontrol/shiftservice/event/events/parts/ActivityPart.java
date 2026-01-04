@@ -1,0 +1,45 @@
+package at.shiftcontrol.shiftservice.event.events.parts;
+
+import java.time.Instant;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
+import at.shiftcontrol.shiftservice.entity.Activity;
+
+@Data
+@AllArgsConstructor
+public class ActivityPart {
+    @NotNull
+    private final String id;
+    @NotNull
+    private final String name;
+    private final String description;
+    @NotNull
+    private final Instant startTime;
+    @NotNull
+    private final Instant endTime;
+    private final LocationDto location;
+    @NotNull
+    private final boolean readOnly;
+
+    public static ActivityPart of(Activity activity) {
+        return new ActivityPart(
+            String.valueOf(activity.getId()),
+            activity.getName(),
+            activity.getDescription(),
+            activity.getStartTime(),
+            activity.getEndTime(),
+            activity.getLocation() != null ? new LocationDto(
+                String.valueOf(activity.getLocation().getId()),
+                activity.getLocation().getName(),
+                activity.getLocation().getDescription(),
+                activity.getLocation().getUrl(),
+                activity.getLocation().isReadOnly()
+            ) : null,
+            activity.isReadOnly()
+        );
+    }
+}

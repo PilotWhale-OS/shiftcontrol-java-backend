@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -24,6 +25,7 @@ public class LocationServiceImpl implements LocationService {
     private final LocationDao locationDao;
     private final EventDao eventDao;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public LocationDto getLocation(long locationId) throws NotFoundException {

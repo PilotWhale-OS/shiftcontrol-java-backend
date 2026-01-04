@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -33,6 +34,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final AssignmentDao assignmentDao;
     private final EventDao eventDao;
     private final VolunteerDao volunteerDao;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId) {

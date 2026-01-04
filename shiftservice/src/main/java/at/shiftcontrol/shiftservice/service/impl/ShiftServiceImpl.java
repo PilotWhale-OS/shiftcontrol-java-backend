@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import io.micrometer.common.util.StringUtils;
@@ -33,6 +34,7 @@ public class ShiftServiceImpl implements ShiftService {
     private final UserPreferenceService userPreferenceService;
     private final ShiftAssemblingMapper shiftAssemblingMapper;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public ShiftDetailsDto getShiftDetails(long shiftId, String userId) throws NotFoundException {

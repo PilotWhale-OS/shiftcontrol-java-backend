@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service.role.impl;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import jakarta.ws.rs.NotFoundException;
@@ -33,6 +34,7 @@ public class RoleServiceImpl implements RoleService {
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public Collection<RoleDto> getRoles(Long shiftPlanId) {

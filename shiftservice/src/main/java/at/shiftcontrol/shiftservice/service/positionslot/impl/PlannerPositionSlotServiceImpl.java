@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
 import java.util.Collection;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final ShiftPlanDao shiftPlanDao;
     private final AssignmentDao assignmentDao;
     private final AssignmentRepository assignmentRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) throws ForbiddenException, NotFoundException {

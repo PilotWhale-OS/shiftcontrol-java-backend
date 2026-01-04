@@ -35,16 +35,16 @@ public class RabbitEventPublisher {
 
     private ApplicationEventWrapper wrapEvent(ApplicationEvent event) {
         //Get EventType from EventClassifier annotation and wrap event
-        var classifier = event.getClass().getAnnotation(EventClassifier.class);
-        if (classifier == null) {
-            throw new IllegalArgumentException("Event class " + event.getClass().getName() + " is not annotated with @EventClassifier");
-        }
-        var eventType = classifier.value();
+//         var classifier = event.getClass().getAnnotation(EventClassifier.class);
+//         if (classifier == null) {
+//             throw new IllegalArgumentException("Event class " + event.getClass().getName() + " is not annotated with @EventClassifier");
+//         }
+//         var eventType = classifier.value();
         return ApplicationEventWrapper.builder()
             .timestamp(Instant.now())
             .actingUserId(userProvider.getCurrentUser().getUserId())
             .traceId(getTraceId())
-            .eventType(eventType)
+        // .eventType(eventType)
             .event(event)
             .build();
     }

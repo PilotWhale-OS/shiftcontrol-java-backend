@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -86,6 +87,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ShiftAssemblingMapper shiftMapper;
     private final SecurityHelper securityHelper;
     private final EventDao eventDao;
+    private final ApplicationEventPublisher publisher;
 
     private final SecureRandom secureRandom = new SecureRandom();
 

@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -27,6 +28,7 @@ import at.shiftcontrol.shiftservice.type.NotificationType;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public Set<NotificationSettingsDto> getNotificationsForUser(String userId) {

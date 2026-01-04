@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -30,6 +31,7 @@ public class ActivityServiceImpl implements ActivityService {
     private final EventDao eventDao;
     private final ActivityDao activityDao;
     private final LocationDao locationDao;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public ActivityDto getActivity(long activityId) throws NotFoundException {

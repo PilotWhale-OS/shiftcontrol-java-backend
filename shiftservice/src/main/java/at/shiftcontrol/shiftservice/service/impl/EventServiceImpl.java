@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -39,6 +40,7 @@ public class EventServiceImpl implements EventService {
     private final StatisticService statisticService;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public EventDto getEvent(long eventId) throws NotFoundException, ForbiddenException {
