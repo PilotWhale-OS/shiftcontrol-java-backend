@@ -7,7 +7,6 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -53,7 +52,7 @@ public class EventServiceImpl implements EventService {
         var currentUser = userProvider.getCurrentUser();
 
         // skip filtering for admin users
-        if (currentUser instanceof AdminUser) {
+        if (securityHelper.isUserAdmin(currentUser)) {
             return EventMapper.toEventDto(filteredEvents);
         }
         String userId = currentUser.getUserId();
@@ -142,8 +141,7 @@ public class EventServiceImpl implements EventService {
         var shiftPlans = event.getShiftPlans();
 
         // skip filtering for admin users
-        var currentUser = userProvider.getCurrentUser();
-        if (currentUser instanceof AdminUser) {
+        if (securityHelper.isUserAdmin()) {
             return shiftPlans.stream().toList();
         }
 

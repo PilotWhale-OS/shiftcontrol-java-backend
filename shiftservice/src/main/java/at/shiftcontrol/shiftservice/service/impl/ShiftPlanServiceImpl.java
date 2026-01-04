@@ -17,7 +17,6 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -475,8 +474,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             securityHelper.assertUserIsPlanner(shiftPlanId, currentUser);
         }
 
+        boolean isNotAdmin = securityHelper.isNotUserAdmin(currentUser);
+
         // only allowed by admins
-        if (type == ShiftPlanInviteType.PLANNER_JOIN && !(currentUser instanceof AdminUser)) {
+        if (type == ShiftPlanInviteType.PLANNER_JOIN && isNotAdmin) {
             throw new ForbiddenException("Only admins can create planner join invite codes");
         }
     }

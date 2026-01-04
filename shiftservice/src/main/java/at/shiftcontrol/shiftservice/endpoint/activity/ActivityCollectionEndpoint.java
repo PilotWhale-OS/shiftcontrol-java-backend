@@ -2,6 +2,19 @@ package at.shiftcontrol.shiftservice.endpoint.activity;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
+import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
+import at.shiftcontrol.shiftservice.service.ActivityService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,19 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
-import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
-import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
-import at.shiftcontrol.shiftservice.service.ActivityService;
 
 @Tag(
     name = "activity-endpoint"
@@ -33,13 +33,16 @@ import at.shiftcontrol.shiftservice.service.ActivityService;
 public class ActivityCollectionEndpoint {
     private final ActivityService activityService;
 
+    private final SecurityHelper securityHelper;
+
     @GetMapping()
     // TODO Security
     @Operation(
         operationId = "getActivitiesForEvent",
         description = "Get all activities for a specific event"
     )
-    public Collection<ActivityDto> getActivitiesForEvent(@PathVariable String eventId) throws NotFoundException {
+    public Collection<ActivityDto> getActivitiesForEvent(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
+        securityHelper.assertUserIsPlannerInAnyPlanOfEvent(eventId);
         return activityService.getActivitiesForEvent(ConvertUtil.idToLong(eventId));
     }
 
