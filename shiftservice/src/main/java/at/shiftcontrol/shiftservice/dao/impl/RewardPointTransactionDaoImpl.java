@@ -1,0 +1,55 @@
+package at.shiftcontrol.shiftservice.dao.impl;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
+import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
+import at.shiftcontrol.shiftservice.repo.RewardPointTransactionRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@RequiredArgsConstructor
+@Component
+public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao {
+
+    private final RewardPointTransactionRepository repo;
+
+    @Override
+    public Optional<RewardPointTransaction> findById(Long id) {
+        return repo.findById(id);
+    }
+
+    @Override
+    public RewardPointTransaction save(RewardPointTransaction entity) {
+        return repo.save(entity);
+    }
+
+    @Override
+    public Collection<RewardPointTransaction> saveAll(Collection<RewardPointTransaction> entities) {
+        return repo.saveAll(entities);
+    }
+
+    @Override
+    public void delete(RewardPointTransaction entity) {
+        // Ledger is append-only: deleting is not allowed by design.
+        throw new UnsupportedOperationException("RewardPointTransaction is append-only and cannot be deleted");
+    }
+
+    @Override
+    public long sumPointsByVolunteer(long volunteerId) {
+        return repo.sumPointsByVolunteer(volunteerId);
+    }
+
+    @Override
+    public long sumPointsByVolunteerAndEvent(long volunteerId, long eventId) {
+        return repo.sumPointsByVolunteerAndEvent(volunteerId, eventId);
+    }
+
+    @Override
+    public List<EventPointsDto> sumPointsGroupedByEvent(long volunteerId) {
+        return repo.sumPointsGroupedByEvent(volunteerId);
+    }
+}

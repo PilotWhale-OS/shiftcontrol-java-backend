@@ -56,6 +56,12 @@ public class PositionSlot {
     @Column(nullable = false)
     private int rewardPoints;
 
+    @Column(nullable = false)
+    private int currentRewardPoints;
+
+    @Column()
+    private Integer overrideRewardPoints;
+
     @Override
     public String toString() {
         return "PositionSlot{id=%d, shift=%d, role=%s, assignments=%s, desiredVolunteerCount=%d, rewardPoints=%d}"
