@@ -6,4 +6,6 @@ import at.shiftcontrol.shiftservice.entity.Shift;
 
 public interface RewardPointsCalculator {
     RewardPointsSnapshotDto calculateForAssignment(PositionSlot slot, Shift shift);
+
+    String calculatePointsConfigHash(PositionSlot slot, Shift shift);
 }

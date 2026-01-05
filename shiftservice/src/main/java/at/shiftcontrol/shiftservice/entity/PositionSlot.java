@@ -56,9 +56,6 @@ public class PositionSlot {
     @Column(nullable = false)
     private int rewardPoints;
 
-    @Column(nullable = false)
-    private int currentRewardPoints;
-
     @Column()
     private Integer overrideRewardPoints;
 

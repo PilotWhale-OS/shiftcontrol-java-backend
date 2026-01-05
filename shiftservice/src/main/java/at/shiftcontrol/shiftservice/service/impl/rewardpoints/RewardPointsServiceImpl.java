@@ -1,7 +1,8 @@
-package at.shiftcontrol.shiftservice.service.impl;
+package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
 import java.util.UUID;
 
+import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -26,9 +27,12 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @Transactional
-    public void onAssignmentCreated(@NonNull Assignment assignment, @NonNull PositionSlot slot, @NonNull Shift shift) {
-        RewardPointsSnapshotDto snapshot =
-            calculator.calculateForAssignment(slot, shift); // TODO calculation should not be done here
+    public void onAssignmentCreated(@NonNull Assignment assignment, @NonNull PositionSlot slot, @NonNull Shift shift,
+                                    @NonNull String acceptedRewardPointsHash) throws ConflictException {
+        validateHash(slot, shift, acceptedRewardPointsHash);
+
+        RewardPointsSnapshotDto snapshot = calculator.calculateForAssignment(slot, shift);
+
 
         // lock snapshot on assignment
         assignment.setAcceptedRewardPoints(snapshot.acceptedRewardPoints());
@@ -45,8 +49,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             snapshot.metadata()
         );
     }
-
-    // TODO Consider setting currentSlot points when creating/updating slot and when creating/updating shift bonus points and role ppm (or setting roles in general); ALso recalculate for overrideslot point
 
     private String sourceKeyJoin(long slotId, String volunteerId) {
         return "JOIN:" + slotId + ":" + volunteerId;
@@ -77,7 +79,8 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @Transactional
-    public void onAssignmentReassigned(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment, @NonNull PositionSlot slot, @NonNull Shift shift) {
+    public void onAssignmentReassigned(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment, @NonNull PositionSlot slot, @NonNull Shift shift,
+                                       @NonNull String acceptedRewardPointsHash) throws ConflictException {
         // reverse old assignment
         int oldPointsSnapshot = oldAssignment.getAcceptedRewardPoints();
 
@@ -97,9 +100,10 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             null
         );
 
+        validateHash(slot, shift, acceptedRewardPointsHash);
+
         // re-calculate + earn for new assignment
-        RewardPointsSnapshotDto newSnapshot =
-            calculator.calculateForAssignment(slot, shift); // TODO calculation should not be done here
+        RewardPointsSnapshotDto newSnapshot = calculator.calculateForAssignment(slot, shift);
 
         newAssignment.setAcceptedRewardPoints(newSnapshot.acceptedRewardPoints());
 
@@ -118,6 +122,14 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             earnKey,
             newSnapshot.metadata()
         );
+    }
+
+    private void validateHash(@NonNull PositionSlot slot, @NonNull Shift shift, @NonNull String acceptedRewardPointsHash) throws ConflictException {
+        String currentHash = calculator.calculatePointsConfigHash(slot, shift);
+
+        if (!currentHash.equals(acceptedRewardPointsHash)) {
+            throw new ConflictException("Reward points configuration has changed since volunteer accepted assignment");
+        }
     }
 
     private String sourceKeyReassignReversal(long slotId, String fromVolunteerId, String toVolunteerId) {

@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.impl;
+package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
@@ -10,6 +10,7 @@ import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -92,5 +93,22 @@ public class RewardPointsCalculatorImpl implements RewardPointsCalculator {
             throw new IllegalArgumentException("points overflow: " + res);
         }
         return (int) res;
+    }
+
+    @Override
+    public String calculatePointsConfigHash(PositionSlot slot, Shift shift) {
+        String data = String.join("|",
+            "slot=" + slot.getId(),
+            "shift=" + shift.getId(),
+            "override=" + slot.getOverrideRewardPoints(),
+            "role=" + (slot.getRole() != null ? slot.getRole().getId() : "none"),
+            "rolePpm=" + (slot.getRole() != null ? slot.getRole().getRewardPointsPerMinute() : "none"),
+            "shiftBonus=" + shift.getBonusRewardPoints(),
+            "start=" + shift.getStartTime().toEpochMilli(),
+            "end=" + shift.getEndTime().toEpochMilli(),
+            "defaultNoRolePpm=" + shift.getShiftPlan().getDefaultNoRolePointsPerMinute()
+        );
+
+        return DigestUtils.sha256Hex(data);
     }
 }
