@@ -162,90 +162,49 @@
                   <workingDirectory>${project.build.directory}</workingDirectory>
                 </configuration>
               </execution>
-              <!-- Generate C# from JSON Schemas using Modelina CLI via npx -->
-<!--              <execution>-->
-<!--                <id>generate-csharp-models</id>-->
-<!--                <phase>generate-sources</phase>-->
-<!--                <goals><goal>npx</goal></goals>-->
-<!--                <configuration>-->
-<!--                  <installDirectory>${project.build.directory}/node</installDirectory>-->
-<!--                  <arguments>-->
-<!--                    -y -p quicktype@23.2.6 quicktype-->
-<!--                    &#45;&#45;src-lang schema-->
-<!--                    &#45;&#45;lang csharp-->
-<!--                    &#45;&#45;no-combine-classes-->
-<!--                    &#45;&#45;no-date-times-->
-<!--                    &#45;&#45;namespace ShiftControl.Events-->
-<!--                    &#45;&#45;out "${project.build.directory}/CSharp/"-->
-<!--                    "${project.build.directory}/schemas/*"-->
-<!--                  </arguments>-->
-<!--                </configuration>-->
-<!--              </execution>-->
-
-
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
               <execution>
-                <id>npm-install-quicktype</id>
+                <id>quicktype-csharp</id>
                 <phase>generate-sources</phase>
-                <goals><goal>npm</goal></goals>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
                 <configuration>
-                  <installDirectory>${project.build.directory}/node</installDirectory>
-                  <workingDirectory>${project.build.directory}</workingDirectory>
+                  <executable>${project.build.directory}/node/node/node.exe</executable>
+<!--                  <executable>npx</executable>-->
                   <arguments>
-                    --cache "${project.build.directory}/npm-cache"
-                    install --no-fund --no-audit quicktype@23.2.6
-                  </arguments>
-                </configuration>
-              </execution>
+                    <argument>${project.build.directory}/node/node/node_modules/npm/bin/npm-cli.js</argument>
 
-              <execution>
-                <id>run-quicktype</id>
-                <phase>generate-sources</phase>
-                <goals><goal>npm</goal></goals>
-                <configuration>
-                  <installDirectory>${project.build.directory}/node</installDirectory>
-                  <workingDirectory>${project.build.directory}</workingDirectory>
-                  <arguments>
-                    exec -- quicktype
-                    --src-lang schema
-                    --lang csharp
-                    --no-combine-classes
-                    --no-date-times
-                    --namespace ShiftControl.Events
-                    --out "${project.build.directory}/CSharp/AssignmentSwitchEventV1.cs"
-                    "${project.build.directory}/schemas/assignment-switch-event.v1.schema.json"
+<!--                    <argument>&#45;&#45;cache</argument>-->
+<!--                    <argument>${project.build.directory}/npm-cache</argument>-->
+
+                    <argument>exec</argument>
+                    <argument>--package=quicktype@23.2.6</argument>
+                    <argument>--yes</argument>
+                    <argument>--</argument>
+
+                    <argument>quicktype</argument>
+                    <argument>--src-lang</argument><argument>schema</argument>
+                    <argument>--lang</argument><argument>csharp</argument>
+                    <argument>--framework</argument><argument>NewtonSoft</argument>
+                    <argument>--csharp-version</argument><argument>6</argument>
+                    <argument>--out</argument><argument>${project.build.directory}/EventClasses.cs</argument>
+<!--                    <argument>&#45;&#45;no-combine-classes</argument>-->
+<!--                    <argument>&#45;&#45;no-date-times</argument>-->
+                    <argument>--namespace</argument><argument>ShiftControl.Events</argument>
+                    <argument>${project.build.directory}/schemas/</argument>
                   </arguments>
+                  <workingDirectory>${project.build.directory}</workingDirectory>
                 </configuration>
               </execution>
             </executions>
           </plugin>
-
-<!--          <plugin>-->
-<!--            <groupId>org.codehaus.mojo</groupId>-->
-<!--            <artifactId>exec-maven-plugin</artifactId>-->
-<!--            <version>3.3.0</version>-->
-<!--            <executions>-->
-<!--              <execution>-->
-<!--                <id>gen-asyncapi-models-csharp</id>-->
-<!--                <phase>generate-sources</phase>-->
-<!--                <goals><goal>exec</goal></goals>-->
-<!--                <configuration>-->
-<!--                  <executable>npx</executable>-->
-<!--                  <arguments>-->
-<!--                    <argument>-y</argument>-->
-<!--                    <argument>@asyncapi/cli</argument>-->
-<!--                    <argument>generate</argument>-->
-<!--                    <argument>models</argument>-->
-<!--                    <argument>csharp</argument>-->
-<!--                    <argument>${project.basedir}/src/main/resources/asyncapi/asyncapi.yaml</argument>-->
-<!--                    <argument>-o</argument>-->
-<!--                    <argument>${project.basedir}/../notificationservice/Generated</argument>-->
-<!--                    <argument></argument>-->
-<!--                    <argument></argument>-->
-<!--                  </arguments>-->
-<!--                </configuration>-->
-<!--              </execution>-->
-<!--            </executions>-->
-<!--          </plugin>-->
         </plugins>
     </build>
 
