@@ -11,4 +11,6 @@ public interface AssignmentSwitchRequestDao extends  BasicDao<AssignmentSwitchRe
     Collection<AssignmentSwitchRequest> findOpenTradesForRequestedPositionAndOfferingUser(long positionSlotId, String userId);
 
     Collection<AssignmentSwitchRequest> findTradesForShiftPlanAndUser(long shiftPlanId, String userId);
+
+    void deleteTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId);
 }

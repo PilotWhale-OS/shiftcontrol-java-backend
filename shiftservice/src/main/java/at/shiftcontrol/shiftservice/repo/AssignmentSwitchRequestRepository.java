@@ -51,4 +51,11 @@ public interface AssignmentSwitchRequestRepository extends JpaRepository<Assignm
     """)
     Collection<AssignmentSwitchRequest> findTradesForShiftPlanAndUser(long shiftPlanId, String userId);
 
+    @Query("""
+        DELETE FROM AssignmentSwitchRequest a
+        WHERE a.offeringAssignment.positionSlot.id = :positionSlotId
+        AND a.requestedAssignment.assignedVolunteer.id = :userId
+    """)
+    void deleteTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId);
+
 }

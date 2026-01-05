@@ -71,39 +71,74 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
+        // get position slot and volunteer
+        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         securityHelper.assertUserIsVolunteer(positionSlot);
-
-        var volunteer = volunteerDao.findByUserId(currentUserId)
+        Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
+        // Todo implement
+
+        // check access to position slot
+        securityHelper.assertUserIsVolunteer(positionSlot);
+
+        // check if plan is locked
+        if (LockStatus.LOCKED.equals(positionSlot.getShift().getShiftPlan().getLockStatus())) {
+            throw new IllegalStateException("join not possible, shift plan is locked");
+        }
+
+        // check if eligible and conflicts
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
-        eligibilityService.validateHasConflictingAssignments(
-            currentUserId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
-        //Todo: Implement actual joining logic
+        eligibilityService.validateHasConflictingAssignments(currentUserId, positionSlot);
 
-        // TODO close trades where this slot was offered to me
+        // create assignment
+        Assignment assignment = Assignment.builder()
+            .id(AssignmentId.of(positionSlotId, currentUserId))
+            .assignedVolunteer(volunteer)
+            .positionSlot(positionSlot)
+            .status(AssignmentStatus.ACCEPTED)
+            .build();
 
+        // close trades where this slot was offered to current user
+        assignmentSwitchRequestDao.deleteTradesForOfferedPositionAndRequestedUser(positionSlotId, currentUserId);
+
+        // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
             Map.of("positionSlotId", String.valueOf(positionSlotId),
                 "volunteerId", currentUserId)),
             positionSlot, currentUserId));
-        return null;
+
+        // save and return
+        return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
     @Override
     @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws ForbiddenException, NotFoundException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
+        // get position slot and volunteer
+        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        var volunteer = volunteerDao.findByUserId(volunteerId)
+        Volunteer volunteer = volunteerDao.findByUserId(volunteerId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
-        //Todo: Checks are needed if the user can leave
+        // TODO implement
+        // check access to position slot
 
-        // no security check necessary, because user is already assigned to position
 
+        // check if assignment exists
+
+
+        // check if plan is locked
+
+
+        // delete involved trades
+
+
+        // leave
+
+
+        // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", volunteerId)),

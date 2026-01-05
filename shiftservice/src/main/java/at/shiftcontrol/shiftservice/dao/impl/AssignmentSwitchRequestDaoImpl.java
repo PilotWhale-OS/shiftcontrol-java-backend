@@ -52,4 +52,9 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     public Collection<AssignmentSwitchRequest> findTradesForShiftPlanAndUser(long shiftPlanId, String userId) {
         return assignmentSwitchRequestRepository.findTradesForShiftPlanAndUser(shiftPlanId, userId);
     }
+
+    @Override
+    public void deleteTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId) {
+        assignmentSwitchRequestRepository.deleteTradesForOfferedPositionAndRequestedUser(positionSlotId, userId);
+    }
 }

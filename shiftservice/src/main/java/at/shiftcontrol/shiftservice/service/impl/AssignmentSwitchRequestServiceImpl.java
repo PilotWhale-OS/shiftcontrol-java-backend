@@ -186,7 +186,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         // check if shifts are locked
         if (isPositionSlotLocked(requestedPositionSlot) || isPositionSlotLocked(offeredPositionSlot)) {
-            throw new IllegalStateException("trade not possible, shift is locked");
+            throw new IllegalStateException("trade not possible, shift plan is locked");
         }
 
         // check if eligible and for conflicts
@@ -375,6 +375,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private void executeTrade(AssignmentSwitchRequest trade) {
         Volunteer requestedAssignmentVolunteer = trade.getRequestedAssignment().getAssignedVolunteer();
         Volunteer offeringAssignmentVolunteer = trade.getOfferingAssignment().getAssignedVolunteer();
+        // TODO fix update params
         updateVolunteer(trade.getOfferingAssignment(), offeringAssignmentVolunteer);
         updateVolunteer(trade.getRequestedAssignment(), requestedAssignmentVolunteer);
         // in case an assignment was up for auction
