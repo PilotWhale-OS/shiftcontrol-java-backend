@@ -17,6 +17,8 @@ class AssignmentSwitchEventTest {
 
         AssignmentPart requestedAssignmentPart = mock(AssignmentPart.class);
         AssignmentPart offeringAssignmentPart = mock(AssignmentPart.class);
+        when(requestedAssignmentPart.getVolunteerId()).thenReturn("1");
+        when(offeringAssignmentPart.getVolunteerId()).thenReturn("2");
 
         try (var assignmentPartMock = org.mockito.Mockito.mockStatic(AssignmentPart.class)) {
             assignmentPartMock.when(() -> AssignmentPart.of(requestedAssignment)).thenReturn(requestedAssignmentPart);
@@ -31,11 +33,13 @@ class AssignmentSwitchEventTest {
 
     @Test
     void getRoutingKey() {
+        AssignmentPart requestedAssignmentPart = mock(AssignmentPart.class);
         AssignmentPart offeringAssignmentPart = mock(AssignmentPart.class);
-        when(offeringAssignmentPart.getVolunteerId()).thenReturn("1");
-        AssignmentSwitchEvent assignmentSwitchEvent = new AssignmentSwitchEvent(mock(AssignmentPart.class), offeringAssignmentPart);
+        when(requestedAssignmentPart.getVolunteerId()).thenReturn("1");
+        when(offeringAssignmentPart.getVolunteerId()).thenReturn("2");
+        AssignmentSwitchEvent assignmentSwitchEvent = new AssignmentSwitchEvent(requestedAssignmentPart, offeringAssignmentPart);
 
-        assertEquals("assignment.switch.completed.1", assignmentSwitchEvent.getRoutingKey());
+        assertEquals("assignment.switch.completed.1.2", assignmentSwitchEvent.getRoutingKey());
     }
 }
 
