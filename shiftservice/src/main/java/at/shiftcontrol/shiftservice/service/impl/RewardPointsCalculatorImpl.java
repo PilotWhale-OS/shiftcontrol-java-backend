@@ -1,0 +1,96 @@
+package at.shiftcontrol.shiftservice.service.impl;
+
+import at.shiftcontrol.lib.util.TimeUtil;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.entity.Shift;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class RewardPointsCalculatorImpl implements RewardPointsCalculator {
+
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public RewardPointsSnapshotDto calculateForAssignment(PositionSlot slot, Shift shift) {
+        if (slot == null) {
+            throw new IllegalArgumentException("slot must not be null");
+        }
+        if (shift == null) {
+            throw new IllegalArgumentException("shift must not be null");
+        }
+
+        int durationMinutes = Math.toIntExact(TimeUtil.calculateDurationInMinutesCeil(shift.getStartTime(), shift.getEndTime()));
+        int shiftBonus = shift.getBonusRewardPoints();
+
+        Integer fixedOverride = slot.getOverrideRewardPoints(); // nullable
+        Integer ppm = null;
+
+        int basePoints;
+        if (fixedOverride != null) {
+            basePoints = fixedOverride;
+        } else {
+            ppm = resolvePointsPerMinute(slot);
+            basePoints = multiplyPoints(durationMinutes, ppm);
+        }
+
+        int accepted = safeAdd(basePoints, shiftBonus);
+
+        ObjectNode meta = objectMapper.createObjectNode();
+        meta.put("durationMinutes", durationMinutes);
+        meta.put("slotFixedOverrideUsed", fixedOverride != null);
+        if (fixedOverride != null) {
+            meta.put("slotFixedPoints", fixedOverride);
+        } else {
+            meta.put("pointsPerMinute", ppm);
+        }
+        meta.put("basePoints", basePoints);
+        meta.put("shiftBonusPoints", shiftBonus);
+        meta.put("acceptedRewardPoints", accepted);
+
+        meta.put("positionSlotId", slot.getId());
+        meta.put("shiftId", shift.getId());
+
+        return new RewardPointsSnapshotDto(accepted, meta);
+    }
+
+    private int resolvePointsPerMinute(PositionSlot slot) {
+        Role role = slot.getRole(); // nullable
+        if (role != null) {
+            return role.getRewardPointsPerMinute();
+        }
+
+        ShiftPlan shiftPlan = slot.getShift().getShiftPlan();
+
+        return shiftPlan.getDefaultNoRolePointsPerMinute();
+    }
+
+    private int multiplyPoints(int minutes, int ppm) {
+        if (minutes < 0) {
+            throw new IllegalArgumentException("minutes must be >= 0");
+        }
+        if (ppm < 0) {
+            throw new IllegalArgumentException("ppm must be >= 0");
+        }
+        long res = (long) minutes * (long) ppm;
+        if (res > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("points overflow: " + res);
+        }
+        return (int) res;
+    }
+
+    private int safeAdd(int a, int b) {
+        long res = (long) a + (long) b;
+        if (res > Integer.MAX_VALUE || res < Integer.MIN_VALUE) {
+            throw new IllegalArgumentException("points overflow: " + res);
+        }
+        return (int) res;
+    }
+}

@@ -40,13 +40,13 @@ import lombok.Setter;
 public class RewardPointTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "volunteer_id", nullable = false)
-    private Long volunteerId;
+    private long volunteerId;
 
     @Column(name = "event_id", nullable = false)
-    private Long eventId;
+    private long eventId;
 
     @Column(name = "shift_plan_id")
     private Long shiftPlanId;
@@ -64,7 +64,7 @@ public class RewardPointTransaction {
     @Column(name = "source_key", nullable = false, length = 255)
     private String sourceKey;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 
     @Column(columnDefinition = "jsonb")
