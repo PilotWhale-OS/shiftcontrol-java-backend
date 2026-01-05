@@ -34,7 +34,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
 
         // lock snapshot on assignment
-        assignment.setAcceptedRewardPoints(snapshot.acceptedRewardPoints());
+        assignment.setAcceptedRewardPoints(snapshot.rewardPoints());
 
         String sourceKey = sourceKeyJoin(slot.getId(), assignment.getAssignedVolunteer().getId());
 
@@ -43,7 +43,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             slot.getShift().getShiftPlan().getEvent().getId(),
             slot.getShift().getShiftPlan().getId(),
             slot.getId(),
-            snapshot.acceptedRewardPoints(),
+            snapshot.rewardPoints(),
             sourceKey,
             snapshot.metadata()
         );
@@ -106,7 +106,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
         // re-calculate + earn for new assignment
         RewardPointsSnapshotDto newSnapshot = calculator.calculateForAssignment(slot);
 
-        newAssignment.setAcceptedRewardPoints(newSnapshot.acceptedRewardPoints());
+        newAssignment.setAcceptedRewardPoints(newSnapshot.rewardPoints());
 
         String earnKey = sourceKeyReassignEarn(
             slot.getId(),
@@ -119,7 +119,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             slot.getShift().getShiftPlan().getEvent().getId(),
             slot.getShift().getShiftPlan().getId(),
             slot.getId(),
-            newSnapshot.acceptedRewardPoints(),
+            newSnapshot.rewardPoints(),
             earnKey,
             newSnapshot.metadata()
         );

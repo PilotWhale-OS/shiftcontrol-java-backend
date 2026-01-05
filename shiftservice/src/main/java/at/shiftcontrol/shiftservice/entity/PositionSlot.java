@@ -52,10 +52,6 @@ public class PositionSlot {
     @Column(nullable = false)
     private int desiredVolunteerCount;
 
-    @NotNull
-    @Column(nullable = false)
-    private int rewardPoints; // TODO remove
-
     @Column()
     private Integer overrideRewardPoints;
 

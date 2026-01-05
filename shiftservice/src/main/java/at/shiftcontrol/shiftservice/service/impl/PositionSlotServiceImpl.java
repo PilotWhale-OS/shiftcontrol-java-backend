@@ -305,7 +305,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             positionSlot.setRole(null);
         }
         positionSlot.setDesiredVolunteerCount(modificationDto.getDesiredVolunteerCount());
-        positionSlot.setRewardPoints(modificationDto.getRewardPoints());
+        positionSlot.setOverrideRewardPoints(modificationDto.getOverrideRewardPoints());
     }
 
     @Override

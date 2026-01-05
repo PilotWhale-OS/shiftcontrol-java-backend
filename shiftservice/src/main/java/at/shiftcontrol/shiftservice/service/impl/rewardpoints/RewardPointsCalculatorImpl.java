@@ -93,7 +93,7 @@ public class RewardPointsCalculatorImpl implements RewardPointsCalculator {
     @Override
     public String calculatePointsConfigHash(PositionSlot slot) {
         var shift = slot.getShift();
-        
+
         String data = String.join("|",
             "slot=" + slot.getId(),
             "shift=" + shift.getId(),
