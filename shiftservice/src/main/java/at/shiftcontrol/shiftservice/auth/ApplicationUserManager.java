@@ -43,10 +43,11 @@ public class ApplicationUserManager {
 
     private ShiftControlUser getOrCreateUserInternal(String userId, UserType userType, String username) {
         var user = (ShiftControlUser) userCache.getIfPresent(userId);
-        if (user != null) {
-            return user;
+        if (user == null) {
+            user = ApplicationUserFactory.createUser(userType, username, userId, userAttributeProvider);
+            userCache.put(userId, user);
         }
 
-        return ApplicationUserFactory.createUser(userType, username, userId, userAttributeProvider);
+        return user;
     }
 }
