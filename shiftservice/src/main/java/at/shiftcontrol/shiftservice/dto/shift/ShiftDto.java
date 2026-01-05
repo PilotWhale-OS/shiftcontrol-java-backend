@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.type.LockStatus;
 
 @Data
 @NoArgsConstructor
@@ -49,4 +50,7 @@ public class ShiftDto {
     @NotNull
     @Valid
     private LocationDto location;
+
+    @NotNull
+    private LockStatus lockStatus;
 }

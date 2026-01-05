@@ -91,7 +91,8 @@ public class PositionSlotAssemblingMapper {
             positionSignupState,
             TradeMapper.toTradeInfoDto(tradesForUser),
             assignmentsDtos,
-            preferenceValue);
+            preferenceValue,
+            positionSlot.getShift().getShiftPlan().getLockStatus());
     }
 
     public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {

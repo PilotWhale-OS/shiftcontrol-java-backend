@@ -16,7 +16,9 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
+import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
+
 
 @Data
 @NoArgsConstructor
@@ -81,4 +83,7 @@ public class PositionSlotDto {
     @Min(-10)
     @Max(10)
     private int preferenceValue;
+
+    @NotNull
+    private LockStatus lockStatus;
 }

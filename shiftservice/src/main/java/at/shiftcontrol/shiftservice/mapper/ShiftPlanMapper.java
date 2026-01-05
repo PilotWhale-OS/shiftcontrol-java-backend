@@ -17,6 +17,7 @@ public class ShiftPlanMapper {
             .name(shiftPlan.getName())
             .shortDescription(shiftPlan.getShortDescription())
             .longDescription(shiftPlan.getLongDescription())
+            .lockStatus(shiftPlan.getLockStatus())
             .build();
     }
 
