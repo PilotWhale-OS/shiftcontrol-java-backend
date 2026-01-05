@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dto.role;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -21,4 +22,8 @@ public class RoleModificationDto {
 
     @NotNull
     private boolean selfAssignable;
+
+    @NotNull
+    @Min(0)
+    private int rewardPointsPerMinute;
 }

@@ -3,11 +3,10 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.List;
 
-import lombok.NoArgsConstructor;
-
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class ShiftPlanMapper {
@@ -17,6 +16,7 @@ public class ShiftPlanMapper {
             .name(shiftPlan.getName())
             .shortDescription(shiftPlan.getShortDescription())
             .longDescription(shiftPlan.getLongDescription())
+            .defaultNoRolePointsPerMinute(shiftPlan.getDefaultNoRolePointsPerMinute())
             .build();
     }
 
@@ -27,7 +27,7 @@ public class ShiftPlanMapper {
     }
 
     public static ShiftPlan toShiftPlan(ShiftPlanModificationDto shiftPlan) {
-        var plan = new  ShiftPlan();
+        var plan = new ShiftPlan();
         updateShiftPlan(shiftPlan, plan);
         return plan;
     }
@@ -36,5 +36,6 @@ public class ShiftPlanMapper {
         shiftPlan.setName(shiftPlanDto.getName());
         shiftPlan.setShortDescription(shiftPlanDto.getShortDescription());
         shiftPlan.setLongDescription(shiftPlanDto.getLongDescription());
+        shiftPlan.setDefaultNoRolePointsPerMinute(shiftPlanDto.getDefaultNoRolePointsPerMinute());
     }
 }

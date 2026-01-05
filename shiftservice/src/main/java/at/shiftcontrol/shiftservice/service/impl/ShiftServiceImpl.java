@@ -94,6 +94,7 @@ public class ShiftServiceImpl implements ShiftService {
         shift.setLongDescription(modificationDto.getLongDescription());
         shift.setStartTime(modificationDto.getStartTime());
         shift.setEndTime(modificationDto.getEndTime());
+        shift.setBonusRewardPoints(modificationDto.getBonusRewardPoints());
         if (StringUtils.isNotBlank(modificationDto.getActivityId())) {
             var activity = activityDao.findById(ConvertUtil.idToLong(modificationDto.getActivityId()))
                 .orElseThrow(() -> new NotFoundException("Activity not found"));

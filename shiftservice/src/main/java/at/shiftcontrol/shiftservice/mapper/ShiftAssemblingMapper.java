@@ -35,7 +35,8 @@ public class ShiftAssemblingMapper {
             shift.getEndTime(),
             relatedActivity == null ? null : ActivityMapper.toActivityDto(relatedActivity),
             positionSlots,
-            LocationMapper.toLocationDto(shift.getLocation())
+            LocationMapper.toLocationDto(shift.getLocation()),
+            shift.getBonusRewardPoints()
         );
     }
 }
