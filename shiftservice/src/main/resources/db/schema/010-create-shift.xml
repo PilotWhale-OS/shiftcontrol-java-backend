@@ -44,6 +44,10 @@
                 <constraints nullable="true" foreignKeyName="fk_shift_location_ref" references="location(id)"/>
             </column>
 
+            <column name="bonus_reward_points" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
         </createTable>
 
     </changeSet>

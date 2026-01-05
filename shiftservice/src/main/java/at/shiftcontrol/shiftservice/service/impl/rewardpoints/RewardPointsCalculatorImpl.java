@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RewardPointsCalculatorImpl implements RewardPointsCalculator {
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public RewardPointsSnapshotDto calculateForAssignment(@NonNull PositionSlot slot) {

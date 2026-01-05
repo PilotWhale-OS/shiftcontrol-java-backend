@@ -91,8 +91,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException, NotFoundException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
 
         //Todo: Checks are needed if the user can leave
 
