@@ -208,15 +208,24 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         newAssignment.setStatus(AssignmentStatus.ACCEPTED);
         newAssignment.setAssignedVolunteer(newVolunteer);
 
+        // Update PositionSlot assignments
+        PositionSlot slot = newAssignment.getPositionSlot();
+        if (slot.getAssignments() != null) {
+            slot.getAssignments().remove(oldAssignment);
+            slot.getAssignments().add(newAssignment);
+        }
+
         assignmentDao.save(newAssignment);
 
         // Reassign dependent switch requests
-        newAssignment.getIncomingSwitchRequests()
-            .forEach(req -> req.setRequestedAssignment(newAssignment));
-        newAssignment.getOutgoingSwitchRequests()
-            .forEach(req -> req.setOfferingAssignment(newAssignment));
-        assignmentSwitchRequestDao.saveAll(oldAssignment.getIncomingSwitchRequests());
-        assignmentSwitchRequestDao.saveAll(oldAssignment.getOutgoingSwitchRequests());
+        var incoming = oldAssignment.getIncomingSwitchRequests();
+        incoming.forEach(req -> req.setRequestedAssignment(newAssignment));
+
+        var outgoing = oldAssignment.getOutgoingSwitchRequests();
+        outgoing.forEach(req -> req.setOfferingAssignment(newAssignment));
+
+        assignmentSwitchRequestDao.saveAll(incoming);
+        assignmentSwitchRequestDao.saveAll(outgoing);
 
         // Delete old assignment
         assignmentDao.delete(oldAssignment);

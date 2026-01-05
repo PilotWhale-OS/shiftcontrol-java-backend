@@ -6,17 +6,25 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
+import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
+import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
+import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
@@ -31,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class PositionSlotIT extends RestITBase {
     private static final String POSITIONSLOT_PATH = "/position-slots";
     private static final String SHIFT_POSITIONSLOT_PATH = "shifts/%d/position-slots";
+    private static final String REWARDPOINTS_PATH = "/me/reward-points";
 
     @Autowired
     PositionSlotRepository positionSlotRepository;
@@ -47,13 +56,18 @@ class PositionSlotIT extends RestITBase {
     @Autowired
     VolunteerRepository volunteerRepository;
 
+    @Autowired
+    AssignmentRepository assignmentRepository;
+
     private Event eventA;
     private ShiftPlan shiftPlanA;
     private Shift shiftA, shiftB;
 
-    private Volunteer volunteerA;
+    private Volunteer volunteerA, volunteerB;
 
     private PositionSlot positionSlotA, positionSlotB;
+
+    private Assignment assignmentA;
 
     @BeforeEach
     void setUp() {
@@ -62,12 +76,14 @@ class PositionSlotIT extends RestITBase {
         shiftPlanRepository.deleteAll();
         eventRepository.deleteAll();
         volunteerRepository.deleteAll();
+        assignmentRepository.deleteAll();
 
         createEvents();
         createShiftPlans();
         createShifts();
         createPositionSlots();
         createVolunteers();
+        createAssignments();
     }
 
     private void createEvents() {
@@ -92,7 +108,7 @@ class PositionSlotIT extends RestITBase {
         shiftPlanA = ShiftPlan.builder()
             .name("ShiftPlanA")
             .event(eventA)
-            .lockStatus(LockStatus.SELF_SIGNUP)
+            .lockStatus(LockStatus.SUPERVISED)
             .defaultNoRolePointsPerMinute(1)
             .build();
 
@@ -178,26 +194,56 @@ class PositionSlotIT extends RestITBase {
     }
 
     private void createVolunteers() {
+        var volunteers = new ArrayList<Volunteer>();
         volunteerA = Volunteer.builder()
-            .id("123456789")
+            .id("11111")
             .volunteeringPlans(Set.of(shiftPlanA))
             .build();
+        volunteers.add(volunteerA);
 
-        volunteerRepository.save(volunteerA);
+        volunteerB = Volunteer.builder()
+            .id("22222")
+            .volunteeringPlans(Set.of(shiftPlanA))
+            .build();
+        volunteers.add(volunteerB);
 
+        volunteerRepository.saveAll(volunteers);
         assertAll(
             () -> assertThat(volunteerA.getId()).isNotNull(),
+            () -> assertThat(volunteerB.getId()).isNotNull(),
             () -> assertThat(volunteerA.getVolunteeringPlans()).contains(shiftPlanA),
-            () -> assertThat(volunteerRepository.existsById(ConvertUtil.idToLong(volunteerA.getId()))).isTrue()
+            () -> assertThat(volunteerB.getVolunteeringPlans()).contains(shiftPlanA),
+            () -> assertThat(volunteerRepository.existsById(ConvertUtil.idToLong(volunteerA.getId()))).isTrue(),
+            () -> assertThat(volunteerRepository.existsById(ConvertUtil.idToLong(volunteerB.getId()))).isTrue()
+        );
+    }
+
+    private void createAssignments() {
+        assignmentA = Assignment.builder()
+            .id(new AssignmentId(positionSlotA.getId(), volunteerA.getId()))
+            .positionSlot(positionSlotA)
+            .assignedVolunteer(volunteerA)
+            .status(AssignmentStatus.ACCEPTED)
+            .acceptedRewardPoints(40)
+            .build();
+
+        assignmentRepository.save(assignmentA);
+
+        assertAll(
+            () -> assertThat(assignmentA.getId()).isNotNull(),
+            () -> assertThat(assignmentA.getPositionSlot()).isEqualTo(positionSlotA),
+            () -> assertThat(assignmentA.getAssignedVolunteer()).isEqualTo(volunteerA),
+            () -> assertThat(assignmentA.getStatus()).isEqualTo(AssignmentStatus.ACCEPTED)
         );
     }
 
     @AfterEach
     void tearDown() {
+        assignmentRepository.deleteAll();
+        positionSlotRepository.deleteAll();
         eventRepository.deleteAll();
         shiftPlanRepository.deleteAll();
         shiftRepository.deleteAll();
-        positionSlotRepository.deleteAll();
         volunteerRepository.deleteAll();
     }
 
@@ -208,16 +254,101 @@ class PositionSlotIT extends RestITBase {
 
     @Test
     void findPositionSlotByIdReturnsPositionSlot() {
-        var response = getRequestAsAssigned(POSITIONSLOT_PATH + "/" + positionSlotA.getId(), PositionSlot.class, volunteerA.getId());
+        var response = getRequestAsAssigned(POSITIONSLOT_PATH + "/" + positionSlotA.getId(), PositionSlotDto.class, volunteerA.getId());
 
         assertAll(
             () -> assertThat(response).isNotNull(),
-            () -> assertThat(response.getId()).isEqualTo(positionSlotA.getId()),
+            () -> assertThat(response.getId()).isEqualTo(String.valueOf(positionSlotA.getId())),
             () -> assertThat(response.getName()).isEqualTo(positionSlotA.getName()),
             () -> assertThat(response.getDescription()).isEqualTo(positionSlotA.getDescription()),
             () -> assertThat(response.getDesiredVolunteerCount()).isEqualTo(positionSlotA.getDesiredVolunteerCount()),
             () -> assertThat(response.isSkipAutoAssignment()).isEqualTo(positionSlotA.isSkipAutoAssignment()),
-            () -> assertThat(response.getOverrideRewardPoints()).isEqualTo(positionSlotA.getOverrideRewardPoints())
+            () -> assertThat(response.getRewardPointsDto().getOverrideRewardPoints()).isNull(),
+            () -> assertThat(response.getRewardPointsDto().getCurrentRewardPoints()).isEqualTo(10 * 60),
+            () -> assertThat(response.getRewardPointsDto().getRewardPointsConfigHash()).isNotBlank()
+        );
+    }
+
+    @Test
+    void auctionAssignmentForPositionSlotInSupervisedShiftPlanWorks() {
+        var response = postRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotA.getId() + "/auction",
+            "",
+            AssignmentDto.class,
+            volunteerA.getId()
+        );
+
+        assertAll(
+            () -> assertThat(response).isNotNull(),
+            () -> assertThat(response.getPositionSlotId()).isEqualTo(String.valueOf(positionSlotA.getId())),
+            () -> assertThat(response.getAssignedVolunteer().getId()).isEqualTo(volunteerA.getId()),
+            () -> assertThat(response.getStatus()).isEqualTo(AssignmentStatus.AUCTION),
+            () -> assertThat(response.getAcceptedRewardPoints()).isEqualTo(40) // unchanged from existing assignment
+        );
+    }
+
+    @Test
+    void claimAuctionForPositionSlotInSupervisedShiftPlanWorks() {
+        // get me endpoint reward points before auction/claim
+        var rewardPointsBeforeUserA = getRequestAsAssigned(
+            REWARDPOINTS_PATH,
+            TotalPointsDto.class,
+            volunteerA.getId()
+        );
+
+        var rewardPointsBeforeUserB = getRequestAsAssigned(
+            REWARDPOINTS_PATH,
+            TotalPointsDto.class,
+            volunteerB.getId()
+        );
+
+        // First put assignment up for auction as volunteerA
+        postRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotA.getId() + "/auction",
+            "",
+            AssignmentDto.class,
+            volunteerA.getId()
+        );
+
+        // user wants to see current position slot to know its details/reward points
+        var positionSlotBeforeClaim = getRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotA.getId(),
+            PositionSlotDto.class,
+            volunteerB.getId()
+        );
+
+        // Then claim the auction as volunteerB
+        var response = postRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotA.getId() + "/claim-auction/" + volunteerA.getId(),
+            new PositionSlotRequestDto(positionSlotBeforeClaim.getRewardPointsDto().getRewardPointsConfigHash()),
+            AssignmentDto.class,
+            volunteerB.getId()
+        );
+
+        var rewardPointsAfterUserA = getRequestAsAssigned(
+            REWARDPOINTS_PATH,
+            TotalPointsDto.class,
+            volunteerA.getId()
+        );
+
+        var rewardPointsAfterUserB = getRequestAsAssigned(
+            REWARDPOINTS_PATH,
+            TotalPointsDto.class,
+            volunteerB.getId()
+        );
+
+        // TODO also check here if assigments list of position slot of assigment has correct entries (old removed, new added)
+        assertAll(
+            () -> assertThat(response).isNotNull(),
+            () -> assertThat(response.getPositionSlotId()).isEqualTo(String.valueOf(positionSlotA.getId())),
+            () -> assertThat(response.getAssignedVolunteer().getId()).isEqualTo(volunteerB.getId()),
+            () -> assertThat(response.getStatus()).isEqualTo(AssignmentStatus.ACCEPTED),
+            () -> assertThat(response.getAcceptedRewardPoints()).isEqualTo(10 * 60), // recalculated for new volunteer
+            () -> assertThat(rewardPointsAfterUserA).isNotEqualTo(rewardPointsBeforeUserA),
+            () -> assertThat(rewardPointsAfterUserA.getTotalPoints()).isEqualTo(
+                rewardPointsBeforeUserA.getTotalPoints() - assignmentA.getAcceptedRewardPoints()),
+            () -> assertThat(rewardPointsAfterUserB).isNotEqualTo(rewardPointsBeforeUserB),
+            () -> assertThat(rewardPointsAfterUserB.getTotalPoints()).isEqualTo(rewardPointsBeforeUserB.getTotalPoints() + (10 * 60))
         );
     }
 

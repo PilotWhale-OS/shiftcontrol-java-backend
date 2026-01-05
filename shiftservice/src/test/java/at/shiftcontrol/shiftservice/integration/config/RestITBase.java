@@ -143,16 +143,16 @@ public abstract class RestITBase {
         return this.doRequestList(Method.GET, uri, "", params, 200, expectedObject);
     }
 
-    public <T> T putRequest(final String uri, final Object body, final Class<T> expectedObject) {
-        return doRequest(Method.PUT, uri, body, 200, expectedObject);
+    public <T> T putRequestAsAssigned(final String uri, final Object body, final Class<T> expectedObject, String userId) {
+        return doRequest(Method.PUT, uri, body, new HashMap<>(), asAssignedHeaders(userId), 200, expectedObject);
     }
 
     public <T> T putRequestAsAdmin(String uri, Object body, Class<T> expected) {
         return doRequest(Method.PUT, uri, body, new HashMap<>(), asAdminHeaders(), 200, expected);
     }
 
-    public <T> T postRequest(final String uri, final Object body, final Class<T> expectedObject) {
-        return doRequest(Method.POST, uri, body, 200, expectedObject);
+    public <T> T postRequestAsAssigned(final String uri, final Object body, final Class<T> expectedObject, String userId) {
+        return doRequest(Method.POST, uri, body, new HashMap<>(), asAssignedHeaders(userId), 200, expectedObject);
     }
 
     public <T> T postRequestAsAdmin(String uri, Object body, Class<T> expected) {
