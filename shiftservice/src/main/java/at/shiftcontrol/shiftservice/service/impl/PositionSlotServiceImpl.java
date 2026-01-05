@@ -85,7 +85,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // TODO close trades where this slot was offered to me
 
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_JOINED,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
             Map.of("positionSlotId", String.valueOf(positionSlotId),
                 "volunteerId", volunteerId)),
             positionSlot, volunteerId));
@@ -104,7 +104,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // no security check necessary, because user is already assigned to position
 
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_LEFT,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId));
@@ -143,7 +143,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
 
         publisher.publishEvent(AssignmentEvent.of(assignment,
-            RoutingKeys.formatStrict(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId)))));
+            RoutingKeys.format(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId)))));
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
@@ -183,7 +183,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
 
         publisher.publishEvent(AssignmentEvent.of(claimedAuction,
-            RoutingKeys.formatStrict(RoutingKeys.AUCTION_CLAIMED, Map.of(
+            RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
                 "positionSlotId", String.valueOf(positionSlotId),
                 "volunteerId", currentUserId))));
         return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
@@ -205,7 +205,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignment = assignmentDao.save(assignment);
 
         publisher.publishEvent(AssignmentEvent.of(assignment,
-            RoutingKeys.formatStrict(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId)))));
+            RoutingKeys.format(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId)))));
         return AssignmentMapper.toDto(assignment);
     }
 
@@ -255,7 +255,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         positionSlotDao.setPreference(currentUserId, positionSlotId, preference);
 
-        publisher.publishEvent(PreferenceEvent.of(RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
+        publisher.publishEvent(PreferenceEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
             Map.of("positionSlotId", String.valueOf(positionSlotId),
                 "volunteerId", currentUserId)), currentUserId, preference, positionSlot));
     }
@@ -300,7 +300,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         positionSlot = positionSlotDao.save(positionSlot);
 
-        publisher.publishEvent(PositionSlotEvent.of(positionSlot, RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_UPDATED,
+        publisher.publishEvent(PositionSlotEvent.of(positionSlot, RoutingKeys.format(RoutingKeys.POSITIONSLOT_UPDATED,
             Map.of("positionSlotId", String.valueOf(positionSlotId)))));
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
@@ -333,7 +333,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         securityHelper.assertUserIsPlanner(positionSlot);
 
         positionSlotDao.delete(positionSlot);
-        publisher.publishEvent(PositionSlotEvent.of(positionSlot, RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_DELETED,
+        publisher.publishEvent(PositionSlotEvent.of(positionSlot, RoutingKeys.format(RoutingKeys.POSITIONSLOT_DELETED,
             Map.of("positionSlotId", String.valueOf(positionSlotId)))));
     }
 }

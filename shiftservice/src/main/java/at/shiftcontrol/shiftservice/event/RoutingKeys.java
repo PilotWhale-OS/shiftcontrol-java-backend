@@ -19,9 +19,6 @@ public final class RoutingKeys {
     public static final String TRADE_REQUEST_DECLINED = "trade.request.declined.{requestedVolunteerId}.{offeringVolunteerId}";
     public static final String TRADE_REQUEST_CANCELED = "trade.request.canceled.{requestedVolunteerId}.{offeringVolunteerId}";
 
-    //Todo: Not yet found in code?
-    public static final String TRADE_REQUEST_ACCEPTED = "trade.request.accepted.{requestedVolunteerId}.{offeringVolunteerId}";
-
     public static final String EVENT_CREATED = "event.created";
     public static final String EVENT_UPDATED = "event.updated.{eventId}";
     public static final String EVENT_DELETED = "event.deleted.{eventId}";
@@ -71,9 +68,9 @@ public final class RoutingKeys {
     public static final String VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED = "volunteer.notification.preference.updated.{volunteerId}";
 
 
-    public static @NonNull String formatStrict(@NonNull String template, @NonNull Map<String, ?> values) {
+    public static @NonNull String format(@NonNull String template, @NonNull Map<String, ?> values) {
         var m = PLACEHOLDER.matcher(template);
-        var sb = new StringBuffer();
+        var sb = new StringBuilder(template.length());
 
         while (m.find()) {
             String key = m.group(1);

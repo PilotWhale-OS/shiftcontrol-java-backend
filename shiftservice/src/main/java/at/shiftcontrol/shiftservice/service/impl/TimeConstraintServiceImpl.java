@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Optional;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
@@ -33,9 +31,6 @@ import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -117,7 +112,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
         timeConstraintDao.delete(timeConstraint);
 
-        publisher.publishEvent(TimeConstraintEvent.of(timeConstraint, RoutingKeys.formatStrict(RoutingKeys.TIMECONSTRAINT_DELETED,
+        publisher.publishEvent(TimeConstraintEvent.of(timeConstraint, RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
             Map.of("timeConstraintId", String.valueOf(timeConstraintId)))));
     }
 

@@ -76,7 +76,7 @@ public class ShiftServiceImpl implements ShiftService {
 
         shift = shiftDao.save(shift);
 
-        publisher.publishEvent(ShiftEvent.of(shift, RoutingKeys.formatStrict(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shiftId)))));
+        publisher.publishEvent(ShiftEvent.of(shift, RoutingKeys.format(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shiftId)))));
         return shiftAssemblingMapper.assemble(shift);
     }
 
@@ -137,6 +137,6 @@ public class ShiftServiceImpl implements ShiftService {
         securityHelper.assertUserIsPlanner(shift);
 
         shiftDao.delete(shift);
-        publisher.publishEvent(ShiftEvent.of(shift, RoutingKeys.formatStrict(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shiftId)))));
+        publisher.publishEvent(ShiftEvent.of(shift, RoutingKeys.format(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shiftId)))));
     }
 }

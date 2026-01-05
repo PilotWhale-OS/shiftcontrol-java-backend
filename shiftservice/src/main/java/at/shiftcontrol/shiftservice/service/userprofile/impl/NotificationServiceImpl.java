@@ -98,7 +98,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         var settings = fetchPersistedSettings(userId, type);
 
-        publisher.publishEvent(NotificationSettingsEvent.of(RoutingKeys.formatStrict(RoutingKeys.VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED,
+        publisher.publishEvent(NotificationSettingsEvent.of(RoutingKeys.format(RoutingKeys.VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED,
             Map.of("volunteerId", userId)),
             userId, settings));
         return settings;

@@ -10,6 +10,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -40,10 +46,6 @@ import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -219,7 +221,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         trades = assignmentSwitchRequestDao.saveAll(trades);
 
         trades.forEach(trade -> publisher.publishEvent(TradeEvent.of(trade,
-            RoutingKeys.formatStrict(RoutingKeys.TRADE_REQUEST_CREATED,
+            RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
                 Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                        "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())))));
         return TradeMapper.toDto(trades);
@@ -296,7 +298,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         trade = assignmentSwitchRequestDao.save(trade);
         publisher.publishEvent(TradeEvent.of(trade,
-            RoutingKeys.formatStrict(RoutingKeys.TRADE_REQUEST_DECLINED,
+            RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
                 Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                     "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId()))));
         return TradeMapper.toDto(trade);
@@ -319,7 +321,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         trade = assignmentSwitchRequestDao.save(trade);
         publisher.publishEvent(TradeEvent.of(trade,
-            RoutingKeys.formatStrict(RoutingKeys.TRADE_REQUEST_CANCELED,
+            RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CANCELED,
                 Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                     "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId()))));
         return TradeMapper.toDto(trade);

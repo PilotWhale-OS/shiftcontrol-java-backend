@@ -83,7 +83,7 @@ public class LocationServiceImpl implements LocationService {
 
         location = locationDao.save(location);
 
-        publisher.publishEvent(LocationEvent.of(location, RoutingKeys.formatStrict(RoutingKeys.LOCATION_UPDATED,
+        publisher.publishEvent(LocationEvent.of(location, RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
             Map.of("locationId", String.valueOf(locationId)))));
         return LocationMapper.toLocationDto(location);
     }
@@ -99,7 +99,7 @@ public class LocationServiceImpl implements LocationService {
 
         locationDao.delete(location);
 
-        publisher.publishEvent(LocationEvent.of(location, RoutingKeys.formatStrict(RoutingKeys.LOCATION_DELETED,
+        publisher.publishEvent(LocationEvent.of(location, RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
             Map.of("locationId", String.valueOf(locationId)))));
     }
 

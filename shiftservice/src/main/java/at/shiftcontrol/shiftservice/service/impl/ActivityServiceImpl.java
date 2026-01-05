@@ -30,10 +30,6 @@ import at.shiftcontrol.shiftservice.event.events.ActivityEvent;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -93,7 +89,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.formatStrict(RoutingKeys.ACTIVITY_UPDATED,
+        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.format(RoutingKeys.ACTIVITY_UPDATED,
             Map.of("activityId", String.valueOf(activityId)))));
         return ActivityMapper.toActivityDto(activity);
     }
@@ -128,7 +124,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activityDao.delete(activity);
 
-        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.formatStrict(RoutingKeys.ACTIVITY_DELETED,
+        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.format(RoutingKeys.ACTIVITY_DELETED,
             Map.of("activityId", String.valueOf(activityId)))));
     }
 

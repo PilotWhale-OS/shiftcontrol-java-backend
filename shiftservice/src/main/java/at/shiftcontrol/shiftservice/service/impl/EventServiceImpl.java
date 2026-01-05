@@ -131,7 +131,7 @@ public class EventServiceImpl implements EventService {
         EventMapper.updateEvent(event, modificationDto);
         eventDao.save(event);
 
-        publisher.publishEvent(EventEvent.of(event, RoutingKeys.formatStrict(RoutingKeys.EVENT_UPDATED, Map.of("eventId", String.valueOf(eventId)))));
+        publisher.publishEvent(EventEvent.of(event, RoutingKeys.format(RoutingKeys.EVENT_UPDATED, Map.of("eventId", String.valueOf(eventId)))));
         return EventMapper.toEventDto(event);
     }
 
@@ -146,7 +146,7 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(long eventId) throws NotFoundException {
         var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
 
-        publisher.publishEvent(EventEvent.of(event, RoutingKeys.formatStrict(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(eventId)))));
+        publisher.publishEvent(EventEvent.of(event, RoutingKeys.format(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(eventId)))));
         eventDao.delete(event);
     }
 

@@ -50,7 +50,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
 
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_REQUEST_ACCEPTED,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_ACCEPTED,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", userId)),
             assignment.getPositionSlot(), userId));
@@ -67,7 +67,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
 
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.formatStrict(RoutingKeys.POSITIONSLOT_REQUEST_DECLINED,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_DECLINED,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", userId)),
             assignment.getPositionSlot(), userId));
