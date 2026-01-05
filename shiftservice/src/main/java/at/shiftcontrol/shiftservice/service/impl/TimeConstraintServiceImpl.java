@@ -113,7 +113,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         timeConstraintDao.delete(timeConstraint);
 
         publisher.publishEvent(TimeConstraintEvent.of(timeConstraint, RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
-            Map.of("timeConstraintId", String.valueOf(timeConstraintId)))));
+            Map.of("timeConstraintId", String.valueOf(timeConstraintId), "volunteerId", timeConstraint.getVolunteer().getId()))));
     }
 
     static void checkForConstraintOverlaps(@NonNull TimeConstraintCreateDto createDto,
