@@ -54,7 +54,7 @@ public class PositionSlot {
 
     @NotNull
     @Column(nullable = false)
-    private int rewardPoints;
+    private int rewardPoints; // TODO remove
 
     @Column()
     private Integer overrideRewardPoints;

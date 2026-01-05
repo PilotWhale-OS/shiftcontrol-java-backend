@@ -3,12 +3,12 @@ package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
@@ -20,13 +20,8 @@ public class RewardPointsCalculatorImpl implements RewardPointsCalculator {
     private final ObjectMapper objectMapper;
 
     @Override
-    public RewardPointsSnapshotDto calculateForAssignment(PositionSlot slot, Shift shift) {
-        if (slot == null) {
-            throw new IllegalArgumentException("slot must not be null");
-        }
-        if (shift == null) {
-            throw new IllegalArgumentException("shift must not be null");
-        }
+    public RewardPointsSnapshotDto calculateForAssignment(@NonNull PositionSlot slot) {
+        var shift = slot.getShift();
 
         int durationMinutes = Math.toIntExact(TimeUtil.calculateDurationInMinutesCeil(shift.getStartTime(), shift.getEndTime()));
         int shiftBonus = shift.getBonusRewardPoints();
@@ -96,7 +91,9 @@ public class RewardPointsCalculatorImpl implements RewardPointsCalculator {
     }
 
     @Override
-    public String calculatePointsConfigHash(PositionSlot slot, Shift shift) {
+    public String calculatePointsConfigHash(PositionSlot slot) {
+        var shift = slot.getShift();
+        
         String data = String.join("|",
             "slot=" + slot.getId(),
             "shift=" + shift.getId(),

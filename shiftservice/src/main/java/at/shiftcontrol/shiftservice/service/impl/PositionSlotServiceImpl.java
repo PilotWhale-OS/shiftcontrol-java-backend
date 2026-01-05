@@ -25,6 +25,7 @@ import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -45,6 +46,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
 
     private final EligibilityService eligibilityService;
+    private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
 
@@ -61,6 +63,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
+        String acceptedRewardPointsHash = ""; //Todo: get from input
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         securityHelper.assertUserIsVolunteer(positionSlot);
@@ -73,6 +76,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             currentUserId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
         //Todo: Implement actual joining logic
 
+        rewardPointsService.onAssignmentCreated(
+            null, //Todo: pass created assignment
+            acceptedRewardPointsHash);
+
+
         // TODO close trades where this slot was offered to me
 
         //Todo: Send Eventbus event
@@ -82,8 +90,14 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String currentUserId) throws ForbiddenException, NotFoundException {
+        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
+            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
 
         //Todo: Checks are needed if the user can leave
+
+        rewardPointsService.onAssignmentRemoved(
+            null //Todo: pass removed assignment
+        );
 
         // no security check necessary, because user is already assigned to position
     }
@@ -128,6 +142,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
         throws NotFoundException, ConflictException, ForbiddenException {
 
+        String acceptedRewardPointsHash = ""; //Todo: get from input
+
+
         // get auction-assignment
         Assignment auction = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
         if (auction == null
@@ -157,6 +174,13 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // execute claim
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
+
+        rewardPointsService.onAssignmentReassigned(
+            auction,
+            claimedAuction,
+            acceptedRewardPointsHash
+        );
+
 
         return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
     }

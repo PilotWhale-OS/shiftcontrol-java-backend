@@ -2,15 +2,13 @@ package at.shiftcontrol.shiftservice.service.rewardpoints;
 
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Shift;
 
 public interface RewardPointsService {
-    void onAssignmentCreated(Assignment assignment, PositionSlot slot, Shift shift, String acceptedRewardPointsHash) throws ConflictException;
+    void onAssignmentCreated(Assignment assignment, String acceptedRewardPointsHash) throws ConflictException;
 
-    void onAssignmentRemoved(Assignment assignment, PositionSlot slot, Shift shift);
+    void onAssignmentRemoved(Assignment assignment);
 
-    void onAssignmentReassigned(Assignment oldAssignment, Assignment newAssignment, PositionSlot slot, Shift shift, String acceptedRewardPointsHash)
+    void onAssignmentReassigned(Assignment oldAssignment, Assignment newAssignment, String acceptedRewardPointsHash)
         throws ConflictException;
 
     void manualAdjust(String volunteerId, long eventId, int points, String reason);
