@@ -1,9 +1,7 @@
 package at.shiftcontrol.shiftservice.event.events;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.event.BaseEvent;
@@ -11,14 +9,15 @@ import at.shiftcontrol.shiftservice.event.events.parts.EventPart;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@RequiredArgsConstructor
 public class EventEvent extends BaseEvent {
     private final EventPart event;
 
-    @JsonIgnore
-    private final String routingKey;
+    public EventEvent(String routingKey, EventPart event) {
+        super(routingKey);
+        this.event = event;
+    }
 
-    public static EventEvent of(Event event, String routingKey) {
-        return new EventEvent(EventPart.of(event), routingKey);
+    public static EventEvent of(String routingKey, Event event) {
+        return new EventEvent(routingKey, EventPart.of(event));
     }
 }

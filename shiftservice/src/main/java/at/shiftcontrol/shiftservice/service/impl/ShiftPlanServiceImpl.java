@@ -120,7 +120,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         plan.setLockStatus(LockStatus.SELF_SIGNUP);
         plan = shiftPlanDao.save(plan);
 
-        publisher.publishEvent(ShiftPlanEvent.of(plan, RoutingKeys.SHIFTPLAN_CREATED));
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.SHIFTPLAN_CREATED, plan));
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
@@ -131,8 +131,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
         shiftPlanDao.save(plan);
 
-        publisher.publishEvent(ShiftPlanEvent.of(plan, RoutingKeys.format(RoutingKeys.SHIFTPLAN_UPDATED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId)))));
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_UPDATED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), plan));
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
@@ -142,8 +142,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
         shiftPlanDao.delete(shiftPlan);
 
-        publisher.publishEvent(ShiftPlanEvent.of(shiftPlan, RoutingKeys.format(RoutingKeys.SHIFTPLAN_DELETED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId)))));
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_DELETED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
     }
 
     @Override
@@ -648,8 +648,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
         shiftPlan.setLockStatus(lockStatus);
 
-        publisher.publishEvent(ShiftPlanEvent.of(shiftPlan, RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId)))));
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
         shiftPlanDao.save(shiftPlan);
     }
 

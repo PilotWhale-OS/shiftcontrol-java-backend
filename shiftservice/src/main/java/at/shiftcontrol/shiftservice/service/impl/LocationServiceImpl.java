@@ -63,7 +63,7 @@ public class LocationServiceImpl implements LocationService {
 
         newLocation = locationDao.save(newLocation);
 
-        publisher.publishEvent(LocationEvent.of(newLocation, RoutingKeys.LOCATION_CREATED));
+        publisher.publishEvent(LocationEvent.of(RoutingKeys.LOCATION_CREATED, newLocation));
         return LocationMapper.toLocationDto(newLocation);
     }
 
@@ -83,8 +83,8 @@ public class LocationServiceImpl implements LocationService {
 
         location = locationDao.save(location);
 
-        publisher.publishEvent(LocationEvent.of(location, RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
-            Map.of("locationId", String.valueOf(locationId)))));
+        publisher.publishEvent(LocationEvent.of(RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
+            Map.of("locationId", String.valueOf(locationId))), location));
         return LocationMapper.toLocationDto(location);
     }
 
@@ -99,8 +99,8 @@ public class LocationServiceImpl implements LocationService {
 
         locationDao.delete(location);
 
-        publisher.publishEvent(LocationEvent.of(location, RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
-            Map.of("locationId", String.valueOf(locationId)))));
+        publisher.publishEvent(LocationEvent.of(RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
+            Map.of("locationId", String.valueOf(locationId))), location));
     }
 
     private Location getLocationOrThrow(long locationId) throws NotFoundException {

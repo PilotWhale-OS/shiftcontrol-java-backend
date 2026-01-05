@@ -63,7 +63,7 @@ public class ShiftServiceImpl implements ShiftService {
         validateModificationDtoAndSetShiftFields(modificationDto, newShift);
         newShift = shiftDao.save(newShift);
 
-        publisher.publishEvent(ShiftEvent.of(newShift, RoutingKeys.SHIFT_CREATED));
+        publisher.publishEvent(ShiftEvent.of(RoutingKeys.SHIFT_CREATED, newShift));
         return shiftAssemblingMapper.assemble(newShift);
     }
 
@@ -76,7 +76,7 @@ public class ShiftServiceImpl implements ShiftService {
 
         shift = shiftDao.save(shift);
 
-        publisher.publishEvent(ShiftEvent.of(shift, RoutingKeys.format(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shiftId)))));
+        publisher.publishEvent(ShiftEvent.of(RoutingKeys.format(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shiftId))), shift));
         return shiftAssemblingMapper.assemble(shift);
     }
 
@@ -137,6 +137,6 @@ public class ShiftServiceImpl implements ShiftService {
         securityHelper.assertUserIsPlanner(shift);
 
         shiftDao.delete(shift);
-        publisher.publishEvent(ShiftEvent.of(shift, RoutingKeys.format(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shiftId)))));
+        publisher.publishEvent(ShiftEvent.of(RoutingKeys.format(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shiftId))), shift));
     }
 }

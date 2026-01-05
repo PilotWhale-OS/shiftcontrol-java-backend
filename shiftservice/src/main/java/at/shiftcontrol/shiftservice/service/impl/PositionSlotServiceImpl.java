@@ -142,8 +142,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
 
-        publisher.publishEvent(AssignmentEvent.of(assignment,
-            RoutingKeys.format(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId)))));
+        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
+        ));
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
@@ -182,10 +182,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // execute claim
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
 
-        publisher.publishEvent(AssignmentEvent.of(claimedAuction,
-            RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
-                "positionSlotId", String.valueOf(positionSlotId),
-                "volunteerId", currentUserId))));
+        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
+            "positionSlotId", String.valueOf(positionSlotId),
+            "volunteerId", currentUserId)), claimedAuction
+        ));
         return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
     }
 
@@ -204,8 +204,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         assignment = assignmentDao.save(assignment);
 
-        publisher.publishEvent(AssignmentEvent.of(assignment,
-            RoutingKeys.format(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId)))));
+        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
+        ));
         return AssignmentMapper.toDto(assignment);
     }
 
@@ -285,7 +285,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         positionSlot = positionSlotDao.save(positionSlot);
 
-        publisher.publishEvent(PositionSlotEvent.of(positionSlot, RoutingKeys.POSITIONSLOT_CREATED));
+        publisher.publishEvent(PositionSlotEvent.of(RoutingKeys.POSITIONSLOT_CREATED, positionSlot));
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
@@ -300,8 +300,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         positionSlot = positionSlotDao.save(positionSlot);
 
-        publisher.publishEvent(PositionSlotEvent.of(positionSlot, RoutingKeys.format(RoutingKeys.POSITIONSLOT_UPDATED,
-            Map.of("positionSlotId", String.valueOf(positionSlotId)))));
+        publisher.publishEvent(PositionSlotEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_UPDATED,
+            Map.of("positionSlotId", String.valueOf(positionSlotId))), positionSlot));
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
@@ -333,7 +333,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         securityHelper.assertUserIsPlanner(positionSlot);
 
         positionSlotDao.delete(positionSlot);
-        publisher.publishEvent(PositionSlotEvent.of(positionSlot, RoutingKeys.format(RoutingKeys.POSITIONSLOT_DELETED,
-            Map.of("positionSlotId", String.valueOf(positionSlotId)))));
+        publisher.publishEvent(PositionSlotEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_DELETED,
+            Map.of("positionSlotId", String.valueOf(positionSlotId))), positionSlot));
     }
 }

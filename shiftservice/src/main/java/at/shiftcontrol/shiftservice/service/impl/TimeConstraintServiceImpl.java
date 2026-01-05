@@ -92,7 +92,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         }
         var entity = timeConstraintDao.save(TimeConstraintMapper.fromCreateDto(createDto, volunteer, event));
 
-        publisher.publishEvent(TimeConstraintEvent.of(entity, RoutingKeys.TIMECONSTRAINT_CREATED));
+        publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.TIMECONSTRAINT_CREATED, entity));
         return TimeConstraintMapper.toDto(entity);
     }
 
@@ -112,8 +112,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
         timeConstraintDao.delete(timeConstraint);
 
-        publisher.publishEvent(TimeConstraintEvent.of(timeConstraint, RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
-            Map.of("timeConstraintId", String.valueOf(timeConstraintId), "volunteerId", timeConstraint.getVolunteer().getId()))));
+        publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
+            Map.of("timeConstraintId", String.valueOf(timeConstraintId), "volunteerId", timeConstraint.getVolunteer().getId())), timeConstraint));
     }
 
     static void checkForConstraintOverlaps(@NonNull TimeConstraintCreateDto createDto,

@@ -12,7 +12,7 @@ public class RoleVolunteerEvent extends RoleEvent {
     private final String volunteerId;
 
     public RoleVolunteerEvent(String routingKey, RolePart role, String volunteerId) {
-        super(role, routingKey);
+        super(routingKey, role);
         this.volunteerId = volunteerId;
     }
 

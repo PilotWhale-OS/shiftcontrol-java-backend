@@ -18,7 +18,7 @@ class PositionSlotEventTest {
         try (var positionSlotPartMock = org.mockito.Mockito.mockStatic(PositionSlotPart.class)) {
             positionSlotPartMock.when(() -> PositionSlotPart.of(positionSlot)).thenReturn(positionSlotPart);
 
-            PositionSlotEvent positionSlotEvent = PositionSlotEvent.of(positionSlot, routingKey);
+            PositionSlotEvent positionSlotEvent = PositionSlotEvent.of(routingKey, positionSlot);
 
             assertEquals(routingKey, positionSlotEvent.getRoutingKey());
             assertEquals(positionSlotPart, positionSlotEvent.getPositionSlot());

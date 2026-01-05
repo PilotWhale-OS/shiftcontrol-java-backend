@@ -18,7 +18,7 @@ class ShiftPlanEventTest {
         try (var shiftPlanPartMock = org.mockito.Mockito.mockStatic(ShiftPlanPart.class)) {
             shiftPlanPartMock.when(() -> ShiftPlanPart.of(shiftPlan)).thenReturn(shiftPlanPart);
 
-            ShiftPlanEvent shiftPlanEvent = ShiftPlanEvent.of(shiftPlan, routingKey);
+            ShiftPlanEvent shiftPlanEvent = ShiftPlanEvent.of(routingKey, shiftPlan);
 
             assertEquals(routingKey, shiftPlanEvent.getRoutingKey());
             assertEquals(shiftPlanPart, shiftPlanEvent.getShiftPlan());

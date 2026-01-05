@@ -18,7 +18,7 @@ class EventEventTest {
         try (var eventPartMock = org.mockito.Mockito.mockStatic(EventPart.class)) {
             eventPartMock.when(() -> EventPart.of(event)).thenReturn(eventPart);
 
-            EventEvent eventEvent = EventEvent.of(event, routingKey);
+            EventEvent eventEvent = EventEvent.of(routingKey, event);
 
             assertEquals(eventPart, eventEvent.getEvent());
             assertEquals(routingKey, eventEvent.getRoutingKey());

@@ -220,10 +220,10 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         trades = assignmentSwitchRequestDao.saveAll(trades);
 
-        trades.forEach(trade -> publisher.publishEvent(TradeEvent.of(trade,
-            RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
-                Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                       "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())))));
+        trades.forEach(trade -> publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                   "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        )));
         return TradeMapper.toDto(trades);
     }
 
@@ -297,10 +297,10 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         trade.setStatus(TradeStatus.REJECTED);
 
         trade = assignmentSwitchRequestDao.save(trade);
-        publisher.publishEvent(TradeEvent.of(trade,
-            RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
-                Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                    "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId()))));
+        publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        ));
         return TradeMapper.toDto(trade);
     }
 
@@ -320,10 +320,10 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         trade.setStatus(TradeStatus.CANCELED);
 
         trade = assignmentSwitchRequestDao.save(trade);
-        publisher.publishEvent(TradeEvent.of(trade,
-            RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CANCELED,
-                Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                    "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId()))));
+        publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CANCELED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        ));
         return TradeMapper.toDto(trade);
     }
 

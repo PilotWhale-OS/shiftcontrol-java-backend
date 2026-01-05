@@ -18,7 +18,7 @@ class TimeConstraintEventTest {
         try (var timeConstraintPartMock = org.mockito.Mockito.mockStatic(TimeConstraintPart.class)) {
             timeConstraintPartMock.when(() -> TimeConstraintPart.of(timeConstraint)).thenReturn(timeConstraintPart);
 
-            TimeConstraintEvent timeConstraintEvent = TimeConstraintEvent.of(timeConstraint, routingKey);
+            TimeConstraintEvent timeConstraintEvent = TimeConstraintEvent.of(routingKey, timeConstraint);
 
             assertEquals(routingKey, timeConstraintEvent.getRoutingKey());
             assertEquals(timeConstraintPart, timeConstraintEvent.getTimeConstraint());

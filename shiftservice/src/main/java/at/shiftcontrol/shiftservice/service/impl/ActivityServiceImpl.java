@@ -75,7 +75,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.ACTIVITY_CREATED));
+        publisher.publishEvent(ActivityEvent.of(RoutingKeys.ACTIVITY_CREATED, activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -89,8 +89,8 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.format(RoutingKeys.ACTIVITY_UPDATED,
-            Map.of("activityId", String.valueOf(activityId)))));
+        publisher.publishEvent(ActivityEvent.of(RoutingKeys.format(RoutingKeys.ACTIVITY_UPDATED,
+            Map.of("activityId", String.valueOf(activityId))), activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -124,8 +124,8 @@ public class ActivityServiceImpl implements ActivityService {
 
         activityDao.delete(activity);
 
-        publisher.publishEvent(ActivityEvent.of(activity, RoutingKeys.format(RoutingKeys.ACTIVITY_DELETED,
-            Map.of("activityId", String.valueOf(activityId)))));
+        publisher.publishEvent(ActivityEvent.of(RoutingKeys.format(RoutingKeys.ACTIVITY_DELETED,
+            Map.of("activityId", String.valueOf(activityId))), activity));
     }
 
     @Override

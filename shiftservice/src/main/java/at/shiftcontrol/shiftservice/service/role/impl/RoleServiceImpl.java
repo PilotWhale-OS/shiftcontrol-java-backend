@@ -60,7 +60,7 @@ public class RoleServiceImpl implements RoleService {
         var role = RoleMapper.toRole(roleDto);
         role.setShiftPlan(shiftPlan);
 
-        publisher.publishEvent(RoleEvent.of(role, RoutingKeys.ROLE_CREATED));
+        publisher.publishEvent(RoleEvent.of(RoutingKeys.ROLE_CREATED, role));
         return RoleMapper.toRoleDto(roleDao.save(role));
     }
 
@@ -72,8 +72,8 @@ public class RoleServiceImpl implements RoleService {
         updateRole(roleDto, role);
         role = roleDao.save(role);
 
-        publisher.publishEvent(RoleEvent.of(role, RoutingKeys.format(RoutingKeys.ROLE_UPDATED,
-            Map.of("roleId", roleId.toString()))));
+        publisher.publishEvent(RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_UPDATED,
+            Map.of("roleId", roleId.toString())), role));
         return RoleMapper.toRoleDto(role);
     }
 
@@ -88,8 +88,8 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
-        publisher.publishEvent(RoleEvent.of(role, RoutingKeys.format(RoutingKeys.ROLE_DELETED,
-            Map.of("roleId", roleId.toString()))));
+        publisher.publishEvent(RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_DELETED,
+            Map.of("roleId", roleId.toString())), role));
         roleDao.delete(role);
     }
 
