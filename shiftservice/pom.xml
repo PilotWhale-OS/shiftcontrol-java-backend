@@ -92,6 +92,59 @@
                     </execution>
                 </executions>
             </plugin>
+
+          <plugin>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-maven-plugin</artifactId>
+            <version>4.38.0</version>
+            <executions>
+              <execution>
+                <id>generate-event-schemas</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+                <configuration>
+                  <!-- Pick your event payload classes -->
+                  <!-- You can use dots OR glob patterns with / -->
+                  <packageNames>at/shiftcontrol/shiftservice/event/**</packageNames>
+                  <!-- optional: constrain further -->
+                  <!-- <classNames>at.shiftcontrol.shiftservice.event.*V1</classNames> -->
+
+                  <!-- Where to write schemas (shared contract folder) -->
+<!--                  <schemaFilePath>${project.basedir}/../contracts/schemas</schemaFilePath>-->
+                  <schemaFilePath>${project.build.directory}/schemas</schemaFilePath>
+                  <schemaFileName>{0}.schema.json</schemaFileName>
+
+                  <schemaVersion>DRAFT_2020_12</schemaVersion>
+
+                  <!-- If you mark payload types with an annotation, you can filter -->
+                  <!--
+                  <annotations>
+                    <annotation>at.shiftcontrol.lib.events.PublicEvent</annotation>
+                  </annotations>
+                  -->
+
+                  <skipAbstractTypes>true</skipAbstractTypes>
+                  <skipInterfaces>true</skipInterfaces>
+
+                  <!-- Make scanning stable -->
+                  <classpath>PROJECT_ONLY</classpath>
+                  <failIfNoClassesMatch>true</failIfNoClassesMatch>
+
+                  <!-- Make schema generation understand Jackson/Jakarta Validation -->
+                  <modules>
+                    <module>
+                      <name>Jackson</name>
+                    </module>
+                    <module>
+                      <name>JakartaValidation</name>
+                    </module>
+                  </modules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
     </build>
 

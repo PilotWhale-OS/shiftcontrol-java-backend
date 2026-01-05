@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.event;
 
-import java.time.Instant;
-
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
@@ -24,22 +22,15 @@ public class RabbitEventPublisher {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(BaseEvent event) {
-        var wrappedEvent = wrapEvent(event);
+        event.setTraceId(getTraceId());
+        event.setActingUserId(userProvider.getCurrentUser().getUserId());
+
         var routingKey = event.getRoutingKey();
         if (routingKey == null || routingKey.isBlank()) {
             throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key");
         }
 
-        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, ROUTING_KEY_PREFIX + routingKey, wrappedEvent);
-    }
-
-    private ApplicationEventWrapper wrapEvent(BaseEvent event) {
-        return ApplicationEventWrapper.builder()
-            .timestamp(Instant.now())
-            .actingUserId(userProvider.getCurrentUser().getUserId())
-            .traceId(getTraceId())
-            .event(event)
-            .build();
+        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, ROUTING_KEY_PREFIX + routingKey, event);
     }
 
     private String getTraceId() {
