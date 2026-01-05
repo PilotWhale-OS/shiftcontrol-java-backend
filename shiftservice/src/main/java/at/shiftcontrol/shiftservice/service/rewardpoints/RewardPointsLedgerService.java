@@ -1,9 +1,10 @@
 package at.shiftcontrol.shiftservice.service.rewardpoints;
 
-import java.util.List;
+import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.rewardpoints.BookingResultDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface RewardPointsLedgerService {
@@ -41,9 +42,9 @@ public interface RewardPointsLedgerService {
 
     /* ========= READ (aggregation) ========= */
 
-    long getTotalPoints(String userId);
+    TotalPointsDto getTotalPoints(String userId);
 
-    long getPointsForEvent(String userId, long eventId);
+    EventPointsDto getPointsForEvent(String userId, long eventId);
 
-    List<EventPointsDto> getPointsGroupedByEvent(String userId);
+    Collection<EventPointsDto> getPointsGroupedByEvent(String userId);
 }

@@ -11,11 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EventPointsDto {
-    @NotNull
-    private String eventId; 
-    
+public class TotalPointsDto {
     @NotNull
     @Min(0)
-    private int points;
+    private int totalPoints;
 }

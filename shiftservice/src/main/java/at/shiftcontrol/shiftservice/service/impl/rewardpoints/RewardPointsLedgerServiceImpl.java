@@ -1,13 +1,15 @@
 package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
-import java.util.List;
+import java.util.Collection;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.BookingResultDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
 import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.type.RewardPointTransactionType;
@@ -148,18 +150,31 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
 
     @Override
     @Transactional(readOnly = true)
-    public long getTotalPoints(String userId) {
-        return dao.sumPointsByVolunteer(ConvertUtil.idToLong(userId));
-    }
+    @IsNotAdmin
+    public TotalPointsDto getTotalPoints(String userId) {
+        var totalPoints = dao.sumPointsByVolunteer(ConvertUtil.idToLong(userId));
 
-    @Override
-    public long getPointsForEvent(String userId, long eventId) {
-        return dao.sumPointsByVolunteerAndEvent(ConvertUtil.idToLong(userId), eventId);
+        return TotalPointsDto.builder()
+            .totalPoints((int) totalPoints)
+            .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventPointsDto> getPointsGroupedByEvent(String userId) {
+    @IsNotAdmin
+    public EventPointsDto getPointsForEvent(String userId, long eventId) {
+        var evenPoints = dao.sumPointsByVolunteerAndEvent(ConvertUtil.idToLong(userId), eventId);
+
+        return EventPointsDto.builder()
+            .eventId(String.valueOf(eventId))
+            .points((int) evenPoints)
+            .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @IsNotAdmin
+    public Collection<EventPointsDto> getPointsGroupedByEvent(String userId) {
         return dao.sumPointsGroupedByEvent(ConvertUtil.idToLong(userId));
     }
 }

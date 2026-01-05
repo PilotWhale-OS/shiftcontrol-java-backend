@@ -58,6 +58,6 @@ public class PositionSlot {
     @Override
     public String toString() {
         return "PositionSlot{id=%d, shift=%d, role=%s, assignments=%s, desiredVolunteerCount=%d, rewardPoints=%d}"
-            .formatted(id, shift.getId(), role, assignments, desiredVolunteerCount, rewardPoints);
+            .formatted(id, shift.getId(), role, assignments, desiredVolunteerCount, overrideRewardPoints);
     }
 }

@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.repo;
 
 import java.util.List;
 
-import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto;
 import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -33,7 +33,7 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
      * Points per event for a volunteer: GROUP BY event.
      */
     @Query("""
-            select new at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto(
+            select new at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto(
                 t.eventId, coalesce(sum(t.points), 0)
             )
             from RewardPointTransaction t
@@ -41,5 +41,5 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
             group by t.eventId
             order by t.eventId
         """)
-    List<EventPointsDto> sumPointsGroupedByEvent(Long volunteerId);
+    List<EventPointsInternalDto> sumPointsGroupedByEvent(Long volunteerId);
 }

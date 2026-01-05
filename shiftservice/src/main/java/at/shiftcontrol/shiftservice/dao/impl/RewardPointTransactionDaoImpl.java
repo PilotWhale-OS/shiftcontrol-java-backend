@@ -1,12 +1,12 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
+import at.shiftcontrol.shiftservice.mapper.EventPointsDtoMapper;
 import at.shiftcontrol.shiftservice.repo.RewardPointTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao 
     }
 
     @Override
-    public List<EventPointsDto> sumPointsGroupedByEvent(long volunteerId) {
-        return repo.sumPointsGroupedByEvent(volunteerId);
+    public Collection<EventPointsDto> sumPointsGroupedByEvent(long volunteerId) {
+        return EventPointsDtoMapper.toEventPointsDto(repo.sumPointsGroupedByEvent(volunteerId));
     }
 }

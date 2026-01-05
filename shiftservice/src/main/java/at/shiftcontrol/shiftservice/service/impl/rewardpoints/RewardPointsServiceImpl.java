@@ -3,6 +3,8 @@ package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 import java.util.UUID;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
+import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -26,6 +28,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @Transactional
+    @IsNotAdmin
     public void onAssignmentCreated(@NonNull Assignment assignment, @NonNull String acceptedRewardPointsHash) throws ConflictException {
         PositionSlot slot = assignment.getPositionSlot();
         validateHash(slot, acceptedRewardPointsHash);
@@ -56,6 +59,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @Transactional
+    @IsNotAdmin
     public void onAssignmentRemoved(@NonNull Assignment assignment) {
         PositionSlot slot = assignment.getPositionSlot();
         int pointsSnapshot = assignment.getAcceptedRewardPoints();
@@ -79,6 +83,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @Transactional
+    @IsNotAdmin
     public void onAssignmentReassigned(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment,
                                        @NonNull String acceptedRewardPointsHash) throws ConflictException {
         PositionSlot slot = oldAssignment.getPositionSlot();
@@ -142,6 +147,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     }
 
     @Override
+    @AdminOnly
     public void manualAdjust(String volunteerId, long eventId, int points, String reason) {
         if (points == 0) {
             return; // no-op
