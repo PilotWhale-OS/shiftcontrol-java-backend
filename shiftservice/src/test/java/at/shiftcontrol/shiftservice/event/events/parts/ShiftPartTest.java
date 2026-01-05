@@ -79,8 +79,8 @@ class ShiftPartTest {
 
         // Assert
         assertEquals(String.valueOf(shift.getId()), shiftPart.getId());
-        assertEquals(0, shiftPart.getRelatedActivityId());
-        assertEquals(0, shiftPart.getLocationId());
+        assertEquals(null, shiftPart.getRelatedActivityId());
+        assertEquals(null, shiftPart.getLocationId());
         assertTrue(shiftPart.getPositionSlots().isEmpty());
     }
 
