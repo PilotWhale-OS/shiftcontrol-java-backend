@@ -23,11 +23,11 @@ public class ShiftPart {
     private Instant startTime;
     @NotNull
     private Instant endTime;
-    private long relatedActivityId;
+    private Long relatedActivityId;
     @NotNull
     private Collection<PositionSlotPart> positionSlots;
     @NotNull
-    private long locationId;
+    private Long locationId;
 
     @NonNull
     public static ShiftPart of(@NonNull Shift shift) {
@@ -38,9 +38,9 @@ public class ShiftPart {
             shift.getLongDescription(),
             shift.getStartTime(),
             shift.getEndTime(),
-            shift.getRelatedActivity() != null ? shift.getRelatedActivity().getId() : 0,
+            shift.getRelatedActivity() != null ? shift.getRelatedActivity().getId() : null,
             shift.getSlots().stream().map(PositionSlotPart::of).toList(),
-            shift.getLocation() != null ? shift.getLocation().getId() : 0
+            shift.getLocation() != null ? shift.getLocation().getId() : null
         );
     }
 }
