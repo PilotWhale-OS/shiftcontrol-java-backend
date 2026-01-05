@@ -169,20 +169,17 @@
             <artifactId>exec-maven-plugin</artifactId>
             <version>3.5.0</version>
             <executions>
+
               <execution>
                 <id>quicktype-csharp</id>
-                <phase>generate-sources</phase>
+                <phase>compile</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
                 <configuration>
                   <executable>${project.build.directory}/node/node/node.exe</executable>
-<!--                  <executable>npx</executable>-->
                   <arguments>
                     <argument>${project.build.directory}/node/node/node_modules/npm/bin/npm-cli.js</argument>
-
-<!--                    <argument>&#45;&#45;cache</argument>-->
-<!--                    <argument>${project.build.directory}/npm-cache</argument>-->
 
                     <argument>exec</argument>
                     <argument>--package=quicktype@23.2.6</argument>
@@ -195,8 +192,6 @@
                     <argument>--framework</argument><argument>NewtonSoft</argument>
                     <argument>--csharp-version</argument><argument>6</argument>
                     <argument>--out</argument><argument>${project.build.directory}/EventClasses.cs</argument>
-<!--                    <argument>&#45;&#45;no-combine-classes</argument>-->
-<!--                    <argument>&#45;&#45;no-date-times</argument>-->
                     <argument>--namespace</argument><argument>ShiftControl.Events</argument>
                     <argument>${project.build.directory}/schemas/</argument>
                   </arguments>
