@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
@@ -33,7 +34,7 @@ public class UserProfileEndpoint {
         operationId = "getCurrentUserProfile",
         description = "Get profile data of the current user (account, notifications, unavailability)"
     )
-    public UserProfileDto getCurrentUserProfile() throws NotFoundException {
+    public UserProfileDto getCurrentUserProfile() throws NotFoundException, ForbiddenException {
         return userProfileService.getUserProfile(userProvider.getCurrentUser().getUserId());
     }
 
