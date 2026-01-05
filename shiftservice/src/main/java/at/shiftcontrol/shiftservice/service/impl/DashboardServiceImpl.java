@@ -39,8 +39,7 @@ public class DashboardServiceImpl implements DashboardService {
     public ShiftPlanDashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) throws NotFoundException, ForbiddenException {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
-        var event = eventDao.findById(shiftPlan.getEvent().getId())
-            .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
+        var event = eventDao.getById(shiftPlan.getEvent().getId());
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
 
         return ShiftPlanDashboardOverviewDto.builder()
@@ -65,7 +64,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
-        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+        return shiftPlanDao.getById(shiftPlanId);
     }
 
     @Override

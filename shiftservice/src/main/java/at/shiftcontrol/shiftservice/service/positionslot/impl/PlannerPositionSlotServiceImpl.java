@@ -34,7 +34,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
 
     @Override
     public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) throws ForbiddenException, NotFoundException {
-        var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+        var plan = shiftPlanDao.getById(shiftPlanId);
         securityHelper.assertUserIsPlanner(plan);
         return AssignmentRequestMapper.toAssignmentRequestDto(plan.getShifts());
     }

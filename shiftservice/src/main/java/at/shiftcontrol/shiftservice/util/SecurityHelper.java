@@ -1,6 +1,11 @@
 package at.shiftcontrol.shiftservice.util;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
@@ -11,9 +16,6 @@ import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import jakarta.ws.rs.NotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -59,8 +61,7 @@ public class SecurityHelper {
     }
 
     public void assertUserIsPlannerInAnyPlanOfEvent(String eventId) throws ForbiddenException, NotFoundException {
-        Event event = eventDao.findById(ConvertUtil.idToLong(eventId))
-            .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+        Event event = eventDao.getById(ConvertUtil.idToLong(eventId));
         assertUserIsPlannerInAnyPlanOfEvent(event);
     }
 

@@ -61,8 +61,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) throws NotFoundException {
-        AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
-            .orElseThrow(() -> new NotFoundException("Trade not found"));
+        AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         return TradeMapper.toDto(trade);
     }
 
@@ -70,8 +69,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId)
         throws NotFoundException, ForbiddenException {
         // get requested PositionSlot
-        PositionSlot requestedPositionSlot = positionSlotDao.findById(requestedPositionSlotId)
-            .orElseThrow(() -> new NotFoundException("requested PositionSlot not found"));
+        PositionSlot requestedPositionSlot = positionSlotDao.getById(requestedPositionSlotId);
 
         securityHelper.assertUserIsVolunteer(requestedPositionSlot);
 
@@ -175,11 +173,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             .orElseThrow(() -> new NotFoundException("user not found"));
 
         // get requested PositionSlot
-        PositionSlot requestedPositionSlot = positionSlotDao.findById(ConvertUtil.idToLong(tradeCreateDto.getRequestedPositionSlotId()))
-            .orElseThrow(() -> new NotFoundException("requested PositionSlot not found"));
+        PositionSlot requestedPositionSlot = positionSlotDao.getById(ConvertUtil.idToLong(tradeCreateDto.getRequestedPositionSlotId()));
         // get offering assignment
-        PositionSlot offeredPositionSlot = positionSlotDao.findById(ConvertUtil.idToLong(tradeCreateDto.getOfferedPositionSlotId()))
-            .orElseThrow(() -> new NotFoundException("offered PositionSlot not found"));
+        PositionSlot offeredPositionSlot = positionSlotDao.getById(ConvertUtil.idToLong(tradeCreateDto.getOfferedPositionSlotId()));
         Assignment offeredAssignment = offeredPositionSlot.getAssignments().stream()
             .filter(assignment -> assignment.getAssignedVolunteer().getId().equals(currentUser.getId())).findFirst()
             .orElseThrow(() -> new IllegalArgumentException("not assigned to offered Position"));
@@ -241,12 +237,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Transactional
     public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
         // get current user (volunteer)
-        Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
+        Volunteer currentUser = volunteerDao.findByUserId(currentUserId) // todo fix to correct security helper function
             .orElseThrow(() -> new NotFoundException("user not found"));
 
         // get trade
-        AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
-            .orElseThrow(() -> new NotFoundException("Trade not found"));
+        AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
         // check if volunteer is owner of requested slot
         if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
@@ -284,8 +279,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     public TradeDto declineTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException {
         // get trade
-        AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
-            .orElseThrow(() -> new NotFoundException("Trade not found"));
+        AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         // check if user can decline
         if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("not involved in trade");
@@ -307,8 +301,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     public TradeDto cancelTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException {
         // get trade
-        AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
-            .orElseThrow(() -> new NotFoundException("Trade not found"));
+        AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         // check if user can cancel
         if (!trade.getOfferingAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("not involved in trade");

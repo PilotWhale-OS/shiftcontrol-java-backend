@@ -60,8 +60,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public PositionSlotDto findById(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
 
         securityHelper.assertUserIsInPlan(positionSlot);
 
@@ -71,8 +70,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsVolunteer(positionSlot);
 
         var volunteer = volunteerDao.findByUserId(currentUserId)
@@ -95,8 +93,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws ForbiddenException, NotFoundException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        var positionSlot = positionSlotDao.getById(positionSlotId);
         var volunteer = volunteerDao.findByUserId(volunteerId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
@@ -112,8 +109,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
 
         securityHelper.assertUserIsInPlan(positionSlot);
 
@@ -243,8 +239,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public void setPreference(@NonNull String currentUserId, long positionSlotId, int preference) throws NotFoundException, ForbiddenException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
 
         securityHelper.assertUserIsVolunteer(positionSlot);
 
@@ -262,8 +257,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public int getPreference(@NonNull String currentUserId, long positionSlotId) throws ForbiddenException, NotFoundException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
 
         securityHelper.assertUserIsInPlan(positionSlot);
 
@@ -273,8 +267,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     public PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto)
         throws NotFoundException, ForbiddenException {
-        var shift = shiftDao.findById(shiftId)
-            .orElseThrow(() -> new NotFoundException("Shift not found"));
+        var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
 
         var positionSlot = PositionSlot.builder()
@@ -292,8 +285,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     public PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto)
         throws NotFoundException, ForbiddenException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsPlanner(positionSlot);
 
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
@@ -316,8 +308,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         positionSlot.setSkipAutoAssignment(modificationDto.isSkipAutoAssignment());
         if (StringUtils.isNotBlank(modificationDto.getRoleId())) {
-            var role = roleDao.findById(ConvertUtil.idToLong(modificationDto.getRoleId()))
-                .orElseThrow(() -> new NotFoundException("Role not found"));
+            var role = roleDao.getById(ConvertUtil.idToLong(modificationDto.getRoleId()));
             positionSlot.setRole(role);
         } else {
             positionSlot.setRole(null);
@@ -328,8 +319,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public void deletePositionSlot(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsPlanner(positionSlot);
 
         positionSlotDao.delete(positionSlot);

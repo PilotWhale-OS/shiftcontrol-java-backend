@@ -1,7 +1,12 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.List;
-import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -18,12 +23,6 @@ import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,7 +79,7 @@ class EventServiceTest {
         // Volunteer participates in spRelevant only
         Volunteer volunteer = mock(Volunteer.class);
         when(volunteer.getVolunteeringPlans()).thenReturn(List.of(spRelevant));
-        when(volunteerDao.findById("420696742")).thenReturn(Optional.of(volunteer));
+        when(volunteerDao.getById("420696742")).thenReturn(volunteer);
 
         // Expected result is only the relevant event mapped
         var expected = EventMapper.toEventDto(List.of(relevantEvent));
@@ -90,42 +89,40 @@ class EventServiceTest {
 
         // Assert
         verify(eventDao).search(any(EventSearchDto.class));
-        verify(volunteerDao).findById("420696742");
+        verify(volunteerDao).getById("420696742");
         assertThat(result).isEqualTo(expected);
     }
 
     @Test
-    void getUserRelatedShiftPlansOfEvent_throwsWhenEventNotFound() {
+    void getUserRelatedShiftPlansOfEvent_throwsWhenEventNotFound() throws NotFoundException {
         long eventId = 999L;
         String userId = "420696742";
 
-        when(eventDao.findById(eventId)).thenReturn(Optional.empty());
+        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);;
 
         assertThatThrownBy(() -> eventService.getUserRelatedShiftPlansOfEvent(eventId, userId))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessage("Event not found with id: " + eventId);
+            .isInstanceOf(NotFoundException.class);
 
-        verify(eventDao).findById(eventId);
+        verify(eventDao).getById(eventId);
         verifyNoInteractions(volunteerDao, statisticService);
     }
 
     @Test
-    void getUserRelatedShiftPlansOfEvent_throwsWhenVolunteerNotFound() {
+    void getUserRelatedShiftPlansOfEvent_throwsWhenVolunteerNotFound() throws NotFoundException {
         long eventId = 1L;
         String userId = "missing";
 
         Event event = new Event();
         event.setShiftPlans(List.of());
 
-        when(eventDao.findById(eventId)).thenReturn(Optional.of(event));
-        when(volunteerDao.findById(userId)).thenReturn(Optional.empty());
+        when(eventDao.getById(eventId)).thenReturn(event);
+        when(volunteerDao.getById(userId)).thenThrow(NotFoundException.class);;
 
         assertThatThrownBy(() -> eventService.getUserRelatedShiftPlansOfEvent(eventId, userId))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessage("Volunteer not found with id: " + userId);
+            .isInstanceOf(NotFoundException.class);
 
-        verify(eventDao).findById(eventId);
-        verify(volunteerDao).findById(userId);
+        verify(eventDao).getById(eventId);
+        verify(volunteerDao).getById(userId);
         verifyNoInteractions(statisticService);
     }
 
@@ -146,8 +143,8 @@ class EventServiceTest {
         Volunteer volunteer = mock(Volunteer.class);
         when(volunteer.getVolunteeringPlans()).thenReturn(List.of(spRelevant));
 
-        when(eventDao.findById(eventId)).thenReturn(Optional.of(event));
-        when(volunteerDao.findById(userId)).thenReturn(Optional.of(volunteer));
+        when(eventDao.getById(eventId)).thenReturn(event);
+        when(volunteerDao.getById(userId)).thenReturn(volunteer);
 
         // Stats (use your real DTO types here)
         OwnStatisticsDto ownStats = mock(OwnStatisticsDto.class);
@@ -168,24 +165,23 @@ class EventServiceTest {
         assertThat(result.getOwnEventStatistics()).isEqualTo(ownStats);
         assertThat(result.getOverallEventStatistics()).isEqualTo(overallStats);
 
-        verify(eventDao, times(2)).findById(eventId); // called twice since shiftPlans is fetched via call to getUserRelatedShiftPlansOfEvent
-        verify(volunteerDao).findById(userId);
+        verify(eventDao, times(2)).getById(eventId); // called twice since shiftPlans is fetched via call to getUserRelatedShiftPlansOfEvent
+        verify(volunteerDao).getById(userId);
         verify(statisticService).getOwnStatisticsOfShiftPlans(List.of(spRelevant), userId);
         verify(statisticService).getOverallEventStatistics(event);
     }
 
     @Test
-    void getEventShiftPlansOverview_throwsWhenEventNotFound() {
+    void getEventShiftPlansOverview_throwsWhenEventNotFound() throws NotFoundException {
         long eventId = 999L;
         String userId = "420696742";
 
-        when(eventDao.findById(eventId)).thenReturn(Optional.empty());
+        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);;
 
         assertThatThrownBy(() -> eventService.getEventShiftPlansOverview(eventId, userId))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessage("Event not found with id: " + eventId);
+            .isInstanceOf(NotFoundException.class);
 
-        verify(eventDao).findById(eventId);
+        verify(eventDao).getById(eventId);
         verifyNoInteractions(volunteerDao, statisticService);
     }
 }

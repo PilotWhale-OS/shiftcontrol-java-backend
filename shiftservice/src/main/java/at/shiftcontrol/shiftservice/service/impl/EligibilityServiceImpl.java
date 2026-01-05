@@ -3,6 +3,10 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -18,8 +22,6 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     @Override
     public PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, String userId) throws NotFoundException {
         return getSignupStateForPositionSlot(
-            positionSlotDao.findById(positionSlotId).orElseThrow(() -> new NotFoundException("PositionSlot with ID %d not found".formatted(positionSlotId))),
+            positionSlotDao.getById(positionSlotId),
             volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %s not found".formatted(userId))
             ));
     }

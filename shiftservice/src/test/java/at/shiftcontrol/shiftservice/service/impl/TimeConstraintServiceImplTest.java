@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -75,32 +74,31 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_volunteerMissing_throwsConflictException() {
+    void createTimeConstraint_volunteerMissing_throwsConflictException() throws NotFoundException {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
             .to(Instant.parse("2030-01-01T11:00:00Z"))
             .build();
 
-        when(eventDao.findById(EVENT_ID)).thenReturn(Optional.of(new Event()));
-        when(volunteerDao.findById(USER_ID)).thenReturn(Optional.empty());
+        when(eventDao.getById(EVENT_ID)).thenReturn(new Event());
+        when(volunteerDao.getById(USER_ID)).thenThrow(NotFoundException.class);
 
         assertThatThrownBy(() -> service.createTimeConstraint(dto, USER_ID, EVENT_ID))
-            .isInstanceOf(ConflictException.class)
-            .hasMessageContaining("Volunteer not found");
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
-    void createTimeConstraint_volunteerNotPartOfEvent_throwsConflict() {
+    void createTimeConstraint_volunteerNotPartOfEvent_throwsConflict() throws NotFoundException {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
             .to(Instant.parse("2030-01-01T11:00:00Z"))
             .build();
 
-        when(eventDao.findById(EVENT_ID)).thenReturn(Optional.of(new Event()));
+        when(eventDao.getById(EVENT_ID)).thenReturn(new Event());
         Volunteer v = new Volunteer(); // no volunteering plans
-        when(volunteerDao.findById(USER_ID)).thenReturn(Optional.of(v));
+        when(volunteerDao.getById(USER_ID)).thenReturn(v);
 
         assertThatThrownBy(() -> service.createTimeConstraint(dto, USER_ID, EVENT_ID))
             .isInstanceOf(ConflictException.class)
@@ -108,15 +106,15 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_overlapExisting_unavailable_throwsConflict() {
+    void createTimeConstraint_overlapExisting_unavailable_throwsConflict() throws NotFoundException {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
             .to(Instant.parse("2030-01-01T12:00:00Z"))
             .build();
 
-        when(eventDao.findById(EVENT_ID)).thenReturn(Optional.of(new Event()));
-        when(volunteerDao.findById(USER_ID)).thenReturn(Optional.of(mockVolunteerWithEvent()));
+        when(eventDao.getById(EVENT_ID)).thenReturn(new Event());
+        when(volunteerDao.getById(USER_ID)).thenReturn(mockVolunteerWithEvent());
 
         TimeConstraint existing = new TimeConstraint();
         existing.setStartTime(Instant.parse("2030-01-01T10:00:00Z"));
@@ -131,15 +129,15 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_assignmentOverlap_throwsConflict() {
+    void createTimeConstraint_assignmentOverlap_throwsConflict() throws NotFoundException {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
             .to(Instant.parse("2030-01-01T11:00:00Z"))
             .build();
 
-        when(eventDao.findById(EVENT_ID)).thenReturn(Optional.of(new Event()));
-        when(volunteerDao.findById(USER_ID)).thenReturn(Optional.of(mockVolunteerWithEvent()));
+        when(eventDao.getById(EVENT_ID)).thenReturn(new Event());
+        when(volunteerDao.getById(USER_ID)).thenReturn(mockVolunteerWithEvent());
         when(timeConstraintDao.searchByVolunteerAndEvent(USER_ID, EVENT_ID)).thenReturn(List.of());
 
         Assignment a = new Assignment();
@@ -153,15 +151,15 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_emergency_invalidWholeDays_throwsBadRequest() {
+    void createTimeConstraint_emergency_invalidWholeDays_throwsBadRequest() throws NotFoundException {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.EMERGENCY)
             .from(Instant.parse("2030-01-01T10:00:00Z"))
             .to(Instant.parse("2030-01-02T00:00:00Z"))
             .build();
 
-        when(eventDao.findById(EVENT_ID)).thenReturn(Optional.of(new Event()));
-        when(volunteerDao.findById(USER_ID)).thenReturn(Optional.of(mockVolunteerWithEvent()));
+        when(eventDao.getById(EVENT_ID)).thenReturn(new Event());
+        when(volunteerDao.getById(USER_ID)).thenReturn(mockVolunteerWithEvent());
 
         assertThatThrownBy(() -> service.createTimeConstraint(dto, USER_ID, EVENT_ID))
             .isInstanceOf(BadRequestException.class)
@@ -169,12 +167,11 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void delete_missingConstraint_throwsNotFound() {
-        when(timeConstraintDao.findById(anyLong())).thenReturn(Optional.empty());
+    void delete_missingConstraint_throwsNotFound() throws NotFoundException {
+        when(timeConstraintDao.getById(anyLong())).thenThrow(NotFoundException.class);
 
         assertThatThrownBy(() -> service.delete(123L))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessageContaining("not found");
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -186,22 +183,22 @@ class TimeConstraintServiceImplTest {
         tc.setId(321L);
         tc.setVolunteer(volunteer);
 
-        when(timeConstraintDao.findById(321L)).thenReturn(Optional.of(tc));
+        when(timeConstraintDao.getById(321L)).thenReturn(tc);
 
         service.delete(321L);
         verify(timeConstraintDao).delete(tc);
     }
 
     @Test
-    void createTimeConstraint_success_unavailable_returnsDto() throws ConflictException, ForbiddenException {
+    void createTimeConstraint_success_unavailable_returnsDto() throws ConflictException, ForbiddenException, NotFoundException {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
             .to(Instant.parse("2030-01-01T11:00:00Z"))
             .build();
 
-        when(eventDao.findById(EVENT_ID)).thenReturn(Optional.of(new Event()));
-        when(volunteerDao.findById(USER_ID)).thenReturn(Optional.of(mockVolunteerWithEvent()));
+        when(eventDao.getById(EVENT_ID)).thenReturn(new Event());
+        when(volunteerDao.getById(USER_ID)).thenReturn(mockVolunteerWithEvent());
         when(timeConstraintDao.searchByVolunteerAndEvent(USER_ID, EVENT_ID)).thenReturn(List.of());
         when(assignmentDao.getConflictingAssignments(eq(USER_ID), any(), any())).thenReturn(List.of());
 

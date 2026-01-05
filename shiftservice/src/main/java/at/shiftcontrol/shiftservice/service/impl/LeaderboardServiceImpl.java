@@ -9,10 +9,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
@@ -33,7 +33,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
 
     @Override
     public Collection<LeaderBoardDto> getLeaderBoard(long eventId) throws NotFoundException, ForbiddenException {
-        var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
+        var event = eventDao.getById(eventId);
         securityHelper.assertUserIsAllowedToAccessEvent(event);
 
         List<Assignment> allAssignments = ensureList(event.getShiftPlans()).stream()

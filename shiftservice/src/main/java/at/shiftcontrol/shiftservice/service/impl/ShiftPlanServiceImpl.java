@@ -102,19 +102,19 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     public Collection<ShiftPlanDto> getAll(long eventId) throws NotFoundException {
-        eventDao.findById(eventId).orElseThrow(NotFoundException::new);
+        eventDao.getById(eventId);
         return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findByEventId(eventId));
     }
 
     @Override
     public ShiftPlanDto get(long shiftPlanId) throws NotFoundException {
-        return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new));
+        return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.getById(shiftPlanId));
     }
 
     @Override
     @AdminOnly
     public ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
-        var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
+        var event = eventDao.getById(eventId);
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
         plan.setLockStatus(LockStatus.SELF_SIGNUP);
@@ -127,7 +127,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @Override
     @AdminOnly
     public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
-        var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+        var plan = shiftPlanDao.getById(shiftPlanId);
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
         shiftPlanDao.save(plan);
 
@@ -139,7 +139,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @Override
     @AdminOnly
     public void delete(long shiftPlanId) throws NotFoundException {
-        var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+        var shiftPlan = shiftPlanDao.getById(shiftPlanId);
         shiftPlanDao.delete(shiftPlan);
 
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_DELETED,
@@ -484,8 +484,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public void revokeShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        var invite = shiftPlanInviteDao.findById(inviteId)
-            .orElseThrow(() -> new NotFoundException("Invite not found with id: " + inviteId));
+        var invite = shiftPlanInviteDao.getById(inviteId);
 
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
 
@@ -502,8 +501,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public void deleteShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException {
         var currentUser = userProvider.getCurrentUser();
 
-        var invite = shiftPlanInviteDao.findById(inviteId)
-            .orElseThrow(() -> new NotFoundException("Invite not found with id: " + inviteId));
+        var invite = shiftPlanInviteDao.getById(inviteId);
 
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
 
@@ -576,7 +574,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
-        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+        return shiftPlanDao.getById(shiftPlanId);
     }
 
     @Override

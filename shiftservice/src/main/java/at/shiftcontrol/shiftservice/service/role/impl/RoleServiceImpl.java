@@ -7,11 +7,11 @@ import java.util.Map;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
@@ -46,16 +46,16 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto getRole(Long roleId) throws ForbiddenException {
-        Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
+    public RoleDto getRole(Long roleId) throws ForbiddenException, NotFoundException {
+        Role role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         return RoleMapper.toRoleDto(role);
     }
 
     @Override
-    public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
+    public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) throws ForbiddenException, NotFoundException {
         securityHelper.assertUserIsPlanner(shiftPlanId);
-        var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+        var shiftPlan = shiftPlanDao.getById(shiftPlanId);
 
         var role = RoleMapper.toRole(roleDto);
         role.setShiftPlan(shiftPlan);
@@ -65,8 +65,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
-        var role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
+    public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) throws ForbiddenException, NotFoundException {
+        var role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
         updateRole(roleDto, role);
@@ -84,8 +84,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteRole(Long roleId) throws ForbiddenException {
-        Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
+    public void deleteRole(Long roleId) throws ForbiddenException, NotFoundException {
+        Role role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
         publisher.publishEvent(RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_DELETED,
@@ -94,11 +94,9 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public VolunteerDto createUserRoleAssignment(String userId, UserRoleAssignmentAssignDto assignDto) throws ForbiddenException {
-        Role role = roleDao.findById(Long.valueOf(assignDto.getRoleId()))
-            .orElseThrow(NotFoundException::new);
-        Volunteer volunteer = volunteerDao.findById(userId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
+    public VolunteerDto createUserRoleAssignment(String userId, UserRoleAssignmentAssignDto assignDto) throws ForbiddenException, NotFoundException {
+        Role role = roleDao.getById(Long.valueOf(assignDto.getRoleId()));
+        Volunteer volunteer = volunteerDao.getById(userId);
         if (!role.isSelfAssignable()) {
             securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         }
@@ -117,10 +115,9 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteUserRoleAssignment(String userId, Long roleId) throws ForbiddenException {
-        Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
-        Volunteer volunteer = volunteerDao.findById(userId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found: " + userId));
+    public void deleteUserRoleAssignment(String userId, Long roleId) throws ForbiddenException, NotFoundException {
+        Role role = roleDao.getById(roleId);
+        Volunteer volunteer = volunteerDao.getById(userId);
         if (!role.isSelfAssignable()) {
             securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         }

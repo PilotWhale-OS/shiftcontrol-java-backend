@@ -42,7 +42,7 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public ShiftDetailsDto getShiftDetails(long shiftId, String userId) throws NotFoundException {
-        var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
+        var shift = shiftDao.getById(shiftId);
         var userPref = userPreferenceService.getUserPreference(userId, shiftId);
 
         return ShiftDetailsDto.builder()
@@ -55,7 +55,7 @@ public class ShiftServiceImpl implements ShiftService {
     public ShiftDto createShift(long shiftPlanId, @NonNull ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
         securityHelper.assertUserIsPlanner(shiftPlanId);
 
-        var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found"));
+        var shiftPlan = shiftPlanDao.getById(shiftPlanId);
         var newShift = Shift.builder()
             .shiftPlan(shiftPlan)
             .build();
@@ -69,7 +69,7 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public ShiftDto updateShift(long shiftId, @NonNull ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
-        var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
+        var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
 
         validateModificationDtoAndSetShiftFields(modificationDto, shift);
@@ -107,8 +107,7 @@ public class ShiftServiceImpl implements ShiftService {
         shift.setStartTime(modificationDto.getStartTime());
         shift.setEndTime(modificationDto.getEndTime());
         if (StringUtils.isNotBlank(modificationDto.getActivityId())) {
-            var activity = activityDao.findById(ConvertUtil.idToLong(modificationDto.getActivityId()))
-                .orElseThrow(() -> new NotFoundException("Activity not found"));
+            var activity = activityDao.getById(ConvertUtil.idToLong(modificationDto.getActivityId()));
             shift.setRelatedActivity(activity);
 
             if (activity.getLocation() != null) {
@@ -119,8 +118,7 @@ public class ShiftServiceImpl implements ShiftService {
                 shift.setLocation(activity.getLocation());
             }
         } else {
-            var location = locationDao.findById(ConvertUtil.idToLong(modificationDto.getLocationId()))
-                .orElseThrow(() -> new NotFoundException("Location not found"));
+            var location = locationDao.getById(ConvertUtil.idToLong(modificationDto.getLocationId()));
 
             var eventLocations = shift.getShiftPlan().getEvent().getLocations();
             if (!eventLocations.contains(location)) {
@@ -133,7 +131,7 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public void deleteShift(long shiftId) throws NotFoundException, ForbiddenException {
-        var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
+        var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
 
         shiftDao.delete(shift);

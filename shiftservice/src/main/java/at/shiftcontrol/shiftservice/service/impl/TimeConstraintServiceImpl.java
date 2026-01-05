@@ -50,8 +50,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     @Override
     @IsNotAdmin
     public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId)
-        throws ConflictException, ForbiddenException {
-
+        throws ConflictException, ForbiddenException, NotFoundException {
+        // todo add security
         // Validate date range
         Instant from = createDto.getFrom();
         Instant to = createDto.getTo();
@@ -64,8 +64,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         }
 
         // get event and volunteer
-        var event = eventDao.findById(eventId).orElseThrow(() -> new ConflictException("Event not found with id: " + eventId));
-        var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new ConflictException("Volunteer not found with id: " + userId));
+        var event = eventDao.getById(eventId);
+        var volunteer = volunteerDao.getById(userId);
 
         // Check that volunteer is part of the event via any of their shift plans
         var userPlans = volunteer.getVolunteeringPlans();
@@ -107,8 +107,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     @Override
     @IsNotAdmin
     public void delete(long timeConstraintId) throws NotFoundException, ForbiddenException {
-        var timeConstraint = timeConstraintDao.findById(timeConstraintId)
-            .orElseThrow(() -> new NotFoundException("Time constraint not found"));
+        var timeConstraint = timeConstraintDao.getById(timeConstraintId);
 
         timeConstraintDao.delete(timeConstraint);
 

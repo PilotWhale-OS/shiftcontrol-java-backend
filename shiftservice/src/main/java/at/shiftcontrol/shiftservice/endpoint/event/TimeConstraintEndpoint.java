@@ -2,8 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -48,7 +47,7 @@ public class TimeConstraintEndpoint {
         description = "Create a new time constraint for the current user"
     )
     public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto)
-        throws ConflictException, ForbiddenException {
+        throws ConflictException, ForbiddenException, NotFoundException {
         return timeConstraintService.createTimeConstraint(
             createDto,
             userProvider.getCurrentUser().getUserId(),
