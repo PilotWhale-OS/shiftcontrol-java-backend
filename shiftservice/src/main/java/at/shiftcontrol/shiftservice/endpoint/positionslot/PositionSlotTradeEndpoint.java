@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +36,6 @@ public class PositionSlotTradeEndpoint {
     private final ApplicationUserProvider userProvider;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getTradeById",
         description = "Get trade by id"
@@ -45,7 +45,6 @@ public class PositionSlotTradeEndpoint {
     }
 
     @GetMapping("/slots-to-offer/{positionSlotId}")
-    // TODO Security
     @Operation(
         operationId = "getPositionSlotsToOffer",
         description = "Get position slots that can be offered in a trade for the given position slot, based on eligible volunteers"
@@ -57,43 +56,39 @@ public class PositionSlotTradeEndpoint {
     }
 
     @PostMapping()
-    // TODO Security
     @Operation(
         operationId = "createTrade",
         description = "Create trade request for a specific position slot in a shift"
     )
-    public Collection<TradeDto> createTrade(@RequestBody TradeCreateDto tradeCreateDto) throws NotFoundException, ConflictException, ForbiddenException {
+    public Collection<TradeDto> createTrade(@RequestBody @Valid TradeCreateDto tradeCreateDto) throws NotFoundException, ConflictException, ForbiddenException {
         return assignmentSwitchRequestService.createTrade(
             tradeCreateDto,
             userProvider.getCurrentUser().getUserId());
     }
 
     @PutMapping("/accept")
-    // TODO Security
     @Operation(
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptTrade(@RequestBody TradeDto tradeDto) throws NotFoundException, ConflictException, ForbiddenException {
+    public TradeDto acceptTrade(@RequestBody @Valid TradeDto tradeDto) throws NotFoundException, ConflictException, ForbiddenException {
         return assignmentSwitchRequestService.acceptTrade(
             TradeMapper.toEntityId(tradeDto),
             userProvider.getCurrentUser().getUserId());
     }
 
     @PutMapping("/decline")
-    // TODO Security
     @Operation(
         operationId = "declineTrade",
         description = "Decline a trade request for a specific position slot in a shift"
     )
-    public TradeDto declineTrade(@RequestBody TradeDto tradeDto) throws NotFoundException {
+    public TradeDto declineTrade(@RequestBody @Valid TradeDto tradeDto) throws NotFoundException {
         return assignmentSwitchRequestService.declineTrade(
             TradeMapper.toEntityId(tradeDto),
             userProvider.getCurrentUser().getUserId());
     }
 
     @PutMapping("/cancel")
-    // TODO Security
     @Operation(
         operationId = "cancelTrade",
         description = "Cancel a request for a specific position slot in a shift"

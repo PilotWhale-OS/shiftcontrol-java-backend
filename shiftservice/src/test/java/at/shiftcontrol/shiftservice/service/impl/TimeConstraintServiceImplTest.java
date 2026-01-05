@@ -5,14 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
+import org.springframework.context.ApplicationEventPublisher;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,16 +15,29 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
+import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.AssignmentId;
+import at.shiftcontrol.shiftservice.entity.Event;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.entity.TimeConstraint;
+import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TimeConstraintServiceImplTest {
@@ -44,6 +50,11 @@ class TimeConstraintServiceImplTest {
     private EventDao eventDao;
     @Mock
     private AssignmentDao assignmentDao;
+    @Mock
+    ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private SecurityHelper securityHelper;
 
     @InjectMocks
     private TimeConstraintServiceImpl service;
@@ -167,9 +178,13 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void delete_existing_deletesSuccessfully() throws NotFoundException {
+    void delete_existing_deletesSuccessfully() throws NotFoundException, ForbiddenException {
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(USER_ID);
+
         TimeConstraint tc = new TimeConstraint();
         tc.setId(321L);
+        tc.setVolunteer(volunteer);
 
         when(timeConstraintDao.findById(321L)).thenReturn(Optional.of(tc));
 
@@ -178,7 +193,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_success_unavailable_returnsDto() throws ConflictException {
+    void createTimeConstraint_success_unavailable_returnsDto() throws ConflictException, ForbiddenException {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))

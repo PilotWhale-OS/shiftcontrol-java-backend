@@ -1,12 +1,19 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -19,14 +26,13 @@ import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.EventEvent;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.EventService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +43,7 @@ public class EventServiceImpl implements EventService {
     private final StatisticService statisticService;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public EventDto getEvent(long eventId) throws NotFoundException, ForbiddenException {
@@ -52,7 +59,7 @@ public class EventServiceImpl implements EventService {
         var currentUser = userProvider.getCurrentUser();
 
         // skip filtering for admin users
-        if (currentUser instanceof AdminUser) {
+        if (securityHelper.isUserAdmin(currentUser)) {
             return EventMapper.toEventDto(filteredEvents);
         }
         String userId = currentUser.getUserId();
@@ -104,25 +111,27 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @AdminOnly
     public EventDto createEvent(@NonNull EventModificationDto modificationDto) {
-        // TODO assert admin only
-
         validateEventModificationDto(modificationDto);
 
         Event event = EventMapper.toEvent(modificationDto);
         event = eventDao.save(event);
+
+        publisher.publishEvent(EventEvent.of(RoutingKeys.EVENT_CREATED, event));
         return EventMapper.toEventDto(event);
     }
 
     @Override
+    @AdminOnly
     public EventDto updateEvent(long eventId, @NonNull EventModificationDto modificationDto) throws NotFoundException {
-        // TODO assert admin only
-
         validateEventModificationDto(modificationDto);
 
         Event event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         EventMapper.updateEvent(event, modificationDto);
         eventDao.save(event);
+
+        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_UPDATED, Map.of("eventId", String.valueOf(eventId))), event));
         return EventMapper.toEventDto(event);
     }
 
@@ -133,9 +142,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @AdminOnly
     public void deleteEvent(long eventId) throws NotFoundException {
-        // TODO assert admin only
-        eventDao.delete(eventDao.findById(eventId).orElseThrow(NotFoundException::new));
+        var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
+
+        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(eventId))), event));
+        eventDao.delete(event);
     }
 
     private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) throws NotFoundException {
@@ -143,8 +155,7 @@ public class EventServiceImpl implements EventService {
         var shiftPlans = event.getShiftPlans();
 
         // skip filtering for admin users
-        var currentUser = userProvider.getCurrentUser();
-        if (currentUser instanceof AdminUser) {
+        if (securityHelper.isUserAdmin()) {
             return shiftPlans.stream().toList();
         }
 

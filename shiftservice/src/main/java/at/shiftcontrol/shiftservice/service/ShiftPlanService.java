@@ -47,7 +47,7 @@ public interface ShiftPlanService {
 
     Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException;
 
-    ShiftPlanJoinOverviewDto joinShiftPlanAsVolunteer(ShiftPlanJoinRequestDto requestDto) throws NotFoundException;
+    ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto) throws NotFoundException;
 
     void updateLockStatus(long shiftPlanId, LockStatus lockStatus) throws NotFoundException;
 }

@@ -2,16 +2,21 @@ package at.shiftcontrol.shiftservice.dto.positionslot;
 
 import java.util.Collection;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -22,8 +27,10 @@ public class PositionSlotDto {
     private String id;
 
     @NotNull
+    @Size(max = 50)
     private String name;
 
+    @Size(max = 255)
     private String description;
 
     @NotNull
@@ -32,15 +39,19 @@ public class PositionSlotDto {
     @NotNull
     private String associatedShiftId;
 
+    @Valid
     private RoleDto role;
 
     @NotNull
+    @Valid
     private Collection<VolunteerDto> assignedVolunteers;
 
     @NotNull
+    @Min(0)
     private int desiredVolunteerCount;
 
     @NotNull
+    @Min(0)
     private int rewardPoints;
 
     /**
@@ -53,17 +64,21 @@ public class PositionSlotDto {
      * Specific for the current user's offered trades for this position slot.
      */
     @NotNull
+    @Valid
     private Collection<TradeInfoDto> tradeInfoDtos;
 
     /**
      * Specific for the current user's available auctions of this position slot.
      */
     @NotNull
+    @Valid
     private Collection<AssignmentDto> auctions;
 
     /**
      * Specific for the current user's preference value for this position slot.
      */
     @NotNull
+    @Min(-10)
+    @Max(10)
     private int preferenceValue;
 }

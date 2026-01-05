@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -34,7 +35,9 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
+import at.shiftcontrol.shiftservice.event.events.TradeEvent;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
@@ -119,8 +122,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return eligible && conflicts.isEmpty();
     }
 
-    private Collection<TradeCandidatesDto> removeExistingTrades( Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId,
-                                                                 String currentUserId) {
+    private Collection<TradeCandidatesDto> removeExistingTrades(Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId,
+                                                                String currentUserId) {
         // check for already existing trades in status OPEN
         Collection<AssignmentSwitchRequest> existingTrades =
             assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
@@ -143,7 +146,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                         .filter(volunteer -> {
                             AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
                                 AssignmentId.of(
-                                    Long.parseLong(candidate.getPositionSlotId()),
+                                    ConvertUtil.idToLong(candidate.getPositionSlotId()),
                                     currentUserId),
                                 AssignmentId.of(
                                     requestedPositionSlotId,
@@ -215,7 +218,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             }
         }
 
-        return TradeMapper.toDto(assignmentSwitchRequestDao.saveAll(trades));
+        trades = assignmentSwitchRequestDao.saveAll(trades);
+
+        trades.forEach(trade -> publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                   "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        )));
+        return TradeMapper.toDto(trades);
     }
 
     private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
@@ -286,7 +295,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         trade.setStatus(TradeStatus.REJECTED);
-        return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
+
+        trade = assignmentSwitchRequestDao.save(trade);
+        publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        ));
+        return TradeMapper.toDto(trade);
     }
 
     @Override
@@ -303,7 +318,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         trade.setStatus(TradeStatus.CANCELED);
-        return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
+
+        trade = assignmentSwitchRequestDao.save(trade);
+        publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CANCELED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        ));
+        return TradeMapper.toDto(trade);
     }
 
     private AssignmentSwitchRequest createAssignmentSwitchRequest(Assignment offering, Assignment requested) {
@@ -324,7 +345,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(slotToBeTaken, volunteer);
+        securityHelper.assertUserIsVolunteer(slotToBeTaken);
 
         // check if user is eligible for the requested position slot
         eligibilityService.validateIsTradePossible(slotToBeTaken, volunteer);

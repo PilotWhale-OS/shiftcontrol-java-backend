@@ -1,5 +1,14 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.util.Map;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import io.micrometer.common.util.StringUtils;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -12,14 +21,12 @@ import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.ShiftEvent;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import io.micrometer.common.util.StringUtils;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +38,7 @@ public class ShiftServiceImpl implements ShiftService {
     private final UserPreferenceService userPreferenceService;
     private final ShiftAssemblingMapper shiftAssemblingMapper;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public ShiftDetailsDto getShiftDetails(long shiftId, String userId) throws NotFoundException {
@@ -54,6 +62,8 @@ public class ShiftServiceImpl implements ShiftService {
 
         validateModificationDtoAndSetShiftFields(modificationDto, newShift);
         newShift = shiftDao.save(newShift);
+
+        publisher.publishEvent(ShiftEvent.of(RoutingKeys.SHIFT_CREATED, newShift));
         return shiftAssemblingMapper.assemble(newShift);
     }
 
@@ -65,6 +75,8 @@ public class ShiftServiceImpl implements ShiftService {
         validateModificationDtoAndSetShiftFields(modificationDto, shift);
 
         shift = shiftDao.save(shift);
+
+        publisher.publishEvent(ShiftEvent.of(RoutingKeys.format(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shiftId))), shift));
         return shiftAssemblingMapper.assemble(shift);
     }
 
@@ -125,5 +137,6 @@ public class ShiftServiceImpl implements ShiftService {
         securityHelper.assertUserIsPlanner(shift);
 
         shiftDao.delete(shift);
+        publisher.publishEvent(ShiftEvent.of(RoutingKeys.format(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shiftId))), shift));
     }
 }

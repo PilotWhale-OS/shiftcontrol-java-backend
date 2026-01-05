@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +29,6 @@ public class UserProfileEndpoint {
     private final NotificationService notificationService;
 
     @GetMapping("/profile")
-    // TODO Security
     @Operation(
         operationId = "getCurrentUserProfile",
         description = "Get profile data of the current user (account, notifications, unavailability)"
@@ -38,12 +38,11 @@ public class UserProfileEndpoint {
     }
 
     @PatchMapping("/profile/notifications")
-    // TODO Security
     @Operation(
         operationId = "updateNotificationSettings",
         description = "Update notification settings of the current user"
     )
-    public NotificationSettingsDto updateNotificationSettings(@RequestBody NotificationSettingsDto updateDto) {
+    public NotificationSettingsDto updateNotificationSettings(@RequestBody @Valid NotificationSettingsDto updateDto) {
         return notificationService.updateNotificationSetting(userProvider.getCurrentUser().getUserId(), updateDto);
     }
 }

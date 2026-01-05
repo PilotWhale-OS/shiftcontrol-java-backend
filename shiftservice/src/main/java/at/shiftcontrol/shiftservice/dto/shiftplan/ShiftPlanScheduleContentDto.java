@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.dto.shiftplan;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +15,6 @@ public class ShiftPlanScheduleContentDto {
     private LocalDate date;
 
     @NotNull
+    @Valid
     private Collection<ScheduleContentDto> scheduleContentDtos;
 }

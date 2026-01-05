@@ -11,13 +11,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -49,6 +56,10 @@ import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.ShiftPlanEvent;
+import at.shiftcontrol.shiftservice.event.events.ShiftPlanInviteEvent;
+import at.shiftcontrol.shiftservice.event.events.ShiftPlanVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.InviteMapper;
@@ -64,10 +75,6 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -84,6 +91,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ShiftAssemblingMapper shiftMapper;
     private final SecurityHelper securityHelper;
     private final EventDao eventDao;
+    private final ApplicationEventPublisher publisher;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -104,26 +112,38 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
+    @AdminOnly
     public ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
         var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
         plan.setLockStatus(LockStatus.SELF_SIGNUP);
-        shiftPlanDao.save(plan);
+        plan = shiftPlanDao.save(plan);
+
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.SHIFTPLAN_CREATED, plan));
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
     @Override
+    @AdminOnly
     public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException {
         var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
         shiftPlanDao.save(plan);
+
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_UPDATED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), plan));
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
     @Override
+    @AdminOnly
     public void delete(long shiftPlanId) throws NotFoundException {
-        shiftPlanDao.delete(shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new));
+        var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+        shiftPlanDao.delete(shiftPlan);
+
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_DELETED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
     }
 
     @Override
@@ -367,8 +387,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElse(null);
 
         return ShiftPlanScheduleFilterValuesDto.builder()
-            .locations(locations.isEmpty() ? null : LocationMapper.toLocationDto(locations))
-            .roles(roles.isEmpty() ? null : RoleMapper.toRoleDto(roles))
+            .locations(locations.isEmpty() ? List.of() : LocationMapper.toLocationDto(locations))
+            .roles(roles.isEmpty() ? List.of() : RoleMapper.toRoleDto(roles))
             .firstDate(firstDate)
             .lastDate(lastDate)
             .build();
@@ -401,7 +421,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 throw new BadRequestException("One or more roleIds are invalid");
             }
 
-            // TODO verify roles belong to this shiftPlan
+             if (!rolesToAssign.stream().allMatch(role -> role.getShiftPlan().getId() == shiftPlanId)) {
+                throw new BadRequestException("One or more roles do not belong to the specified shift plan");
+            }
         }
 
         var invite = ShiftPlanInvite.builder()
@@ -425,6 +447,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             shiftPlanInviteDao.save(invite);
         }
 
+        publisher.publishEvent(ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_CREATED,
+            Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
+                "inviteId", String.valueOf(invite.getId()))), invite));
         return ShiftPlanInviteCreateResponseDto.builder()
             .code(invite.getCode())
             .type(invite.getType())
@@ -467,18 +492,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         invite.setActive(false);
         invite.setRevokedAt(Instant.now());
 
+        publisher.publishEvent(ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_REVOKED,
+            Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
+                "inviteId", String.valueOf(inviteId))), invite));
         shiftPlanInviteDao.save(invite);
-    }
-
-    private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
-        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN) {
-            securityHelper.assertUserIsPlanner(shiftPlanId, currentUser);
-        }
-
-        // only allowed by admins
-        if (type == ShiftPlanInviteType.PLANNER_JOIN && !(currentUser instanceof AdminUser)) {
-            throw new ForbiddenException("Only admins can create planner join invite codes");
-        }
     }
 
     @Override
@@ -491,6 +508,23 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
 
         shiftPlanInviteDao.delete(invite);
+
+        publisher.publishEvent(ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
+            Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
+                "inviteId", String.valueOf(inviteId))), invite));
+    }
+
+    private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) throws ForbiddenException {
+        if (type == ShiftPlanInviteType.VOLUNTEER_JOIN) {
+            securityHelper.assertUserIsPlanner(shiftPlanId, currentUser);
+        }
+
+        boolean isNotAdmin = securityHelper.isNotUserAdmin(currentUser);
+
+        // only allowed by admins
+        if (type == ShiftPlanInviteType.PLANNER_JOIN && isNotAdmin) {
+            throw new ForbiddenException("Only admins can create planner join invite codes");
+        }
     }
 
     @Override
@@ -515,14 +549,22 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
+    private boolean userIsInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
+        switch (type) {
+            case VOLUNTEER_JOIN -> {
+                return shiftPlan.getPlanVolunteers().contains(volunteer);
+            }
+            case PLANNER_JOIN -> {
+                return shiftPlan.getPlanPlanners().contains(volunteer);
+            }
+            default -> throw new BadRequestException("Unknown invite type");
+        }
+    }
+
     @Override
     public Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException {
-        var currentUser = userProvider.getCurrentUser();
-
         // both planners and admins can list invites
-        if (!currentUser.isPlannerInPlan(shiftPlanId)) {
-            throw new ForbiddenException("User is not a planner in shift plan with id: " + shiftPlanId);
-        }
+        securityHelper.assertUserIsPlanner(shiftPlanId);
 
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
 
@@ -539,7 +581,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @Transactional
-    public ShiftPlanJoinOverviewDto joinShiftPlanAsVolunteer(ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+    public ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
         String userId = userProvider.getCurrentUser().getUserId();
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
             throw new BadRequestException("inviteCode is null or empty");
@@ -587,6 +629,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
+        publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
+            Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
+                "volunteerId", userId)), shiftPlan, userId));
         return ShiftPlanJoinOverviewDto.builder()
             .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
             .joined(joinedNow)
@@ -602,6 +647,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             throw new BadRequestException("Lock status already in requested state");
         }
         shiftPlan.setLockStatus(lockStatus);
+
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
         shiftPlanDao.save(shiftPlan);
     }
 
@@ -625,7 +673,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     return false;
                 }
                 shiftPlan.getPlanVolunteers().add(volunteer);
-                // TODO add plan to volunteeringPlans too ?? Is this needed or resolved by ManyToMany mapping ??
                 return true;
             }
             case PLANNER_JOIN -> {
@@ -633,19 +680,9 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     return false;
                 }
                 shiftPlan.getPlanPlanners().add(volunteer);
-                return true;
-            }
-            default -> throw new BadRequestException("Unknown invite type");
-        }
-    }
+                shiftPlan.getPlanVolunteers().add(volunteer); // planners are also volunteers
 
-    private boolean userIsInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
-        switch (type) {
-            case VOLUNTEER_JOIN -> {
-                return shiftPlan.getPlanVolunteers().contains(volunteer);
-            }
-            case PLANNER_JOIN -> {
-                return shiftPlan.getPlanPlanners().contains(volunteer);
+                return true;
             }
             default -> throw new BadRequestException("Unknown invite type");
         }

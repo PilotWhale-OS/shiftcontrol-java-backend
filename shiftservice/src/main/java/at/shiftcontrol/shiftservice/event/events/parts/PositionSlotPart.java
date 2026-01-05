@@ -1,9 +1,10 @@
 package at.shiftcontrol.shiftservice.event.events.parts;
 
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
+
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
 
 @Data
 @Builder
@@ -12,7 +13,8 @@ public class PositionSlotPart {
     private String positionSlotName;
     private String positionSlotDescription;
 
-    public static PositionSlotPart of(PositionSlot positionSlot) {
+    @NonNull
+    public static PositionSlotPart of(@NonNull PositionSlot positionSlot) {
         return PositionSlotPart.builder()
                 .positionSlotId(positionSlot.getId())
                 .positionSlotName(positionSlot.getName())

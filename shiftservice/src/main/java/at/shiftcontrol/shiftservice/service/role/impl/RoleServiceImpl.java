@@ -2,6 +2,14 @@ package at.shiftcontrol.shiftservice.service.role.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import jakarta.ws.rs.NotFoundException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -14,14 +22,13 @@ import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.RoleEvent;
+import at.shiftcontrol.shiftservice.event.events.RoleVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.ws.rs.NotFoundException;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +38,7 @@ public class RoleServiceImpl implements RoleService {
     private final VolunteerDao volunteerDao;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public Collection<RoleDto> getRoles(Long shiftPlanId) {
@@ -47,18 +55,26 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
         securityHelper.assertUserIsPlanner(shiftPlanId);
-        Role entity = RoleMapper.toRole(roleDto);
         var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
-        entity.setShiftPlan(shiftPlan);
-        return RoleMapper.toRoleDto(roleDao.save(entity));
+
+        var role = RoleMapper.toRole(roleDto);
+        role.setShiftPlan(shiftPlan);
+
+        publisher.publishEvent(RoleEvent.of(RoutingKeys.ROLE_CREATED, role));
+        return RoleMapper.toRoleDto(roleDao.save(role));
     }
 
     @Override
     public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) throws ForbiddenException {
-        Role existing = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
-        securityHelper.assertUserIsPlanner(existing.getShiftPlan().getId());
-        updateRole(roleDto, existing);
-        return RoleMapper.toRoleDto(roleDao.save(existing));
+        var role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
+        securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
+
+        updateRole(roleDto, role);
+        role = roleDao.save(role);
+
+        publisher.publishEvent(RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_UPDATED,
+            Map.of("roleId", roleId.toString())), role));
+        return RoleMapper.toRoleDto(role);
     }
 
     private void updateRole(@NonNull RoleModificationDto roleDto, Role role) {
@@ -71,6 +87,9 @@ public class RoleServiceImpl implements RoleService {
     public void deleteRole(Long roleId) throws ForbiddenException {
         Role role = roleDao.findById(roleId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
+
+        publisher.publishEvent(RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_DELETED,
+            Map.of("roleId", roleId.toString())), role));
         roleDao.delete(role);
     }
 
@@ -91,6 +110,9 @@ public class RoleServiceImpl implements RoleService {
         }
         volunteer.getRoles().add(role);
         volunteerDao.save(volunteer);
+
+        publisher.publishEvent(RoleVolunteerEvent.of(RoutingKeys.format(RoutingKeys.ROLE_ASSIGNED,
+            Map.of("roleId", String.valueOf(role.getId()), "volunteerId", volunteer.getId())), role, volunteer.getId()));
         return VolunteerMapper.toDto(volunteer);
     }
 
@@ -106,6 +128,9 @@ public class RoleServiceImpl implements RoleService {
         if (!removed) {
             throw new NotFoundException("Role is not assigned to this user.");
         }
+
+        publisher.publishEvent(RoleVolunteerEvent.of(RoutingKeys.format(RoutingKeys.ROLE_UNASSIGNED,
+            Map.of("roleId", String.valueOf(role.getId()), "volunteerId", volunteer.getId())), role, volunteer.getId()));
         volunteerDao.save(volunteer);
     }
 }
