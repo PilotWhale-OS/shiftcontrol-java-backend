@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import config.TestSecurityConfig;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.EncoderConfig;
@@ -11,13 +12,21 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Import(TestSecurityConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@Tag("integration")
 public abstract class RestITBase {
     @LocalServerPort
     protected int port;
@@ -114,8 +123,8 @@ public abstract class RestITBase {
         return "UTF-8";
     }
 
-    public <T> T getRequest(final String uri, final Class<T> expectedObject) {
-        return this.doRequest(Method.GET, uri, "", 200, expectedObject);
+    public <T> T getRequestAsAssigned(final String uri, final Class<T> expectedObject, String userId) {
+        return this.doRequest(Method.GET, uri, "", new HashMap<>(), asAssignedHeaders(userId), 200, expectedObject);
     }
 
     public <T> T getRequest(final String uri, final Map<String, String> params, final Class<T> expectedObject) {

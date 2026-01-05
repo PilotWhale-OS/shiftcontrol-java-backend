@@ -11,26 +11,17 @@ import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
-import config.TestSecurityConfig;
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@Import(TestSecurityConfig.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@Tag("integration")
 class LocationIT extends RestITBase {
     private static final String LOCATION_PATH = "/locations";
     private static final String EVENT_LOCATION_PATH = "/events/%d/locations";
@@ -146,7 +137,7 @@ class LocationIT extends RestITBase {
 
     @Test
     void findEventByExistingIdReturnsLocationSuccessfully() {
-        var response = getRequest(LOCATION_PATH + "/" + locationA.getId(), LocationDto.class);
+        var response = getRequestAsAssigned(LOCATION_PATH + "/" + locationA.getId(), LocationDto.class, "123abc");
 
         assertAll(
             () -> assertThat(response).isNotNull(),
