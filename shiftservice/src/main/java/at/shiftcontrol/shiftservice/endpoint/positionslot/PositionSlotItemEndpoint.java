@@ -13,6 +13,7 @@ import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceUpdateDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -92,8 +93,13 @@ public class PositionSlotItemEndpoint {
             )
         }
     )
-    public AssignmentDto joinPositionSlot(@PathVariable String positionSlotId) {
-        return null; // TODO: implement
+    public AssignmentDto joinPositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotRequestDto requestDto)
+        throws ForbiddenException, ConflictException, NotFoundException {
+        return positionSlotService.join(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId(),
+            requestDto
+        );
     }
 
     @PutMapping("/preference")
@@ -141,12 +147,14 @@ public class PositionSlotItemEndpoint {
     )
     public AssignmentDto claimAssignment(
         @PathVariable String positionSlotId,
-        @PathVariable String offeringUserId
+        @PathVariable String offeringUserId,
+        @RequestBody @Valid PositionSlotRequestDto requestDto
     )
         throws NotFoundException, ConflictException, ForbiddenException {
         return positionSlotService.claimAuction(
             ConvertUtil.idToLong(positionSlotId), offeringUserId,
-            userProvider.getCurrentUser().getUserId());
+            userProvider.getCurrentUser().getUserId(),
+            requestDto);
     }
 
     @PostMapping("/cancel-auction")

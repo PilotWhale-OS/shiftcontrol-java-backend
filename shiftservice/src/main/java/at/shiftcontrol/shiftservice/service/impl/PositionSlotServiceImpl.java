@@ -17,6 +17,7 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -62,8 +63,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @IsNotAdmin
-    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
-        String acceptedRewardPointsHash = ""; //Todo: get from input
+    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto)
+        throws NotFoundException, ConflictException, ForbiddenException {
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         securityHelper.assertUserIsVolunteer(positionSlot);
@@ -78,7 +79,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         rewardPointsService.onAssignmentCreated(
             null, //Todo: pass created assignment
-            acceptedRewardPointsHash);
+            requestDto.getAcceptedRewardPointsConfigHash());
 
 
         // TODO close trades where this slot was offered to me
@@ -139,11 +140,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @Transactional
     @IsNotAdmin
-    public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
+    public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId,
+                                      @NonNull PositionSlotRequestDto requestDto)
         throws NotFoundException, ConflictException, ForbiddenException {
-
-        String acceptedRewardPointsHash = ""; //Todo: get from input
-
 
         // get auction-assignment
         Assignment auction = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
@@ -175,11 +174,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // execute claim
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
 
-        rewardPointsService.onAssignmentReassigned(
-            auction,
-            claimedAuction,
-            acceptedRewardPointsHash
-        );
+        rewardPointsService.onAssignmentReassigned(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
 
 
         return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
