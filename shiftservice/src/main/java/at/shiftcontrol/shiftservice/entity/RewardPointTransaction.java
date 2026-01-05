@@ -1,10 +1,12 @@
 package at.shiftcontrol.shiftservice.entity;
 
 import java.time.Instant;
+import java.util.Map;
 
 import at.shiftcontrol.shiftservice.type.RewardPointTransactionType;
-import com.fasterxml.jackson.databind.JsonNode;
+import at.shiftcontrol.shiftservice.util.JsonMapConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,8 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -67,7 +67,7 @@ public class RewardPointTransaction {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
-    private JsonNode metadata;
+    @Convert(converter = JsonMapConverter.class)
+    @Column(columnDefinition = "CLOB")
+    private Map<String, Object> metadata;
 }

@@ -1,5 +1,8 @@
 package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -7,7 +10,6 @@ import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -39,7 +41,7 @@ public class RewardPointsCalculatorImpl implements RewardPointsCalculator {
 
         int accepted = safeAdd(basePoints, shiftBonus);
 
-        ObjectNode meta = objectMapper.createObjectNode();
+        Map<String, Object> meta = new HashMap<>();
         meta.put("durationMinutes", durationMinutes);
         meta.put("slotFixedOverrideUsed", fixedOverride != null);
         if (fixedOverride != null) {

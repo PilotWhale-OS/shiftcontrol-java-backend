@@ -1,9 +1,9 @@
 package at.shiftcontrol.shiftservice.dto.rewardpoints;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Map;
 
 public record RewardPointsSnapshotDto(
     int rewardPoints,
-    JsonNode metadata
+    Map<String, Object> metadata
 ) {
 }

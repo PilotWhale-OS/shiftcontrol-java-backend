@@ -44,8 +44,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <!-- Liquibase doesn't have a first-class jsonb type; use custom type -->
-            <column name="metadata" type="jsonb">
+            <column name="metadata" type="TEXT">
                 <constraints nullable="true"/>
             </column>
 

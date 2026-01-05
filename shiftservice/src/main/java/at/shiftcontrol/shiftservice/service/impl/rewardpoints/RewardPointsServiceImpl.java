@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import at.shiftcontrol.lib.exception.ConflictException;
@@ -11,8 +13,6 @@ import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -159,10 +159,9 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         String sourceKey = "MANUAL:" + UUID.randomUUID();
 
-        JsonNode metadata = null;
+        Map<String, Object> metadata = new HashMap<>();
         if (reason != null) {
-            metadata = JsonNodeFactory.instance.objectNode()
-                .put("reason", reason);
+            metadata.put("reason", reason);
         }
 
         ledgerService.bookManualAdjust(

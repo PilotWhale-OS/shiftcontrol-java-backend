@@ -1,11 +1,11 @@
 package at.shiftcontrol.shiftservice.service.rewardpoints;
 
 import java.util.Collection;
+import java.util.Map;
 
 import at.shiftcontrol.shiftservice.dto.rewardpoints.BookingResultDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
-import com.fasterxml.jackson.databind.JsonNode;
 
 public interface RewardPointsLedgerService {
     /* ========= WRITE (append-only) ========= */
@@ -17,7 +17,7 @@ public interface RewardPointsLedgerService {
         Long positionSlotId,
         int points,
         String sourceKey,
-        JsonNode metadata
+        Map<String, Object> metadata
     );
 
     BookingResultDto bookReversal(
@@ -27,7 +27,7 @@ public interface RewardPointsLedgerService {
         Long positionSlotId,
         int pointsSnapshot,
         String sourceKey,
-        JsonNode metadata
+        Map<String, Object> metadata
     );
 
     BookingResultDto bookManualAdjust(
@@ -37,7 +37,7 @@ public interface RewardPointsLedgerService {
         Long positionSlotId,
         int points,
         String sourceKey,
-        JsonNode metadata
+        Map<String, Object> metadata
     );
 
     /* ========= READ (aggregation) ========= */

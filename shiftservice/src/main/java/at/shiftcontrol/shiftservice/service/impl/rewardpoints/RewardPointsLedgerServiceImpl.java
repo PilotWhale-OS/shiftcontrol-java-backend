@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Map;
 
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -13,7 +14,6 @@ import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
 import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.type.RewardPointTransactionType;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         Long positionSlotId,
         int points,
         String sourceKey,
-        JsonNode metadata
+        Map<String, Object> metadata
     ) {
         return insertIdempotent(
             userId,
@@ -58,7 +58,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         Long positionSlotId,
         int pointsSnapshot,
         String sourceKey,
-        JsonNode metadata
+        Map<String, Object> metadata
     ) {
         // reversal is always negative of the snapshot
         int points = -pointsSnapshot;
@@ -84,7 +84,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         Long positionSlotId,
         int points,
         String sourceKey,
-        JsonNode metadata
+        Map<String, Object> metadata
     ) {
         return insertIdempotent(
             userId,
@@ -106,7 +106,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         int points,
         RewardPointTransactionType type,
         String sourceKey,
-        JsonNode metadata
+        Map<String, Object> metadata
     ) {
         validateInputs(userId, eventId, points, sourceKey, type);
 
