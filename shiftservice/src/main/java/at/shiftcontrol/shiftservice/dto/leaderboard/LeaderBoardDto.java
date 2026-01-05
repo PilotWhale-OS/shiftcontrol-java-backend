@@ -19,5 +19,5 @@ public class LeaderBoardDto {
 
     @NotNull
     @Valid
-    Collection<RankDto> ranks;
+    private Collection<RankDto> ranks;
 }
