@@ -16,7 +16,7 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
             from RewardPointTransaction t
             where t.volunteerId = :volunteerId
         """)
-    long sumPointsByVolunteer(Long volunteerId);
+    long sumPointsByVolunteer(String volunteerId);
 
     /**
      * Points for a volunteer within one event: SUM(points) filtered by event.
@@ -27,7 +27,7 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
             where t.volunteerId = :volunteerId
               and t.eventId = :eventId
         """)
-    long sumPointsByVolunteerAndEvent(Long volunteerId, Long eventId);
+    long sumPointsByVolunteerAndEvent(String volunteerId, Long eventId);
 
     /**
      * Points per event for a volunteer: GROUP BY event.
@@ -41,5 +41,7 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
             group by t.eventId
             order by t.eventId
         """)
-    List<EventPointsInternalDto> sumPointsGroupedByEvent(Long volunteerId);
+    List<EventPointsInternalDto> sumPointsGroupedByEvent(String volunteerId);
+
+    List<RewardPointTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId);
 }

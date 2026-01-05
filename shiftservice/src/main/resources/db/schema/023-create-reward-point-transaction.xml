@@ -12,7 +12,7 @@
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_reward_point_transaction"/>
             </column>
 
-            <column name="volunteer_id" type="BIGINT">
+            <column name="volunteer_id" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
 
@@ -50,11 +50,6 @@
             </column>
 
         </createTable>
-
-        <!-- Default for created_at -->
-        <addDefaultValue tableName="reward_point_transaction"
-                         columnName="created_at"
-                         defaultValueComputed="now()"/>
 
         <!-- Indexes -->
         <createIndex indexName="idx_rpt_volunteer" tableName="reward_point_transaction">

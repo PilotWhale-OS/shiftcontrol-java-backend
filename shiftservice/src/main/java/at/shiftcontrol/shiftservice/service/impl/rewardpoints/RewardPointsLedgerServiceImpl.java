@@ -1,8 +1,8 @@
 package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
+import java.time.Instant;
 import java.util.Collection;
 
-import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
@@ -111,7 +111,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         validateInputs(userId, eventId, points, sourceKey, type);
 
         RewardPointTransaction tx = RewardPointTransaction.builder()
-            .volunteerId(ConvertUtil.idToLong(userId))
+            .volunteerId(userId)
             .eventId(eventId)
             .shiftPlanId(shiftPlanId) // optional
             .positionSlotId(positionSlotId) // optional
@@ -119,7 +119,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
             .type(type)
             .sourceKey(sourceKey)
             .metadata(metadata)
-            // createdAt is set by DB default
+            .createdAt(Instant.now())
             .build();
 
         try {
@@ -152,7 +152,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
     @Transactional(readOnly = true)
     @IsNotAdmin
     public TotalPointsDto getTotalPoints(String userId) {
-        var totalPoints = dao.sumPointsByVolunteer(ConvertUtil.idToLong(userId));
+        var totalPoints = dao.sumPointsByVolunteer(userId);
 
         return TotalPointsDto.builder()
             .totalPoints((int) totalPoints)
@@ -163,7 +163,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
     @Transactional(readOnly = true)
     @IsNotAdmin
     public EventPointsDto getPointsForEvent(String userId, long eventId) {
-        var evenPoints = dao.sumPointsByVolunteerAndEvent(ConvertUtil.idToLong(userId), eventId);
+        var evenPoints = dao.sumPointsByVolunteerAndEvent(userId, eventId);
 
         return EventPointsDto.builder()
             .eventId(String.valueOf(eventId))
@@ -175,6 +175,6 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
     @Transactional(readOnly = true)
     @IsNotAdmin
     public Collection<EventPointsDto> getPointsGroupedByEvent(String userId) {
-        return dao.sumPointsGroupedByEvent(ConvertUtil.idToLong(userId));
+        return dao.sumPointsGroupedByEvent(userId);
     }
 }

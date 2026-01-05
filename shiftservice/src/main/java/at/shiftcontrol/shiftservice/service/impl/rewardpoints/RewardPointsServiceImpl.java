@@ -35,13 +35,9 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         RewardPointsSnapshotDto snapshot = calculator.calculateForAssignment(slot);
 
-
-        // lock snapshot on assignment
-        assignment.setAcceptedRewardPoints(snapshot.rewardPoints());
-
         String sourceKey = sourceKeyJoin(slot.getId(), assignment.getAssignedVolunteer().getId());
 
-        ledgerService.bookEarn(
+        var result = ledgerService.bookEarn(
             assignment.getAssignedVolunteer().getId(),
             slot.getShift().getShiftPlan().getEvent().getId(),
             slot.getShift().getShiftPlan().getId(),
@@ -50,6 +46,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             sourceKey,
             snapshot.metadata()
         );
+
+        if (result.created()) {
+            // only set if booking was created
+            assignment.setAcceptedRewardPoints(result.transaction().getPoints());
+        }
     }
 
     private String sourceKeyJoin(long slotId, String volunteerId) {
@@ -111,15 +112,13 @@ public class RewardPointsServiceImpl implements RewardPointsService {
         // re-calculate + earn for new assignment
         RewardPointsSnapshotDto newSnapshot = calculator.calculateForAssignment(slot);
 
-        newAssignment.setAcceptedRewardPoints(newSnapshot.rewardPoints());
-
         String earnKey = sourceKeyReassignEarn(
             slot.getId(),
             oldAssignment.getAssignedVolunteer().getId(),
             newAssignment.getAssignedVolunteer().getId()
         );
 
-        ledgerService.bookEarn(
+        var result = ledgerService.bookEarn(
             newAssignment.getAssignedVolunteer().getId(),
             slot.getShift().getShiftPlan().getEvent().getId(),
             slot.getShift().getShiftPlan().getId(),
@@ -128,6 +127,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             earnKey,
             newSnapshot.metadata()
         );
+
+        if (result.created()) {
+            // only set if booking for new assigment was created
+            newAssignment.setAcceptedRewardPoints(newSnapshot.rewardPoints());
+        }
     }
 
     private void validateHash(@NonNull PositionSlot slot, @NonNull String acceptedRewardPointsHash) throws ConflictException {

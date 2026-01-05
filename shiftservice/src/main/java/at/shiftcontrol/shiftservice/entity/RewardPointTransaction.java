@@ -2,11 +2,9 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.time.Instant;
 
-import at.shiftcontrol.shiftservice.auth.config.JsonNodeConverter;
 import at.shiftcontrol.shiftservice.type.RewardPointTransactionType;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,6 +19,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -28,6 +29,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
+@Immutable
 @Table(name = "reward_point_transaction",
     indexes = {
         @Index(name = "idx_rpt_volunteer", columnList = "volunteer_id"),
@@ -43,7 +45,7 @@ public class RewardPointTransaction {
     private long id;
 
     @Column(name = "volunteer_id", nullable = false)
-    private long volunteerId;
+    private String volunteerId;
 
     @Column(name = "event_id", nullable = false)
     private long eventId;
@@ -64,10 +66,10 @@ public class RewardPointTransaction {
     @Column(name = "source_key", nullable = false, length = 255)
     private String sourceKey;
 
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(columnDefinition = "jsonb")
-    @Convert(converter = JsonNodeConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata", columnDefinition = "jsonb")
     private JsonNode metadata;
 }

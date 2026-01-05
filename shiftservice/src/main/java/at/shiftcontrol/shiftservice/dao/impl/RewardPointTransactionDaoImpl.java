@@ -39,17 +39,21 @@ public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao 
     }
 
     @Override
-    public long sumPointsByVolunteer(long volunteerId) {
+    public long sumPointsByVolunteer(String volunteerId) {
         return repo.sumPointsByVolunteer(volunteerId);
     }
 
     @Override
-    public long sumPointsByVolunteerAndEvent(long volunteerId, long eventId) {
+    public long sumPointsByVolunteerAndEvent(String volunteerId, long eventId) {
         return repo.sumPointsByVolunteerAndEvent(volunteerId, eventId);
     }
 
     @Override
-    public Collection<EventPointsDto> sumPointsGroupedByEvent(long volunteerId) {
+    public Collection<EventPointsDto> sumPointsGroupedByEvent(String volunteerId) {
         return EventPointsDtoMapper.toEventPointsDto(repo.sumPointsGroupedByEvent(volunteerId));
+    }
+
+    public Collection<RewardPointTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId) {
+        return repo.findAllByVolunteerIdOrderByCreatedAtAsc(volunteerId);
     }
 }

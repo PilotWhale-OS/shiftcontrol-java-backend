@@ -7,9 +7,11 @@ import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
 
 public interface RewardPointTransactionDao extends BasicDao<RewardPointTransaction, Long> {
 
-    long sumPointsByVolunteer(long volunteerId);
+    long sumPointsByVolunteer(String volunteerId);
 
-    long sumPointsByVolunteerAndEvent(long volunteerId, long eventId);
+    long sumPointsByVolunteerAndEvent(String volunteerId, long eventId);
 
-    Collection<EventPointsDto> sumPointsGroupedByEvent(long volunteerId);
+    Collection<EventPointsDto> sumPointsGroupedByEvent(String volunteerId);
+
+    Collection<RewardPointTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId);
 }
