@@ -26,7 +26,6 @@ public class ShiftPart {
     private Long relatedActivityId;
     @NotNull
     private Collection<PositionSlotPart> positionSlots;
-    @NotNull
     private Long locationId;
 
     @NonNull
