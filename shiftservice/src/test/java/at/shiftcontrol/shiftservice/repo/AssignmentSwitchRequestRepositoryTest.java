@@ -78,4 +78,24 @@ public class AssignmentSwitchRequestRepositoryTest {
         });
     }
 
+    @Test
+    void deleteTradesForOfferedPositionAndRequestedUser() {
+        long positionSlotId = 1L;
+        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
+
+        assignmentSwitchRequestRepository.deleteTradesForOfferedPositionAndRequestedUser(positionSlotId, userId);
+
+
+    }
+
+    @Test
+    void testDeleteTradesForAssignment() {
+        long positionSlotId = 3L;
+        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
+
+        assignmentSwitchRequestRepository.deleteTradesForAssignment(positionSlotId, userId);
+
+
+    }
+
 }

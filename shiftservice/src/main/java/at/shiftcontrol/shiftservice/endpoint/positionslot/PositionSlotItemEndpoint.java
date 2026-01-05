@@ -100,8 +100,25 @@ public class PositionSlotItemEndpoint {
             userProvider.getCurrentUser().getUserId());
     }
 
-
-    // TODO positionSlot unassign
+    @PutMapping("/leave")
+    @Operation(
+        operationId = "leavePositionSlot",
+        description = "Leave a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully left the position slot",
+                content = @Content(
+                    schema = @Schema(implementation = AssignmentDto.class)
+                )
+            )
+        }
+    )
+    public void leavePositionSlot(@PathVariable String positionSlotId) throws ForbiddenException, NotFoundException {
+        positionSlotService.leave(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId());
+    }
 
     @PutMapping("/preference")
     @Operation(

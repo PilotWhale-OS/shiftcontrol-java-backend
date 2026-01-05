@@ -78,7 +78,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
-        // Todo implement
+        // Todo test
 
         // check access to position slot
         securityHelper.assertUserIsVolunteer(positionSlot);
@@ -116,33 +116,30 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws ForbiddenException, NotFoundException {
-        // get position slot and volunteer
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        Volunteer volunteer = volunteerDao.findByUserId(volunteerId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found"));
+        // get assignment
+        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
+        if (assignment == null) {
+            throw new NotFoundException("not assined to position slot");
+        }
 
-        // TODO implement
-        // check access to position slot
-
-
-        // check if assignment exists
-
+        // TODO test
 
         // check if plan is locked
-
+        if (LockStatus.LOCKED.equals(assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus())) {
+            throw new IllegalStateException("join not possible, shift plan is locked");
+        }
 
         // delete involved trades
-
+        assignmentSwitchRequestDao.deleteTradesForAssignment(positionSlotId, volunteerId);
 
         // leave
-
+        assignmentDao.delete(assignment);
 
         // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId));
+            assignment.getPositionSlot(), volunteerId));
     }
 
     @Override
