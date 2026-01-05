@@ -13,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,8 +35,7 @@ import org.hibernate.type.SqlTypes;
         @Index(name = "idx_rpt_volunteer_event", columnList = "volunteer_id,event_id"),
         @Index(name = "idx_rpt_volunteer_shiftplan", columnList = "volunteer_id,shift_plan_id"),
         @Index(name = "idx_rpt_slot", columnList = "position_slot_id")
-    },
-    uniqueConstraints = @UniqueConstraint(name = "ux_rpt_source_key", columnNames = "source_key")
+    }
 )
 public class RewardPointTransaction {
     @Id
@@ -64,7 +62,7 @@ public class RewardPointTransaction {
     private RewardPointTransactionType type;
 
     @Column(name = "source_key", nullable = false, length = 255)
-    private String sourceKey;
+    private String sourceKey; // for idempotency (currently not used for unique constraint)
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

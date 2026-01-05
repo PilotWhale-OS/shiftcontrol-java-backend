@@ -37,7 +37,7 @@
             </column>
 
             <column name="source_key" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_rpt_source_key"/>
+                <constraints nullable="false"/>
             </column>
 
             <column name="created_at" type="TIMESTAMP">
