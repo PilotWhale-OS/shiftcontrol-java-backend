@@ -87,8 +87,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
             Map.of("positionSlotId", String.valueOf(positionSlotId),
-                "volunteerId", volunteerId)),
-            positionSlot, volunteerId));
+                "volunteerId", currentUserId)),
+            positionSlot, currentUserId));
         return null;
     }
 
