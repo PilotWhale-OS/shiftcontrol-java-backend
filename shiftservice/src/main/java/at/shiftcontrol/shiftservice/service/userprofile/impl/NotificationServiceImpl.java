@@ -19,6 +19,8 @@ import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignment;
 import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignmentId;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.NotificationSettingsEvent;
 import at.shiftcontrol.shiftservice.repo.userprofile.NotificationRepository;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.type.NotificationChannel;
@@ -94,8 +96,12 @@ public class NotificationServiceImpl implements NotificationService {
         toAdd.removeAll(existingChannels);
         addNewChannels(userId, toAdd, type);
 
-        //TODO publish event
-        return fetchPersistedSettings(userId, type);
+        var settings = fetchPersistedSettings(userId, type);
+
+        publisher.publishEvent(NotificationSettingsEvent.of(RoutingKeys.formatStrict(RoutingKeys.VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED,
+            Map.of("volunteerId", userId)),
+            userId, settings));
+        return settings;
     }
 
     private NotificationSettingsDto fetchPersistedSettings(String userId, NotificationType type) {
