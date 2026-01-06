@@ -169,8 +169,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId)
         throws NotFoundException, ConflictException, ForbiddenException {
         // get current user (volunteer)
-        Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
-            .orElseThrow(() -> new NotFoundException("user not found"));
+        Volunteer currentUser = volunteerDao.getById(currentUserId);
 
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.getById(ConvertUtil.idToLong(tradeCreateDto.getRequestedPositionSlotId()));
@@ -235,10 +234,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
-    public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
+    public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) throws ConflictException, ForbiddenException {
         // get current user (volunteer)
-        Volunteer currentUser = volunteerDao.findByUserId(currentUserId) // todo fix to correct security helper function
-            .orElseThrow(() -> new NotFoundException("user not found"));
+        Volunteer currentUser = volunteerDao.getById(currentUserId); // todo fix to correct security helper function
 
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);

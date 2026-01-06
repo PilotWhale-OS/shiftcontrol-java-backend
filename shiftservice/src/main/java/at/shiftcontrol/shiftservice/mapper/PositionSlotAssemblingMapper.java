@@ -35,10 +35,8 @@ public class PositionSlotAssemblingMapper {
     private final PositionSlotDao positionSlotDao;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
-        var volunteer = volunteerDao.findByUserId(applicationUserProvider.getCurrentUser().getUserId())
-            .orElseThrow(() -> new IllegalStateException("Current user has no volunteer entity"));
+        var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
         var preferenceValue = positionSlotDao.getPreference(volunteer.getId(), positionSlot.getId());
-
         // calculates SignupState for current user and
         // gets all trade offers for this slot for the current user
         return toDto(positionSlot,
@@ -55,7 +53,6 @@ public class PositionSlotAssemblingMapper {
         if (assignments == null || assignments.isEmpty()) {
             return Collections.emptyList();
         }
-
         return assignments.stream()
             .filter(assignment -> assignment.getAssignedVolunteer().getId().equals(userId))
             .flatMap(assignment -> assignment.getIncomingSwitchRequests().stream())
@@ -67,17 +64,14 @@ public class PositionSlotAssemblingMapper {
         var assignments = positionSlot.getAssignments();
         Collection<VolunteerDto> assignedVolunteers;
         Collection<AssignmentDto> assignmentsDtos;
-
         if (assignments == null) {
             assignedVolunteers = null;
             assignmentsDtos = null;
         } else {
             var volunteers = assignments.stream().map(Assignment::getAssignedVolunteer).toList();
             assignedVolunteers = VolunteerMapper.toDto(volunteers);
-
             assignmentsDtos = AssignmentMapper.toAuctionDto(assignments); // get open auctions for this slot
         }
-
         return new PositionSlotDto(
             String.valueOf(positionSlot.getId()),
             positionSlot.getName(),
@@ -97,7 +91,7 @@ public class PositionSlotAssemblingMapper {
 
     public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {
         Collection<AccountInfoDto> accountInfoDtos = volunteers.stream().map(
-            v-> {
+            v -> {
                 try {
                     return userProfileService.getUserProfile(v.getId()).getAccount();
                 } catch (NotFoundException e) {

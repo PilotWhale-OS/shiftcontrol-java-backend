@@ -73,8 +73,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsVolunteer(positionSlot);
 
-        var volunteer = volunteerDao.findByUserId(currentUserId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found"));
+        var volunteer = volunteerDao.getById(currentUserId);
 
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
         eligibilityService.validateHasConflictingAssignments(
@@ -94,8 +93,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws ForbiddenException, NotFoundException {
         var positionSlot = positionSlotDao.getById(positionSlotId);
-        var volunteer = volunteerDao.findByUserId(volunteerId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found"));
+        var volunteer = volunteerDao.getById(volunteerId);
 
         //Todo: Checks are needed if the user can leave
 
@@ -159,9 +157,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         securityHelper.assertUserIsVolunteer(auction.getPositionSlot());
 
         // get current user (volunteer)
-        Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
-            .orElseThrow(() -> new NotFoundException("user not found"));
-
+        Volunteer currentUser = volunteerDao.getById(currentUserId);
 
         // check for trade not necessary
 

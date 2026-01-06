@@ -237,7 +237,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             }
             if (filterDto.getShiftRelevances().contains(ShiftRelevance.SIGNUP_POSSIBLE)) {
                 signUpPossibleShifts = new ArrayList<>(filteredShiftsWithoutViewMode);
-                var volunteer = volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+                var volunteer = volunteerDao.getById(userId);
 
                 signUpPossibleShifts = signUpPossibleShifts.stream()
                     .filter(shift -> shift.getSlots().stream().anyMatch(slot ->
@@ -532,8 +532,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
 
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
-        var volunteer = volunteerDao.findByUserId(userId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+        var volunteer = volunteerDao.getById(userId);
         boolean alreadyJoined = userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
 
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
@@ -593,8 +592,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         validateInvite(invite);
         ShiftPlan shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
 
-        Volunteer volunteer = volunteerDao.findByUserId(userId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found with user id: " + userId));
+        Volunteer volunteer = volunteerDao.getById(userId);
 
         boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
 

@@ -43,7 +43,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             }
         }
         profile.setNotifications(notifications);
-        var volunteer = volunteerDao.findByUserId(userId).orElseThrow(NotFoundException::new);
+        var volunteer = volunteerDao.getById(userId);
         profile.setAssignedRoles(RoleMapper.toRoleDto(volunteer.getRoles()));
         return profile;
     }

@@ -36,16 +36,16 @@ public class EligibilityServiceImpl implements EligibilityService {
     public PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, String userId) throws NotFoundException {
         return getSignupStateForPositionSlot(
             positionSlotDao.getById(positionSlotId),
-            volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %s not found".formatted(userId))
-            ));
+            volunteerDao.getById(userId)
+            );
     }
 
     @Override
     public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) throws NotFoundException {
         return getSignupStateForPositionSlot(
             positionSlot,
-            volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %s not found".formatted(userId))
-            ));
+            volunteerDao.getById(userId)
+            );
     }
 
     @Override
