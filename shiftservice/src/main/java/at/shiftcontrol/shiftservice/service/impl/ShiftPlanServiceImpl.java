@@ -11,16 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -75,6 +67,11 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -466,8 +463,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @Override
     public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) {
         var userId = userProvider.getCurrentUser().getUserId();
-        var invite = shiftPlanInviteDao.findByCode(inviteCode)
-            .orElseThrow(() -> new NotFoundException("Invite code not found: " + inviteCode));
+        var invite = shiftPlanInviteDao.getByCode(inviteCode);
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
         var volunteer = volunteerDao.getById(userId);
         boolean alreadyJoined = userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
@@ -513,11 +509,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto) {
         String userId = userProvider.getCurrentUser().getUserId();
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
-            throw new BadRequestException("inviteCode is null or empty");
+            throw new BadRequestException("Invite code is null or empty");
         }
-        String code = requestDto.getInviteCode().trim();
-        ShiftPlanInvite invite = shiftPlanInviteDao.findByCode(code)
-            .orElseThrow(() -> new NotFoundException("Invite code not found"));
+        String inviteCode = requestDto.getInviteCode().trim();
+        ShiftPlanInvite invite = shiftPlanInviteDao.getByCode(inviteCode);
         validateInvite(invite);
         ShiftPlan shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
         Volunteer volunteer = volunteerDao.getById(userId);

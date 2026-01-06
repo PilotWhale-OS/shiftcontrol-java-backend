@@ -122,12 +122,8 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
     }
 
     private void validateInputs(String userId, long eventId, int points, String sourceKey, RewardPointTransactionType type) {
-        volunteerDao.findById(userId).orElseThrow(() ->
-            new IllegalArgumentException("userId does not exist: " + userId)
-        );
-        eventDao.findById(eventId).orElseThrow(() ->
-            new IllegalArgumentException("eventId does not exist: " + eventId)
-        );
+        volunteerDao.getById(userId);
+        eventDao.getById(eventId);
         if (sourceKey == null || sourceKey.isBlank()) {
             throw new IllegalArgumentException("sourceKey must not be blank");
         }
