@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
+import at.shiftcontrol.shiftservice.type.LockStatus;
+
 @Data
 @Builder
 public class ShiftPlanDto {
@@ -21,6 +23,9 @@ public class ShiftPlanDto {
 
     @Size(max = 1024)
     private String longDescription;
+
+    @NotNull
+    private LockStatus lockStatus;
 
     @NotNull
     @Min(0)

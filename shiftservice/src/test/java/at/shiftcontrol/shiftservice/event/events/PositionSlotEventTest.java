@@ -1,0 +1,28 @@
+package at.shiftcontrol.shiftservice.event.events;
+
+import org.junit.jupiter.api.Test;
+
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.event.events.parts.PositionSlotPart;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
+class PositionSlotEventTest {
+
+    @Test
+    void of() {
+        PositionSlot positionSlot = mock(PositionSlot.class);
+        String routingKey = "routingKey";
+
+        PositionSlotPart positionSlotPart = mock(PositionSlotPart.class);
+        try (var positionSlotPartMock = org.mockito.Mockito.mockStatic(PositionSlotPart.class)) {
+            positionSlotPartMock.when(() -> PositionSlotPart.of(positionSlot)).thenReturn(positionSlotPart);
+
+            PositionSlotEvent positionSlotEvent = PositionSlotEvent.of(routingKey, positionSlot);
+
+            assertEquals(routingKey, positionSlotEvent.getRoutingKey());
+            assertEquals(positionSlotPart, positionSlotEvent.getPositionSlot());
+        }
+    }
+}
+

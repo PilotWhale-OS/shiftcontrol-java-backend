@@ -4,7 +4,13 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.Map;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
@@ -19,13 +25,12 @@ import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.TimeConstraint;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.TimeConstraintEvent;
 import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +39,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final AssignmentDao assignmentDao;
     private final EventDao eventDao;
     private final VolunteerDao volunteerDao;
+    private final ApplicationEventPublisher publisher;
     private final SecurityHelper securityHelper;
 
     @Override
@@ -85,6 +91,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
             default -> throw new IllegalStateException("Unexpected value: " + createDto.getType());
         }
         var entity = timeConstraintDao.save(TimeConstraintMapper.fromCreateDto(createDto, volunteer, event));
+
+        publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.TIMECONSTRAINT_CREATED, entity));
         return TimeConstraintMapper.toDto(entity);
     }
 
@@ -99,11 +107,13 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     @Override
     @IsNotAdmin
     public void delete(long timeConstraintId) throws NotFoundException, ForbiddenException {
-        Optional<TimeConstraint> atcOpt = timeConstraintDao.findById(timeConstraintId);
-        if (atcOpt.isEmpty()) {
-            throw new NotFoundException("Time constraint not found");
-        }
-        timeConstraintDao.delete(atcOpt.get());
+        var timeConstraint = timeConstraintDao.findById(timeConstraintId)
+            .orElseThrow(() -> new NotFoundException("Time constraint not found"));
+
+        timeConstraintDao.delete(timeConstraint);
+
+        publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
+            Map.of("timeConstraintId", String.valueOf(timeConstraintId), "volunteerId", timeConstraint.getVolunteer().getId())), timeConstraint));
     }
 
     static void checkForConstraintOverlaps(@NonNull TimeConstraintCreateDto createDto,

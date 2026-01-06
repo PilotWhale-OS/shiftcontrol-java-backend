@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -18,6 +19,8 @@ import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignment;
 import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignmentId;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.NotificationSettingsEvent;
 import at.shiftcontrol.shiftservice.repo.userprofile.NotificationRepository;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.type.NotificationChannel;
@@ -27,6 +30,7 @@ import at.shiftcontrol.shiftservice.type.NotificationType;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public Set<NotificationSettingsDto> getNotificationsForUser(String userId) {
@@ -92,7 +96,12 @@ public class NotificationServiceImpl implements NotificationService {
         toAdd.removeAll(existingChannels);
         addNewChannels(userId, toAdd, type);
 
-        return fetchPersistedSettings(userId, type);
+        var settings = fetchPersistedSettings(userId, type);
+
+        publisher.publishEvent(NotificationSettingsEvent.of(RoutingKeys.format(RoutingKeys.VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED,
+            Map.of("volunteerId", userId)),
+            userId, settings));
+        return settings;
     }
 
     private NotificationSettingsDto fetchPersistedSettings(String userId, NotificationType type) {

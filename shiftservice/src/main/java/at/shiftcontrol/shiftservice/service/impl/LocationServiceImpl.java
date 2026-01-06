@@ -1,6 +1,13 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
+import java.util.Map;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -10,12 +17,11 @@ import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 import at.shiftcontrol.shiftservice.entity.Location;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.LocationEvent;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.service.LocationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +29,7 @@ public class LocationServiceImpl implements LocationService {
     private final LocationDao locationDao;
     private final EventDao eventDao;
     private final SecurityHelper securityHelper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public LocationDto getLocation(long locationId) throws NotFoundException {
@@ -55,6 +62,8 @@ public class LocationServiceImpl implements LocationService {
             .build();
 
         newLocation = locationDao.save(newLocation);
+
+        publisher.publishEvent(LocationEvent.of(RoutingKeys.LOCATION_CREATED, newLocation));
         return LocationMapper.toLocationDto(newLocation);
     }
 
@@ -73,6 +82,9 @@ public class LocationServiceImpl implements LocationService {
         location.setUrl(modificationDto.getUrl());
 
         location = locationDao.save(location);
+
+        publisher.publishEvent(LocationEvent.of(RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
+            Map.of("locationId", String.valueOf(locationId))), location));
         return LocationMapper.toLocationDto(location);
     }
 
@@ -86,6 +98,9 @@ public class LocationServiceImpl implements LocationService {
         }
 
         locationDao.delete(location);
+
+        publisher.publishEvent(LocationEvent.of(RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
+            Map.of("locationId", String.valueOf(locationId))), location));
     }
 
     private Location getLocationOrThrow(long locationId) throws NotFoundException {

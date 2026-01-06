@@ -2,7 +2,15 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Map;
 import java.util.stream.Stream;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
@@ -17,13 +25,11 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.ActivityEvent;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +37,7 @@ public class ActivityServiceImpl implements ActivityService {
     private final EventDao eventDao;
     private final ActivityDao activityDao;
     private final LocationDao locationDao;
+    private final ApplicationEventPublisher publisher;
     private final SecurityHelper securityHelper;
 
     @Override
@@ -68,6 +75,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
+        publisher.publishEvent(ActivityEvent.of(RoutingKeys.ACTIVITY_CREATED, activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -81,6 +89,8 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
+        publisher.publishEvent(ActivityEvent.of(RoutingKeys.format(RoutingKeys.ACTIVITY_UPDATED,
+            Map.of("activityId", String.valueOf(activityId))), activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -113,6 +123,9 @@ public class ActivityServiceImpl implements ActivityService {
         }
 
         activityDao.delete(activity);
+
+        publisher.publishEvent(ActivityEvent.of(RoutingKeys.format(RoutingKeys.ACTIVITY_DELETED,
+            Map.of("activityId", String.valueOf(activityId))), activity));
     }
 
     @Override

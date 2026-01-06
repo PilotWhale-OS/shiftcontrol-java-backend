@@ -5,6 +5,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.context.ApplicationEventPublisher;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
@@ -23,12 +31,6 @@ import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,6 +50,8 @@ class TimeConstraintServiceImplTest {
     private EventDao eventDao;
     @Mock
     private AssignmentDao assignmentDao;
+    @Mock
+    ApplicationEventPublisher eventPublisher;
 
     @Mock
     private SecurityHelper securityHelper;
@@ -175,8 +179,12 @@ class TimeConstraintServiceImplTest {
 
     @Test
     void delete_existing_deletesSuccessfully() throws NotFoundException, ForbiddenException {
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(USER_ID);
+
         TimeConstraint tc = new TimeConstraint();
         tc.setId(321L);
+        tc.setVolunteer(volunteer);
 
         when(timeConstraintDao.findById(321L)).thenReturn(Optional.of(tc));
 

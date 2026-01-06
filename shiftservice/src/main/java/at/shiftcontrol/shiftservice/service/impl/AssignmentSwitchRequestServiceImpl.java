@@ -4,10 +4,17 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
@@ -28,7 +35,9 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
+import at.shiftcontrol.shiftservice.event.events.TradeEvent;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
@@ -38,10 +47,6 @@ import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -215,7 +220,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             }
         }
 
-        return TradeMapper.toDto(assignmentSwitchRequestDao.saveAll(trades));
+        trades = assignmentSwitchRequestDao.saveAll(trades);
+
+        trades.forEach(trade -> publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                   "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        )));
+        return TradeMapper.toDto(trades);
     }
 
     private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
@@ -288,7 +299,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         trade.setStatus(TradeStatus.REJECTED);
-        return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
+
+        trade = assignmentSwitchRequestDao.save(trade);
+        publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        ));
+        return TradeMapper.toDto(trade);
     }
 
     @Override
@@ -305,7 +322,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         trade.setStatus(TradeStatus.CANCELED);
-        return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
+
+        trade = assignmentSwitchRequestDao.save(trade);
+        publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CANCELED,
+            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
+                "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
+        ));
+        return TradeMapper.toDto(trade);
     }
 
     private AssignmentSwitchRequest createAssignmentSwitchRequest(Assignment offering, Assignment requested) {
