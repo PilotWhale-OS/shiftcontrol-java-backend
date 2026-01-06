@@ -140,6 +140,11 @@ public class AssignmentSwitchRequestServiceIT {
         Assertions.assertTrue(newOffered.isPresent());
         var newRequested = assignmentDao.findById(AssignmentId.of(requestedSlotId, otherUserId));
         Assertions.assertTrue(newRequested.isPresent());
+        // old assignments should not exist anymore
+        var deletedOffered = assignmentDao.findById(AssignmentId.of(offeredSlotId, otherUserId));
+        Assertions.assertFalse(deletedOffered.isPresent());
+        var deletedRequested = assignmentDao.findById(AssignmentId.of(requestedSlotId, currentUserId));
+        Assertions.assertFalse(deletedRequested.isPresent());
     }
 
     @Test
