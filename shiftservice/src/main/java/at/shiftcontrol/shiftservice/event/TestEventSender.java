@@ -20,7 +20,7 @@ import at.shiftcontrol.shiftservice.event.events.ActivityEvent;
 public class TestEventSender {
     private final ApplicationEventPublisher publisher;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 100000)
     public void sendTestEvent() {
         Event event = new Event();
         event.setId(1L);
