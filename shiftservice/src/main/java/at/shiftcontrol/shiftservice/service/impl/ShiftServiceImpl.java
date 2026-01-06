@@ -10,8 +10,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
@@ -41,8 +39,8 @@ public class ShiftServiceImpl implements ShiftService {
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public ShiftDetailsDto getShiftDetails(long shiftId, String userId) throws NotFoundException {
-        var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
+    public ShiftDetailsDto getShiftDetails(long shiftId, String userId) {
+        var shift = shiftDao.getById(shiftId);
         var userPref = userPreferenceService.getUserPreference(userId, shiftId);
 
         return ShiftDetailsDto.builder()
@@ -52,10 +50,10 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public ShiftDto createShift(long shiftPlanId, @NonNull ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
+    public ShiftDto createShift(long shiftPlanId, @NonNull ShiftModificationDto modificationDto) {
         securityHelper.assertUserIsPlanner(shiftPlanId);
 
-        var shiftPlan = shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found"));
+        var shiftPlan = shiftPlanDao.getById(shiftPlanId);
         var newShift = Shift.builder()
             .shiftPlan(shiftPlan)
             .build();
@@ -68,8 +66,8 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public ShiftDto updateShift(long shiftId, @NonNull ShiftModificationDto modificationDto) throws NotFoundException, ForbiddenException {
-        var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
+    public ShiftDto updateShift(long shiftId, @NonNull ShiftModificationDto modificationDto) {
+        var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
 
         validateModificationDtoAndSetShiftFields(modificationDto, shift);
@@ -80,7 +78,7 @@ public class ShiftServiceImpl implements ShiftService {
         return shiftAssemblingMapper.assemble(shift);
     }
 
-    private void validateModificationDtoAndSetShiftFields(ShiftModificationDto modificationDto, Shift shift) throws NotFoundException {
+    private void validateModificationDtoAndSetShiftFields(ShiftModificationDto modificationDto, Shift shift) {
         if (StringUtils.isNotBlank(modificationDto.getActivityId()) && StringUtils.isNotBlank(modificationDto.getLocationId())) {
             throw new BadRequestException("Cannot set both related activity and location");
         }
@@ -95,9 +93,9 @@ public class ShiftServiceImpl implements ShiftService {
             throw new BadRequestException("Shift start time must be before end time");
         }
 
-        if (modificationDto.getStartTime().isBefore(event.getStartTime()) ||
-            modificationDto.getEndTime().isAfter(event.getEndTime()) ||
-            modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
+        if (modificationDto.getStartTime().isBefore(event.getStartTime())
+            || modificationDto.getEndTime().isAfter(event.getEndTime())
+            || modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
             throw new BadRequestException("Shift time must be within event time range");
         }
 
@@ -107,8 +105,7 @@ public class ShiftServiceImpl implements ShiftService {
         shift.setStartTime(modificationDto.getStartTime());
         shift.setEndTime(modificationDto.getEndTime());
         if (StringUtils.isNotBlank(modificationDto.getActivityId())) {
-            var activity = activityDao.findById(ConvertUtil.idToLong(modificationDto.getActivityId()))
-                .orElseThrow(() -> new NotFoundException("Activity not found"));
+            var activity = activityDao.getById(ConvertUtil.idToLong(modificationDto.getActivityId()));
             shift.setRelatedActivity(activity);
 
             if (activity.getLocation() != null) {
@@ -119,8 +116,7 @@ public class ShiftServiceImpl implements ShiftService {
                 shift.setLocation(activity.getLocation());
             }
         } else {
-            var location = locationDao.findById(ConvertUtil.idToLong(modificationDto.getLocationId()))
-                .orElseThrow(() -> new NotFoundException("Location not found"));
+            var location = locationDao.getById(ConvertUtil.idToLong(modificationDto.getLocationId()));
 
             var eventLocations = shift.getShiftPlan().getEvent().getLocations();
             if (!eventLocations.contains(location)) {
@@ -132,8 +128,8 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public void deleteShift(long shiftId) throws NotFoundException, ForbiddenException {
-        var shift = shiftDao.findById(shiftId).orElseThrow(() -> new NotFoundException("Shift not found"));
+    public void deleteShift(long shiftId) {
+        var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
 
         shiftDao.delete(shift);

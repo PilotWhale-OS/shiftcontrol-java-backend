@@ -48,7 +48,7 @@ public class PositionSlotItemEndpoint {
         operationId = "getPositionSlot",
         description = "Get details for a specific position slot in a shift"
     )
-    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
+    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) {
         return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
 
@@ -57,8 +57,7 @@ public class PositionSlotItemEndpoint {
         operationId = "updatePositionSlot",
         description = "Update a specific position slot in a shift"
     )
-    public PositionSlotDto updatePositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotModificationDto modificationDto)
-        throws NotFoundException, ForbiddenException {
+    public PositionSlotDto updatePositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotModificationDto modificationDto) {
         return positionSlotService.updatePositionSlot(ConvertUtil.idToLong(positionSlotId), modificationDto);
     }
 
@@ -67,7 +66,7 @@ public class PositionSlotItemEndpoint {
         operationId = "deletePositionSlot",
         description = "Delete a specific position slot in a shift"
     )
-    public void deletePositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
+    public void deletePositionSlot(@PathVariable String positionSlotId) {
         positionSlotService.deletePositionSlot(ConvertUtil.idToLong(positionSlotId));
     }
 
@@ -126,8 +125,7 @@ public class PositionSlotItemEndpoint {
     public PositionSlotPreferenceDto setPositionSlotPreference(
         @PathVariable String positionSlotId,
         @RequestBody @Valid PositionSlotPreferenceUpdateDto preferenceUpdateDto
-    )
-        throws ForbiddenException, NotFoundException {
+    ) {
         positionSlotService.setPreference(
             userProvider.getCurrentUser().getUserId(),
             ConvertUtil.idToLong(positionSlotId),
@@ -141,7 +139,7 @@ public class PositionSlotItemEndpoint {
         operationId = "auctionAssignment",
         description = "Put the logged in users assignment for the PositionSlot up for auction"
     )
-    public AssignmentDto auctionAssignment(@PathVariable String positionSlotId) throws NotFoundException {
+    public AssignmentDto auctionAssignment(@PathVariable String positionSlotId) {
         return positionSlotService.createAuction(
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());
@@ -155,8 +153,7 @@ public class PositionSlotItemEndpoint {
     public AssignmentDto claimAssignment(
         @PathVariable String positionSlotId,
         @PathVariable String offeringUserId
-    )
-        throws NotFoundException, ConflictException, ForbiddenException {
+    ) {
         return positionSlotService.claimAuction(
             ConvertUtil.idToLong(positionSlotId), offeringUserId,
             userProvider.getCurrentUser().getUserId());
@@ -167,7 +164,7 @@ public class PositionSlotItemEndpoint {
         operationId = "cancelAuction",
         description = "Cancel the logged in users auction for the PositionSlot"
     )
-    public AssignmentDto cancelAuction(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
+    public AssignmentDto cancelAuction(@PathVariable String positionSlotId) {
         return positionSlotService.cancelAuction(
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());

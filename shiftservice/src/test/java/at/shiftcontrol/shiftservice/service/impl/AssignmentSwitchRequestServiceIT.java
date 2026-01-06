@@ -13,9 +13,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
@@ -46,7 +43,7 @@ public class AssignmentSwitchRequestServiceIT {
 
 
     @Test
-    void testGetPositionSlotsToOffer() throws NotFoundException, ForbiddenException {
+    void testGetPositionSlotsToOffer() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long positionSlotId = 3L;
         Mockito.when(userProfileService.getUserProfile(any()))
@@ -59,7 +56,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testCreateTrade() throws ConflictException, NotFoundException, ForbiddenException {
+    void testCreateTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         String offeredPosition = "11";
@@ -86,7 +83,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testAcceptTrade() throws ConflictException, NotFoundException, ForbiddenException {
+    void testAcceptTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         Mockito.when(userProfileService.getUserProfile(any()))
             .thenReturn(getUserProfileDtoWithId(currentUserId));
@@ -103,7 +100,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testDeclineTrade() throws NotFoundException {
+    void testDeclineTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
             new AssignmentId(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5"),
@@ -117,7 +114,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testCancelTrade() throws NotFoundException {
+    void testCancelTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
             new AssignmentId(1L, currentUserId),

@@ -18,6 +18,11 @@ public class PositionConstraintDaoImpl implements PositionConstraintDao {
     private final PositionConstraintRepository positionConstraintRepository;
 
     @Override
+    public String getName() {
+        return "PositionConstraint";
+    }
+
+    @Override
     public Optional<PositionConstraint> findById(PositionConstraintId id) {
         return positionConstraintRepository.findById(id);
     }

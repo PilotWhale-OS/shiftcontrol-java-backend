@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -34,10 +35,8 @@ public class PositionSlotAssemblingMapper {
     private final PositionSlotDao positionSlotDao;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
-        var volunteer = volunteerDao.findByUserId(applicationUserProvider.getCurrentUser().getUserId())
-            .orElseThrow(() -> new IllegalStateException("Current user has no volunteer entity"));
+        var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
         var preferenceValue = positionSlotDao.getPreference(volunteer.getId(), positionSlot.getId());
-
         // calculates SignupState for current user and
         // gets all trade offers for this slot for the current user
         return toDto(positionSlot,
@@ -54,7 +53,6 @@ public class PositionSlotAssemblingMapper {
         if (assignments == null || assignments.isEmpty()) {
             return Collections.emptyList();
         }
-
         return assignments.stream()
             .filter(assignment -> assignment.getAssignedVolunteer().getId().equals(userId))
             .flatMap(assignment -> assignment.getIncomingSwitchRequests().stream())
@@ -74,7 +72,6 @@ public class PositionSlotAssemblingMapper {
             assignmentDtos = AssignmentMapper.toDto(positionSlot.getAssignments());
             auctionDtos = AssignmentMapper.toAuctionDto(assignments); // get open auctions for this slot
         }
-
         return new PositionSlotDto(
             String.valueOf(positionSlot.getId()),
             positionSlot.getName(),
@@ -97,7 +94,7 @@ public class PositionSlotAssemblingMapper {
             v -> {
                 try {
                     return userProfileService.getUserProfile(v.getId()).getAccount();
-                } catch (NotFoundException e) {
+                } catch (NotFoundException | ForbiddenException e) {
                     throw new RuntimeException(e);
                 }
             }).toList();

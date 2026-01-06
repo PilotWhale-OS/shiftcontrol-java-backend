@@ -12,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -60,24 +57,22 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public PositionSlotDto findById(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-
+    public PositionSlotDto findById(@NonNull Long positionSlotId) {
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsInPlan(positionSlot);
-
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
     @Override
     @IsNotAdmin
-    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
+    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get position slot and volunteer
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+        var positionSlot = positionSlotDao.getById(positionSlotId);
+        var volunteer = volunteerDao.getById(currentUserId);
 
         // check access to position slot
         securityHelper.assertUserIsVolunteer(positionSlot);
+
 
         // check if plan is locked
         if (LockStatusHelper.isLocked(positionSlot)) {
@@ -109,8 +104,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
-            Map.of("positionSlotId", String.valueOf(positionSlotId),
-                "volunteerId", currentUserId)),
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
             positionSlot, currentUserId));
 
         // save and return
@@ -121,6 +116,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException {
         // get assignment
+        // TODO use getById
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
         if (assignment == null) {
             throw new NotFoundException("not assigned to position slot");
@@ -149,12 +145,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-
+    public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) {
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsInPlan(positionSlot);
-
         return AssignmentMapper.toDto(positionSlot.getAssignments());
     }
 
@@ -164,7 +157,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
         // no security check necessary, because user is already assigned to position,
         //  if not, assignment would not be found
-
         // check for signup phase
         LockStatus lockStatus = assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus();
         switch (lockStatus) {
@@ -179,9 +171,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             default:
                 throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
-
         publisher.publishEvent(AssignmentEvent.of(
-            RoutingKeys.format(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
+            RoutingKeys.format(RoutingKeys.AUCTION_CREATED,
+                Map.of("positionSlotId", String.valueOf(positionSlotId))
+            ), assignment
         ));
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
@@ -189,8 +182,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @Transactional
     @IsNotAdmin
-    public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId)
-        throws NotFoundException, ConflictException, ForbiddenException {
+    public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId) {
         // get auction-assignment
         Assignment auction = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
         if (auction == null
@@ -200,27 +192,18 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
         // check if current user is volunteer in plan
         securityHelper.assertUserIsVolunteer(auction.getPositionSlot());
-
         // get current user (volunteer)
-        Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
-            .orElseThrow(() -> new NotFoundException("user not found"));
-
-
+        Volunteer currentUser = volunteerDao.getById(currentUserId);
         // check for trade not necessary
-
         // check if user is eligible for the auction position slot
         eligibilityService.validateSignUpStateForAuction(auction.getPositionSlot(), currentUser);
-
         // check if any current assignments overlap with auction position slot
         eligibilityService.validateHasConflictingAssignments(
             currentUser.getId(), auction.getPositionSlot());
-
         // cancel existing trades
         assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
-
         // execute claim
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
-
         publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
             "positionSlotId", String.valueOf(positionSlotId),
             "volunteerId", currentUserId)), claimedAuction
@@ -229,22 +212,20 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String userId) throws ForbiddenException {
+    public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String userId) {
         Assignment assignment = getAssignmentForUser(positionSlotId, userId);
-
         if (!assignment.getAssignedVolunteer().getId().equals(userId)) {
             securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         } else {
             securityHelper.assertUserIsVolunteer(assignment.getPositionSlot());
         }
-
-
         assignment.setStatus(AssignmentStatus.ACCEPTED);
-
         assignment = assignmentDao.save(assignment);
-
         publisher.publishEvent(AssignmentEvent.of(
-            RoutingKeys.format(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
+            RoutingKeys.format(
+                RoutingKeys.AUCTION_CANCELED,
+                Map.of("positionSlotId", String.valueOf(positionSlotId))
+            ), assignment
         ));
         return AssignmentMapper.toDto(assignment);
     }
@@ -263,9 +244,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
         newAssignment.setStatus(AssignmentStatus.ACCEPTED);
         newAssignment.setAssignedVolunteer(newVolunteer);
-
         assignmentDao.save(newAssignment);
-
         // Reassign dependent switch requests
         newAssignment.getIncomingSwitchRequests()
             .forEach(req -> req.setRequestedAssignment(newAssignment));
@@ -273,91 +252,65 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             .forEach(req -> req.setOfferingAssignment(newAssignment));
         assignmentSwitchRequestDao.saveAll(oldAssignment.getIncomingSwitchRequests());
         assignmentSwitchRequestDao.saveAll(oldAssignment.getOutgoingSwitchRequests());
-
         // Delete old assignment
         assignmentDao.delete(oldAssignment);
-
         return newAssignment;
     }
 
     @Override
     @IsNotAdmin
-    public void setPreference(@NonNull String currentUserId, long positionSlotId, int preference) throws NotFoundException, ForbiddenException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-
+    public void setPreference(@NonNull String currentUserId, long positionSlotId, int preference) {
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsVolunteer(positionSlot);
-
-
         if (preference < -10 || preference > 10) {
             throw new BadRequestException("preference must be between -10 and 10");
         }
-
         positionSlotDao.setPreference(currentUserId, positionSlotId, preference);
-
         publisher.publishEvent(PreferenceEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
             Map.of("positionSlotId", String.valueOf(positionSlotId),
                 "volunteerId", currentUserId)), currentUserId, preference, positionSlot));
     }
 
     @Override
-    public int getPreference(@NonNull String currentUserId, long positionSlotId) throws ForbiddenException, NotFoundException {
-        PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-
+    public int getPreference(@NonNull String currentUserId, long positionSlotId) {
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsInPlan(positionSlot);
-
         return positionSlotDao.getPreference(currentUserId, positionSlotId);
     }
 
     @Override
-    public PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto)
-        throws NotFoundException, ForbiddenException {
-        var shift = shiftDao.findById(shiftId)
-            .orElseThrow(() -> new NotFoundException("Shift not found"));
+    public PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) {
+        var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
-
         var positionSlot = PositionSlot.builder()
             .shift(shift)
             .build();
-
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
-
         positionSlot = positionSlotDao.save(positionSlot);
-
         publisher.publishEvent(PositionSlotEvent.of(RoutingKeys.POSITIONSLOT_CREATED, positionSlot));
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
     @Override
-    public PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto)
-        throws NotFoundException, ForbiddenException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+    public PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto) {
+        var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsPlanner(positionSlot);
-
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
-
         positionSlot = positionSlotDao.save(positionSlot);
-
         publisher.publishEvent(PositionSlotEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_UPDATED,
             Map.of("positionSlotId", String.valueOf(positionSlotId))), positionSlot));
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
-    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot)
-        throws NotFoundException {
+    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot) {
         if (modificationDto == null) {
             throw new BadRequestException("Modification data must be provided");
         }
-
         positionSlot.setName(modificationDto.getName());
         positionSlot.setDescription(modificationDto.getDescription());
-
         positionSlot.setSkipAutoAssignment(modificationDto.isSkipAutoAssignment());
         if (StringUtils.isNotBlank(modificationDto.getRoleId())) {
-            var role = roleDao.findById(ConvertUtil.idToLong(modificationDto.getRoleId()))
-                .orElseThrow(() -> new NotFoundException("Role not found"));
+            var role = roleDao.getById(ConvertUtil.idToLong(modificationDto.getRoleId()));
             positionSlot.setRole(role);
         } else {
             positionSlot.setRole(null);
@@ -367,11 +320,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    public void deletePositionSlot(@NonNull Long positionSlotId) throws NotFoundException, ForbiddenException {
-        var positionSlot = positionSlotDao.findById(positionSlotId)
-            .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
+    public void deletePositionSlot(@NonNull Long positionSlotId) {
+        var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsPlanner(positionSlot);
-
         positionSlotDao.delete(positionSlot);
         publisher.publishEvent(PositionSlotEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_DELETED,
             Map.of("positionSlotId", String.valueOf(positionSlotId))), positionSlot));

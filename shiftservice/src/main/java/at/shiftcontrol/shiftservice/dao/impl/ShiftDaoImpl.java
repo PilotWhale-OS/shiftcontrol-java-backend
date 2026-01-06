@@ -4,19 +4,26 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.impl.specification.ShiftSpecifications;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
 public class ShiftDaoImpl implements ShiftDao {
     private final ShiftRepository shiftRepository;
+
+    @Override
+    public String getName() {
+        return "Shift";
+    }
 
     @Override
     public Optional<Shift> findById(Long id) {

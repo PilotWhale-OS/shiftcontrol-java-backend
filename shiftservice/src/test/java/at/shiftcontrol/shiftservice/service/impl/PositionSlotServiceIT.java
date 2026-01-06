@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
@@ -48,7 +47,7 @@ public class PositionSlotServiceIT {
 
     @Test
     @Disabled
-    void testClaimAuction() throws ConflictException, NotFoundException, ForbiddenException {
+    void testClaimAuction() {
         String auctionUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
 
@@ -60,7 +59,7 @@ public class PositionSlotServiceIT {
     }
 
     @Test
-    void testCancelAuction() throws ForbiddenException {
+    void testCancelAuction() {
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         // AssignedUser user = new AssignedUser(null, null, userId, null);
         // Mockito.when(userProviderMock.getCurrentUser()).thenReturn(user);
