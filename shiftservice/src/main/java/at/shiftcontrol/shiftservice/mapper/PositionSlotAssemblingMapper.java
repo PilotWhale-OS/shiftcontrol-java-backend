@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -94,7 +95,7 @@ public class PositionSlotAssemblingMapper {
             v -> {
                 try {
                     return userProfileService.getUserProfile(v.getId()).getAccount();
-                } catch (NotFoundException e) {
+                } catch (NotFoundException | ForbiddenException e) {
                     throw new RuntimeException(e);
                 }
             }).toList();
