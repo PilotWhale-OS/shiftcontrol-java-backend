@@ -269,12 +269,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // update assignments
         executeTrade(trade);
 
-        // TODO handle trade here, but reassignment has to happen on both sides + hash has to be locked for offerer on trade create and for accepter here
-        rewardPointsService.onAssignmentReassigned(
-            trade.getOfferingAssignment(),
-            trade.getRequestedAssignment(),
-            null //TODO: handle acceptedRewardPointsHash
-        );
+        rewardPointsService.onAssignmentReassignedTrade(trade.getOfferingAssignment(), trade.getRequestedAssignment());
 
         return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
     }

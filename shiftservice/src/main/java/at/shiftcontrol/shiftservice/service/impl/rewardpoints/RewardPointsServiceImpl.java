@@ -90,8 +90,22 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     @Override
     @Transactional
     @IsNotAdmin
-    public void onAssignmentReassigned(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment,
-                                       @NonNull String acceptedRewardPointsHash) throws ConflictException {
+    public void onAssignmentReassignedAuction(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment,
+                                              @NonNull String acceptedRewardPointsHash) throws ConflictException {
+        // recalculate points for new assignment via auction
+        onAssignmentReassigned(oldAssignment, newAssignment, acceptedRewardPointsHash, true);
+    }
+
+    @Override
+    @Transactional
+    @IsNotAdmin
+    public void onAssignmentReassignedTrade(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment) throws ConflictException {
+        // simply reuse old points snapshot and do not recalculate
+        onAssignmentReassigned(oldAssignment, newAssignment, null, false);
+    }
+
+    private void onAssignmentReassigned(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment,
+                                        String acceptedRewardPointsHash, boolean recalculate) throws ConflictException {
         PositionSlot slot = oldAssignment.getPositionSlot();
         // reverse old assignment
         int oldPointsSnapshot = oldAssignment.getAcceptedRewardPoints();
@@ -117,10 +131,26 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             oldAssignment.setAcceptedRewardPoints(0);
         }
 
-        validateHash(slot, acceptedRewardPointsHash);
 
-        // re-calculate + earn for new assignment
-        RewardPointsSnapshotDto newSnapshot = calculator.calculateForAssignment(slot);
+        RewardPointsSnapshotDto newSnapshot;
+        if (recalculate) {
+            if (acceptedRewardPointsHash == null) {
+                throw new IllegalArgumentException("acceptedRewardPointsHash must not be null when recalculating");
+            }
+            // re-calculate + earn for new assignment
+            validateHash(slot, acceptedRewardPointsHash);
+            newSnapshot = calculator.calculateForAssignment(slot);
+        } else {
+            if (acceptedRewardPointsHash != null) {
+                throw new IllegalArgumentException("acceptedRewardPointsHash must be null when not recalculating");
+            }
+
+            // use old snapshot
+            newSnapshot = new RewardPointsSnapshotDto(
+                oldPointsSnapshot,
+                Map.of("note", "reused points from previous assignment because of trade")
+            );
+        }
 
         String earnKey = sourceKeyReassignEarn(
             slot.getId(),

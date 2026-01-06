@@ -8,7 +8,10 @@ public interface RewardPointsService {
 
     void onAssignmentRemoved(Assignment assignment);
 
-    void onAssignmentReassigned(Assignment oldAssignment, Assignment newAssignment, String acceptedRewardPointsHash)
+    void onAssignmentReassignedAuction(Assignment oldAssignment, Assignment newAssignment, String acceptedRewardPointsHash)
+        throws ConflictException;
+
+    void onAssignmentReassignedTrade(Assignment oldAssignment, Assignment newAssignment)
         throws ConflictException;
 
     void manualAdjust(String volunteerId, long eventId, int points, String reason);

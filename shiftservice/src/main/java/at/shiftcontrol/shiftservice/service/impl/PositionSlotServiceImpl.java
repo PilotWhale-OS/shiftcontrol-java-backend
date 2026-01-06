@@ -172,7 +172,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // execute claim
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
 
-        rewardPointsService.onAssignmentReassigned(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
+        rewardPointsService.onAssignmentReassignedAuction(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
 
         return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
     }
