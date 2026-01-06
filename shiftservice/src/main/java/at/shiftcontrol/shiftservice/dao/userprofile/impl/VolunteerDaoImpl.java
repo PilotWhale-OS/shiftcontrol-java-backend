@@ -17,6 +17,11 @@ public class VolunteerDaoImpl implements VolunteerDao {
     private final VolunteerRepository volunteerRepository;
 
     @Override
+    public String getName() {
+        return "Volunteer";
+    }
+
+    @Override
     public Optional<Volunteer> findById(String id) {
         return volunteerRepository.findById(id);
     }

@@ -1,15 +1,13 @@
 package at.shiftcontrol.shiftservice.config;
 
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,6 +37,21 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<Object> handleAllUnhandledExceptions(
+        Exception ex,
+        WebRequest request
+    ) {
+        LOGGER.error("Unhandled exception", ex);
+        return handleExceptionInternal(
+            ex,
+            new ApiErrorDto("An unexpected error occurred"),
+            new HttpHeaders(),
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            request
+        );
+    }
+
     /**
      * Use the @ExceptionHandler annotation to write handler for custom exceptions.
      */
@@ -56,17 +69,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleConflict(Exception ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
         var conflictException = (ConflictException) ex;
-
-
-        //Either respond with DTO (if available) or message
-        if (conflictException.hasDto()) {
-            return handleExceptionInternal(conflictException, conflictException.getDto(), new HttpHeaders(), CONFLICT, request);
-        } else {
-            return handleExceptionInternal(conflictException, conflictException.getMessage(), new HttpHeaders(), CONFLICT, request);
-        }
+        Object body = conflictException.hasDto() ? conflictException.getDto() : conflictException.getMessage();
+        return handleExceptionInternal(conflictException, body, new HttpHeaders(), CONFLICT, request);
     }
 
-    @ExceptionHandler(value = {ForbiddenException.class})
+    @ExceptionHandler(value = {PartiallyNotFoundException.class, NotificationSettingAlreadyExistsException.class})
+    public ResponseEntity<Object> handleConflicts(Exception ex, WebRequest request) {
+        return handleInternal(ex, request, CONFLICT);
+    }
+
+    @ExceptionHandler(value = {ForbiddenException.class, AuthorizationDeniedException.class})
     protected ResponseEntity<Object> handleForbidden(Exception ex, WebRequest request) {
         return handleInternal(ex, request, FORBIDDEN);
     }
@@ -74,16 +86,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {UnauthorizedException.class})
     protected ResponseEntity<Object> handleUnauthorized(Exception ex, WebRequest request) {
         return handleInternal(ex, request, UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(value = {PartiallyNotFoundException.class})
-    protected ResponseEntity<Object> handlePartiallyNotFoundErrors(Exception ex, WebRequest request) {
-        return handleInternal(ex, request, CONFLICT);
-    }
-
-    @ExceptionHandler(NotificationSettingAlreadyExistsException.class)
-    public ResponseEntity<Object> handleNotificationSettingAlreadyExistsException(Exception ex, WebRequest request) {
-        return handleInternal(ex, request, CONFLICT);
     }
 
     @ExceptionHandler(value = {BadRequestException.class})
@@ -109,15 +111,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,
                                                                   HttpStatusCode status, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        //Get all errors
-        List<String> errors = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(err -> err.getField() + " " + err.getDefaultMessage())
-            .collect(Collectors.toList());
-        body.put("Validation errors", errors);
+        // If you want to keep your ApiErrorDto shape minimal:
+        // pick the first message, or join them.
+        String msg = ex.getBindingResult().getFieldErrors().stream()
+            .map(err -> err.getField() + " " + err.getDefaultMessage()) // <-- add space
+            .collect(Collectors.joining(", "));
 
-        return new ResponseEntity<>(body.toString(), headers, status);
+        return new ResponseEntity<>(new ApiErrorDto(msg), headers, status);
     }
 }

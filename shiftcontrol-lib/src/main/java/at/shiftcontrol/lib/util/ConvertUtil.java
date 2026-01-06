@@ -8,12 +8,12 @@ import at.shiftcontrol.lib.exception.BadRequestException;
 public class ConvertUtil {
     public static long idToLong(String value) throws BadRequestException {
         if (value == null || value.isEmpty()) {
-            throw new BadRequestException("id is null or empty");
+            throw new BadRequestException("Id is not present.");
         }
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
-            throw new BadRequestException("id is not a valid long: " + value);
+            throw new BadRequestException("Id is not valid.");
         }
     }
 

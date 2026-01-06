@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
@@ -32,6 +33,7 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final TimeConstraintDao timeConstraintDao;
     private final AssignmentDao assignmentDao;
@@ -66,7 +68,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         var userPlans = volunteer.getVolunteeringPlans();
         var volunteerIsInEvent = userPlans != null && userPlans.stream().anyMatch(plan -> plan.getEvent().getId() == eventId);
         if (!volunteerIsInEvent) {
-            throw new ConflictException("Volunteer with id: %s is not part of event with id: %d".formatted(userId, eventId));
+            log.error("Volunteer with id: {} is not part of event with id: {}", userId, eventId);
+            throw new ConflictException("Volunteer is not part of event.");
         }
         switch (createDto.getType()) {
             case UNAVAILABLE -> {

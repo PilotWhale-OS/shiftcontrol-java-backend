@@ -316,7 +316,7 @@ public abstract class RestITBase {
             .asString();
 
         if (matchDetailExactly) {
-            assertThat(actual).isEqualTo(message);
+            assertThat(extractMessageFromErrorJson(actual)).isEqualTo(message);
         } else {
             assertThat(actual).contains(message);
         }

@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -25,6 +26,7 @@ import at.shiftcontrol.shiftservice.service.StatisticService;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardServiceImpl implements DashboardService {
     private final StatisticService statisticService;
     private final ShiftPlanDao shiftPlanDao;
@@ -57,7 +59,8 @@ public class DashboardServiceImpl implements DashboardService {
     private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) {
         var currentUser = userProvider.getCurrentUser();
         if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
-            throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
+            log.error("User has no access to shift plan with id: {}", shiftPlanId);
+            throw new ForbiddenException("User has no access to shift plan.");
         }
 
         return currentUser.getUserId();
