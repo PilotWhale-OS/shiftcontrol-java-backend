@@ -2,8 +2,21 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
@@ -14,19 +27,6 @@ import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.EventService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -42,7 +42,7 @@ public class EventEndpoint {
         operationId = "getEventById",
         description = "Find event by id"
     )
-    public EventDto getEvent(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
+    public EventDto getEvent(@PathVariable String eventId) {
         return eventService.getEvent(ConvertUtil.idToLong(eventId));
     }
 
@@ -51,7 +51,7 @@ public class EventEndpoint {
         operationId = "getAllEvents",
         description = "Find all (volunteer related) events"
     )
-    public Collection<EventDto> getAllEvents() throws NotFoundException {
+    public Collection<EventDto> getAllEvents() {
         return eventService.search(null);
     }
     //Todo: Add search capability in future
@@ -61,8 +61,7 @@ public class EventEndpoint {
         operationId = "getEventSchedule",
         description = "Get the schedule of an event"
     )
-    public EventScheduleDto getEventSchedule(@PathVariable String eventId, @Valid EventScheduleDaySearchDto searchDto)
-        throws NotFoundException, ForbiddenException {
+    public EventScheduleDto getEventSchedule(@PathVariable String eventId, @Valid EventScheduleDaySearchDto searchDto) {
         return eventService.getEventSchedule(ConvertUtil.idToLong(eventId), searchDto);
     }
 
@@ -80,7 +79,7 @@ public class EventEndpoint {
         operationId = "updateEvent",
         description = "Update an existing event"
     )
-    public EventDto updateEvent(@PathVariable String eventId, @RequestBody @Valid EventModificationDto modificationDto) throws NotFoundException {
+    public EventDto updateEvent(@PathVariable String eventId, @RequestBody @Valid EventModificationDto modificationDto) {
         return eventService.updateEvent(ConvertUtil.idToLong(eventId), modificationDto);
     }
 
@@ -89,7 +88,7 @@ public class EventEndpoint {
         operationId = "deleteEvent",
         description = "Delete an existing event"
     )
-    public void deleteEvent(@PathVariable String eventId) throws NotFoundException {
+    public void deleteEvent(@PathVariable String eventId) {
         eventService.deleteEvent(ConvertUtil.idToLong(eventId));
     }
 
@@ -98,7 +97,7 @@ public class EventEndpoint {
         operationId = "getShiftPlansOverviewOfEvent",
         description = "Get an overview of all (volunteer related) shift plans of an event including statistics and reward points for the current user"
     )
-    public EventShiftPlansOverviewDto getAllShiftPlanOverviewsOfEvent(@PathVariable String eventId) throws NotFoundException {
+    public EventShiftPlansOverviewDto getAllShiftPlanOverviewsOfEvent(@PathVariable String eventId) {
         return eventService.getEventShiftPlansOverview(ConvertUtil.idToLong(eventId), userProvider.getCurrentUser().getUserId());
     }
 
@@ -107,7 +106,7 @@ public class EventEndpoint {
         operationId = "getEventsDashboard",
         description = "Get (volunteer related) dashboard data for all events"
     )
-    public EventsDashboardOverviewDto getEventsDashboard() throws NotFoundException, ForbiddenException {
+    public EventsDashboardOverviewDto getEventsDashboard() {
         return dashboardService.getDashboardOverviewsOfAllShiftPlans(userProvider.getCurrentUser().getUserId());
     }
 }

@@ -18,6 +18,11 @@ public class TimeConstraintDaoImpl implements TimeConstraintDao {
     private final TimeConstraintRepository timeConstraintRepository;
 
     @Override
+    public String getName() {
+        return "TimeConstraint";
+    }
+
+    @Override
     public Optional<TimeConstraint> findById(Long id) {
         return timeConstraintRepository.findById(id);
     }

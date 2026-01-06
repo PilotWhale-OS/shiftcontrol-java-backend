@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
@@ -39,7 +38,7 @@ public class RoleUserAssignmentEndpoint {
     public VolunteerDto createUserRoleAssignment(
         @PathVariable String userId,
         @RequestBody @Valid UserRoleAssignmentAssignDto roleAssignmentAssign
-    ) throws ForbiddenException {
+    ) {
         return roleService.createUserRoleAssignment(userId, roleAssignmentAssign);
     }
 
@@ -52,7 +51,7 @@ public class RoleUserAssignmentEndpoint {
     public void deleteUserRoleAssignment(
         @PathVariable String userId,
         @PathVariable String roleId
-    ) throws ForbiddenException {
+    ) {
         roleService.deleteUserRoleAssignment(userId, ConvertUtil.idToLong(roleId));
     }
 }

@@ -19,6 +19,11 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     private final AssignmentSwitchRequestRepository assignmentSwitchRequestRepository;
 
     @Override
+    public String getName() {
+        return "AssignmentSwitchRequest";
+    }
+
+    @Override
     public Optional<AssignmentSwitchRequest> findById(AssignmentSwitchRequestId id) {
         return assignmentSwitchRequestRepository.findById(id);
     }

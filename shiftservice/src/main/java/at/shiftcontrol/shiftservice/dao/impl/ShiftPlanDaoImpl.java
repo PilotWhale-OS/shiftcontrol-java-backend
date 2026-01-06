@@ -17,6 +17,11 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     private final ShiftPlanRepository shiftPlanRepository;
 
     @Override
+    public String getName() {
+        return "ShiftPlan";
+    }
+
+    @Override
     public Optional<ShiftPlan> findById(Long id) {
         return shiftPlanRepository.findById(id);
     }

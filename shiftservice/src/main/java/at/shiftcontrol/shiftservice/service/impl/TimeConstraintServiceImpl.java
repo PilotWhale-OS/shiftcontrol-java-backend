@@ -11,11 +11,10 @@ import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -34,6 +33,7 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final TimeConstraintDao timeConstraintDao;
     private final AssignmentDao assignmentDao;
@@ -49,9 +49,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
     @Override
     @IsNotAdmin
-    public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId)
-        throws ConflictException, ForbiddenException {
-
+    public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId) {
+        // todo add security
         // Validate date range
         Instant from = createDto.getFrom();
         Instant to = createDto.getTo();
@@ -62,18 +61,16 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         if (type == TimeConstraintType.EMERGENCY && from.isAfter(to)) {
             throw new ConflictException("Invalid time whole day range: 'from' must at least be 'to' for emergency type");
         }
-
         // get event and volunteer
-        var event = eventDao.findById(eventId).orElseThrow(() -> new ConflictException("Event not found with id: " + eventId));
-        var volunteer = volunteerDao.findById(userId).orElseThrow(() -> new ConflictException("Volunteer not found with id: " + userId));
-
+        var event = eventDao.getById(eventId);
+        var volunteer = volunteerDao.getById(userId);
         // Check that volunteer is part of the event via any of their shift plans
         var userPlans = volunteer.getVolunteeringPlans();
         var volunteerIsInEvent = userPlans != null && userPlans.stream().anyMatch(plan -> plan.getEvent().getId() == eventId);
         if (!volunteerIsInEvent) {
-            throw new ConflictException("Volunteer with id: %s is not part of event with id: %d".formatted(userId, eventId));
+            log.error("Volunteer with id: {} is not part of event with id: {}", userId, eventId);
+            throw new ConflictException("Volunteer is not part of event.");
         }
-
         switch (createDto.getType()) {
             case UNAVAILABLE -> {
                 // Check for overlapping time constraints for this volunteer+event
@@ -91,7 +88,6 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
             default -> throw new IllegalStateException("Unexpected value: " + createDto.getType());
         }
         var entity = timeConstraintDao.save(TimeConstraintMapper.fromCreateDto(createDto, volunteer, event));
-
         publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.TIMECONSTRAINT_CREATED, entity));
         return TimeConstraintMapper.toDto(entity);
     }
@@ -106,18 +102,15 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
     @Override
     @IsNotAdmin
-    public void delete(long timeConstraintId) throws NotFoundException, ForbiddenException {
-        var timeConstraint = timeConstraintDao.findById(timeConstraintId)
-            .orElseThrow(() -> new NotFoundException("Time constraint not found"));
-
+    public void delete(long timeConstraintId) {
+        var timeConstraint = timeConstraintDao.getById(timeConstraintId);
         timeConstraintDao.delete(timeConstraint);
-
         publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
             Map.of("timeConstraintId", String.valueOf(timeConstraintId), "volunteerId", timeConstraint.getVolunteer().getId())), timeConstraint));
     }
 
     static void checkForConstraintOverlaps(@NonNull TimeConstraintCreateDto createDto,
-                                           @NonNull Collection<TimeConstraint> existingConstraints) throws ConflictException {
+                                           @NonNull Collection<TimeConstraint> existingConstraints) {
         for (var constraint : existingConstraints) {
             if (createDto.getFrom().isBefore(constraint.getEndTime())
                 && createDto.getTo().isAfter(constraint.getStartTime())) {
@@ -126,7 +119,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         }
     }
 
-    private void checkForAssignmentOverlaps(@NonNull String userId, Instant from, Instant to) throws ConflictException {
+    private void checkForAssignmentOverlaps(@NonNull String userId, Instant from, Instant to) {
         var existingAssignments = assignmentDao.getConflictingAssignments(userId, from, to);
         if (!existingAssignments.isEmpty()) {
             throw new ConflictException("New time constraint overlaps with existing assignments ids=%s"
