@@ -1,11 +1,15 @@
 package at.shiftcontrol.lib.auth.impl;
 
+import java.util.Optional;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import lombok.NonNull;
+
 import at.shiftcontrol.lib.auth.ApplicationUser;
 import at.shiftcontrol.lib.auth.UserProvider;
 import at.shiftcontrol.lib.exception.UnauthorizedException;
-import lombok.NonNull;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 @Component
 public class UserProviderImpl implements UserProvider {
@@ -25,5 +29,23 @@ public class UserProviderImpl implements UserProvider {
         }
 
         return (ApplicationUser) principle;
+    }
+
+    @Override
+    public Optional<ApplicationUser> getNullableApplicationUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return Optional.empty();
+        }
+
+        var principle = authentication.getPrincipal();
+        if (principle == null) {
+            return Optional.empty();
+        }
+        if (!(principle instanceof ApplicationUser)) {
+            return Optional.empty();
+        }
+
+        return Optional.of((ApplicationUser) principle);
     }
 }

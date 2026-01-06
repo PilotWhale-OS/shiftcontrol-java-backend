@@ -19,7 +19,7 @@
 
     <!-- codegen defaults (can be overridden via -D...) -->
     <codegen.schemas.dir>${project.build.directory}/schemas</codegen.schemas.dir>
-    <codegen.csharp.out>${project.build.directory}/EventClasses.cs</codegen.csharp.out>
+    <codegen.csharp.out>${project.build.directory}/../../notificationservice/Generated/EventClasses.cs</codegen.csharp.out>
 
     <!-- pin versions -->
     <codegen.node.version>v24.12.0</codegen.node.version>
@@ -109,7 +109,6 @@
   </build>
 
   <profiles>
-    <!-- NEW: generate JSON Schemas + C# classes only when explicitly enabled -->
     <profile>
       <id>codegen</id>
       <build>
@@ -130,7 +129,7 @@
                   <packageNames>at/shiftcontrol/shiftservice/event/**</packageNames>
 
                   <schemaFilePath>${codegen.schemas.dir}</schemaFilePath>
-                  <schemaFileName>{0}.schema.json</schemaFileName>
+                  <schemaFileName>{0}.schema</schemaFileName>
 
                   <schemaVersion>DRAFT_2020_12</schemaVersion>
 
@@ -139,6 +138,18 @@
 
                   <classpath>PROJECT_ONLY</classpath>
                   <failIfNoClassesMatch>true</failIfNoClassesMatch>
+
+                  <options>
+                    <preset>PLAIN_JSON</preset>
+                    <enabled>
+                      <option>DEFINITIONS_FOR_ALL_OBJECTS</option>
+                      <option>FORBIDDEN_ADDITIONAL_PROPERTIES_BY_DEFAULT</option>
+<!--                      <option>NULLABLE_FIELDS_BY_DEFAULT</option>-->
+                      <option>VALUES_FROM_CONSTANT_FIELDS</option>
+                      <option>PUBLIC_STATIC_FIELDS</option>
+<!--                      <option>DEFINITION_FOR_MAIN_SCHEMA</option>-->
+                    </enabled>
+                  </options>
 
                   <modules>
                     <module>
@@ -185,7 +196,7 @@
                 <configuration>
                   <workingDirectory>${project.build.directory}</workingDirectory>
                   <arguments>
-                    exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype --src-lang schema --lang csharp --framework NewtonSoft --csharp-version 6 --out "${codegen.csharp.out}" --namespace "ShiftControl.Events" "${codegen.schemas.dir}"
+                    exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype --src-lang schema --lang csharp --features just-types-and-namespace --out "${codegen.csharp.out}" --namespace "ShiftControl.Events" "${codegen.schemas.dir}"
                   </arguments>
                 </configuration>
               </execution>
