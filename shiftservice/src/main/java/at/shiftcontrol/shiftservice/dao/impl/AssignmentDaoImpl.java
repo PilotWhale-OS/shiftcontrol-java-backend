@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentId;
@@ -64,8 +65,9 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
-    public Assignment findAssignmentForPositionSlotAndUser(long positionSlotId, String userId) {
-        return assignmentRepository.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
+    public Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId) {
+        return assignmentRepository.findAssignmentForPositionSlotAndUser(positionSlotId, userId)
+            .orElseThrow(() -> new NotFoundException("Not assigned to position slot."));
     }
 
     @Override

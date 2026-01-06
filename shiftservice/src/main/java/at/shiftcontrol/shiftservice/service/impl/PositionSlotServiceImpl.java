@@ -67,8 +67,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get position slot and volunteer
-        var positionSlot = positionSlotDao.getById(positionSlotId);
-        var volunteer = volunteerDao.getById(currentUserId);
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
 
         // check access to position slot
         securityHelper.assertUserIsVolunteer(positionSlot);
@@ -84,8 +83,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
 
         // get volunteer
-        Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found"));
+        Volunteer volunteer = volunteerDao.getById(currentUserId);
 
         // check if already assigned, eligible and conflicts
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
@@ -114,13 +112,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @IsNotAdmin
-    public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException {
+    public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) {
         // get assignment
-        // TODO use getById
-        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
-        if (assignment == null) {
-            throw new NotFoundException("not assigned to position slot");
-        }
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
 
         // check if plan is locked
         if (LockStatusHelper.isLocked(assignment)) {
@@ -154,7 +148,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
-        Assignment assignment = getAssignmentForUser(positionSlotId, currentUserId);
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
         // no security check necessary, because user is already assigned to position,
         //  if not, assignment would not be found
         // check for signup phase
@@ -184,10 +178,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @IsNotAdmin
     public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId) {
         // get auction-assignment
-        Assignment auction = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
-        if (auction == null
-            || (auction.getStatus() != AssignmentStatus.AUCTION
-            && auction.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN)) {
+        Assignment auction = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
+        if (auction.getStatus() != AssignmentStatus.AUCTION
+            && auction.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN) {
             throw new BadRequestException("assignment not up for auction");
         }
         // check if current user is volunteer in plan
@@ -213,7 +206,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public AssignmentDto cancelAuction(@NonNull Long positionSlotId, @NonNull String userId) {
-        Assignment assignment = getAssignmentForUser(positionSlotId, userId);
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         if (!assignment.getAssignedVolunteer().getId().equals(userId)) {
             securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         } else {
@@ -228,14 +221,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             ), assignment
         ));
         return AssignmentMapper.toDto(assignment);
-    }
-
-    private Assignment getAssignmentForUser(Long positionSlotId, String userId) {
-        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
-        if (assignment == null) {
-            throw new BadRequestException("Not assigned to position slot");
-        }
-        return assignment;
     }
 
     private Assignment reassignAssignment(Assignment oldAssignment, Volunteer newVolunteer) {

@@ -38,7 +38,7 @@ public class PositionSlotServiceIT {
     void testCreateAuction() {
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
 
-        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(11L, userId);
+        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(11L, userId).get();
         AssignmentDto dto = positionSlotService.createAuction(assignment.getPositionSlot().getId(), userId);
 
         Assertions.assertNotNull(dto);
@@ -51,7 +51,7 @@ public class PositionSlotServiceIT {
         String auctionUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
 
-        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(5L, auctionUserId);
+        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(5L, auctionUserId).get();
         AssignmentDto dto = positionSlotService.claimAuction(assignment.getPositionSlot().getId(), auctionUserId, currentUserId);
 
         Assertions.assertNotNull(dto);
@@ -64,7 +64,7 @@ public class PositionSlotServiceIT {
         // AssignedUser user = new AssignedUser(null, null, userId, null);
         // Mockito.when(userProviderMock.getCurrentUser()).thenReturn(user);
 
-        Assignment auction = assignmentRepository.findAssignmentForPositionSlotAndUser(11L, userId);
+        Assignment auction = assignmentRepository.findAssignmentForPositionSlotAndUser(11L, userId).get();
         AssignmentDto dto = positionSlotService.cancelAuction(auction.getPositionSlot().getId(), userId);
 
         Assertions.assertNotNull(dto);

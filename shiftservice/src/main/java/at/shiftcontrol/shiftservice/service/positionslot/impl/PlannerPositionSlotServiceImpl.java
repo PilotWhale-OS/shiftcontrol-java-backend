@@ -39,7 +39,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
 
     @Override
     public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) {
-        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
@@ -56,7 +56,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
 
     @Override
     public void declineRequest(long shiftPlanId, long positionSlotId, String userId) {
-        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not declineable");
