@@ -19,6 +19,11 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     private final AssignmentSwitchRequestRepository assignmentSwitchRequestRepository;
 
     @Override
+    public String getName() {
+        return "AssignmentSwitchRequest";
+    }
+
+    @Override
     public Optional<AssignmentSwitchRequest> findById(AssignmentSwitchRequestId id) {
         return assignmentSwitchRequestRepository.findById(id);
     }
@@ -51,5 +56,15 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     @Override
     public Collection<AssignmentSwitchRequest> findTradesForShiftPlanAndUser(long shiftPlanId, String userId) {
         return assignmentSwitchRequestRepository.findTradesForShiftPlanAndUser(shiftPlanId, userId);
+    }
+
+    @Override
+    public void deleteTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId) {
+        assignmentSwitchRequestRepository.deleteTradesForOfferedPositionAndRequestedUser(positionSlotId, userId);
+    }
+
+    @Override
+    public void deleteTradesForAssignment(Long positionSlotId, String assignedUser) {
+        assignmentSwitchRequestRepository.deleteTradesForAssignment(positionSlotId, assignedUser);
     }
 }

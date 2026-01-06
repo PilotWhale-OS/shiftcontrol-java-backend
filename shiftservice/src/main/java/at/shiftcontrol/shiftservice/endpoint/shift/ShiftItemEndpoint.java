@@ -15,8 +15,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
@@ -40,7 +38,7 @@ public class ShiftItemEndpoint {
         operationId = "getShiftDetails",
         description = "Get details for a specific shift of a shift plan"
     )
-    public ShiftDetailsDto getShiftDetails(@PathVariable String shiftId) throws NotFoundException {
+    public ShiftDetailsDto getShiftDetails(@PathVariable String shiftId) {
         return shiftService.getShiftDetails(ConvertUtil.idToLong(shiftId), userProvider.getCurrentUser().getUserId());
     }
 
@@ -49,8 +47,7 @@ public class ShiftItemEndpoint {
         operationId = "updateShift",
         description = "Update a specific shift of a shift plan"
     )
-    public ShiftDto updateShift(@PathVariable String shiftId, @RequestBody @Valid ShiftModificationDto shiftModificationDto)
-        throws NotFoundException, ForbiddenException {
+    public ShiftDto updateShift(@PathVariable String shiftId, @RequestBody @Valid ShiftModificationDto shiftModificationDto) {
         return shiftService.updateShift(ConvertUtil.idToLong(shiftId), shiftModificationDto);
     }
 
@@ -59,7 +56,7 @@ public class ShiftItemEndpoint {
         operationId = "deleteShift",
         description = "Delete a specific shift of a shift plan"
     )
-    public void deleteShift(@PathVariable String shiftId) throws NotFoundException, ForbiddenException {
+    public void deleteShift(@PathVariable String shiftId) {
         shiftService.deleteShift(ConvertUtil.idToLong(shiftId));
     }
 }

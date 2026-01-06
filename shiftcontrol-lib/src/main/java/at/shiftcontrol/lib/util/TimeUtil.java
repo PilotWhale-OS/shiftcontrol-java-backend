@@ -55,11 +55,26 @@ public class TimeUtil {
     }
 
     public static long calculateDurationInMinutes(Instant startInstant, Instant endInstant) {
-        if (startInstant == null || endInstant == null) {
-            return 0;
-        }
-        long durationInMillis = endInstant.toEpochMilli() - startInstant.toEpochMilli();
+        long durationInMillis = calculateDurationInMillis(startInstant, endInstant);
+
         return durationInMillis / (1000 * 60);
+    }
+
+    public static long calculateDurationInMinutesCeil(Instant startInstant, Instant endInstant) {
+        long durationInMillis = calculateDurationInMillis(startInstant, endInstant);
+
+        // CEIL: any started minute counts as a full minute
+        return (durationInMillis + (60_000 - 1)) / 60_000;
+    }
+
+    private static long calculateDurationInMillis(Instant startInstant, Instant endInstant) {
+        if (startInstant == null || endInstant == null) {
+            throw new IllegalArgumentException("shift start/end must not be null");
+        }
+        if (!endInstant.isAfter(startInstant)) {
+            throw new IllegalArgumentException("shift end must be after start");
+        }
+        return endInstant.toEpochMilli() - startInstant.toEpochMilli();
     }
 
     /**

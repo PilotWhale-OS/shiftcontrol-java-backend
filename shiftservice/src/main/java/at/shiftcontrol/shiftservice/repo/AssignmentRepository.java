@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.repo;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -48,7 +49,7 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Assignme
         SELECT a FROM Assignment a
         WHERE a.positionSlot.id = :positionSlotId AND a.assignedVolunteer.id = :userId
         """)
-    Assignment findAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
+    Optional<Assignment> findAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
 
     @Query("""
         SELECT a FROM Assignment a

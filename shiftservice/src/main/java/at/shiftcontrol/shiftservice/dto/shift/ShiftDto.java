@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -53,4 +54,8 @@ public class ShiftDto {
 
     @NotNull
     private LockStatus lockStatus;
+
+    @NotNull
+    @Min(0)
+    private int bonusRewardPoints;
 }

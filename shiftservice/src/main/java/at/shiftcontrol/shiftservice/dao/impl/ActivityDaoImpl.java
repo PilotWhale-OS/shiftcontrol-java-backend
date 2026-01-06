@@ -20,6 +20,11 @@ public class ActivityDaoImpl implements ActivityDao {
     private final ActivityRepository activityRepository;
 
     @Override
+    public String getName() {
+        return "Activity";
+    }
+
+    @Override
     public Optional<Activity> findById(Long id) {
         return activityRepository.findById(id);
     }

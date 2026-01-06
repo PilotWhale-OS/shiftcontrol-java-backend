@@ -27,4 +27,10 @@ public class UserProfileDto {
     @NotNull
     @Valid
     private Collection<RoleDto> assignedRoles;
+
+    @NotNull
+    private Collection<String> planningPlans;
+
+    @NotNull
+    private Collection<String> volunteeringPlans;
 }

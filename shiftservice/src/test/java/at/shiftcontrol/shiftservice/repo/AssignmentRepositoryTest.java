@@ -79,7 +79,7 @@ public class AssignmentRepositoryTest {
 
     @Test
     void testFindAssignmentForPositionSlotAndUser() {
-        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5");
+        Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5").get();
         Assertions.assertEquals("28c02050-4f90-4f3a-b1df-3c7d27a166e5", assignment.getAssignedVolunteer().getId());
         Assertions.assertEquals(1L, assignment.getPositionSlot().getId());
     }

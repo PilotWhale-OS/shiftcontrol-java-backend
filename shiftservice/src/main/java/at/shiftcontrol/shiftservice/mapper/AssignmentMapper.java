@@ -2,14 +2,14 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 import java.util.EnumSet;
-
-import lombok.NonNull;
+import java.util.List;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
+import lombok.NonNull;
 
 public class AssignmentMapper {
     public static final EnumSet<AssignmentStatus> ACTIVE_AUCTION_STATES =
@@ -19,10 +19,14 @@ public class AssignmentMapper {
         return new AssignmentDto(
             String.valueOf(assignment.getPositionSlot().getId()),
             VolunteerMapper.toDto(assignment.getAssignedVolunteer()),
-            assignment.getStatus());
+            assignment.getStatus(),
+            assignment.getAcceptedRewardPoints());
     }
 
-    public static Collection<AssignmentDto> toDto(@NonNull Collection<Assignment> assignments) {
+    public static Collection<AssignmentDto> toDto(Collection<Assignment> assignments) {
+        if (assignments == null) {
+            return List.of();
+        }
         return assignments.stream().map(AssignmentMapper::toDto).toList();
     }
 

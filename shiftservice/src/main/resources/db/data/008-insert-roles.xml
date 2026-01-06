@@ -1,91 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="008-insert-roles" author="paul" context="dev">
-    <insert tableName="role">
-      <column name="id" valueNumeric="1"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="REGISTRATION_DESK"/>
-      <column name="description" value="Handles attendee check-in and badge distribution"/>
-    </insert>
+    <changeSet id="008-insert-roles" author="paul" context="dev">
+        <insert tableName="role">
+            <column name="id" valueNumeric="1"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="REGISTRATION_DESK"/>
+            <column name="description" value="Handles attendee check-in and badge distribution"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="2"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="TICKET_CHECKING"/>
-      <column name="description" value="Checks tickets and controls entrance to the venue"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="2"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="TICKET_CHECKING"/>
+            <column name="description" value="Checks tickets and controls entrance to the venue"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="3"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="AUDIO_TECH"/>
-      <column name="description" value="Assists with audio equipment and microphone setup"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="3"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="AUDIO_TECH"/>
+            <column name="description" value="Assists with audio equipment and microphone setup"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="4"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="LIGHTING_TECH"/>
-      <column name="description" value="Responsible for lighting operation and adjustments"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="4"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="LIGHTING_TECH"/>
+            <column name="description" value="Responsible for lighting operation and adjustments"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="5"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="STAGE_MANAGER"/>
-      <column name="description" value="Coordinates speakers and stage transitions"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="5"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="STAGE_MANAGER"/>
+            <column name="description" value="Coordinates speakers and stage transitions"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="6"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="ROOM_ASSISTANT"/>
-      <column name="description" value="Supports operations inside breakout rooms and talks"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="6"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="ROOM_ASSISTANT"/>
+            <column name="description" value="Supports operations inside breakout rooms and talks"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="7"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="SPEAKER_SUPPORT"/>
-      <column name="description" value="Helps speakers with setup and presentation needs"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="7"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="SPEAKER_SUPPORT"/>
+            <column name="description" value="Helps speakers with setup and presentation needs"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="8"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="CROWD_CONTROL"/>
-      <column name="description" value="Manages flow of people in high-traffic areas"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="8"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="CROWD_CONTROL"/>
+            <column name="description" value="Manages flow of people in high-traffic areas"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="9"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="EXHIBITOR_SUPPORT"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="9"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="EXHIBITOR_SUPPORT"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <insert tableName="role">
-      <column name="id" valueNumeric="10"/>
-      <column name="shift_plan_id" valueNumeric="1"/>
-      <column name="name" value="HOSPITALITY"/>
-    </insert>
+        <insert tableName="role">
+            <column name="id" valueNumeric="10"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="name" value="HOSPITALITY"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
 
-    <!--
+        <!--
+    
+          manual test event roles
+    
+          -->
 
-      manual test event roles
-
-      -->
-
-    <insert tableName="role">
-      <column name="id" valueNumeric="11"/>
-      <column name="shift_plan_id" valueNumeric="13"/>
-      <column name="name" value="Photographer"/>
-      <column name="description" value="Professional photographer, equipped with camera tech"/>
-    </insert>
-  </changeSet>
+        <insert tableName="role">
+            <column name="id" valueNumeric="11"/>
+            <column name="shift_plan_id" valueNumeric="13"/>
+            <column name="name" value="Photographer"/>
+            <column name="description" value="Professional photographer, equipped with camera tech"/>
+            <column name="reward_points_per_minute" value="2"/>
+        </insert>
+    </changeSet>
 
 </databaseChangeLog>

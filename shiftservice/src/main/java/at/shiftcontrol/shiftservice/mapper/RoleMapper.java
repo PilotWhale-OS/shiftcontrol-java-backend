@@ -3,14 +3,12 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.entity.role.Role;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -20,7 +18,8 @@ public class RoleMapper {
             String.valueOf(role.getId()),
             role.getName(),
             role.getDescription(),
-            role.isSelfAssignable()
+            role.isSelfAssignable(),
+            role.getRewardPointsPerMinute()
         );
     }
 
@@ -38,6 +37,7 @@ public class RoleMapper {
             .name(roleDto.getName())
             .description(roleDto.getDescription())
             .selfAssignable(roleDto.isSelfAssignable())
+            .rewardPointsPerMinute(roleDto.getRewardPointsPerMinute())
             .build();
     }
 }

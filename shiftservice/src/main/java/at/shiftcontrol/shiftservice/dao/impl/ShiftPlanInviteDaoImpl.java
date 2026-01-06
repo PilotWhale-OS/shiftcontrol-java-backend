@@ -3,18 +3,23 @@ package at.shiftcontrol.shiftservice.dao.impl;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
-import lombok.RequiredArgsConstructor;
-
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanInviteRepository;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
 public class ShiftPlanInviteDaoImpl implements ShiftPlanInviteDao {
     private final ShiftPlanInviteRepository shiftPlanInviteRepository;
+
+    @Override
+    public String getName() {
+        return "ShiftPlanInvite";
+    }
 
     @Override
     public Optional<ShiftPlanInvite> findById(Long id) {
@@ -37,8 +42,9 @@ public class ShiftPlanInviteDaoImpl implements ShiftPlanInviteDao {
     }
 
     @Override
-    public Optional<ShiftPlanInvite> findByCode(String code) {
-        return shiftPlanInviteRepository.findByCode(code);
+    public ShiftPlanInvite getByCode(String code) {
+        LoggerFactory.getLogger("ShiftPlanInviteDaoLogger").info("Invite code not found: {}", code);
+        return shiftPlanInviteRepository.findByCode(code).orElseThrow(() -> new NotFoundException("Invite code not found"));
     }
 
     @Override

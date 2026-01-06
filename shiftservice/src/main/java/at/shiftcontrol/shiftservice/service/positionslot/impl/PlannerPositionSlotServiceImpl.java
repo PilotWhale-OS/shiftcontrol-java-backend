@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
@@ -33,15 +31,15 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) throws ForbiddenException, NotFoundException {
-        var plan = shiftPlanDao.findById(shiftPlanId).orElseThrow(NotFoundException::new);
+    public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) {
+        var plan = shiftPlanDao.getById(shiftPlanId);
         securityHelper.assertUserIsPlanner(plan);
         return AssignmentRequestMapper.toAssignmentRequestDto(plan.getShifts());
     }
 
     @Override
-    public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) throws ForbiddenException {
-        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
+    public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) {
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
@@ -57,8 +55,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
-    public void declineRequest(long shiftPlanId, long positionSlotId, String userId) throws ForbiddenException {
-        Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
+    public void declineRequest(long shiftPlanId, long positionSlotId, String userId) {
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not declineable");

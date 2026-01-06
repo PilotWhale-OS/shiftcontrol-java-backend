@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -18,8 +19,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 
 @Getter
 @Setter
@@ -54,6 +53,9 @@ public class Assignment {
 
     @OneToMany(mappedBy = "requestedAssignment")
     private Collection<AssignmentSwitchRequest> incomingSwitchRequests;
+
+    @Column(nullable = false)
+    private int acceptedRewardPoints;
 
     @Override
     public String toString() {

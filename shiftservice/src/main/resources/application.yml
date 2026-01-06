@@ -3,6 +3,8 @@ spring:
     addresses: rabbitmq:5672
     username: shiftcontrol
     password: password
+  jackson:
+    default-property-inclusion: non_null
   security:
     oauth2:
       resourceserver:

@@ -1,27 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint.positionslot;
 
-import java.util.Collection;
-
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceUpdateDto;
-import at.shiftcontrol.shiftservice.service.PositionSlotService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +9,26 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceUpdateDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
+import at.shiftcontrol.shiftservice.service.PositionSlotService;
 
 @Tag(
     name = "position-slot-endpoint"
@@ -48,7 +46,7 @@ public class PositionSlotItemEndpoint {
         operationId = "getPositionSlot",
         description = "Get details for a specific position slot in a shift"
     )
-    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
+    public PositionSlotDto getPositionSlot(@PathVariable String positionSlotId) {
         return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
 
@@ -57,8 +55,7 @@ public class PositionSlotItemEndpoint {
         operationId = "updatePositionSlot",
         description = "Update a specific position slot in a shift"
     )
-    public PositionSlotDto updatePositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotModificationDto modificationDto)
-        throws NotFoundException, ForbiddenException {
+    public PositionSlotDto updatePositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotModificationDto modificationDto) {
         return positionSlotService.updatePositionSlot(ConvertUtil.idToLong(positionSlotId), modificationDto);
     }
 
@@ -67,7 +64,7 @@ public class PositionSlotItemEndpoint {
         operationId = "deletePositionSlot",
         description = "Delete a specific position slot in a shift"
     )
-    public void deletePositionSlot(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
+    public void deletePositionSlot(@PathVariable String positionSlotId) {
         positionSlotService.deletePositionSlot(ConvertUtil.idToLong(positionSlotId));
     }
 
@@ -92,8 +89,32 @@ public class PositionSlotItemEndpoint {
             )
         }
     )
-    public AssignmentDto joinPositionSlot(@PathVariable String positionSlotId) {
-        return null; // TODO: implement
+    public AssignmentDto joinPositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotRequestDto requestDto) {
+        return positionSlotService.join(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId(),
+            requestDto
+        );
+    }
+
+    @PutMapping("/leave")
+    @Operation(
+        operationId = "leavePositionSlot",
+        description = "Leave a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully left the position slot",
+                content = @Content(
+                    schema = @Schema(implementation = AssignmentDto.class)
+                )
+            )
+        }
+    )
+    public void leavePositionSlot(@PathVariable String positionSlotId) {
+        positionSlotService.leave(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId());
     }
 
     @PutMapping("/preference")
@@ -104,8 +125,7 @@ public class PositionSlotItemEndpoint {
     public PositionSlotPreferenceDto setPositionSlotPreference(
         @PathVariable String positionSlotId,
         @RequestBody @Valid PositionSlotPreferenceUpdateDto preferenceUpdateDto
-    )
-        throws ForbiddenException, NotFoundException {
+    ) {
         positionSlotService.setPreference(
             userProvider.getCurrentUser().getUserId(),
             ConvertUtil.idToLong(positionSlotId),
@@ -114,21 +134,12 @@ public class PositionSlotItemEndpoint {
         return PositionSlotPreferenceDto.builder().preferenceValue(preferenceUpdateDto.getPreferenceValue()).build();
     }
 
-    @GetMapping("/assignments")
-    @Operation(
-        operationId = "getPositionSlotAssignments",
-        description = "Get assignments for a specific position slot"
-    )
-    public Collection<AssignmentDto> getPositionSlotAssignments(@PathVariable String positionSlotId) {
-        return null; // TODO: implement
-    }
-
     @PostMapping("/auction")
     @Operation(
         operationId = "auctionAssignment",
         description = "Put the logged in users assignment for the PositionSlot up for auction"
     )
-    public AssignmentDto auctionAssignment(@PathVariable String positionSlotId) throws NotFoundException {
+    public AssignmentDto auctionAssignment(@PathVariable String positionSlotId) {
         return positionSlotService.createAuction(
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());
@@ -141,12 +152,13 @@ public class PositionSlotItemEndpoint {
     )
     public AssignmentDto claimAssignment(
         @PathVariable String positionSlotId,
-        @PathVariable String offeringUserId
-    )
-        throws NotFoundException, ConflictException, ForbiddenException {
+        @PathVariable String offeringUserId,
+        @RequestBody @Valid PositionSlotRequestDto requestDto
+    ) {
         return positionSlotService.claimAuction(
             ConvertUtil.idToLong(positionSlotId), offeringUserId,
-            userProvider.getCurrentUser().getUserId());
+            userProvider.getCurrentUser().getUserId(),
+            requestDto);
     }
 
     @PostMapping("/cancel-auction")
@@ -154,12 +166,12 @@ public class PositionSlotItemEndpoint {
         operationId = "cancelAuction",
         description = "Cancel the logged in users auction for the PositionSlot"
     )
-    public AssignmentDto cancelAuction(@PathVariable String positionSlotId) throws NotFoundException, ForbiddenException {
+    public AssignmentDto cancelAuction(@PathVariable String positionSlotId) {
         return positionSlotService.cancelAuction(
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());
     }
-    // TODO positionSlot unassign
+
     // TODO positionSlot request unassign
     // TODO positionSlot request signup
 }

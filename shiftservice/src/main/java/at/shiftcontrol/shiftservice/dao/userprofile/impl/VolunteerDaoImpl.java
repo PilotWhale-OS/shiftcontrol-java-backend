@@ -17,6 +17,11 @@ public class VolunteerDaoImpl implements VolunteerDao {
     private final VolunteerRepository volunteerRepository;
 
     @Override
+    public String getName() {
+        return "Volunteer";
+    }
+
+    @Override
     public Optional<Volunteer> findById(String id) {
         return volunteerRepository.findById(id);
     }
@@ -34,10 +39,5 @@ public class VolunteerDaoImpl implements VolunteerDao {
     @Override
     public void delete(Volunteer entity) {
         volunteerRepository.delete(entity);
-    }
-
-    @Override
-    public Optional<Volunteer> findByUserId(String userId) {
-        return volunteerRepository.findById(userId);
     }
 }

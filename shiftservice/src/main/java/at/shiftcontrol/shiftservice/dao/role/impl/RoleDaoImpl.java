@@ -18,6 +18,11 @@ public class RoleDaoImpl implements RoleDao {
     private final RoleRepository roleRepository;
 
     @Override
+    public String getName() {
+        return "Role";
+    }
+
+    @Override
     public Optional<Role> findById(Long id) {
         return roleRepository.findById(id);
     }

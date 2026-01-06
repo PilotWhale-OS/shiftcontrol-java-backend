@@ -29,7 +29,7 @@ import lombok.Getter;
  */
 @Getter
 @ResponseStatus(HttpStatus.CONFLICT)
-public class ValidationException extends Exception {
+public class ValidationException extends RuntimeException {
     private final String context;
     private final Map<String, Collection<?>> validationErrors;
 
