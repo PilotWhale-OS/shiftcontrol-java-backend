@@ -12,9 +12,12 @@ import at.shiftcontrol.shiftservice.dto.rewardpoints.BookingResultDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
 import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.RewardPointTransactionEvent;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.type.RewardPointTransactionType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
     private final RewardPointTransactionDao dao;
     private final VolunteerDao volunteerDao;
     private final EventDao eventDao;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     @Transactional
@@ -37,7 +41,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         String sourceKey,
         Map<String, Object> metadata
     ) {
-        return insertIdempotent(
+        return insert(
             userId,
             eventId,
             shiftPlanId,
@@ -63,7 +67,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         // reversal is always negative of the snapshot
         int points = -pointsSnapshot;
 
-        return insertIdempotent(
+        return insert(
             userId,
             eventId,
             shiftPlanId,
@@ -86,7 +90,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         String sourceKey,
         Map<String, Object> metadata
     ) {
-        return insertIdempotent(
+        return insert(
             userId,
             eventId,
             shiftPlanId,
@@ -98,7 +102,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         );
     }
 
-    private BookingResultDto insertIdempotent(
+    private BookingResultDto insert(
         String userId,
         long eventId,
         Long shiftPlanId,
@@ -124,10 +128,18 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
 
         try {
             RewardPointTransaction saved = dao.save(tx);
+
+            publisher.publishEvent(RewardPointTransactionEvent.of(RoutingKeys.format(RoutingKeys.REWARDPOINT_TRANSACTION_CREATED, Map.of(
+                "volunteerId", saved.getVolunteerId(),
+                "transactionId", saved.getId())), saved
+            ));
             return new BookingResultDto(true, saved);
         } catch (DataIntegrityViolationException e) {
-            // Most likely UNIQUE(source_key) violated -> idempotent "already booked"
-            // Return created=false. If you want, you can query by sourceKey and return that entity.
+            // publish failed event with uncommitted transaction data
+            publisher.publishEvent(RewardPointTransactionEvent.of(RoutingKeys.format(RoutingKeys.REWARDPOINT_TRANSACTION_FAILED, Map.of(
+                "volunteerId", tx.getVolunteerId())), tx
+            ));
+
             return new BookingResultDto(false, null);
         }
     }
