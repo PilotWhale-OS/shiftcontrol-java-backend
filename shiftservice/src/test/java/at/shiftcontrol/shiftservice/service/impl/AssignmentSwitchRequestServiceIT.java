@@ -6,7 +6,10 @@ import java.util.List;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.auth.UserType;
+import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
+import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
@@ -18,12 +21,16 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import config.TestSecurityConfig;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,12 +44,36 @@ public class AssignmentSwitchRequestServiceIT {
     @Autowired
     AssignmentSwitchRequestServiceImpl assignmentSwitchRequestService;
 
+    @Autowired
+    UserAttributeProvider attributeProvider;
+
     @MockitoBean
     SecurityHelper securityHelper;
 
     @MockitoBean
     UserProfileService userProfileService;
 
+    @BeforeEach
+    void setup() {
+        setDefaultNonAdminTestUser();
+    }
+
+    private void setDefaultNonAdminTestUser() {
+        ShiftControlUser principal = new AssignedUser(
+            List.of(),
+            TestSecurityConfig.HDR_USERNAME,
+            TestSecurityConfig.HDR_USERID,
+            attributeProvider
+        );
+
+        var auth = new UsernamePasswordAuthenticationToken(
+            principal,
+            "N/A",
+            principal.getAuthorities()
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
 
     @Test
     void testGetPositionSlotsToOffer() throws NotFoundException, ForbiddenException {
