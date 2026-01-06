@@ -3,7 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.Map;
 
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +35,7 @@ import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.shiftservice.event.events.PreferenceEvent;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
+import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
@@ -55,6 +55,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
 
     private final EligibilityService eligibilityService;
+    private final AssignmentService assignmentService;
     private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
@@ -210,7 +211,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // cancel existing trades
         assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
         // execute claim
-        Assignment claimedAuction = reassignAssignment(auction, currentUser);
+        Assignment claimedAuction = assignmentService.reassign(auction, currentUser);
 
         rewardPointsService.onAssignmentReassignedAuction(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
 
@@ -238,33 +239,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             ), assignment
         ));
         return AssignmentMapper.toDto(assignment);
-    }
-
-    private Assignment reassignAssignment(Assignment oldAssignment, Volunteer newVolunteer) {
-        // Create new assignment with new PK
-        Assignment newAssignment = AssignmentMapper.shallowCopy(oldAssignment);
-        newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
-        newAssignment.setStatus(AssignmentStatus.ACCEPTED);
-        newAssignment.setAssignedVolunteer(newVolunteer);
-
-        // Update PositionSlot assignments
-        PositionSlot slot = newAssignment.getPositionSlot();
-        if (slot.getAssignments() != null) {
-            slot.getAssignments().remove(oldAssignment);
-            slot.getAssignments().add(newAssignment);
-        }
-
-        assignmentDao.save(newAssignment);
-        // Reassign dependent switch requests
-        newAssignment.getIncomingSwitchRequests()
-            .forEach(req -> req.setRequestedAssignment(newAssignment));
-        newAssignment.getOutgoingSwitchRequests()
-            .forEach(req -> req.setOfferingAssignment(newAssignment));
-        assignmentSwitchRequestDao.saveAll(oldAssignment.getIncomingSwitchRequests());
-        assignmentSwitchRequestDao.saveAll(oldAssignment.getOutgoingSwitchRequests());
-        // Delete old assignment
-        assignmentDao.delete(oldAssignment);
-        return newAssignment;
     }
 
     @Override

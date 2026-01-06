@@ -37,10 +37,10 @@ import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.shiftservice.event.events.TradeEvent;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
+import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -52,7 +52,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final AssignmentDao assignmentDao;
     private final PositionSlotDao positionSlotDao;
     private final VolunteerDao volunteerDao;
+
     private final EligibilityService eligibilityService;
+    private final AssignmentService assignmentService;
     private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
@@ -232,9 +234,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     @Transactional
     public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) {
-        // get current user (volunteer)
-        Volunteer currentUser = volunteerDao.getById(currentUserId); // todo fix to correct security helper function
-
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
@@ -266,11 +265,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         cancelOtherTrades(trade);
 
         // update assignments
-        executeTrade(trade);
+        AssignmentSwitchRequest executedTrade = executeTrade(trade);
 
-        rewardPointsService.onAssignmentReassignedTrade(trade.getOfferingAssignment(), trade.getRequestedAssignment());
+        rewardPointsService.onAssignmentReassignedTrade(executedTrade.getOfferingAssignment(), executedTrade.getRequestedAssignment());
 
-        return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
+        return TradeMapper.toDto(executedTrade);
     }
 
     @Override
@@ -353,20 +352,22 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             trade.getOfferingAssignment().getPositionSlot().getId(), trade.getOfferingAssignment().getAssignedVolunteer().getId());
     }
 
-    private void executeTrade(AssignmentSwitchRequest trade) {
-        Volunteer requestedAssignmentVolunteer = trade.getRequestedAssignment().getAssignedVolunteer();
-        Volunteer offeringAssignmentVolunteer = trade.getOfferingAssignment().getAssignedVolunteer();
-        // TODO fix update params
-        updateVolunteer(trade.getOfferingAssignment(), offeringAssignmentVolunteer);
-        updateVolunteer(trade.getRequestedAssignment(), requestedAssignmentVolunteer);
-        // in case an assignment was up for auction
-        trade.getOfferingAssignment().setStatus(AssignmentStatus.ACCEPTED);
-        trade.getRequestedAssignment().setStatus(AssignmentStatus.ACCEPTED);
-        // !!! trade requests in status ACCEPTED have a different key compared to the other states (volunteers swapped)
-        //      changing an ACCEPTED trade back to OPEN would mean a new trade request to swap the assignments back
-        trade.setStatus(TradeStatus.ACCEPTED);
+    private AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest oldTrade) {
+        // update fields and id of assignments
+        Volunteer requestedAssignmentVolunteer = oldTrade.getRequestedAssignment().getAssignedVolunteer();
+        Volunteer offeringAssignmentVolunteer = oldTrade.getOfferingAssignment().getAssignedVolunteer();
+        Assignment newOffer = assignmentService.reassign(oldTrade.getOfferingAssignment(), requestedAssignmentVolunteer);
+        Assignment newRequested = assignmentService.reassign(oldTrade.getRequestedAssignment(), offeringAssignmentVolunteer);
 
-        publisher.publishEvent(AssignmentSwitchEvent.of(trade.getRequestedAssignment(), trade.getOfferingAssignment()));
+        // create new trade and delete old one
+        AssignmentSwitchRequestId newId = AssignmentSwitchRequestId.of(newOffer, newRequested);
+        AssignmentSwitchRequest newTrade = new AssignmentSwitchRequest(
+            newId, newOffer, newRequested, TradeStatus.ACCEPTED, oldTrade.getCreatedAt());
+        assignmentSwitchRequestDao.save(newTrade);
+        assignmentSwitchRequestDao.delete(oldTrade);
+
+        publisher.publishEvent(AssignmentSwitchEvent.of(oldTrade.getRequestedAssignment(), oldTrade.getOfferingAssignment()));
+        return newTrade;
     }
 
     private void updateVolunteer(Assignment assignment, Volunteer volunteer) {

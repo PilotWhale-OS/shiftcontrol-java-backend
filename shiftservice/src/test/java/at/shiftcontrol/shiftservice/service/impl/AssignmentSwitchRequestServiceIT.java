@@ -3,10 +3,25 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
+
+import config.TestSecurityConfig;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
@@ -18,19 +33,6 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import config.TestSecurityConfig;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
-
 import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
@@ -40,6 +42,8 @@ public class AssignmentSwitchRequestServiceIT {
 
     @Autowired
     AssignmentSwitchRequestServiceImpl assignmentSwitchRequestService;
+    @Autowired
+    AssignmentDao assignmentDao;
 
     @Autowired
     UserAttributeProvider attributeProvider;
@@ -115,18 +119,27 @@ public class AssignmentSwitchRequestServiceIT {
     @Test
     void testAcceptTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
+        String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        long offeredSlotId = 1L;
+        long requestedSlotId = 2L;
         Mockito.when(userProfileService.getUserProfile(any()))
             .thenReturn(getUserProfileDtoWithId(currentUserId));
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5"),
-            new AssignmentId(2L, currentUserId)
+            new AssignmentId(offeredSlotId, otherUserId),
+            new AssignmentId(requestedSlotId, currentUserId)
         );
 
         TradeDto dto = assignmentSwitchRequestService.acceptTrade(id, currentUserId);
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(TradeStatus.ACCEPTED, dto.getStatus());
-        // TODO assert users
+        Assertions.assertEquals(currentUserId, dto.getOfferingAssignment().getAssignedVolunteer().getId());
+        Assertions.assertEquals(String.valueOf(offeredSlotId), dto.getOfferingAssignment().getPositionSlotId());
+        // check if new assignment exists
+        var newOffered = assignmentDao.findById(AssignmentId.of(offeredSlotId, currentUserId));
+        Assertions.assertTrue(newOffered.isPresent());
+        var newRequested = assignmentDao.findById(AssignmentId.of(requestedSlotId, otherUserId));
+        Assertions.assertTrue(newRequested.isPresent());
     }
 
     @Test
@@ -141,6 +154,8 @@ public class AssignmentSwitchRequestServiceIT {
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(TradeStatus.REJECTED, dto.getStatus());
+        Assertions.assertEquals(currentUserId, dto.getRequestedAssignment().getAssignedVolunteer().getId());
+        Assertions.assertEquals("2", dto.getRequestedAssignment().getPositionSlotId());
     }
 
     @Test
@@ -155,6 +170,8 @@ public class AssignmentSwitchRequestServiceIT {
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(TradeStatus.CANCELED, dto.getStatus());
+        Assertions.assertEquals(currentUserId, dto.getOfferingAssignment().getAssignedVolunteer().getId());
+        Assertions.assertEquals("1", dto.getOfferingAssignment().getPositionSlotId());
     }
 
     private UserProfileDto getUserProfileDtoWithId(String userId) {
