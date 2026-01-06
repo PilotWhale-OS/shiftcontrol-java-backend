@@ -81,6 +81,7 @@ public class RoleServiceImpl implements RoleService {
         role.setName(roleDto.getName());
         role.setDescription(roleDto.getDescription());
         role.setSelfAssignable(roleDto.isSelfAssignable());
+        role.setRewardPointsPerMinute(roleDto.getRewardPointsPerMinute());
     }
 
     @Override

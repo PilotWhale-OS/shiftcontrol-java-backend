@@ -54,13 +54,12 @@ public class PositionSlot {
     @Column(nullable = false)
     private int desiredVolunteerCount;
 
-    @NotNull
-    @Column(nullable = false)
-    private int rewardPoints;
+    @Column()
+    private Integer overrideRewardPoints;
 
     @Override
     public String toString() {
         return "PositionSlot{id=%d, shift=%d, role=%s, assignments=%s, desiredVolunteerCount=%d, rewardPoints=%d}"
-            .formatted(id, shift.getId(), role, assignments, desiredVolunteerCount, rewardPoints);
+            .formatted(id, shift.getId(), role, assignments, desiredVolunteerCount, overrideRewardPoints);
     }
 }

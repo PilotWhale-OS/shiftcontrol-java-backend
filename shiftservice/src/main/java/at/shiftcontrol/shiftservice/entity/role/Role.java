@@ -2,6 +2,8 @@ package at.shiftcontrol.shiftservice.entity.role;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.entity.Volunteer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,9 +20,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 @Getter
 @Setter
@@ -48,6 +47,9 @@ public class Role {
     private boolean selfAssignable;
     @ManyToMany(mappedBy = "roles")
     private Collection<Volunteer> volunteers;
+
+    @Column(nullable = false)
+    private int rewardPointsPerMinute;
 
     @Override
     public String toString() {

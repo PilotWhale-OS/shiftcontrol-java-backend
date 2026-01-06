@@ -1,131 +1,144 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="003-insert-shift-plans" author="paul" context="dev">
+    <changeSet id="003-insert-shift-plans" author="paul" context="dev">
 
-    <!-- Event 1: Tech Innovators Summit 2025 -->
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="1"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="name" value="Morning Shift Plan"/>
-      <column name="short_description" value="Morning volunteer shifts for Tech Innovators Summit 2025"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="SELF_SIGNUP"/>
-    </insert>
+        <!-- Event 1: Tech Innovators Summit 2025 -->
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="1"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="name" value="Morning Shift Plan"/>
+            <column name="short_description" value="Morning volunteer shifts for Tech Innovators Summit 2025"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="lock_status" value="SELF_SIGNUP"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+        </insert>
 
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="2"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="name" value="Afternoon Shift Plan"/>
-      <column name="lock_status" value="SELF_SIGNUP"/>
-    </insert>
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="2"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="name" value="Afternoon Shift Plan"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SELF_SIGNUP"/>
+        </insert>
 
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="3"/>
-      <column name="event_id" valueNumeric="1"/>
-      <column name="name" value="Evening Shift Plan"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="SUPERVISED"/>
-    </insert>
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="3"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="name" value="Evening Shift Plan"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SUPERVISED"/>
+        </insert>
 
-    <!-- Event 2: Global Developer Conference -->
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="4"/>
-      <column name="event_id" valueNumeric="2"/>
-      <column name="name" value="Morning Shift Plan"/>
-      <column name="short_description" value="Morning volunteer shifts for Global Developer Conference"/>
-      <column name="lock_status" value="LOCKED"/>
-    </insert>
+        <!-- Event 2: Global Developer Conference -->
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="4"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="name" value="Morning Shift Plan"/>
+            <column name="short_description" value="Morning volunteer shifts for Global Developer Conference"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="LOCKED"/>
+        </insert>
 
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="5"/>
-      <column name="event_id" valueNumeric="2"/>
-      <column name="name" value="Afternoon Shift Plan"/>
-      <column name="short_description" value="Afternoon volunteer shifts for Global Developer Conference"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="SELF_SIGNUP"/>
-    </insert>
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="5"/>
+            <column name="event_id" valueNumeric="2"/>
+            <column name="name" value="Afternoon Shift Plan"/>
+            <column name="short_description" value="Afternoon volunteer shifts for Global Developer Conference"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SELF_SIGNUP"/>
+        </insert>
 
-    <!-- Event 3: Open Source Community Meetup -->
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="6"/>
-      <column name="event_id" valueNumeric="3"/>
-      <column name="name" value="Morning Workshop Plan"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="SUPERVISED"/>
-    </insert>
+        <!-- Event 3: Open Source Community Meetup -->
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="6"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="name" value="Morning Workshop Plan"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SUPERVISED"/>
+        </insert>
 
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="7"/>
-      <column name="event_id" valueNumeric="3"/>
-      <column name="name" value="Afternoon Workshop Plan"/>
-      <column name="short_description" value="Afternoon workshops volunteer shifts"/>
-      <column name="lock_status" value="LOCKED"/>
-    </insert>
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="7"/>
+            <column name="event_id" valueNumeric="3"/>
+            <column name="name" value="Afternoon Workshop Plan"/>
+            <column name="short_description" value="Afternoon workshops volunteer shifts"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="LOCKED"/>
+        </insert>
 
-    <!-- Event 4: AI and Future Technologies Forum -->
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="8"/>
-      <column name="event_id" valueNumeric="4"/>
-      <column name="name" value="Morning Shift Plan"/>
-      <column name="short_description" value="Morning volunteer shifts for AI and Future Technologies Forum"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="SELF_SIGNUP"/>
-    </insert>
+        <!-- Event 4: AI and Future Technologies Forum -->
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="8"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="name" value="Morning Shift Plan"/>
+            <column name="short_description" value="Morning volunteer shifts for AI and Future Technologies Forum"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SELF_SIGNUP"/>
+        </insert>
 
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="9"/>
-      <column name="event_id" valueNumeric="4"/>
-      <column name="name" value="Afternoon Shift Plan"/>
-      <column name="short_description" value="Afternoon volunteer shifts for AI and Future Technologies Forum"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="SUPERVISED"/>
-    </insert>
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="9"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="name" value="Afternoon Shift Plan"/>
+            <column name="short_description" value="Afternoon volunteer shifts for AI and Future Technologies Forum"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SUPERVISED"/>
+        </insert>
 
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="10"/>
-      <column name="event_id" valueNumeric="4"/>
-      <column name="name" value="Evening Shift Plan"/>
-      <column name="short_description" value="Evening volunteer shifts for AI and Future Technologies Forum"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="LOCKED"/>
-    </insert>
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="10"/>
+            <column name="event_id" valueNumeric="4"/>
+            <column name="name" value="Evening Shift Plan"/>
+            <column name="short_description" value="Evening volunteer shifts for AI and Future Technologies Forum"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="LOCKED"/>
+        </insert>
 
-    <!-- Event 5: Cloud Computing Expo -->
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="11"/>
-      <column name="event_id" valueNumeric="5"/>
-      <column name="name" value="Morning Shift Plan"/>
-      <column name="short_description" value="Morning volunteer shifts for Cloud Computing Expo"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="SELF_SIGNUP"/>
-    </insert>
+        <!-- Event 5: Cloud Computing Expo -->
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="11"/>
+            <column name="event_id" valueNumeric="5"/>
+            <column name="name" value="Morning Shift Plan"/>
+            <column name="short_description" value="Morning volunteer shifts for Cloud Computing Expo"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SELF_SIGNUP"/>
+        </insert>
 
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="12"/>
-      <column name="event_id" valueNumeric="5"/>
-      <column name="name" value="Afternoon Shift Plan"/>
-      <column name="short_description" value="Afternoon volunteer shifts for Cloud Computing Expo"/>
-      <column name="long_description" value="ShiftPlan long description"/>
-      <column name="lock_status" value="SUPERVISED"/>
-    </insert>
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="12"/>
+            <column name="event_id" valueNumeric="5"/>
+            <column name="name" value="Afternoon Shift Plan"/>
+            <column name="short_description" value="Afternoon volunteer shifts for Cloud Computing Expo"/>
+            <column name="long_description" value="ShiftPlan long description"/>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SUPERVISED"/>
+        </insert>
 
-    <!-- manual test event shits -->
+        <!-- manual test event shits -->
 
-    <insert tableName="shift_plan">
-      <column name="id" valueNumeric="13"/>
-      <column name="event_id" valueNumeric="6"/>
-      <column name="name" value="Photographer Plan"/>
-      <column name="short_description" value="Shifts for photographers at the TU Student Days"/>
-      <column name="long_description" value="Throughout the TU Student Days, all events are being attended by photographers to capture the joy this event
+        <insert tableName="shift_plan">
+            <column name="id" valueNumeric="13"/>
+            <column name="event_id" valueNumeric="6"/>
+            <column name="name" value="Photographer Plan"/>
+            <column name="short_description" value="Shifts for photographers at the TU Student Days"/>
+            <column name="long_description" value="Throughout the TU Student Days, all events are being attended by photographers to capture the joy this event
       brings. This shift plan manages photographers across the Tu locations."/>
-      <column name="lock_status" value="SUPERVISED"/>
-    </insert>
+            <column name="default_no_role_points_per_minute" value="1"/>
+            <column name="lock_status" value="SUPERVISED"/>
+        </insert>
 
-  </changeSet>
+    </changeSet>
 
 </databaseChangeLog>

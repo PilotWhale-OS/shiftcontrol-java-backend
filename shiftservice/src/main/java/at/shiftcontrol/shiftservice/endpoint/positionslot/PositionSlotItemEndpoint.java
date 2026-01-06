@@ -19,9 +19,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
@@ -30,6 +27,7 @@ import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceUpdateDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 
 @Tag(
@@ -91,10 +89,12 @@ public class PositionSlotItemEndpoint {
             )
         }
     )
-    public AssignmentDto joinPositionSlot(@PathVariable String positionSlotId) throws ForbiddenException, ConflictException, NotFoundException {
+    public AssignmentDto joinPositionSlot(@PathVariable String positionSlotId, @RequestBody @Valid PositionSlotRequestDto requestDto) {
         return positionSlotService.join(
             ConvertUtil.idToLong(positionSlotId),
-            userProvider.getCurrentUser().getUserId());
+            userProvider.getCurrentUser().getUserId(),
+            requestDto
+        );
     }
 
     @PutMapping("/leave")
@@ -152,11 +152,13 @@ public class PositionSlotItemEndpoint {
     )
     public AssignmentDto claimAssignment(
         @PathVariable String positionSlotId,
-        @PathVariable String offeringUserId
+        @PathVariable String offeringUserId,
+        @RequestBody @Valid PositionSlotRequestDto requestDto
     ) {
         return positionSlotService.claimAuction(
             ConvertUtil.idToLong(positionSlotId), offeringUserId,
-            userProvider.getCurrentUser().getUserId());
+            userProvider.getCurrentUser().getUserId(),
+            requestDto);
     }
 
     @PostMapping("/cancel-auction")

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
@@ -52,7 +53,10 @@ public class PositionSlotServiceIT {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
 
         Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(5L, auctionUserId).get();
-        AssignmentDto dto = positionSlotService.claimAuction(assignment.getPositionSlot().getId(), auctionUserId, currentUserId);
+        PositionSlotRequestDto requestDto = PositionSlotRequestDto.builder()
+            .acceptedRewardPointsConfigHash("ABC")
+            .build();
+        AssignmentDto dto = positionSlotService.claimAuction(assignment.getPositionSlot().getId(), auctionUserId, currentUserId, requestDto);
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals((AssignmentStatus.ACCEPTED), dto.getStatus());

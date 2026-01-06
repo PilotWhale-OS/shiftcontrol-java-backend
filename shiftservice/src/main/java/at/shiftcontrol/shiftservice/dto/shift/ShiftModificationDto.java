@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dto.shift;
 
 import java.time.Instant;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -33,4 +34,8 @@ public class ShiftModificationDto {
     private String activityId;
 
     private String locationId;
+
+    @NotNull
+    @Min(0)
+    private int bonusRewardPoints;
 }

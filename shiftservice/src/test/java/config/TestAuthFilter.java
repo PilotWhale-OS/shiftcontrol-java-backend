@@ -10,6 +10,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -44,26 +45,26 @@ public class TestAuthFilter extends org.springframework.web.filter.OncePerReques
                 );
             } else {
                 principal = new AssignedUser(
-                    List.of(), // add ROLE_USER if you want
+                    List.of(),
                     username,
                     userId,
                     attributeProvider
                 );
             }
 
-            var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+            var auth = new UsernamePasswordAuthenticationToken(
                 principal,
                 "N/A",
                 principal.getAuthorities()
             );
 
-            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
         try {
             filterChain.doFilter(request, response);
         } finally {
-            org.springframework.security.core.context.SecurityContextHolder.clearContext();
+            SecurityContextHolder.clearContext();
         }
     }
 

@@ -3,11 +3,6 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -16,20 +11,26 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class PositionSlotAssemblingMapper {
     private final EligibilityService eligibilityService;
     private final UserProfileService userProfileService;
+    private final RewardPointsCalculator rewardPointsCalculator;
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
     private final PositionSlotDao positionSlotDao;
@@ -37,12 +38,22 @@ public class PositionSlotAssemblingMapper {
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
         var preferenceValue = positionSlotDao.getPreference(volunteer.getId(), positionSlot.getId());
+        var currentRewardPoints = rewardPointsCalculator.calculateForAssignment(positionSlot).rewardPoints();
+        var rewardPointsConfigHash = rewardPointsCalculator.calculatePointsConfigHash(positionSlot);
+
+        var rewardPointsDto = RewardPointsDto.builder()
+            .currentRewardPoints(currentRewardPoints)
+            .overrideRewardPoints(positionSlot.getOverrideRewardPoints())
+            .rewardPointsConfigHash(rewardPointsConfigHash)
+            .build();
+
         // calculates SignupState for current user and
         // gets all trade offers for this slot for the current user
         return toDto(positionSlot,
             eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer),
             filterTradesForUser(positionSlot.getAssignments(), volunteer.getId()),
-            preferenceValue);
+            preferenceValue,
+            rewardPointsDto);
     }
 
     public Collection<PositionSlotDto> assemble(@NonNull Collection<PositionSlot> positionSlots) {
@@ -60,7 +71,7 @@ public class PositionSlotAssemblingMapper {
     }
 
     public static PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
-                                        Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue) {
+                                        Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue, RewardPointsDto rewardPointsDto) {
         var assignments = positionSlot.getAssignments();
         Collection<AssignmentDto> assignmentDtos;
         Collection<AssignmentDto> auctionDtos;
@@ -81,12 +92,12 @@ public class PositionSlotAssemblingMapper {
             positionSlot.getRole() == null ? null : RoleMapper.toRoleDto(positionSlot.getRole()),
             assignmentDtos,
             positionSlot.getDesiredVolunteerCount(),
-            positionSlot.getRewardPoints(),
             positionSignupState,
             TradeMapper.toTradeInfoDto(tradesForUser),
             auctionDtos,
             preferenceValue,
-            positionSlot.getShift().getShiftPlan().getLockStatus());
+            positionSlot.getShift().getShiftPlan().getLockStatus(),
+            rewardPointsDto);
     }
 
     public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {

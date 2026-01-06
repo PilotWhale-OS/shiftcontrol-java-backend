@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
@@ -51,10 +52,6 @@ public class PositionSlotDto {
     @Min(0)
     private int desiredVolunteerCount;
 
-    @NotNull
-    @Min(0)
-    private int rewardPoints;
-
     /**
      * Specific for the current user's signup state for this position slot.
      */
@@ -85,4 +82,8 @@ public class PositionSlotDto {
 
     @NotNull
     private LockStatus lockStatus;
+
+    @NotNull
+    @Valid
+    private RewardPointsDto rewardPointsDto;
 }

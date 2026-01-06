@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 
-import at.shiftcontrol.shiftservice.type.LockStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -70,6 +69,9 @@ public class Shift {
 
     @OneToMany(mappedBy = "shift", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PositionSlot> slots;
+
+    @Column(nullable = false)
+    private int bonusRewardPoints;
 
     @Override
     public String toString() {

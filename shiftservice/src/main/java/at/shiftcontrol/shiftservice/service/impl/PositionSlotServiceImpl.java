@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.Map;
 
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -36,6 +38,7 @@ import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
@@ -52,6 +55,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
 
     private final EligibilityService eligibilityService;
+    private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
@@ -65,10 +69,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @IsNotAdmin
-    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId) {
-        // get position slot and volunteer
+    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto) {
+        // get position slot
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
-
         // check access to position slot
         securityHelper.assertUserIsVolunteer(positionSlot);
 
@@ -87,7 +90,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // check if already assigned, eligible and conflicts
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
-        eligibilityService.validateHasConflictingAssignments(currentUserId, positionSlot);
+        eligibilityService.validateHasConflictingAssignments(
+            currentUserId, positionSlot);
 
         // create assignment
         Assignment assignment = Assignment.builder()
@@ -96,6 +100,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             .positionSlot(positionSlot)
             .status(AssignmentStatus.ACCEPTED)
             .build();
+
+        rewardPointsService.onAssignmentCreated(
+            assignment,
+            requestDto.getAcceptedRewardPointsConfigHash());
 
         // close trades where this slot was offered to current user
         assignmentSwitchRequestDao.deleteTradesForOfferedPositionAndRequestedUser(positionSlotId, currentUserId);
@@ -124,6 +132,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         if (LockStatusHelper.isSupervised(assignment)) {
             throw new IllegalStateException("leave not possible, shift plan is supervised");
         }
+
+        rewardPointsService.onAssignmentRemoved(
+            assignment
+        );
 
         // delete involved trades
         assignmentSwitchRequestDao.deleteTradesForAssignment(positionSlotId, volunteerId);
@@ -165,6 +177,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             default:
                 throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
+
         publisher.publishEvent(AssignmentEvent.of(
             RoutingKeys.format(RoutingKeys.AUCTION_CREATED,
                 Map.of("positionSlotId", String.valueOf(positionSlotId))
@@ -176,7 +189,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @Transactional
     @IsNotAdmin
-    public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId) {
+    public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId,
+                                      @NonNull PositionSlotRequestDto requestDto) {
         // get auction-assignment
         Assignment auction = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
         if (auction.getStatus() != AssignmentStatus.AUCTION
@@ -197,6 +211,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
         // execute claim
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
+
+        rewardPointsService.onAssignmentReassignedAuction(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
+
         publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
             "positionSlotId", String.valueOf(positionSlotId),
             "volunteerId", currentUserId)), claimedAuction
@@ -229,6 +246,14 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
         newAssignment.setStatus(AssignmentStatus.ACCEPTED);
         newAssignment.setAssignedVolunteer(newVolunteer);
+
+        // Update PositionSlot assignments
+        PositionSlot slot = newAssignment.getPositionSlot();
+        if (slot.getAssignments() != null) {
+            slot.getAssignments().remove(oldAssignment);
+            slot.getAssignments().add(newAssignment);
+        }
+
         assignmentDao.save(newAssignment);
         // Reassign dependent switch requests
         newAssignment.getIncomingSwitchRequests()
@@ -301,7 +326,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             positionSlot.setRole(null);
         }
         positionSlot.setDesiredVolunteerCount(modificationDto.getDesiredVolunteerCount());
-        positionSlot.setRewardPoints(modificationDto.getRewardPoints());
+        positionSlot.setOverrideRewardPoints(modificationDto.getOverrideRewardPoints());
     }
 
     @Override

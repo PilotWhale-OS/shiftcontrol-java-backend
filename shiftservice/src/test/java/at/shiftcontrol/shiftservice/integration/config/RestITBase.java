@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import config.TestSecurityConfig;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -15,12 +16,20 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Import(TestSecurityConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@Tag("integration")
 public abstract class RestITBase {
     @LocalServerPort
     protected int port;
@@ -117,8 +126,8 @@ public abstract class RestITBase {
         return "UTF-8";
     }
 
-    public <T> T getRequest(final String uri, final Class<T> expectedObject) {
-        return this.doRequest(Method.GET, uri, "", 200, expectedObject);
+    public <T> T getRequestAsAssigned(final String uri, final Class<T> expectedObject, String userId) {
+        return this.doRequest(Method.GET, uri, "", new HashMap<>(), asAssignedHeaders(userId), 200, expectedObject);
     }
 
     public <T> T getRequest(final String uri, final Map<String, String> params, final Class<T> expectedObject) {
@@ -137,16 +146,16 @@ public abstract class RestITBase {
         return this.doRequestList(Method.GET, uri, "", params, 200, expectedObject);
     }
 
-    public <T> T putRequest(final String uri, final Object body, final Class<T> expectedObject) {
-        return doRequest(Method.PUT, uri, body, 200, expectedObject);
+    public <T> T putRequestAsAssigned(final String uri, final Object body, final Class<T> expectedObject, String userId) {
+        return doRequest(Method.PUT, uri, body, new HashMap<>(), asAssignedHeaders(userId), 200, expectedObject);
     }
 
     public <T> T putRequestAsAdmin(String uri, Object body, Class<T> expected) {
         return doRequest(Method.PUT, uri, body, new HashMap<>(), asAdminHeaders(), 200, expected);
     }
 
-    public <T> T postRequest(final String uri, final Object body, final Class<T> expectedObject) {
-        return doRequest(Method.POST, uri, body, 200, expectedObject);
+    public <T> T postRequestAsAssigned(final String uri, final Object body, final Class<T> expectedObject, String userId) {
+        return doRequest(Method.POST, uri, body, new HashMap<>(), asAssignedHeaders(userId), 200, expectedObject);
     }
 
     public <T> T postRequestAsAdmin(String uri, Object body, Class<T> expected) {

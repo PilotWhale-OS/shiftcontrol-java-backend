@@ -39,6 +39,7 @@ import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
@@ -52,6 +53,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final PositionSlotDao positionSlotDao;
     private final VolunteerDao volunteerDao;
     private final EligibilityService eligibilityService;
+    private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
@@ -265,6 +267,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         // update assignments
         executeTrade(trade);
+
+        rewardPointsService.onAssignmentReassignedTrade(trade.getOfferingAssignment(), trade.getRequestedAssignment());
 
         return TradeMapper.toDto(assignmentSwitchRequestDao.save(trade));
     }

@@ -29,7 +29,6 @@ public class PositionSlotModificationDto {
     @Min(0)
     private int desiredVolunteerCount;
 
-    @NotNull
     @Min(0)
-    private int rewardPoints;
+    private Integer overrideRewardPoints;
 }

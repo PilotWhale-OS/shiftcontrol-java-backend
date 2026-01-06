@@ -18,6 +18,7 @@ public class ShiftPlanMapper {
             .shortDescription(shiftPlan.getShortDescription())
             .longDescription(shiftPlan.getLongDescription())
             .lockStatus(shiftPlan.getLockStatus())
+            .defaultNoRolePointsPerMinute(shiftPlan.getDefaultNoRolePointsPerMinute())
             .build();
     }
 
@@ -28,7 +29,7 @@ public class ShiftPlanMapper {
     }
 
     public static ShiftPlan toShiftPlan(ShiftPlanModificationDto shiftPlan) {
-        var plan = new  ShiftPlan();
+        var plan = new ShiftPlan();
         updateShiftPlan(shiftPlan, plan);
         return plan;
     }
@@ -37,5 +38,6 @@ public class ShiftPlanMapper {
         shiftPlan.setName(shiftPlanDto.getName());
         shiftPlan.setShortDescription(shiftPlanDto.getShortDescription());
         shiftPlan.setLongDescription(shiftPlanDto.getLongDescription());
+        shiftPlan.setDefaultNoRolePointsPerMinute(shiftPlanDto.getDefaultNoRolePointsPerMinute());
     }
 }
