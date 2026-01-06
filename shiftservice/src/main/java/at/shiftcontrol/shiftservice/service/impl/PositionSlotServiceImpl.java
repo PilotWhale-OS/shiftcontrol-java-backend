@@ -174,7 +174,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         rewardPointsService.onAssignmentReassigned(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
 
-
         return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
     }
 
@@ -218,14 +217,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignmentDao.save(newAssignment);
 
         // Reassign dependent switch requests
-        var incoming = oldAssignment.getIncomingSwitchRequests();
-        incoming.forEach(req -> req.setRequestedAssignment(newAssignment));
-
-        var outgoing = oldAssignment.getOutgoingSwitchRequests();
-        outgoing.forEach(req -> req.setOfferingAssignment(newAssignment));
-
-        assignmentSwitchRequestDao.saveAll(incoming);
-        assignmentSwitchRequestDao.saveAll(outgoing);
+        newAssignment.getIncomingSwitchRequests()
+            .forEach(req -> req.setRequestedAssignment(newAssignment));
+        newAssignment.getOutgoingSwitchRequests()
+            .forEach(req -> req.setOfferingAssignment(newAssignment));
+        assignmentSwitchRequestDao.saveAll(oldAssignment.getIncomingSwitchRequests());
+        assignmentSwitchRequestDao.saveAll(oldAssignment.getOutgoingSwitchRequests());
 
         // Delete old assignment
         assignmentDao.delete(oldAssignment);

@@ -67,7 +67,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         String sourceKey = sourceKeyLeave(slot.getId(), assignment.getAssignedVolunteer().getId());
 
-        ledgerService.bookReversal(
+        var result = ledgerService.bookReversal(
             assignment.getAssignedVolunteer().getId(),
             slot.getShift().getShiftPlan().getEvent().getId(),
             slot.getShift().getShiftPlan().getId(),
@@ -76,6 +76,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             sourceKey,
             null
         );
+
+        if (result.created()) {
+            // only clear if booking was created
+            assignment.setAcceptedRewardPoints(0);
+        }
     }
 
     private String sourceKeyLeave(long slotId, String volunteerId) {
@@ -97,7 +102,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             newAssignment.getAssignedVolunteer().getId()
         );
 
-        ledgerService.bookReversal(
+        var unassignmentResult = ledgerService.bookReversal(
             oldAssignment.getAssignedVolunteer().getId(),
             slot.getShift().getShiftPlan().getEvent().getId(),
             slot.getShift().getShiftPlan().getId(),
@@ -106,6 +111,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             reversalKey,
             null
         );
+
+        if (unassignmentResult.created()) {
+            // only clear if booking was created
+            oldAssignment.setAcceptedRewardPoints(0);
+        }
 
         validateHash(slot, acceptedRewardPointsHash);
 
@@ -118,7 +128,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             newAssignment.getAssignedVolunteer().getId()
         );
 
-        var result = ledgerService.bookEarn(
+        var assignmentResult = ledgerService.bookEarn(
             newAssignment.getAssignedVolunteer().getId(),
             slot.getShift().getShiftPlan().getEvent().getId(),
             slot.getShift().getShiftPlan().getId(),
@@ -128,7 +138,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             newSnapshot.metadata()
         );
 
-        if (result.created()) {
+        if (assignmentResult.created()) {
             // only set if booking for new assigment was created
             newAssignment.setAcceptedRewardPoints(newSnapshot.rewardPoints());
         }
