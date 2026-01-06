@@ -3,11 +3,7 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -26,6 +22,9 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -36,7 +35,7 @@ public class PositionSlotAssemblingMapper {
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
     private final PositionSlotDao positionSlotDao;
-    
+
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
         var preferenceValue = positionSlotDao.getPreference(volunteer.getId(), positionSlot.getId());

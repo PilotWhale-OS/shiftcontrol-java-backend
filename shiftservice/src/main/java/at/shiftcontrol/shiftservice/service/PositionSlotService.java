@@ -2,11 +2,11 @@ package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 
-import lombok.NonNull;
-
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
+import lombok.NonNull;
 
 public interface PositionSlotService {
     PositionSlotDto findById(@NonNull Long id);

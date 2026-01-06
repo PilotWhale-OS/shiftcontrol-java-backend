@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao {
+    @Override
+    public String getName() {
+        return "RewardPointTransaction";
+    }
 
     private final RewardPointTransactionRepository repo;
 
