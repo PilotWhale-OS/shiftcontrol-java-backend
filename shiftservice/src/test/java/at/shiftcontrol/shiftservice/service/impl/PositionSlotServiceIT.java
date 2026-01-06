@@ -1,20 +1,24 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
+import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -25,6 +29,8 @@ public class PositionSlotServiceIT {
     @Autowired
     private AssignmentRepository assignmentRepository;
 
+    @MockitoBean
+    UserProfileService userProfileService;
     @MockitoBean
     SecurityHelper securityHelper;
 
@@ -51,7 +57,6 @@ public class PositionSlotServiceIT {
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals((AssignmentStatus.ACCEPTED), dto.getStatus());
-
     }
 
     @Test
@@ -66,4 +71,18 @@ public class PositionSlotServiceIT {
         Assertions.assertNotNull(dto);
         Assertions.assertEquals((AssignmentStatus.ACCEPTED), dto.getStatus());
     }
+
+    @Test
+    @Disabled
+    void testLeave() throws ForbiddenException, NotFoundException {
+        long positionSlotId = 1L;
+        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+
+        positionSlotService.leave(positionSlotId, userId);
+
+        Assertions.assertFalse(assignmentRepository.findById(AssignmentId.of(positionSlotId, userId)).isPresent());
+    }
+
+    // TODO test join
+
 }

@@ -78,8 +78,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
             .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
-        // Todo test
-
         // check access to position slot
         securityHelper.assertUserIsVolunteer(positionSlot);
 
@@ -121,8 +119,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         if (assignment == null) {
             throw new NotFoundException("not assined to position slot");
         }
-
-        // TODO test
 
         // check if plan is locked
         if (LockStatus.LOCKED.equals(assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus())) {
