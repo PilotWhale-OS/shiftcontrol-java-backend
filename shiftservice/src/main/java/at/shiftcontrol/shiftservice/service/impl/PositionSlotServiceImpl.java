@@ -113,7 +113,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @IsNotAdmin
-    public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws ForbiddenException, NotFoundException {
+    public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) throws NotFoundException {
         // get assignment
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
         if (assignment == null) {
@@ -170,7 +170,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
 
-        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
+        publisher.publishEvent(AssignmentEvent.of(
+            RoutingKeys.format(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
         ));
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
@@ -232,7 +233,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         assignment = assignmentDao.save(assignment);
 
-        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
+        publisher.publishEvent(AssignmentEvent.of(
+            RoutingKeys.format(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
         ));
         return AssignmentMapper.toDto(assignment);
     }
