@@ -10,6 +10,7 @@ import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.BookingResultDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsTransactionDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
 import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
@@ -32,73 +33,49 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
 
     @Override
     @Transactional
-    public BookingResultDto bookEarn(
-        String userId,
-        long eventId,
-        Long shiftPlanId,
-        Long positionSlotId,
-        int points,
-        String sourceKey,
-        Map<String, Object> metadata
-    ) {
+    public BookingResultDto bookEarn(RewardPointsTransactionDto dto) {
         return insert(
-            userId,
-            eventId,
-            shiftPlanId,
-            positionSlotId,
-            points,
+            dto.getUserId(),
+            dto.getEventId(),
+            dto.getShiftPlanId(),
+            dto.getPositionSlotId(),
+            dto.getPointsSnapshot(),
             RewardPointTransactionType.EARN,
-            sourceKey,
-            metadata
+            dto.getSourceKey(),
+            dto.getMetadata()
         );
     }
 
     @Override
     @Transactional
-    public BookingResultDto bookReversal(
-        String userId,
-        long eventId,
-        Long shiftPlanId,
-        Long positionSlotId,
-        int pointsSnapshot,
-        String sourceKey,
-        Map<String, Object> metadata
-    ) {
+    public BookingResultDto bookReversal(RewardPointsTransactionDto dto) {
         // reversal is always negative of the snapshot
-        int points = -pointsSnapshot;
+        int points = -dto.getPointsSnapshot();
 
         return insert(
-            userId,
-            eventId,
-            shiftPlanId,
-            positionSlotId,
+            dto.getUserId(),
+            dto.getEventId(),
+            dto.getShiftPlanId(),
+            dto.getPositionSlotId(),
             points,
             RewardPointTransactionType.REVERSAL,
-            sourceKey,
-            metadata
+            dto.getSourceKey(),
+            dto.getMetadata()
         );
     }
 
     @Override
     @Transactional
-    public BookingResultDto bookManualAdjust(
-        String userId,
-        long eventId,
-        Long shiftPlanId,
-        Long positionSlotId,
-        int points,
-        String sourceKey,
-        Map<String, Object> metadata
-    ) {
+    public BookingResultDto bookManualAdjust(RewardPointsTransactionDto dto) {
         return insert(
-            userId,
-            eventId,
-            shiftPlanId,
-            positionSlotId,
-            points,
+            dto.getUserId(),
+            dto.getEventId(),
+            dto.getShiftPlanId(),
+            dto.getPositionSlotId(),
+            dto.getPointsSnapshot(),
             RewardPointTransactionType.MANUAL_ADJUST,
-            sourceKey,
-            metadata
+            dto.getSourceKey(),
+            dto.getMetadata()
         );
     }
 

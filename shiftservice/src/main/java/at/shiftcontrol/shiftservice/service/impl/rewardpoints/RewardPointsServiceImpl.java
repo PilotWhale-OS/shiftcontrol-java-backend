@@ -10,6 +10,7 @@ import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
@@ -37,15 +38,12 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         String sourceKey = sourceKeyJoin(slot.getId(), assignment.getAssignedVolunteer().getId());
 
-        var result = ledgerService.bookEarn(
-            assignment.getAssignedVolunteer().getId(),
-            slot.getShift().getShiftPlan().getEvent().getId(),
-            slot.getShift().getShiftPlan().getId(),
-            slot.getId(),
+        var result = ledgerService.bookEarn(RewardPointsMapper.toRewardPointsTransactionDto(
+            assignment,
             snapshot.rewardPoints(),
             sourceKey,
             snapshot.metadata()
-        );
+        ));
 
         if (result.created()) {
             // only set if booking was created
@@ -67,15 +65,12 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         String sourceKey = sourceKeyLeave(slot.getId(), assignment.getAssignedVolunteer().getId());
 
-        var result = ledgerService.bookReversal(
-            assignment.getAssignedVolunteer().getId(),
-            slot.getShift().getShiftPlan().getEvent().getId(),
-            slot.getShift().getShiftPlan().getId(),
-            slot.getId(),
+        var result = ledgerService.bookReversal(RewardPointsMapper.toRewardPointsTransactionDto(
+            assignment,
             pointsSnapshot,
             sourceKey,
             null
-        );
+        ));
 
         if (result.created()) {
             // only clear if booking was created
@@ -116,15 +111,12 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             newAssignment.getAssignedVolunteer().getId()
         );
 
-        var unassignmentResult = ledgerService.bookReversal(
-            oldAssignment.getAssignedVolunteer().getId(),
-            slot.getShift().getShiftPlan().getEvent().getId(),
-            slot.getShift().getShiftPlan().getId(),
-            slot.getId(),
+        var unassignmentResult = ledgerService.bookReversal(RewardPointsMapper.toRewardPointsTransactionDto(
+            oldAssignment,
             oldPointsSnapshot,
             reversalKey,
             null
-        );
+        ));
 
         if (unassignmentResult.created()) {
             // only clear if booking was created
@@ -158,15 +150,12 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             newAssignment.getAssignedVolunteer().getId()
         );
 
-        var assignmentResult = ledgerService.bookEarn(
-            newAssignment.getAssignedVolunteer().getId(),
-            slot.getShift().getShiftPlan().getEvent().getId(),
-            slot.getShift().getShiftPlan().getId(),
-            slot.getId(),
+        var assignmentResult = ledgerService.bookEarn(RewardPointsMapper.toRewardPointsTransactionDto(
+            newAssignment,
             newSnapshot.rewardPoints(),
             earnKey,
             newSnapshot.metadata()
-        );
+        ));
 
         if (assignmentResult.created()) {
             // only set if booking for new assigment was created
@@ -204,7 +193,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             metadata.put("reason", reason);
         }
 
-        ledgerService.bookManualAdjust(
+        ledgerService.bookManualAdjust(RewardPointsMapper.toRewardPointsTransactionDto(
             volunteerId,
             eventId,
             null,
@@ -212,7 +201,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             points,
             sourceKey,
             metadata
-        );
+        ));
     }
 }
     
