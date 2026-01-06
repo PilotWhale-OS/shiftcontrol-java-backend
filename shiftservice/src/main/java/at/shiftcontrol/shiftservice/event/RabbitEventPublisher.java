@@ -42,7 +42,8 @@ public class RabbitEventPublisher {
         if (routingKey == null || routingKey.isBlank()) {
             throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key");
         }
-        log.info("Publishing event to RabbitMQ with routing key {}: {}", ROUTING_KEY_PREFIX + routingKey, event);
+
+        log.trace("Publishing event to RabbitMQ with routing key {}: {}", ROUTING_KEY_PREFIX + routingKey, event);
         rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, ROUTING_KEY_PREFIX + routingKey, event);
     }
 

@@ -41,7 +41,6 @@ public class TestEventSender {
                 .readOnly(false)
                 .build();
 
-        log.info("Publishing test ActivityCreated event for activity id {}", activity.getId());
         publisher.publishEvent(ActivityEvent.of(RoutingKeys.ACTIVITY_CREATED, activity));
     }
 }
