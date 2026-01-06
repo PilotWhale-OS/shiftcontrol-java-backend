@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class RoutingKeys {
     private static final Pattern PLACEHOLDER = Pattern.compile("\\{([^}]+)}");
 
