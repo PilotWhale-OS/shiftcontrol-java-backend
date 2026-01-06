@@ -1,5 +1,8 @@
 package at.shiftcontrol.lib.util;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 
 public class ConvertUtil {
@@ -12,5 +15,13 @@ public class ConvertUtil {
         } catch (NumberFormatException e) {
             throw new BadRequestException("id is not a valid long: " + value);
         }
+    }
+
+    public static List<String> toStringList(List<Long> ids) {
+        return toStringList(ids.stream());
+    }
+
+    public static List<String> toStringList(Stream<Long> stream) {
+        return stream.map(String::valueOf).toList();
     }
 }
