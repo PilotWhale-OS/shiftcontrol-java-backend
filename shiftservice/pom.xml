@@ -128,7 +128,7 @@
                 <configuration>
                   <packageNames>at/shiftcontrol/shiftservice/event/**</packageNames>
 
-                  <schemaFilePath>${codegen.schemas.dir}</schemaFilePath>
+                  <schemaFilePath>${project.build.directory}</schemaFilePath>
                   <schemaFileName>{0}.schema</schemaFileName>
 
                   <schemaVersion>DRAFT_2020_12</schemaVersion>
@@ -196,7 +196,7 @@
                 <configuration>
                   <workingDirectory>${project.build.directory}</workingDirectory>
                   <arguments>
-                    exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype --src-lang schema --lang csharp --features just-types-and-namespace --out "${codegen.csharp.out}" --namespace "ShiftControl.Events" "${codegen.schemas.dir}"
+                    exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype --src-lang schema --lang csharp --features just-types-and-namespace --out "${codegen.csharp.out}" --namespace "ShiftControl.Events" "./"
                   </arguments>
                 </configuration>
               </execution>
