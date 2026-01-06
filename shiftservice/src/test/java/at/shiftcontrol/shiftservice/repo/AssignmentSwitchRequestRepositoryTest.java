@@ -80,22 +80,37 @@ public class AssignmentSwitchRequestRepositoryTest {
 
     @Test
     void deleteTradesForOfferedPositionAndRequestedUser() {
-        long positionSlotId = 1L;
-        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
+        AssignmentId offer = AssignmentId.of(
+            3L,
+            "28c02050-4f90-4f3a-b1df-3c7d27a166e7"
+        );
+        AssignmentId request = AssignmentId.of(
+            4L,
+            "28c02050-4f90-4f3a-b1df-3c7d27a166e8"
+        );
+        AssignmentSwitchRequestId tradeId = AssignmentSwitchRequestId.of(offer, request);
 
-        assignmentSwitchRequestRepository.deleteTradesForOfferedPositionAndRequestedUser(positionSlotId, userId);
+        assignmentSwitchRequestRepository.deleteTradesForOfferedPositionAndRequestedUser(offer.getPositionSlotId(), request.getVolunteerId());
 
-
+        Assertions.assertFalse(assignmentSwitchRequestRepository.findById(tradeId).isPresent());
     }
 
     @Test
     void testDeleteTradesForAssignment() {
-        long positionSlotId = 3L;
-        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
+        AssignmentId offer = AssignmentId.of(
+            3L,
+            "28c02050-4f90-4f3a-b1df-3c7d27a166e7"
+        );
+        AssignmentId request = AssignmentId.of(
+            4L,
+            "28c02050-4f90-4f3a-b1df-3c7d27a166e8"
+        );
+        AssignmentSwitchRequestId tradeId = AssignmentSwitchRequestId.of(offer, request);
 
-        assignmentSwitchRequestRepository.deleteTradesForAssignment(positionSlotId, userId);
+        assignmentSwitchRequestRepository.deleteTradesForAssignment(offer.getPositionSlotId(), offer.getVolunteerId());
+        assignmentSwitchRequestRepository.flush();
 
-
+        Assertions.assertFalse(assignmentSwitchRequestRepository.findById(tradeId).isPresent());
     }
 
 }
