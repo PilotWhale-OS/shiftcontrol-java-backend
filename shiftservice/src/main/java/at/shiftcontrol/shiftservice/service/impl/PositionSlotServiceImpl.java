@@ -41,6 +41,7 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
+import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @RequiredArgsConstructor
@@ -82,8 +83,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         securityHelper.assertUserIsVolunteer(positionSlot);
 
         // check if plan is locked
-        if (LockStatus.LOCKED.equals(positionSlot.getShift().getShiftPlan().getLockStatus())) {
+        if (LockStatusHelper.isLocked(positionSlot)) {
             throw new IllegalStateException("join not possible, shift plan is locked");
+        }
+        // check if plan is supervised
+        if (LockStatusHelper.isSupervised(positionSlot)) {
+            throw new IllegalStateException("join not possible, shift plan is supervised");
         }
 
         // check if already assigned, eligible and conflicts
@@ -121,8 +126,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
 
         // check if plan is locked
-        if (LockStatus.LOCKED.equals(assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus())) {
+        if (LockStatusHelper.isLocked(assignment)) {
             throw new IllegalStateException("leave not possible, shift plan is locked");
+        }
+        // check if plan is supervised
+        if (LockStatusHelper.isSupervised(assignment)) {
+            throw new IllegalStateException("leave not possible, shift plan is supervised");
         }
 
         // delete involved trades

@@ -43,8 +43,8 @@ import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
+import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
@@ -185,7 +185,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             .orElseThrow(() -> new IllegalArgumentException("not assigned to offered Position"));
 
         // check if shifts are locked
-        if (isPositionSlotLocked(requestedPositionSlot) || isPositionSlotLocked(offeredPositionSlot)) {
+        if (LockStatusHelper.isLocked(requestedPositionSlot) || LockStatusHelper.isLocked(offeredPositionSlot)) {
             throw new IllegalStateException("trade not possible, shift plan is locked");
         }
 
@@ -240,10 +240,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     @Transactional
     public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) throws NotFoundException, ConflictException, ForbiddenException {
-        // get current user (volunteer)
-        Volunteer currentUser = volunteerDao.findByUserId(currentUserId)
-            .orElseThrow(() -> new NotFoundException("user not found"));
-
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.findById(id)
             .orElseThrow(() -> new NotFoundException("Trade not found"));
@@ -254,7 +250,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check if shift is locked
-        if (isTradeLocked(trade)) {
+        if (LockStatusHelper.isLocked(trade)) {
             throw new IllegalStateException("trade not possible, shift is locked");
         }
 
@@ -353,15 +349,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check if any current assignments overlap with requested position slot
         eligibilityService.validateHasConflictingAssignmentsExcludingSlot(
             volunteer.getId(), slotToBeTaken.getShift().getStartTime(), slotToBeTaken.getShift().getEndTime(), ownedSlot.getId());
-    }
-
-    private boolean isTradeLocked(AssignmentSwitchRequest trade) {
-        return isPositionSlotLocked(trade.getRequestedAssignment().getPositionSlot())
-            || isPositionSlotLocked(trade.getOfferingAssignment().getPositionSlot());
-    }
-
-    private boolean isPositionSlotLocked(PositionSlot slot) {
-        return slot.getShift().getShiftPlan().getLockStatus().equals(LockStatus.LOCKED);
     }
 
     private void cancelOtherTrades(AssignmentSwitchRequest trade) {
