@@ -32,7 +32,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     private final KeycloakUserService keycloakService;
 
     @Override
-    public Collection<LeaderBoardDto> getLeaderBoard(long eventId) throws NotFoundException, ForbiddenException {
+    public LeaderBoardDto getLeaderBoard(long eventId) throws NotFoundException, ForbiddenException {
         var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsAllowedToAccessEvent(event);
 
@@ -75,7 +75,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             .ranks(ranks)
             .build();
 
-        return List.of(dto);
+        return dto;
     }
 
     private static <T> Collection<T> ensureList(Collection<T> c) {

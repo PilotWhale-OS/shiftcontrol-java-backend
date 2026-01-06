@@ -31,7 +31,7 @@ public class LeaderboeardEndpoint {
         operationId = "getLeaderboardForEvent",
         description = "Get the leaderboard for a specific event"
     )
-    public Collection<LeaderBoardDto> getLeaderboard(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
+    public LeaderBoardDto getLeaderboard(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
         return leaderboardService.getLeaderBoard(ConvertUtil.idToLong(eventId));
     }
 }
