@@ -15,6 +15,9 @@ public class RankDto {
     private int rank;
 
     @NotNull
+    private long hours;
+
+    @NotNull
     private String firstName;
 
     @NotNull

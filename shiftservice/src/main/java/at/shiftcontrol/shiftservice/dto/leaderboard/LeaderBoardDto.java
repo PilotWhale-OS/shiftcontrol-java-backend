@@ -17,6 +17,8 @@ public class LeaderBoardDto {
     @NotNull
     private int size;
 
+    private RankDto ownRank;
+
     @NotNull
     @Valid
     private Collection<RankDto> ranks;

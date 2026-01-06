@@ -32,7 +32,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     private final KeycloakUserService keycloakService;
 
     @Override
-    public LeaderBoardDto getLeaderBoard(long eventId) throws NotFoundException, ForbiddenException {
+    public LeaderBoardDto getLeaderBoard(long eventId, String currentUserId) throws NotFoundException, ForbiddenException {
         var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsAllowedToAccessEvent(event);
 
@@ -54,25 +54,42 @@ public class LeaderboardServiceImpl implements LeaderboardService {
 
         List<String> topVolunteerIds = minutesByVolunteer.entrySet().stream()
             .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
-            .limit(LEADERBOARD_LIMIT)
             .map(Map.Entry::getKey)
             .toList();
+
+        RankDto ownRank = null;
+        if(minutesByVolunteer.containsKey(currentUserId)){
+            var user = keycloakService.getUserById(currentUserId);
+            ownRank = RankDto.builder()
+                .rank(topVolunteerIds.indexOf(currentUserId) + 1)
+                .hours(minutesByVolunteer.get(currentUserId) / 60)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build();
+        }
 
         List<RankDto> ranks = new ArrayList<>(topVolunteerIds.size());
         int rank = 1;
 
         for (String volunteerId : topVolunteerIds) {
-                var user = keycloakService.getUserById(volunteerId);
+            var user = keycloakService.getUserById(volunteerId);
+            var hours = minutesByVolunteer.get(volunteerId) / 60;
             ranks.add(RankDto.builder()
                 .rank(rank++)
+                .hours(hours)
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .build());
+
+            if(rank > LEADERBOARD_LIMIT) {
+                break;
+            }
         }
 
         LeaderBoardDto dto = LeaderBoardDto.builder()
             .size(ranks.size())
             .ranks(ranks)
+            .ownRank(ownRank)
             .build();
 
         return dto;

@@ -2,6 +2,8 @@ package at.shiftcontrol.shiftservice.endpoint.leaderboard;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +26,7 @@ import at.shiftcontrol.shiftservice.service.LeaderboardService;
 @RequiredArgsConstructor
 public class LeaderboeardEndpoint {
     private final LeaderboardService leaderboardService;
+    private final ApplicationUserProvider userProvider;
 
     @GetMapping()
     // TODO Security
@@ -32,6 +35,7 @@ public class LeaderboeardEndpoint {
         description = "Get the leaderboard for a specific event"
     )
     public LeaderBoardDto getLeaderboard(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
-        return leaderboardService.getLeaderBoard(ConvertUtil.idToLong(eventId));
+        var currentUser = userProvider.getCurrentUser();
+        return leaderboardService.getLeaderBoard(ConvertUtil.idToLong(eventId), currentUser.getUserId());
     }
 }

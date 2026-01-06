@@ -8,5 +8,5 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
 
 public interface LeaderboardService {
-    LeaderBoardDto getLeaderBoard(long eventId) throws NotFoundException, ForbiddenException;
+    LeaderBoardDto getLeaderBoard(long eventId, String currentUserId) throws NotFoundException, ForbiddenException;
 }
