@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -41,16 +39,15 @@ public class ActivityServiceImpl implements ActivityService {
     private final SecurityHelper securityHelper;
 
     @Override
-    public ActivityDto getActivity(long activityId) throws NotFoundException {
-        var activity = activityDao.findById(activityId)
-            .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
+    public ActivityDto getActivity(long activityId) {
+        var activity = activityDao.getById(activityId);
 
         return ActivityMapper.toActivityDto(activity);
     }
 
     @Override
-    public Collection<ActivityDto> getActivitiesForEvent(long eventId) throws NotFoundException, ForbiddenException {
-        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+    public Collection<ActivityDto> getActivitiesForEvent(long eventId) {
+        var event = eventDao.getById(eventId);
         securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 
         var activities = activityDao.findAllByEventId(eventId);
@@ -62,9 +59,8 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @AdminOnly
-    public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
-        var event = eventDao.findById(eventId)
-            .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+    public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) {
+        var event = eventDao.getById(eventId);
 
         var newActivity = Activity.builder()
             .event(event)
@@ -81,9 +77,8 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @AdminOnly
-    public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
-        var activity = activityDao.findById(activityId)
-            .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
+    public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) {
+        var activity = activityDao.getById(activityId);
 
         activity = validateModificationDtoAndSetActivityFields(modificationDto, activity);
 
@@ -94,7 +89,7 @@ public class ActivityServiceImpl implements ActivityService {
         return ActivityMapper.toActivityDto(activity);
     }
 
-    Activity validateModificationDtoAndSetActivityFields(ActivityModificationDto modificationDto, Activity activity) throws NotFoundException {
+    Activity validateModificationDtoAndSetActivityFields(ActivityModificationDto modificationDto, Activity activity) {
         if (modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
             throw new BadRequestException("End time must be after start time");
         }
@@ -103,8 +98,7 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BadRequestException("Cannot modify read-only activity");
         }
 
-        var location = locationDao.findById(ConvertUtil.idToLong(modificationDto.getLocationId()))
-            .orElseThrow(() -> new NotFoundException("Location not found with id: " + modificationDto.getLocationId()));
+        var location = locationDao.getById(ConvertUtil.idToLong(modificationDto.getLocationId()));
         if (location.isReadOnly()) {
             throw new BadRequestException("Cannot assign read-only location to activity");
         }
@@ -114,9 +108,8 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @AdminOnly
-    public void deleteActivity(long activityId) throws NotFoundException {
-        var activity = activityDao.findById(activityId)
-            .orElseThrow(() -> new NotFoundException("Activity not found with id: " + activityId));
+    public void deleteActivity(long activityId) {
+        var activity = activityDao.getById(activityId);
 
         if (activity.isReadOnly()) {
             throw new BadRequestException("Cannot modify read-only activity");
@@ -129,8 +122,8 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException, ForbiddenException {
-        var event = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) {
+        var event = eventDao.getById(eventId);
         securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 
         var activitiesOfEvent = activityDao.findAllByEventId(eventId);

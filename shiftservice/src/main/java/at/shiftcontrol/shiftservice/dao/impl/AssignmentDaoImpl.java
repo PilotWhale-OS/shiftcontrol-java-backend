@@ -19,6 +19,11 @@ public class AssignmentDaoImpl implements AssignmentDao {
     private final AssignmentRepository assignmentRepository;
 
     @Override
+    public String getName() {
+        return "Assignment";
+    }
+
+    @Override
     public Optional<Assignment> findById(AssignmentId id) {
         return assignmentRepository.findById(id);
     }

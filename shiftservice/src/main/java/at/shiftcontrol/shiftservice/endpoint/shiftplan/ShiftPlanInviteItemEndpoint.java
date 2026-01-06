@@ -15,8 +15,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
@@ -37,7 +35,7 @@ public class ShiftPlanInviteItemEndpoint {
         operationId = "revokeShiftPlanInvite",
         description = "Revoke an invite code for a specific shift plan of an event (soft delete)"
     )
-    public void revokeShiftPlanInvite(@PathVariable String inviteId) throws ForbiddenException, NotFoundException {
+    public void revokeShiftPlanInvite(@PathVariable String inviteId) {
         shiftPlanService.revokeShiftPlanInvite(ConvertUtil.idToLong(inviteId));
     }
 
@@ -46,7 +44,7 @@ public class ShiftPlanInviteItemEndpoint {
         operationId = "deleteShiftPlanInvite",
         description = "Delete an invite code for a specific shift plan of an event (hard delete)"
     )
-    public void deleteShiftPlanInvite(@PathVariable String inviteId) throws ForbiddenException, NotFoundException {
+    public void deleteShiftPlanInvite(@PathVariable String inviteId) {
         shiftPlanService.deleteShiftPlanInvite(ConvertUtil.idToLong(inviteId));
     }
 
@@ -56,7 +54,7 @@ public class ShiftPlanInviteItemEndpoint {
         operationId = "getShiftPlanInviteDetails",
         description = "Get details about a specific invite code for a shift plan"
     )
-    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(@PathVariable String inviteCode) throws NotFoundException, ForbiddenException {
+    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(@PathVariable String inviteCode) {
         return shiftPlanService.getShiftPlanInviteDetails(inviteCode);
     }
 
@@ -65,7 +63,7 @@ public class ShiftPlanInviteItemEndpoint {
         operationId = "joinShiftPlan",
         description = "Join a shift plan using an invite code"
     )
-    public ShiftPlanJoinOverviewDto joinShiftPlan(@RequestBody @Valid ShiftPlanJoinRequestDto requestDto) throws NotFoundException {
+    public ShiftPlanJoinOverviewDto joinShiftPlan(@RequestBody @Valid ShiftPlanJoinRequestDto requestDto) {
         return shiftPlanService.joinShiftPlan(requestDto);
     }
 }

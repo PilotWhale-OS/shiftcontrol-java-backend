@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.EncoderConfig;
@@ -11,10 +15,9 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -295,7 +298,7 @@ public abstract class RestITBase {
             .asString();
 
         if (matchDetailExactly) {
-            assertThat(actual).isEqualTo(message);
+            assertThat(extractMessageFromErrorJson(actual)).isEqualTo(message);
         } else {
             assertThat(actual).contains(message);
         }
@@ -313,9 +316,19 @@ public abstract class RestITBase {
             .asString();
 
         if (matchDetailExactly) {
-            assertThat(actual).isEqualTo(message);
+            assertThat(extractMessageFromErrorJson(actual)).isEqualTo(message);
         } else {
             assertThat(actual).contains(message);
+        }
+    }
+
+    private String extractMessageFromErrorJson(String json) {
+        try {
+            JsonNode root = new ObjectMapper().readTree(json);
+            return root.has("message") ? root.get("message").asText() : json;
+        } catch (Exception e) {
+            // fallback if response is not JSON
+            return json;
         }
     }
 }

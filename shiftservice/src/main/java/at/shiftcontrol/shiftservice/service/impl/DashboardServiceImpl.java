@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -25,6 +26,7 @@ import at.shiftcontrol.shiftservice.service.StatisticService;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardServiceImpl implements DashboardService {
     private final StatisticService statisticService;
     private final ShiftPlanDao shiftPlanDao;
@@ -36,11 +38,10 @@ public class DashboardServiceImpl implements DashboardService {
     private final ShiftAssemblingMapper shiftMapper;
 
     @Override
-    public ShiftPlanDashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) throws NotFoundException, ForbiddenException {
+    public ShiftPlanDashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
-        var event = eventDao.findById(shiftPlan.getEvent().getId())
-            .orElseThrow(() -> new NotFoundException("Event of shift plan with id " + shiftPlanId + " not found"));
+        var event = eventDao.getById(shiftPlan.getEvent().getId());
         var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
 
         return ShiftPlanDashboardOverviewDto.builder()
@@ -55,21 +56,22 @@ public class DashboardServiceImpl implements DashboardService {
             .build();
     }
 
-    private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) throws ForbiddenException {
+    private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) {
         var currentUser = userProvider.getCurrentUser();
         if (!(currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId))) {
-            throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
+            log.error("User has no access to shift plan with id: {}", shiftPlanId);
+            throw new ForbiddenException("User has no access to shift plan.");
         }
 
         return currentUser.getUserId();
     }
 
-    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) throws NotFoundException {
-        return shiftPlanDao.findById(shiftPlanId).orElseThrow(() -> new NotFoundException("Shift plan not found with id: " + shiftPlanId));
+    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) {
+        return shiftPlanDao.getById(shiftPlanId);
     }
 
     @Override
-    public EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(String userId) throws NotFoundException, ForbiddenException {
+    public EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(String userId) {
         var userShiftPlans = shiftPlanDao.findAllUserRelatedShiftPlans(userId);
 
         var shiftPlanDashboards = userShiftPlans.stream().map(shiftPlan -> {

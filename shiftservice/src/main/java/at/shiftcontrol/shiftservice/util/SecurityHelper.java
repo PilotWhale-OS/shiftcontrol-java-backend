@@ -2,8 +2,8 @@ package at.shiftcontrol.shiftservice.util;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -18,6 +18,7 @@ import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityHelper {
     private final ApplicationUserProvider userProvider;
     private final EventDao eventDao;
@@ -31,43 +32,42 @@ public class SecurityHelper {
         return isUserPlanner(shiftPlanId, currentUser);
     }
 
-    public void assertUserIsPlanner(long shiftPlanId) throws ForbiddenException {
+    public void assertUserIsPlanner(long shiftPlanId) {
         assertUserIsPlanner(shiftPlanId, userProvider.getCurrentUser());
     }
 
-    public void assertUserIsPlanner(long shiftPlanId, ShiftControlUser user) throws ForbiddenException {
+    public void assertUserIsPlanner(long shiftPlanId, ShiftControlUser user) {
         if (!isUserPlanner(shiftPlanId, user)) {
-            throw new ForbiddenException("User is not a Planner in plan: " + shiftPlanId);
+            log.error("User is not a planner in shift plan with id: {}", shiftPlanId);
+            throw new ForbiddenException("User is not a planner in shift plan.");
         }
     }
 
-    public void assertUserIsPlanner(ShiftPlan shiftPlan) throws ForbiddenException {
+    public void assertUserIsPlanner(ShiftPlan shiftPlan) {
         assertUserIsPlanner(shiftPlan.getId());
     }
 
-    public void assertUserIsPlanner(Shift shift) throws ForbiddenException {
+    public void assertUserIsPlanner(Shift shift) {
         assertUserIsPlanner(shift.getShiftPlan());
     }
 
-    public void assertUserIsPlanner(PositionSlot positionSlot) throws ForbiddenException {
+    public void assertUserIsPlanner(PositionSlot positionSlot) {
         assertUserIsPlanner(positionSlot.getShift());
     }
 
-    public void assertUserIsPlannerInAnyPlanOfEvent(Event event) throws ForbiddenException {
+    public void assertUserIsPlannerInAnyPlanOfEvent(Event event) {
         boolean isPlannerInAnyPlan = event.getShiftPlans()
             .stream()
             .anyMatch(shiftPlan -> isUserPlanner(shiftPlan.getId()));
         var isNotAdmin = isNotUserAdmin();
         if (!isPlannerInAnyPlan && isNotAdmin) {
-            throw new ForbiddenException(
-                "User has no planner access to any shift plan of event with id: " + event.getId()
-            );
+            log.error("User has no planner access to any shift plan of event with id: {}", event.getId());
+            throw new ForbiddenException("User has no planner access to any shift plan of event.");
         }
     }
 
-    public void assertUserIsPlannerInAnyPlanOfEvent(String eventId) throws ForbiddenException, NotFoundException {
-        Event event = eventDao.findById(ConvertUtil.idToLong(eventId))
-            .orElseThrow(() -> new NotFoundException("Event not found with id: " + eventId));
+    public void assertUserIsPlannerInAnyPlanOfEvent(String eventId) {
+        Event event = eventDao.getById(ConvertUtil.idToLong(eventId));
         assertUserIsPlannerInAnyPlanOfEvent(event);
     }
     //     --------------------- Volunteer ---------------------
@@ -86,25 +86,26 @@ public class SecurityHelper {
         return isVolunteerInPlan(shiftPlanId, currentUser) && !isUserPlanner(shiftPlanId, currentUser);
     }
 
-    public void assertUserIsVolunteer(long shiftPlanId, ShiftControlUser user) throws ForbiddenException {
+    public void assertUserIsVolunteer(long shiftPlanId, ShiftControlUser user) {
         if (!isVolunteerInPlan(shiftPlanId, user)) {
-            throw new ForbiddenException("User is not a volunteer in plan: " + shiftPlanId);
+            log.error("User is not a volunteer in plan with id: {}", shiftPlanId);
+            throw new ForbiddenException("User is not a volunteer in plan.");
         }
     }
 
-    public void assertUserIsVolunteer(long shiftPlanId) throws ForbiddenException {
+    public void assertUserIsVolunteer(long shiftPlanId) {
         assertUserIsVolunteer(shiftPlanId, userProvider.getCurrentUser());
     }
 
-    public void assertUserIsVolunteer(ShiftPlan shiftPlan) throws ForbiddenException {
+    public void assertUserIsVolunteer(ShiftPlan shiftPlan) {
         assertUserIsVolunteer(shiftPlan.getId());
     }
 
-    public void assertUserIsVolunteer(Shift shift) throws ForbiddenException {
+    public void assertUserIsVolunteer(Shift shift) {
         assertUserIsVolunteer(shift.getShiftPlan());
     }
 
-    public void assertUserIsVolunteer(PositionSlot positionSlot) throws ForbiddenException {
+    public void assertUserIsVolunteer(PositionSlot positionSlot) {
         assertUserIsVolunteer(positionSlot.getShift());
     }
     //     --------------------- Volunteer or Planner ---------------------
@@ -114,21 +115,22 @@ public class SecurityHelper {
         return currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId);
     }
 
-    public void assertUserIsInPlan(long shiftPlanId) throws ForbiddenException {
+    public void assertUserIsInPlan(long shiftPlanId) {
         if (!isUserInPlan(shiftPlanId)) {
-            throw new ForbiddenException("User has no access to shift plan with id: " + shiftPlanId);
+            log.error("User has no access to shift plan with id: {}", shiftPlanId);
+            throw new ForbiddenException("User has no access to shift plan.");
         }
     }
 
-    public void assertUserIsInPlan(ShiftPlan shiftPlan) throws ForbiddenException {
+    public void assertUserIsInPlan(ShiftPlan shiftPlan) {
         assertUserIsInPlan(shiftPlan.getId());
     }
 
-    public void assertUserIsInPlan(Shift shift) throws ForbiddenException {
+    public void assertUserIsInPlan(Shift shift) {
         assertUserIsInPlan(shift.getShiftPlan());
     }
 
-    public void assertUserIsInPlan(PositionSlot positionSlot) throws ForbiddenException {
+    public void assertUserIsInPlan(PositionSlot positionSlot) {
         assertUserIsInPlan(positionSlot.getShift());
     }
 
@@ -138,13 +140,12 @@ public class SecurityHelper {
             .anyMatch(shiftPlan -> isUserInPlan(shiftPlan.getId()));
     }
 
-    public void assertUserIsAllowedToAccessEvent(Event event) throws ForbiddenException {
+    public void assertUserIsAllowedToAccessEvent(Event event) {
         boolean isInAnyPlan = isUserInAnyPlanOfEvent(event); // also false if no shift plans exist
         boolean isNotAdmin = isNotUserAdmin();
         if (!isInAnyPlan && isNotAdmin) {
-            throw new ForbiddenException(
-                "User has no access to any shift plan of event with id: " + event.getId()
-            );
+            log.error("User has no access to any shift plan of event with id: {}", event.getId());
+            throw new ForbiddenException("User has no access to any shift plan of event.");
         }
     }
 

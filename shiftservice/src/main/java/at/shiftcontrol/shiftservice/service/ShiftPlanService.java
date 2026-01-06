@@ -2,8 +2,6 @@ package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
@@ -19,35 +17,35 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 
 public interface ShiftPlanService {
-    Collection<ShiftPlanDto> getAll(long eventId) throws NotFoundException;
+    Collection<ShiftPlanDto> getAll(long eventId);
 
-    ShiftPlanDto get(long shiftPlanId) throws NotFoundException;
+    ShiftPlanDto get(long shiftPlanId);
 
-    ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) throws NotFoundException;
+    ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto);
 
-    ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) throws NotFoundException;
+    ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto);
 
-    void delete(long shiftPlanId) throws NotFoundException;
+    void delete(long shiftPlanId);
 
-    ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto) throws NotFoundException, ForbiddenException;
+    ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto);
 
     ShiftPlanScheduleContentDto getShiftPlanScheduleContent(long shiftPlanId, ShiftPlanScheduleDaySearchDto searchDto)
-        throws NotFoundException, ForbiddenException;
+       ;
 
-    ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId) throws NotFoundException;
+    ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId);
 
     ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
-        throws NotFoundException, ForbiddenException;
+       ;
 
-    void revokeShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException;
+    void revokeShiftPlanInvite(long inviteId);
 
-    void deleteShiftPlanInvite(long inviteId) throws NotFoundException, ForbiddenException;
+    void deleteShiftPlanInvite(long inviteId);
 
-    ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) throws NotFoundException, ForbiddenException;
+    ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode);
 
-    Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) throws NotFoundException, ForbiddenException;
+    Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId);
 
-    ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto) throws NotFoundException;
+    ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto);
 
-    void updateLockStatus(long shiftPlanId, LockStatus lockStatus) throws NotFoundException;
+    void updateLockStatus(long shiftPlanId, LockStatus lockStatus);
 }

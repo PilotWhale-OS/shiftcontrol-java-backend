@@ -3,8 +3,11 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -18,8 +21,6 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -31,19 +32,19 @@ public class EligibilityServiceImpl implements EligibilityService {
     private final ApplicationUserProvider userProvider;
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, String userId) throws NotFoundException {
+    public PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, String userId) {
         return getSignupStateForPositionSlot(
-            positionSlotDao.findById(positionSlotId).orElseThrow(() -> new NotFoundException("PositionSlot with ID %d not found".formatted(positionSlotId))),
-            volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %s not found".formatted(userId))
-            ));
+            positionSlotDao.getById(positionSlotId),
+            volunteerDao.getById(userId)
+            );
     }
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) throws NotFoundException {
+    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) {
         return getSignupStateForPositionSlot(
             positionSlot,
-            volunteerDao.findByUserId(userId).orElseThrow(() -> new NotFoundException("Volunteer with ID %s not found".formatted(userId))
-            ));
+            volunteerDao.getById(userId)
+            );
     }
 
     @Override
@@ -82,7 +83,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateSignUpStateForJoin(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
+    public void validateSignUpStateForJoin(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         switch (signupState) {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION:
@@ -101,7 +102,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
+    public void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         switch (signupState) {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_POSSIBLE, SIGNUP_OR_TRADE:
@@ -127,7 +128,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateIsTradePossible(PositionSlot positionSlot, Volunteer volunteer) throws ConflictException {
+    public void validateIsTradePossible(PositionSlot positionSlot, Volunteer volunteer) {
         if (!isTradePossible(positionSlot, volunteer)) {
             throw new ConflictException("position slot can not be traded with volunteer");
         }
@@ -139,7 +140,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) throws ConflictException {
+    public void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
         var a = assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
         if (a.isEmpty()) {
             return;
@@ -148,7 +149,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot) throws ConflictException {
+    public void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot) {
         validateHasConflictingAssignments(volunteerId,
             positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
     }
@@ -159,8 +160,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot)
-        throws ConflictException {
+    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
         var a = assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
         if (a.isEmpty()) {
             return;
