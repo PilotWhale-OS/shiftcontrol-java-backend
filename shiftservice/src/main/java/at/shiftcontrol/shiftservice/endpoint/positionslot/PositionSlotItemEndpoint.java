@@ -111,7 +111,7 @@ public class PositionSlotItemEndpoint {
             )
         }
     )
-    public void leavePositionSlot(@PathVariable String positionSlotId) throws ForbiddenException, NotFoundException {
+    public void leavePositionSlot(@PathVariable String positionSlotId) {
         positionSlotService.leave(
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());
