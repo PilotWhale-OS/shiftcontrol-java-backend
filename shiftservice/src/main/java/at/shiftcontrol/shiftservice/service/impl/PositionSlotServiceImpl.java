@@ -75,9 +75,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // get position slot and volunteer
         PositionSlot positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
-        securityHelper.assertUserIsVolunteer(positionSlot);
-        Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
-            .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
         // check access to position slot
         securityHelper.assertUserIsVolunteer(positionSlot);
@@ -90,6 +87,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         if (LockStatusHelper.isSupervised(positionSlot)) {
             throw new IllegalStateException("join not possible, shift plan is supervised");
         }
+
+        // get volunteer
+        Volunteer volunteer = volunteerDao.findByUserId(currentUserId)
+            .orElseThrow(() -> new NotFoundException("Volunteer not found"));
 
         // check if already assigned, eligible and conflicts
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
