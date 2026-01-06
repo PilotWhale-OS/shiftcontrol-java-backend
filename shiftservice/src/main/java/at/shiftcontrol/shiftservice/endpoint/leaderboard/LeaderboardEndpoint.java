@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint.leaderboard;
 
-import java.util.Collection;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +18,7 @@ import at.shiftcontrol.shiftservice.service.LeaderboardService;
 @RestController
 @RequestMapping(value = "api/v1/events/{eventId}/leaderboard", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class LeaderboeardEndpoint {
+public class LeaderboardEndpoint {
     private final LeaderboardService leaderboardService;
 
     @GetMapping()
@@ -29,7 +27,7 @@ public class LeaderboeardEndpoint {
         operationId = "getLeaderboardForEvent",
         description = "Get the leaderboard for a specific event"
     )
-    public Collection<LeaderBoardDto> getLeaderboard(@PathVariable String eventId) {
+    public LeaderBoardDto getLeaderboard(@PathVariable String eventId) {
         return leaderboardService.getLeaderBoard(ConvertUtil.idToLong(eventId));
     }
 }
