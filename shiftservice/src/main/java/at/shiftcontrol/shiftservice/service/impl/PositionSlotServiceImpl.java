@@ -86,7 +86,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new IllegalStateException("join not possible, shift plan is locked");
         }
 
-        // check if eligible and conflicts
+        // check if already assigned, eligible and conflicts
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
         eligibilityService.validateHasConflictingAssignments(currentUserId, positionSlot);
 
@@ -117,12 +117,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // get assignment
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
         if (assignment == null) {
-            throw new NotFoundException("not assined to position slot");
+            throw new NotFoundException("not assigned to position slot");
         }
 
         // check if plan is locked
         if (LockStatus.LOCKED.equals(assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus())) {
-            throw new IllegalStateException("join not possible, shift plan is locked");
+            throw new IllegalStateException("leave not possible, shift plan is locked");
         }
 
         // delete involved trades

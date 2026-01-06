@@ -4,4 +4,6 @@ public enum LockStatus {
     LOCKED,
     SELF_SIGNUP,
     SUPERVISED
+
+
 }

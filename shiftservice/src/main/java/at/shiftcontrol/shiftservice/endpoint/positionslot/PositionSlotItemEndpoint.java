@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint.positionslot;
 
-import java.util.Collection;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -136,15 +134,6 @@ public class PositionSlotItemEndpoint {
             preferenceUpdateDto.getPreferenceValue()
         );
         return PositionSlotPreferenceDto.builder().preferenceValue(preferenceUpdateDto.getPreferenceValue()).build();
-    }
-
-    @GetMapping("/assignments")
-    @Operation(
-        operationId = "getPositionSlotAssignments",
-        description = "Get assignments for a specific position slot"
-    )
-    public Collection<AssignmentDto> getPositionSlotAssignments(@PathVariable String positionSlotId) {
-        return null; // TODO: implement ? or add assignments to positionSlotDTO
     }
 
     @PostMapping("/auction")
