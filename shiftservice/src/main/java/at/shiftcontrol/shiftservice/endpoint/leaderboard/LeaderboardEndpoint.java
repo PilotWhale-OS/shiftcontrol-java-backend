@@ -24,7 +24,7 @@ import at.shiftcontrol.shiftservice.service.LeaderboardService;
 @RestController
 @RequestMapping(value = "api/v1/events/{eventId}/leaderboard", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class LeaderboeardEndpoint {
+public class LeaderboardEndpoint {
     private final LeaderboardService leaderboardService;
     private final ApplicationUserProvider userProvider;
 
