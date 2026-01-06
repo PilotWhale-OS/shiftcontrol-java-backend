@@ -18,8 +18,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
@@ -57,7 +55,7 @@ public class RoleCollectionEndpoint {
     public RoleDto createRole(
         @PathVariable String shiftPlanId,
         @RequestBody @Valid RoleModificationDto role
-    ) throws ForbiddenException, NotFoundException {
+    ) {
         return roleService.createRole(ConvertUtil.idToLong(shiftPlanId), role);
     }
 }

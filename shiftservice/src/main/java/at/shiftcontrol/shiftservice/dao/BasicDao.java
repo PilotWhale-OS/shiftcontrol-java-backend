@@ -7,7 +7,7 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 public interface BasicDao<T, K> {
     java.util.Optional<T> findById(K id);
 
-    default T getById(K id) throws NotFoundException {
+    default T getById(K id) {
         return findById(id).orElseThrow(NotFoundException::new);
     }
 

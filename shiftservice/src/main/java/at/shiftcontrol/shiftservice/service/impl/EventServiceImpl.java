@@ -10,8 +10,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -46,7 +44,7 @@ public class EventServiceImpl implements EventService {
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public EventDto getEvent(long eventId) throws NotFoundException, ForbiddenException {
+    public EventDto getEvent(long eventId) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsAllowedToAccessEvent(event);
 
@@ -54,7 +52,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> search(EventSearchDto searchDto) throws NotFoundException {
+    public List<EventDto> search(EventSearchDto searchDto) {
         var filteredEvents = eventDao.search(searchDto);
         var currentUser = userProvider.getCurrentUser();
 
@@ -79,12 +77,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) throws NotFoundException {
+    public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) {
         return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId));
     }
 
     @Override
-    public EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId) throws NotFoundException {
+    public EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId) {
         var event = eventDao.getById(eventId);
 
         var eventOverviewDto = EventMapper.toEventDto(event);
@@ -101,7 +99,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) throws NotFoundException, ForbiddenException {
+    public EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsAllowedToAccessEvent(event);
 
@@ -124,7 +122,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @AdminOnly
-    public EventDto updateEvent(long eventId, @NonNull EventModificationDto modificationDto) throws NotFoundException {
+    public EventDto updateEvent(long eventId, @NonNull EventModificationDto modificationDto) {
         validateEventModificationDto(modificationDto);
 
         Event event = eventDao.getById(eventId);
@@ -143,14 +141,14 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @AdminOnly
-    public void deleteEvent(long eventId) throws NotFoundException {
+    public void deleteEvent(long eventId) {
         var event = eventDao.getById(eventId);
 
         publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(eventId))), event));
         eventDao.delete(event);
     }
 
-    private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) throws NotFoundException {
+    private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) {
         var event = eventDao.getById(eventId);
         var shiftPlans = event.getShiftPlans();
 

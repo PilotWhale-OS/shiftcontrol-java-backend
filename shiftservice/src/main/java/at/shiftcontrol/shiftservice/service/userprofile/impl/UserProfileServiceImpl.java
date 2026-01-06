@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -29,7 +28,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final SecurityHelper securityHelper;
 
     @Override
-    public UserProfileDto getUserProfile(String userId) throws NotFoundException, ForbiddenException {
+    public UserProfileDto getUserProfile(String userId) {
         var currentUser = userProvider.getCurrentUser();
         if (!userId.equals(currentUser.getUserId()) && securityHelper.isNotUserAdmin()) {
             throw new ForbiddenException();

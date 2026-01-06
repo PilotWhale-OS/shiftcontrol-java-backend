@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
@@ -32,7 +30,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     private final KeycloakUserService keycloakService;
 
     @Override
-    public Collection<LeaderBoardDto> getLeaderBoard(long eventId) throws NotFoundException, ForbiddenException {
+    public Collection<LeaderBoardDto> getLeaderBoard(long eventId) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsAllowedToAccessEvent(event);
 
@@ -60,9 +58,8 @@ public class LeaderboardServiceImpl implements LeaderboardService {
 
         List<RankDto> ranks = new ArrayList<>(topVolunteerIds.size());
         int rank = 1;
-
         for (String volunteerId : topVolunteerIds) {
-                var user = keycloakService.getUserById(volunteerId);
+            var user = keycloakService.getUserById(volunteerId);
             ranks.add(RankDto.builder()
                 .rank(rank++)
                 .firstName(user.getFirstName())

@@ -3,9 +3,16 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.List;
 
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
@@ -18,15 +25,6 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
-
 import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
@@ -45,7 +43,7 @@ public class AssignmentSwitchRequestServiceIT {
 
 
     @Test
-    void testGetPositionSlotsToOffer() throws NotFoundException, ForbiddenException {
+    void testGetPositionSlotsToOffer() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long positionSlotId = 3L;
         Mockito.when(userProfileService.getUserProfile(any()))
@@ -58,7 +56,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testCreateTrade() throws ConflictException, NotFoundException, ForbiddenException {
+    void testCreateTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         String offeredPosition = "11";
@@ -85,7 +83,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testAcceptTrade() throws ConflictException, NotFoundException, ForbiddenException {
+    void testAcceptTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         Mockito.when(userProfileService.getUserProfile(any()))
             .thenReturn(getUserProfileDtoWithId(currentUserId));
@@ -101,7 +99,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testDeclineTrade() throws NotFoundException {
+    void testDeclineTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
             new AssignmentId(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5"),
@@ -115,7 +113,7 @@ public class AssignmentSwitchRequestServiceIT {
     }
 
     @Test
-    void testCancelTrade() throws NotFoundException {
+    void testCancelTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
             new AssignmentId(1L, currentUserId),

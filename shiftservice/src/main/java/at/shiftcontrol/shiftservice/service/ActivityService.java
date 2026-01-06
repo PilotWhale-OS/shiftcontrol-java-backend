@@ -2,22 +2,20 @@ package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 
 public interface ActivityService {
-    ActivityDto getActivity(long activityId) throws NotFoundException;
+    ActivityDto getActivity(long activityId);
 
-    Collection<ActivityDto> getActivitiesForEvent(long eventId) throws NotFoundException, ForbiddenException;
+    Collection<ActivityDto> getActivitiesForEvent(long eventId);
 
-    ActivityDto createActivity(long eventId, ActivityModificationDto modificationDto) throws NotFoundException;
+    ActivityDto createActivity(long eventId, ActivityModificationDto modificationDto);
 
-    ActivityDto updateActivity(long activityId, ActivityModificationDto modificationDto) throws NotFoundException;
+    ActivityDto updateActivity(long activityId, ActivityModificationDto modificationDto);
 
-    void deleteActivity(long activityId) throws NotFoundException;
+    void deleteActivity(long activityId);
 
-    Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException, ForbiddenException;
+    Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto);
 }

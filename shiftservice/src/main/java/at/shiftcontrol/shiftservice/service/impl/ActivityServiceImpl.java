@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -41,14 +39,14 @@ public class ActivityServiceImpl implements ActivityService {
     private final SecurityHelper securityHelper;
 
     @Override
-    public ActivityDto getActivity(long activityId) throws NotFoundException {
+    public ActivityDto getActivity(long activityId) {
         var activity = activityDao.getById(activityId);
 
         return ActivityMapper.toActivityDto(activity);
     }
 
     @Override
-    public Collection<ActivityDto> getActivitiesForEvent(long eventId) throws NotFoundException, ForbiddenException {
+    public Collection<ActivityDto> getActivitiesForEvent(long eventId) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 
@@ -61,7 +59,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @AdminOnly
-    public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
+    public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
 
         var newActivity = Activity.builder()
@@ -79,7 +77,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @AdminOnly
-    public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) throws NotFoundException {
+    public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) {
         var activity = activityDao.getById(activityId);
 
         activity = validateModificationDtoAndSetActivityFields(modificationDto, activity);
@@ -91,7 +89,7 @@ public class ActivityServiceImpl implements ActivityService {
         return ActivityMapper.toActivityDto(activity);
     }
 
-    Activity validateModificationDtoAndSetActivityFields(ActivityModificationDto modificationDto, Activity activity) throws NotFoundException {
+    Activity validateModificationDtoAndSetActivityFields(ActivityModificationDto modificationDto, Activity activity) {
         if (modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
             throw new BadRequestException("End time must be after start time");
         }
@@ -110,7 +108,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @AdminOnly
-    public void deleteActivity(long activityId) throws NotFoundException {
+    public void deleteActivity(long activityId) {
         var activity = activityDao.getById(activityId);
 
         if (activity.isReadOnly()) {
@@ -124,7 +122,7 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) throws NotFoundException, ForbiddenException {
+    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 

@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
 import at.shiftcontrol.shiftservice.service.LeaderboardService;
@@ -31,7 +29,7 @@ public class LeaderboeardEndpoint {
         operationId = "getLeaderboardForEvent",
         description = "Get the leaderboard for a specific event"
     )
-    public Collection<LeaderBoardDto> getLeaderboard(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
+    public Collection<LeaderBoardDto> getLeaderboard(@PathVariable String eventId) {
         return leaderboardService.getLeaderBoard(ConvertUtil.idToLong(eventId));
     }
 }

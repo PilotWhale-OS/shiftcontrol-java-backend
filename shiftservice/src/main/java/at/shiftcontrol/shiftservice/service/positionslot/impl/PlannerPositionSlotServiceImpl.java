@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
@@ -33,14 +31,14 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) throws ForbiddenException, NotFoundException {
+    public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) {
         var plan = shiftPlanDao.getById(shiftPlanId);
         securityHelper.assertUserIsPlanner(plan);
         return AssignmentRequestMapper.toAssignmentRequestDto(plan.getShifts());
     }
 
     @Override
-    public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) throws ForbiddenException {
+    public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         switch (assignment.getStatus()) {
@@ -57,7 +55,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
-    public void declineRequest(long shiftPlanId, long positionSlotId, String userId) throws ForbiddenException {
+    public void declineRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         switch (assignment.getStatus()) {

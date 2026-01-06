@@ -16,8 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
@@ -41,7 +39,7 @@ public class RoleItemEndpoint {
         operationId = "getRole",
         description = "Get role by id"
     )
-    public RoleDto getRole(@PathVariable String roleId) throws ForbiddenException, NotFoundException {
+    public RoleDto getRole(@PathVariable String roleId) {
         return roleService.getRole(ConvertUtil.idToLong(roleId));
     }
 
@@ -53,7 +51,7 @@ public class RoleItemEndpoint {
     public RoleDto updateRole(
         @PathVariable String roleId,
         @RequestBody RoleModificationDto role
-    ) throws ForbiddenException, NotFoundException {
+    ) {
         return roleService.updateRole(ConvertUtil.idToLong(roleId), role);
     }
 
@@ -63,7 +61,7 @@ public class RoleItemEndpoint {
         operationId = "deleteRole",
         description = "Delete a role of this event"
     )
-    public void deleteRole(@PathVariable String roleId) throws ForbiddenException, NotFoundException {
+    public void deleteRole(@PathVariable String roleId) {
         roleService.deleteRole(ConvertUtil.idToLong(roleId));
     }
 }

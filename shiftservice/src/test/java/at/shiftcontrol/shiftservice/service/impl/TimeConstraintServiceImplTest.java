@@ -14,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -74,7 +73,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_volunteerMissing_throwsConflictException() throws NotFoundException {
+    void createTimeConstraint_volunteerMissing_throwsConflictException() {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
@@ -89,7 +88,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_volunteerNotPartOfEvent_throwsConflict() throws NotFoundException {
+    void createTimeConstraint_volunteerNotPartOfEvent_throwsConflict() {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
@@ -106,7 +105,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_overlapExisting_unavailable_throwsConflict() throws NotFoundException {
+    void createTimeConstraint_overlapExisting_unavailable_throwsConflict() {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
@@ -129,7 +128,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_assignmentOverlap_throwsConflict() throws NotFoundException {
+    void createTimeConstraint_assignmentOverlap_throwsConflict() {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))
@@ -151,7 +150,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_emergency_invalidWholeDays_throwsBadRequest() throws NotFoundException {
+    void createTimeConstraint_emergency_invalidWholeDays_throwsBadRequest() {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.EMERGENCY)
             .from(Instant.parse("2030-01-01T10:00:00Z"))
@@ -167,7 +166,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void delete_missingConstraint_throwsNotFound() throws NotFoundException {
+    void delete_missingConstraint_throwsNotFound() {
         when(timeConstraintDao.getById(anyLong())).thenThrow(NotFoundException.class);
 
         assertThatThrownBy(() -> service.delete(123L))
@@ -175,7 +174,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void delete_existing_deletesSuccessfully() throws NotFoundException, ForbiddenException {
+    void delete_existing_deletesSuccessfully() {
         Volunteer volunteer = new Volunteer();
         volunteer.setId(USER_ID);
 
@@ -190,7 +189,7 @@ class TimeConstraintServiceImplTest {
     }
 
     @Test
-    void createTimeConstraint_success_unavailable_returnsDto() throws ConflictException, ForbiddenException, NotFoundException {
+    void createTimeConstraint_success_unavailable_returnsDto() {
         var dto = TimeConstraintCreateDto.builder()
             .type(TimeConstraintType.UNAVAILABLE)
             .from(Instant.parse("2030-01-01T09:00:00Z"))

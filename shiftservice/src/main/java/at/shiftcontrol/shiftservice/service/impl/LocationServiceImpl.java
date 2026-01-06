@@ -10,7 +10,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
@@ -32,14 +31,14 @@ public class LocationServiceImpl implements LocationService {
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public LocationDto getLocation(long locationId) throws NotFoundException {
+    public LocationDto getLocation(long locationId) {
         var location = getLocationOrThrow(locationId);
 
         return LocationMapper.toLocationDto(location);
     }
 
     @Override
-    public Collection<LocationDto> getAllLocationsForEvent(long eventId) throws NotFoundException {
+    public Collection<LocationDto> getAllLocationsForEvent(long eventId) {
         eventDao.getById(eventId);
         var locations = locationDao.findAllByEventId(eventId);
 
@@ -48,7 +47,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @AdminOnly
-    public LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto) throws NotFoundException {
+    public LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
 
         var newLocation = Location.builder()
@@ -68,7 +67,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @AdminOnly
-    public LocationDto updateLocation(long locationId, @NonNull LocationModificationDto modificationDto) throws NotFoundException {
+    public LocationDto updateLocation(long locationId, @NonNull LocationModificationDto modificationDto) {
         var location = getLocationOrThrow(locationId);
 
         if (location.isReadOnly()) {
@@ -88,7 +87,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @AdminOnly
-    public void deleteLocation(long locationId) throws NotFoundException {
+    public void deleteLocation(long locationId) {
         var location = getLocationOrThrow(locationId);
 
         if (location.isReadOnly()) {
@@ -101,7 +100,7 @@ public class LocationServiceImpl implements LocationService {
             Map.of("locationId", String.valueOf(locationId))), location));
     }
 
-    private Location getLocationOrThrow(long locationId) throws NotFoundException {
+    private Location getLocationOrThrow(long locationId) {
         return locationDao.getById(locationId);
     }
 }

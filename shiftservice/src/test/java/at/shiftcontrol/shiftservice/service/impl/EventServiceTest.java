@@ -53,7 +53,7 @@ class EventServiceTest {
     private EventServiceImpl eventService;
 
     @Test
-    void search_filtersEventsByVolunteerShiftPlans() throws NotFoundException {
+    void search_filtersEventsByVolunteerShiftPlans() {
         // Arrange: create shift plans
         ShiftPlan spRelevant = new ShiftPlan();
         spRelevant.setId(1L);
@@ -94,7 +94,7 @@ class EventServiceTest {
     }
 
     @Test
-    void getUserRelatedShiftPlansOfEvent_throwsWhenEventNotFound() throws NotFoundException {
+    void getUserRelatedShiftPlansOfEvent_throwsWhenEventNotFound() {
         long eventId = 999L;
         String userId = "420696742";
 
@@ -108,7 +108,7 @@ class EventServiceTest {
     }
 
     @Test
-    void getUserRelatedShiftPlansOfEvent_throwsWhenVolunteerNotFound() throws NotFoundException {
+    void getUserRelatedShiftPlansOfEvent_throwsWhenVolunteerNotFound() {
         long eventId = 1L;
         String userId = "missing";
 
@@ -127,7 +127,7 @@ class EventServiceTest {
     }
 
     @Test
-    void getEventShiftPlansOverview_buildsOverviewFromEventShiftPlansAndStatistics() throws NotFoundException {
+    void getEventShiftPlansOverview_buildsOverviewFromEventShiftPlansAndStatistics() {
         long eventId = 1L;
         String userId = "420696742";
 
@@ -172,7 +172,7 @@ class EventServiceTest {
     }
 
     @Test
-    void getEventShiftPlansOverview_throwsWhenEventNotFound() throws NotFoundException {
+    void getEventShiftPlansOverview_throwsWhenEventNotFound() {
         long eventId = 999L;
         String userId = "420696742";
 

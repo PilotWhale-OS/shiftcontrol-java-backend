@@ -46,14 +46,14 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto getRole(Long roleId) throws ForbiddenException, NotFoundException {
+    public RoleDto getRole(Long roleId) {
         Role role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         return RoleMapper.toRoleDto(role);
     }
 
     @Override
-    public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) throws ForbiddenException, NotFoundException {
+    public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) {
         securityHelper.assertUserIsPlanner(shiftPlanId);
         var shiftPlan = shiftPlanDao.getById(shiftPlanId);
 
@@ -65,7 +65,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) throws ForbiddenException, NotFoundException {
+    public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) {
         var role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
@@ -84,7 +84,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteRole(Long roleId) throws ForbiddenException, NotFoundException {
+    public void deleteRole(Long roleId) {
         Role role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
@@ -94,7 +94,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public VolunteerDto createUserRoleAssignment(String userId, UserRoleAssignmentAssignDto assignDto) throws ForbiddenException, NotFoundException {
+    public VolunteerDto createUserRoleAssignment(String userId, UserRoleAssignmentAssignDto assignDto) {
         Role role = roleDao.getById(Long.valueOf(assignDto.getRoleId()));
         Volunteer volunteer = volunteerDao.getById(userId);
         if (!role.isSelfAssignable()) {
@@ -115,7 +115,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteUserRoleAssignment(String userId, Long roleId) throws ForbiddenException, NotFoundException {
+    public void deleteUserRoleAssignment(String userId, Long roleId) {
         Role role = roleDao.getById(roleId);
         Volunteer volunteer = volunteerDao.getById(userId);
         if (!role.isSelfAssignable()) {

@@ -15,9 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
@@ -46,8 +43,7 @@ public class TimeConstraintEndpoint {
         operationId = "createTimeConstraint",
         description = "Create a new time constraint for the current user"
     )
-    public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto)
-        throws ConflictException, ForbiddenException, NotFoundException {
+    public TimeConstraintDto createTimeConstraint(@PathVariable String eventId, @RequestBody TimeConstraintCreateDto createDto) {
         return timeConstraintService.createTimeConstraint(
             createDto,
             userProvider.getCurrentUser().getUserId(),
@@ -60,7 +56,7 @@ public class TimeConstraintEndpoint {
         operationId = "deleteTimeConstraint",
         description = "Delete an existing time constraint of the current user"
     )
-    public void deleteTimeConstraint(@PathVariable String eventId, @PathVariable String timeConstraintId) throws NotFoundException, ForbiddenException {
+    public void deleteTimeConstraint(@PathVariable String eventId, @PathVariable String timeConstraintId) {
         // Check that the time constraint belongs to the current user (throws NotFoundException if not)
         timeConstraintService.getTimeConstraints(userProvider.getCurrentUser().getUserId(), ConvertUtil.idToLong(eventId));
         timeConstraintService.delete(ConvertUtil.idToLong(timeConstraintId));
