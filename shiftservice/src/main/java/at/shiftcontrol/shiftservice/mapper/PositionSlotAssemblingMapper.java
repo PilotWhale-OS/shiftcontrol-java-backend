@@ -16,7 +16,6 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -65,17 +64,15 @@ public class PositionSlotAssemblingMapper {
     public static PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
                                         Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue) {
         var assignments = positionSlot.getAssignments();
-        Collection<VolunteerDto> assignedVolunteers;
-        Collection<AssignmentDto> assignmentsDtos;
+        Collection<AssignmentDto> assignmentDtos;
+        Collection<AssignmentDto> auctionDtos;
 
         if (assignments == null) {
-            assignedVolunteers = null;
-            assignmentsDtos = null;
+            assignmentDtos = null;
+            auctionDtos = null;
         } else {
-            var volunteers = assignments.stream().map(Assignment::getAssignedVolunteer).toList();
-            assignedVolunteers = VolunteerMapper.toDto(volunteers);
-
-            assignmentsDtos = AssignmentMapper.toAuctionDto(assignments); // get open auctions for this slot
+            assignmentDtos = AssignmentMapper.toDto(positionSlot.getAssignments());
+            auctionDtos = AssignmentMapper.toAuctionDto(assignments); // get open auctions for this slot
         }
 
         return new PositionSlotDto(
@@ -85,19 +82,19 @@ public class PositionSlotAssemblingMapper {
             positionSlot.isSkipAutoAssignment(),
             String.valueOf(positionSlot.getShift().getId()),
             positionSlot.getRole() == null ? null : RoleMapper.toRoleDto(positionSlot.getRole()),
-            assignedVolunteers,
+            assignmentDtos,
             positionSlot.getDesiredVolunteerCount(),
             positionSlot.getRewardPoints(),
             positionSignupState,
             TradeMapper.toTradeInfoDto(tradesForUser),
-            assignmentsDtos,
+            auctionDtos,
             preferenceValue,
             positionSlot.getShift().getShiftPlan().getLockStatus());
     }
 
     public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {
         Collection<AccountInfoDto> accountInfoDtos = volunteers.stream().map(
-            v-> {
+            v -> {
                 try {
                     return userProfileService.getUserProfile(v.getId()).getAccount();
                 } catch (NotFoundException e) {

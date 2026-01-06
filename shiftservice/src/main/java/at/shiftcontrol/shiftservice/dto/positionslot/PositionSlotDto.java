@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
 
@@ -46,7 +45,7 @@ public class PositionSlotDto {
 
     @NotNull
     @Valid
-    private Collection<VolunteerDto> assignedVolunteers;
+    private Collection<AssignmentDto> assignments;
 
     @NotNull
     @Min(0)

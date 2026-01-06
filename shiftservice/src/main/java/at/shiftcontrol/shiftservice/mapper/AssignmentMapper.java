@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 
 import lombok.NonNull;
 
@@ -22,7 +23,10 @@ public class AssignmentMapper {
             assignment.getStatus());
     }
 
-    public static Collection<AssignmentDto> toDto(@NonNull Collection<Assignment> assignments) {
+    public static Collection<AssignmentDto> toDto(Collection<Assignment> assignments) {
+        if (assignments == null) {
+            return List.of();
+        }
         return assignments.stream().map(AssignmentMapper::toDto).toList();
     }
 
