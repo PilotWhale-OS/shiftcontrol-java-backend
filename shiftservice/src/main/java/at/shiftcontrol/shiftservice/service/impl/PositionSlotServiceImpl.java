@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
+import java.util.Map;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
@@ -18,11 +19,15 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.AssignmentEvent;
+import at.shiftcontrol.shiftservice.event.events.PositionSlotEvent;
+import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.shiftservice.event.events.PreferenceEvent;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
@@ -34,6 +39,7 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,7 +71,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @IsNotAdmin
-    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto) throws NotFoundException, ConflictException, ForbiddenException {
+    public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto)
+        throws NotFoundException, ConflictException, ForbiddenException {
         var positionSlot = positionSlotDao.findById(positionSlotId)
             .orElseThrow(() -> new NotFoundException("PositionSlot not found"));
         securityHelper.assertUserIsVolunteer(positionSlot);
@@ -86,8 +93,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // TODO close trades where this slot was offered to me
 
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
-            Map.of("positionSlotId", String.valueOf(positionSlotId),
-                "volunteerId", currentUserId)),
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
             positionSlot, currentUserId));
         return null;
     }
@@ -146,8 +153,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
 
-        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
-        ));
+        publisher.publishEvent(
+            AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CREATED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
+            ));
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
     }
 
@@ -188,7 +196,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment claimedAuction = reassignAssignment(auction, currentUser);
 
         rewardPointsService.onAssignmentReassignedAuction(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
-        
+
         publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
             "positionSlotId", String.valueOf(positionSlotId),
             "volunteerId", currentUserId)), claimedAuction
@@ -212,8 +220,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         assignment = assignmentDao.save(assignment);
 
-        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
-        ));
+        publisher.publishEvent(
+            AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CANCELED, Map.of("positionSlotId", String.valueOf(positionSlotId))), assignment
+            ));
         return AssignmentMapper.toDto(assignment);
     }
 

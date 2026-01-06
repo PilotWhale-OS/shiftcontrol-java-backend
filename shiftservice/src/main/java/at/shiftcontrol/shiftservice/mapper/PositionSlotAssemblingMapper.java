@@ -3,11 +3,6 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -26,6 +21,9 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -104,7 +102,7 @@ public class PositionSlotAssemblingMapper {
             TradeMapper.toTradeInfoDto(tradesForUser),
             assignmentsDtos,
             preferenceValue,
-            positionSlot.getShift().getShiftPlan().getLockStatus());
+            positionSlot.getShift().getShiftPlan().getLockStatus(),
             rewardPointsDto);
     }
 
