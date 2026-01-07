@@ -569,6 +569,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     }
                 }
                 volunteerDao.save(volunteer);
+                userAttributeProvider.invalidateUserCache(userId);
             }
             invite.setUses(invite.getUses() + 1);
         }
@@ -583,8 +584,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
-        //Send event and invalidate caches since user has new plan memberships now
-        userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", userId)), shiftPlan, userId));
