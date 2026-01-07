@@ -1,5 +1,9 @@
 package at.shiftcontrol.shiftservice.dto.shift;
 
+import at.shiftcontrol.shiftservice.dto.event.EventDto;
+
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -13,6 +17,14 @@ public class ShiftDetailsDto {
     @NotNull
     @Valid
     private ShiftDto shift;
+
+    @NotNull
+    @Valid
+    private EventDto event;
+
+    @NotNull
+    @Valid
+    private ShiftPlanDto shiftPlan;
 
     @NotNull
     @Valid

@@ -2,6 +2,10 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Map;
 
+import at.shiftcontrol.shiftservice.mapper.EventMapper;
+
+import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -41,10 +45,15 @@ public class ShiftServiceImpl implements ShiftService {
     @Override
     public ShiftDetailsDto getShiftDetails(long shiftId, String userId) {
         var shift = shiftDao.getById(shiftId);
+        var plan = shift.getShiftPlan();
+        var event = plan.getEvent();
+
         var userPref = userPreferenceService.getUserPreference(userId, shiftId);
 
         return ShiftDetailsDto.builder()
             .shift(shiftAssemblingMapper.assemble(shift))
+            .event(EventMapper.toEventDto(event))
+            .shiftPlan(ShiftPlanMapper.toShiftPlanDto(plan))
             .preference(userPref)
             .build();
     }
