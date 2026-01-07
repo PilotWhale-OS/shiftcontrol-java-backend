@@ -4,11 +4,12 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -20,9 +21,12 @@ import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import at.shiftcontrol.shiftservice.util.TestEntityFactory;
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
+@WithMockUser(authorities = "USER")
 public class PositionSlotServiceIT {
 
     @Autowired
@@ -40,9 +44,8 @@ public class PositionSlotServiceIT {
     SecurityHelper securityHelper;
 
     @Test
-    @Disabled
     void testCreateAuction() {
-        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
+        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
 
         Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(11L, userId).get();
         AssignmentDto dto = positionSlotService.createAuction(assignment.getPositionSlot().getId(), userId);
@@ -52,10 +55,11 @@ public class PositionSlotServiceIT {
     }
 
     @Test
-    @Disabled
     void testClaimAuction() {
         String auctionUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
+        Mockito.when(userProfileService.getUserProfile(any()))
+            .thenReturn(TestEntityFactory.getUserProfileDtoWithId(currentUserId));
 
         Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(5L, auctionUserId).get();
         PositionSlotRequestDto requestDto = PositionSlotRequestDto.builder()
@@ -81,10 +85,11 @@ public class PositionSlotServiceIT {
     }
 
     @Test
-    @Disabled
     void testLeave() throws ForbiddenException, NotFoundException {
         long positionSlotId = 1L;
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        Mockito.when(userProfileService.getUserProfile(any()))
+            .thenReturn(TestEntityFactory.getUserProfileDtoWithId(userId));
 
         positionSlotService.leave(positionSlotId, userId);
 

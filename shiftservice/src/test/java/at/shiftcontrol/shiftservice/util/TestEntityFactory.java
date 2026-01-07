@@ -8,28 +8,31 @@ import org.springframework.stereotype.Component;
 
 import org.apache.commons.lang3.NotImplementedException;
 
+import at.shiftcontrol.shiftservice.auth.UserType;
+import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.entity.PositionConstraint;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
-import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
 import at.shiftcontrol.shiftservice.repo.PositionConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
+import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 
@@ -123,5 +126,19 @@ public class TestEntityFactory {
 
     public AssignmentSwitchRequest createPersistedAssignmentSwitchRequest() {
         throw new NotImplementedException();
+    }
+
+    public static UserProfileDto getUserProfileDtoWithId(String userId) {
+        UserProfileDto profile = new UserProfileDto();
+        AccountInfoDto info = new AccountInfoDto(
+            userId,
+            "Test Username",
+            "first name",
+            "last name",
+            "mail@mail.com",
+            UserType.ASSIGNED
+        );
+        profile.setAccount(info);
+        return profile;
     }
 }

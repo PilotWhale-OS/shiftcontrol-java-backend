@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -166,6 +167,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
+    @IsNotAdmin
     public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.getById(currentUserId);
@@ -233,6 +235,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
+    @IsNotAdmin
     public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -273,6 +276,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     @Override
+    @IsNotAdmin
     public TradeDto declineTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -295,6 +299,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     @Override
+    @IsNotAdmin
     public TradeDto cancelTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);

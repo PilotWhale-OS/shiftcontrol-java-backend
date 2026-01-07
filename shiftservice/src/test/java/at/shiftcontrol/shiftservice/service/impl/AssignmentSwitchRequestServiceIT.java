@@ -3,41 +3,42 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.List;
 
-import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
-import at.shiftcontrol.shiftservice.auth.UserType;
-import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
-import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
-import at.shiftcontrol.shiftservice.dao.AssignmentDao;
-import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
-import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
-import at.shiftcontrol.shiftservice.dto.TradeDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
-import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
-import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import config.TestSecurityConfig;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import config.TestSecurityConfig;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
+import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
+import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
+import at.shiftcontrol.shiftservice.dto.TradeDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
+import at.shiftcontrol.shiftservice.entity.AssignmentId;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
+import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
+import at.shiftcontrol.shiftservice.type.TradeStatus;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
 @Transactional
+@WithMockUser(authorities = "USER")
 public class AssignmentSwitchRequestServiceIT {
 
     @Autowired
@@ -84,7 +85,7 @@ public class AssignmentSwitchRequestServiceIT {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long positionSlotId = 3L;
         Mockito.when(userProfileService.getUserProfile(any()))
-            .thenReturn(getUserProfileDtoWithId("28c02050-4f90-4f3a-b1df-3c7d27a166e7"));
+            .thenReturn(TestEntityFactory.getUserProfileDtoWithId("28c02050-4f90-4f3a-b1df-3c7d27a166e7"));
 
         Collection<TradeCandidatesDto> result = assignmentSwitchRequestService.getPositionSlotsToOffer(positionSlotId, currentUserId);
 
@@ -99,7 +100,7 @@ public class AssignmentSwitchRequestServiceIT {
         String offeredPosition = "11";
         String requestedPosition = "12";
         Mockito.when(userProfileService.getUserProfile(any()))
-            .thenReturn(getUserProfileDtoWithId(currentUserId));
+            .thenReturn(TestEntityFactory.getUserProfileDtoWithId(currentUserId));
         TradeCreateDto createDto = TradeCreateDto.builder()
             .offeredPositionSlotId(offeredPosition)
             .requestedPositionSlotId(requestedPosition)
@@ -126,7 +127,7 @@ public class AssignmentSwitchRequestServiceIT {
         long offeredSlotId = 1L;
         long requestedSlotId = 2L;
         Mockito.when(userProfileService.getUserProfile(any()))
-            .thenReturn(getUserProfileDtoWithId(currentUserId));
+            .thenReturn(TestEntityFactory.getUserProfileDtoWithId(currentUserId));
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
             new AssignmentId(offeredSlotId, otherUserId),
             new AssignmentId(requestedSlotId, currentUserId)
@@ -180,19 +181,5 @@ public class AssignmentSwitchRequestServiceIT {
         Assertions.assertEquals(TradeStatus.CANCELED, dto.getStatus());
         Assertions.assertEquals(currentUserId, dto.getOfferingAssignment().getAssignedVolunteer().getId());
         Assertions.assertEquals("1", dto.getOfferingAssignment().getPositionSlotId());
-    }
-
-    private UserProfileDto getUserProfileDtoWithId(String userId) {
-        UserProfileDto profile = new UserProfileDto();
-        AccountInfoDto info = new AccountInfoDto(
-            userId,
-            "Test Username",
-            "first name",
-            "last name",
-            "mail@mail.com",
-            UserType.ASSIGNED
-        );
-        profile.setAccount(info);
-        return profile;
     }
 }
