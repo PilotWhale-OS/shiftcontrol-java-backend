@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.auth;
 
+import java.time.Duration;
+
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +25,7 @@ public class ApplicationUserManager {
     public void init() {
         userCache = Caffeine.newBuilder()
                 .maximumSize(2000)
-                .expireAfterAccess(java.time.Duration.ofMinutes(20))
+                .expireAfterAccess(Duration.ofMinutes(20))
             .build();
     }
 

@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,6 +12,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -20,10 +26,10 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -71,11 +77,6 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +94,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final SecurityHelper securityHelper;
     private final EventDao eventDao;
     private final ApplicationEventPublisher publisher;
+    private final UserAttributeProvider userAttributeProvider;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -580,9 +582,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanDao.save(shiftPlan);
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
+
+        //Send event and invalidate caches since user has new plan memberships now
+        userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", userId)), shiftPlan, userId));
+
         return ShiftPlanJoinOverviewDto.builder()
             .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
             .joined(joinedNow)

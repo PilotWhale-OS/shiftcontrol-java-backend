@@ -34,6 +34,7 @@ public class UserAttributeProviderImpl implements UserAttributeProvider {
                     volunteer.getPlanningPlans().stream().map(ShiftPlan::getId).collect(Collectors.toUnmodifiableSet()))).orElse(null));
     }
 
+    @Override
     public void invalidateUserCache(String userId) {
         attributesCache.invalidate(userId);
     }
