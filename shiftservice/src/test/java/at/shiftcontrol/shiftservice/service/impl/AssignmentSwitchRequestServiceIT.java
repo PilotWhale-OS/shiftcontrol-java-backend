@@ -45,6 +45,8 @@ public class AssignmentSwitchRequestServiceIT {
     AssignmentSwitchRequestServiceImpl assignmentSwitchRequestService;
     @Autowired
     AssignmentDao assignmentDao;
+    @Autowired
+    TestEntityFactory testEntityFactory;
 
     @Autowired
     UserAttributeProvider attributeProvider;
@@ -85,7 +87,7 @@ public class AssignmentSwitchRequestServiceIT {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long positionSlotId = 3L;
         Mockito.when(userProfileService.getUserProfile(any()))
-            .thenReturn(TestEntityFactory.getUserProfileDtoWithId("28c02050-4f90-4f3a-b1df-3c7d27a166e7"));
+            .thenReturn(testEntityFactory.getUserProfileDtoWithId("28c02050-4f90-4f3a-b1df-3c7d27a166e7"));
 
         Collection<TradeCandidatesDto> result = assignmentSwitchRequestService.getPositionSlotsToOffer(positionSlotId, currentUserId);
 
@@ -100,7 +102,7 @@ public class AssignmentSwitchRequestServiceIT {
         String offeredPosition = "11";
         String requestedPosition = "12";
         Mockito.when(userProfileService.getUserProfile(any()))
-            .thenReturn(TestEntityFactory.getUserProfileDtoWithId(currentUserId));
+            .thenReturn(testEntityFactory.getUserProfileDtoWithId(currentUserId));
         TradeCreateDto createDto = TradeCreateDto.builder()
             .offeredPositionSlotId(offeredPosition)
             .requestedPositionSlotId(requestedPosition)
@@ -127,7 +129,7 @@ public class AssignmentSwitchRequestServiceIT {
         long offeredSlotId = 1L;
         long requestedSlotId = 2L;
         Mockito.when(userProfileService.getUserProfile(any()))
-            .thenReturn(TestEntityFactory.getUserProfileDtoWithId(currentUserId));
+            .thenReturn(testEntityFactory.getUserProfileDtoWithId(currentUserId));
         AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
             new AssignmentId(offeredSlotId, otherUserId),
             new AssignmentId(requestedSlotId, currentUserId)
