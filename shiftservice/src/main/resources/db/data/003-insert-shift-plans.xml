@@ -136,7 +136,7 @@
             <column name="long_description" value="Throughout the TU Student Days, all events are being attended by photographers to capture the joy this event
       brings. This shift plan manages photographers across the Tu locations."/>
             <column name="default_no_role_points_per_minute" value="1"/>
-            <column name="lock_status" value="SUPERVISED"/>
+            <column name="lock_status" value="SELF_SIGNUP"/>
         </insert>
 
     </changeSet>

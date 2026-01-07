@@ -69,6 +69,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
+    @Transactional
     @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto) {
         // get position slot
@@ -120,6 +121,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
+    @Transactional
     @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) {
         // get assignment
