@@ -3,17 +3,19 @@ package at.shiftcontrol.shiftservice.repo;
 import java.util.Collection;
 import java.util.List;
 
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.context.annotation.Import;
+
 import config.TestConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.context.annotation.Import;
+
+import at.shiftcontrol.shiftservice.entity.AssignmentId;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
+import at.shiftcontrol.shiftservice.type.TradeStatus;
 
 @DataJpaTest
 @Import({TestConfig.class})
@@ -97,24 +99,6 @@ public class AssignmentSwitchRequestRepositoryTest {
         AssignmentSwitchRequestId tradeId = AssignmentSwitchRequestId.of(offer, request);
 
         assignmentSwitchRequestRepository.deleteTradesForOfferedPositionAndRequestedUser(offer.getPositionSlotId(), request.getVolunteerId());
-
-        Assertions.assertFalse(assignmentSwitchRequestRepository.findById(tradeId).isPresent());
-    }
-
-    @Test
-    void testDeleteTradesForAssignment() {
-        AssignmentId offer = AssignmentId.of(
-            3L,
-            "28c02050-4f90-4f3a-b1df-3c7d27a166e7"
-        );
-        AssignmentId request = AssignmentId.of(
-            4L,
-            "28c02050-4f90-4f3a-b1df-3c7d27a166e8"
-        );
-        AssignmentSwitchRequestId tradeId = AssignmentSwitchRequestId.of(offer, request);
-
-        assignmentSwitchRequestRepository.deleteTradesForAssignment(offer.getPositionSlotId(), offer.getVolunteerId());
-        assignmentSwitchRequestRepository.flush();
 
         Assertions.assertFalse(assignmentSwitchRequestRepository.findById(tradeId).isPresent());
     }
