@@ -108,7 +108,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             requestDto.getAcceptedRewardPointsConfigHash());
 
         // close trades where this slot was offered to current user
-        assignmentSwitchRequestDao.deleteTradesForOfferedPositionAndRequestedUser(positionSlotId, currentUserId);
+        assignmentSwitchRequestDao.cancelTradesForOfferedPositionAndRequestedUser(positionSlotId, currentUserId);
 
         // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
@@ -139,9 +139,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         rewardPointsService.onAssignmentRemoved(
             assignment
         );
-
-        // delete involved trades
-        assignmentSwitchRequestDao.deleteTradesForAssignment(positionSlotId, volunteerId);
 
         // leave
         assignmentDao.delete(assignment);

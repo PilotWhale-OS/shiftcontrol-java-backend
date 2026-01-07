@@ -45,14 +45,16 @@
       baseColumnNames="offering_position_slot_id, offering_volunteer_id"
       referencedTableName="assignment"
       referencedColumnNames="position_slot_id, assigned_volunteer_id"
-      constraintName="fk_switch_request_requester_assignment"/>
+      constraintName="fk_switch_request_requester_assignment"
+      onDelete="CASCADE"/>
 
     <addForeignKeyConstraint
       baseTableName="assignment_switch_request"
       baseColumnNames="requested_position_slot_id, requested_volunteer_id"
       referencedTableName="assignment"
       referencedColumnNames="position_slot_id, assigned_volunteer_id"
-      constraintName="fk_switch_request_requested_assignment"/>
+      constraintName="fk_switch_request_requested_assignment"
+      onDelete="CASCADE"/>
 
   </changeSet>
 

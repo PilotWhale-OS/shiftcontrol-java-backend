@@ -59,12 +59,7 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     }
 
     @Override
-    public void deleteTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId) {
-        assignmentSwitchRequestRepository.deleteTradesForOfferedPositionAndRequestedUser(positionSlotId, userId);
-    }
-
-    @Override
-    public void deleteTradesForAssignment(Long positionSlotId, String assignedUser) {
-        assignmentSwitchRequestRepository.deleteTradesForAssignment(positionSlotId, assignedUser);
+    public void cancelTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId) {
+        assignmentSwitchRequestRepository.cancelTradesForOfferedPositionAndRequestedUser(positionSlotId, userId, TradeStatus.CANCELED);
     }
 }

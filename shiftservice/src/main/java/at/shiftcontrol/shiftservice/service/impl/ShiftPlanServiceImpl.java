@@ -12,6 +12,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -63,6 +70,7 @@ import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
+import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
@@ -71,27 +79,25 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final StatisticService statisticService;
     private final EligibilityService eligibilityService;
+    private final AssignmentService assignmentService;
+
+    private final EventDao eventDao;
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftPlanInviteDao shiftPlanInviteDao;
     private final ShiftDao shiftDao;
     private final ActivityDao activityDao;
     private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
-    private final ApplicationUserProvider userProvider;
+
     private final ShiftAssemblingMapper shiftMapper;
     private final SecurityHelper securityHelper;
-    private final EventDao eventDao;
+    private final ApplicationUserProvider userProvider;
     private final ApplicationEventPublisher publisher;
     private final UserAttributeProvider userAttributeProvider;
 
@@ -632,6 +638,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         if (shiftPlan.getLockStatus().equals(lockStatus)) {
             throw new BadRequestException("Lock status already in requested state");
+        }
+        if (shiftPlan.getLockStatus().equals(LockStatus.SUPERVISED)
+            && lockStatus.equals(LockStatus.SELF_SIGNUP)) {
+            assignmentService.unassignAllAuctions(shiftPlan);
         }
         shiftPlan.setLockStatus(lockStatus);
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
