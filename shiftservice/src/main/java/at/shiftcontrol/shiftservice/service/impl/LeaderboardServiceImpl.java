@@ -7,11 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
-
-import jakarta.ws.rs.NotFoundException;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -21,6 +16,9 @@ import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.service.LeaderboardService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.ws.rs.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +56,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             .toList();
 
         RankDto ownRank = null;
-        if(minutesByVolunteer.containsKey(currentUserId)){
+        if (minutesByVolunteer.containsKey(currentUserId)) {
             var user = keycloakService.getUserById(currentUserId);
             ownRank = RankDto.builder()
                 .rank(topVolunteerIds.indexOf(currentUserId) + 1)
@@ -69,30 +67,44 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         }
 
         List<RankDto> ranks = new ArrayList<>(topVolunteerIds.size());
-        int rank = 1;
+        Long prevMinutes = null;
+        int position = 0;
+        int displayRank = 0;
 
         for (String volunteerId : topVolunteerIds) {
+            position++;
+            long minutes = minutesByVolunteer.get(volunteerId);
+
+            if (prevMinutes == null || minutes != prevMinutes) {
+                displayRank = position; // jump when stats change
+                prevMinutes = minutes;
+            }
+
             var user = keycloakService.getUserById(volunteerId);
-            var hours = minutesByVolunteer.get(volunteerId) / 60;
-            ranks.add(RankDto.builder()
-                .rank(rank++)
+            long hours = minutes / 60;
+
+            var dto = RankDto.builder()
+                .rank(displayRank)
                 .hours(hours)
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .build());
+                .build();
 
-            if(rank > LEADERBOARD_LIMIT) {
-                break;
+            if (volunteerId.equals(currentUserId)) {
+                ownRank = dto;
+            }
+
+            // leaderboard list: only add top N entries
+            if (ranks.size() < LEADERBOARD_LIMIT) {
+                ranks.add(dto);
             }
         }
 
-        LeaderBoardDto dto = LeaderBoardDto.builder()
+        return LeaderBoardDto.builder()
             .size(ranks.size())
             .ranks(ranks)
             .ownRank(ownRank)
             .build();
-
-        return dto;
     }
 
     private static <T> Collection<T> ensureList(Collection<T> c) {
