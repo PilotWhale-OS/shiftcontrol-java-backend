@@ -16,12 +16,12 @@ public class RankDto {
     private int rank;
 
     @NotNull
+    @Min(0)
+    private long hours;
+
+    @NotNull
     private String firstName;
 
     @NotNull
     private String lastName;
-
-    @NotNull
-    @Min(0)
-    private int hours;
 }

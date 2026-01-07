@@ -9,8 +9,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
@@ -30,8 +32,8 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     private final KeycloakUserService keycloakService;
 
     @Override
-    public LeaderBoardDto getLeaderBoard(long eventId) {
-        var event = eventDao.getById(eventId);
+    public LeaderBoardDto getLeaderBoard(long eventId, String currentUserId) throws NotFoundException, ForbiddenException {
+        var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsAllowedToAccessEvent(event);
 
         List<Assignment> allAssignments = ensureList(event.getShiftPlans()).stream()
@@ -50,32 +52,47 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             minutesByVolunteer.merge(volunteerId, minutes, Long::sum);
         }
 
-        List<Map.Entry<String, Long>> topVolunteers =
-            minutesByVolunteer.entrySet().stream()
-                .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
-                .limit(LEADERBOARD_LIMIT)
-                .toList();
+        List<String> topVolunteerIds = minutesByVolunteer.entrySet().stream()
+            .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+            .map(Map.Entry::getKey)
+            .toList();
 
-        List<RankDto> ranks = new ArrayList<>(topVolunteers.size());
-        int rank = 1;
-
-        for (var entry : topVolunteers) {
-            String volunteerId = entry.getKey();
-            long totalMinutes = entry.getValue();
-
-            var user = keycloakService.getUserById(volunteerId);
-
-            ranks.add(RankDto.builder()
-                .rank(rank++)
+        RankDto ownRank = null;
+        if(minutesByVolunteer.containsKey(currentUserId)){
+            var user = keycloakService.getUserById(currentUserId);
+            ownRank = RankDto.builder()
+                .rank(topVolunteerIds.indexOf(currentUserId) + 1)
+                .hours(minutesByVolunteer.get(currentUserId) / 60)
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .hours((int) (totalMinutes / 60.0)) // or keep minutes
-                .build());
+                .build();
         }
-        return LeaderBoardDto.builder()
+
+        List<RankDto> ranks = new ArrayList<>(topVolunteerIds.size());
+        int rank = 1;
+
+        for (String volunteerId : topVolunteerIds) {
+            var user = keycloakService.getUserById(volunteerId);
+            var hours = minutesByVolunteer.get(volunteerId) / 60;
+            ranks.add(RankDto.builder()
+                .rank(rank++)
+                .hours(hours)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build());
+
+            if(rank > LEADERBOARD_LIMIT) {
+                break;
+            }
+        }
+
+        LeaderBoardDto dto = LeaderBoardDto.builder()
             .size(ranks.size())
             .ranks(ranks)
+            .ownRank(ownRank)
             .build();
+
+        return dto;
     }
 
     private static <T> Collection<T> ensureList(Collection<T> c) {

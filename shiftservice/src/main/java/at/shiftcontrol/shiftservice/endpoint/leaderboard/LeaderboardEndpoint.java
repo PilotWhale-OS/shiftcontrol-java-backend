@@ -1,5 +1,9 @@
 package at.shiftcontrol.shiftservice.endpoint.leaderboard;
 
+import java.util.Collection;
+
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +14,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
 import at.shiftcontrol.shiftservice.service.LeaderboardService;
@@ -20,6 +26,7 @@ import at.shiftcontrol.shiftservice.service.LeaderboardService;
 @RequiredArgsConstructor
 public class LeaderboardEndpoint {
     private final LeaderboardService leaderboardService;
+    private final ApplicationUserProvider userProvider;
 
     @GetMapping()
     // TODO Security
@@ -27,7 +34,8 @@ public class LeaderboardEndpoint {
         operationId = "getLeaderboardForEvent",
         description = "Get the leaderboard for a specific event"
     )
-    public LeaderBoardDto getLeaderboard(@PathVariable String eventId) {
-        return leaderboardService.getLeaderBoard(ConvertUtil.idToLong(eventId));
+    public LeaderBoardDto getLeaderboard(@PathVariable String eventId) throws NotFoundException, ForbiddenException {
+        var currentUser = userProvider.getCurrentUser();
+        return leaderboardService.getLeaderBoard(ConvertUtil.idToLong(eventId), currentUser.getUserId());
     }
 }
