@@ -53,9 +53,18 @@ public interface AssignmentSwitchRequestRepository extends JpaRepository<Assignm
 
     @Modifying
     @Query("""
-            DELETE FROM AssignmentSwitchRequest a
-            WHERE a.offeringAssignment.positionSlot.id = :positionSlotId
-            AND a.requestedAssignment.assignedVolunteer.id = :userId
+            UPDATE AssignmentSwitchRequest a
+            SET a.status = :status
+            WHERE a.offeringAssignment IN (
+                SELECT oa
+                FROM Assignment oa
+                WHERE oa.positionSlot.id = :positionSlotId
+            )
+            AND a.requestedAssignment IN (
+                SELECT ra
+                FROM Assignment ra
+                WHERE ra.assignedVolunteer.id = :userId
+            )
         """)
-    void deleteTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId);
+    void cancelTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId, TradeStatus status);
 }

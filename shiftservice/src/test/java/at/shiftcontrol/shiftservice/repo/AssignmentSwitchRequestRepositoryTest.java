@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.repo;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -87,7 +88,7 @@ public class AssignmentSwitchRequestRepositoryTest {
     }
 
     @Test
-    void deleteTradesForOfferedPositionAndRequestedUser() {
+    void testCancelTradesForOfferedPositionAndRequestedUser() {
         AssignmentId offer = AssignmentId.of(
             3L,
             "28c02050-4f90-4f3a-b1df-3c7d27a166e7"
@@ -98,9 +99,11 @@ public class AssignmentSwitchRequestRepositoryTest {
         );
         AssignmentSwitchRequestId tradeId = AssignmentSwitchRequestId.of(offer, request);
 
-        assignmentSwitchRequestRepository.deleteTradesForOfferedPositionAndRequestedUser(offer.getPositionSlotId(), request.getVolunteerId());
+        assignmentSwitchRequestRepository.cancelTradesForOfferedPositionAndRequestedUser(offer.getPositionSlotId(), request.getVolunteerId(), TradeStatus.CANCELED);
 
-        Assertions.assertFalse(assignmentSwitchRequestRepository.findById(tradeId).isPresent());
+        Optional<AssignmentSwitchRequest> trade = assignmentSwitchRequestRepository.findById(tradeId);
+        Assertions.assertTrue(trade.isPresent());
+        Assertions.assertEquals(TradeStatus.CANCELED, trade.get().getStatus());
     }
 
 }
