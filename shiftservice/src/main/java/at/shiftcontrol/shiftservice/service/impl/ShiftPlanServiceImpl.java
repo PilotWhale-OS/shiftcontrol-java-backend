@@ -506,7 +506,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         boolean isNotAdmin = securityHelper.isNotUserAdmin(currentUser);
         // only allowed by admins
         if (type == ShiftPlanInviteType.PLANNER_JOIN && isNotAdmin) {
-            throw new ForbiddenException("Only admins can create planner join invite codes");
+            throw new ForbiddenException("Only admins can create planner join invite codes.");
         }
     }
 
@@ -627,18 +627,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
-    @Override
-    public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) {
-        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
-        if (shiftPlan.getLockStatus().equals(lockStatus)) {
-            throw new BadRequestException("Lock status already in requested state");
-        }
-        shiftPlan.setLockStatus(lockStatus);
-        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
-        shiftPlanDao.save(shiftPlan);
-    }
-
     private void validateInvite(ShiftPlanInvite invite) {
         if (!invite.isActive()) {
             throw new BadRequestException("Invite code is revoked or inactive");
@@ -658,18 +646,30 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 if (shiftPlan.getPlanVolunteers().contains(volunteer)) {
                     return false;
                 }
-                shiftPlan.getPlanVolunteers().add(volunteer);
+                shiftPlan.addPlanVolunteer(volunteer);
                 return true;
             }
             case PLANNER_JOIN -> {
                 if (shiftPlan.getPlanPlanners().contains(volunteer)) {
                     return false;
                 }
-                shiftPlan.getPlanPlanners().add(volunteer);
-                shiftPlan.getPlanVolunteers().add(volunteer); // planners are also volunteers
+                shiftPlan.addPlanPlanner(volunteer);
+                shiftPlan.addPlanVolunteer(volunteer); // planners are also volunteers
                 return true;
             }
             default -> throw new BadRequestException("Unknown invite type");
         }
+    }
+
+    @Override
+    public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) {
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+        if (shiftPlan.getLockStatus().equals(lockStatus)) {
+            throw new BadRequestException("Lock status already in requested state");
+        }
+        shiftPlan.setLockStatus(lockStatus);
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
+        shiftPlanDao.save(shiftPlan);
     }
 }

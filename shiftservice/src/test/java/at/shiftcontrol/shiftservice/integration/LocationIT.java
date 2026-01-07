@@ -4,12 +4,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import io.restassured.http.Method;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 import at.shiftcontrol.shiftservice.entity.Event;
@@ -17,6 +11,11 @@ import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
+import io.restassured.http.Method;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
@@ -133,7 +132,7 @@ class LocationIT extends RestITBase {
 
     @Test
     void findEventByNonExistingIdReturnsNotFound() {
-        doRequestAndAssertMessage(Method.GET, LOCATION_PATH + "/999", "", NOT_FOUND.getStatusCode(), "Location not found.", true);
+        doRequestAsAssignedAndAssertMessage(Method.GET, LOCATION_PATH + "/999", "", NOT_FOUND.getStatusCode(), "Location not found.", true, "123abc");
     }
 
     @Test
@@ -164,7 +163,7 @@ class LocationIT extends RestITBase {
 
     @Test
     void getAllLocationsForNonExistingEventReturnsNotFound() {
-        doRequestAndAssertMessage(Method.GET, EVENT_LOCATION_PATH.formatted(999), "", NOT_FOUND.getStatusCode(), "Event not found.", true);
+        doRequestAsAssignedAndAssertMessage(Method.GET, EVENT_LOCATION_PATH.formatted(999), "", NOT_FOUND.getStatusCode(), "Event not found.", true, "123abc");
     }
 
     @Test

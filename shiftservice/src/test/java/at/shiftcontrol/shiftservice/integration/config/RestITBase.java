@@ -5,12 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import config.TestSecurityConfig;
-
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.EncoderConfig;
@@ -19,11 +13,14 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -282,18 +279,20 @@ public abstract class RestITBase {
             .statusCode(expectedStatusCode);
     }
 
-    public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode, final String message) {
-        doRequestAndAssertMessage(method, url, body, expectedStatusCode, message, true);
+    public void doRequestAsAssignedAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode,
+                                                    final String message, String userId) {
+        doRequestAsAssignedAndAssertMessage(method, url, body, expectedStatusCode, message, true, userId);
     }
 
-    public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode, final String message,
-                                          final boolean matchDetailExactly) {
-        doRequestAndAssertMessage(method, url, body, new HashMap<>(), expectedStatusCode, message, matchDetailExactly);
+    public void doRequestAsAssignedAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode,
+                                                    final String message,
+                                                    final boolean matchDetailExactly, String userId) {
+        doRequestAsAssignedAndAssertMessage(method, url, body, new HashMap<>(), expectedStatusCode, message, matchDetailExactly, userId);
     }
 
-    public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
-                                          final int expectedStatusCode, final String message) {
-        doRequestAndAssertMessage(method, url, body, params, expectedStatusCode, message, true);
+    public void doRequestAsAssignedAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
+                                                    final int expectedStatusCode, final String message, String userId) {
+        doRequestAsAssignedAndAssertMessage(method, url, body, params, expectedStatusCode, message, true, userId);
     }
 
     public void doRequestAsAdminAndAssertMessage(final Method method, final String url, final Object body,
@@ -320,9 +319,10 @@ public abstract class RestITBase {
         }
     }
 
-    public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
-                                          final int expectedStatusCode, final String message, final boolean matchDetailExactly) {
+    public void doRequestAsAssignedAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
+                                                    final int expectedStatusCode, final String message, final boolean matchDetailExactly, String userId) {
         String actual = RestAssured.given()
+            .headers(asAssignedHeaders(userId))
             .body(body)
             .params(params)
             .request(method, url, new Object[0])
