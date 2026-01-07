@@ -2,17 +2,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Map;
 
-import at.shiftcontrol.shiftservice.mapper.EventMapper;
-
-import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import io.micrometer.common.util.StringUtils;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -25,10 +14,17 @@ import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.ShiftEvent;
+import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
+import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import io.micrometer.common.util.StringUtils;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -92,10 +88,6 @@ public class ShiftServiceImpl implements ShiftService {
             throw new BadRequestException("Cannot set both related activity and location");
         }
 
-        if (StringUtils.isBlank(modificationDto.getActivityId()) && StringUtils.isBlank(modificationDto.getLocationId())) {
-            throw new BadRequestException("Either related activity or location must be set");
-        }
-
         var event = shift.getShiftPlan().getEvent();
 
         if (modificationDto.getStartTime().isAfter(modificationDto.getEndTime())) {
@@ -125,7 +117,7 @@ public class ShiftServiceImpl implements ShiftService {
                 }
                 shift.setLocation(activity.getLocation());
             }
-        } else {
+        } else if (StringUtils.isNotBlank(modificationDto.getLocationId())) {
             var location = locationDao.getById(ConvertUtil.idToLong(modificationDto.getLocationId()));
 
             var eventLocations = shift.getShiftPlan().getEvent().getLocations();
