@@ -51,7 +51,6 @@ public interface AssignmentSwitchRequestRepository extends JpaRepository<Assignm
         """)
     Collection<AssignmentSwitchRequest> findTradesForShiftPlanAndUser(long shiftPlanId, String userId);
 
-    // TODO needed after cascade on delete ?
     @Modifying
     @Query("""
             UPDATE AssignmentSwitchRequest a
