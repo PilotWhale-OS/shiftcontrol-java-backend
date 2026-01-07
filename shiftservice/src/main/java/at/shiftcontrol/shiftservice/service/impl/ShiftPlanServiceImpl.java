@@ -4,6 +4,7 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -465,8 +467,17 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.getByCode(inviteCode);
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
-        var volunteer = volunteerDao.getById(userId);
-        boolean alreadyJoined = userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
+
+        /* volunteer not necessary to get invite details */
+        Volunteer volunteer;
+        try {
+            volunteer = volunteerDao.getById(userId);
+        }
+        catch (NotFoundException e) {
+            volunteer = null;
+        }
+
+        boolean alreadyJoined = (volunteer != null) && userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
         return ShiftPlanJoinOverviewDto.builder()
@@ -515,7 +526,23 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         ShiftPlanInvite invite = shiftPlanInviteDao.getByCode(inviteCode);
         validateInvite(invite);
         ShiftPlan shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
-        Volunteer volunteer = volunteerDao.getById(userId);
+
+        /* volunteer data might not yet exist */
+        Volunteer volunteer;
+        try {
+            volunteer = volunteerDao.getById(userId);
+        }
+        catch (NotFoundException e) {
+            volunteer = Volunteer.builder()
+                .id(userId)
+                .planningPlans(Collections.emptySet())
+                .volunteeringPlans(Collections.emptySet())
+                .roles(Collections.emptySet())
+                .notificationAssignments(Collections.emptySet())
+                .build();
+            volunteerDao.save(volunteer);
+        }
+
         boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
         // Increase uses and add roles only if joined now and ignores duplicate joins (already member)
         if (joinedNow) {
