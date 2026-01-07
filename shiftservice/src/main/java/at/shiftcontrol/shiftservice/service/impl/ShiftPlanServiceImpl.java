@@ -12,13 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -42,6 +35,7 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
@@ -77,6 +71,11 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -183,9 +182,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var scheduleContentDtos = shiftsByLocation.entrySet().stream()
             .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue()))
             .toList();
+
+        var scheduleContentNoLocationDto = buildScheduleContentNoLocationDto(shiftPlanId, searchDto);
+
         return ShiftPlanScheduleContentDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
             .scheduleContentDtos(scheduleContentDtos)
+            .scheduleContentNoLocationDto(scheduleContentNoLocationDto)
             .build();
     }
 
@@ -213,6 +216,67 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) {
         securityHelper.assertUserIsInPlan(shiftPlanId);
         return userProvider.getCurrentUser().getUserId();
+    }
+
+    private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
+        var state = eligibilityService.getSignupStateForPositionSlot(slot, volunteer);
+        // no further actions needed if not eligible
+        if (state == PositionSignupState.NOT_ELIGIBLE) {
+            return false;
+        }
+        boolean freeAndOpenTrade = state == PositionSignupState.SIGNUP_OR_TRADE;
+        boolean freeAndEligible = state == PositionSignupState.SIGNUP_POSSIBLE;
+        boolean hasOpenTrade = state == PositionSignupState.SIGNUP_VIA_TRADE;
+        boolean hasAuction = state == PositionSignupState.SIGNUP_VIA_AUCTION;
+        return freeAndEligible || freeAndOpenTrade || hasOpenTrade || hasAuction;
+    }
+
+    private ScheduleContentDto buildScheduleContentDto(Location location, List<Shift> shifts) {
+        // sort for deterministic column placement
+        shifts.sort(Comparator
+            .comparing(Shift::getStartTime)
+            .thenComparing(Shift::getEndTime));
+        var shiftColumns = calculateShiftColumns(shifts);
+        // get activities related to this location (shift unrelated, even when no shifts are present)
+        var activitiesRelatedToLocation = activityDao.findAllByLocationId(location.getId()).stream()
+            .distinct()
+            .map(ActivityMapper::toActivityDto)
+            .toList();
+        return ScheduleContentDto.builder()
+            .location(LocationMapper.toLocationDto(location))
+            .activities(activitiesRelatedToLocation)
+            .shiftColumns(shiftColumns)
+            .build();
+    }
+
+    private ScheduleContentNoLocationDto buildScheduleContentNoLocationDto(
+        long shiftPlanId,
+        ShiftPlanScheduleDaySearchDto searchDto) {
+
+        // get activities without location
+        var activitiesWithoutLocation = activityDao.findAllWithoutLocationByShiftPlanId(shiftPlanId).stream()
+            .distinct()
+            .map(ActivityMapper::toActivityDto)
+            .toList();
+
+        // get shifts without location
+        var shiftsWithoutLocation = shiftDao.searchShiftsInShiftPlan(shiftPlanId,
+                userProvider.getCurrentUser().getUserId(),
+                searchDto).stream()
+            .filter(shift -> shift.getLocation() == null)
+            .toList();
+
+        var filteredShiftsWithoutLocation = getShiftsBasedOnViewModes(shiftPlanId,
+            userProvider.getCurrentUser().getUserId(),
+            searchDto,
+            shiftsWithoutLocation);
+
+        var shiftColumns = calculateShiftColumns(filteredShiftsWithoutLocation);
+
+        return ScheduleContentNoLocationDto.builder()
+            .activities(activitiesWithoutLocation)
+            .shiftColumns(shiftColumns)
+            .build();
     }
 
     private List<Shift> getShiftsBasedOnViewModes(
@@ -250,37 +314,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 .toList();
         }
         return filteredShiftsWithoutViewMode;
-    }
-
-    private boolean isSignupPossible(PositionSlot slot, Volunteer volunteer) {
-        var state = eligibilityService.getSignupStateForPositionSlot(slot, volunteer);
-        // no further actions needed if not eligible
-        if (state == PositionSignupState.NOT_ELIGIBLE) {
-            return false;
-        }
-        boolean freeAndOpenTrade = state == PositionSignupState.SIGNUP_OR_TRADE;
-        boolean freeAndEligible = state == PositionSignupState.SIGNUP_POSSIBLE;
-        boolean hasOpenTrade = state == PositionSignupState.SIGNUP_VIA_TRADE;
-        boolean hasAuction = state == PositionSignupState.SIGNUP_VIA_AUCTION;
-        return freeAndEligible || freeAndOpenTrade || hasOpenTrade || hasAuction;
-    }
-
-    private ScheduleContentDto buildScheduleContentDto(Location location, List<Shift> shifts) {
-        // sort for deterministic column placement
-        shifts.sort(Comparator
-            .comparing(Shift::getStartTime)
-            .thenComparing(Shift::getEndTime));
-        var shiftColumns = calculateShiftColumns(shifts);
-        // get activities related to this location (shift unrelated, even when no shifts are present)
-        var activitiesRelatedToLocation = activityDao.findAllByLocationId(location.getId()).stream()
-            .distinct()
-            .map(ActivityMapper::toActivityDto)
-            .toList();
-        return ScheduleContentDto.builder()
-            .location(LocationMapper.toLocationDto(location))
-            .activities(activitiesRelatedToLocation)
-            .shiftColumns(shiftColumns)
-            .build();
     }
 
     private List<ShiftColumnDto> calculateShiftColumns(List<Shift> sortedShifts) {
@@ -487,8 +520,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         Volunteer volunteer;
         try {
             volunteer = volunteerDao.getById(userId);
-        }
-        catch (NotFoundException e) {
+        } catch (NotFoundException e) {
             volunteer = null;
         }
 
@@ -546,8 +578,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         Volunteer volunteer;
         try {
             volunteer = volunteerDao.getById(userId);
-        }
-        catch (NotFoundException e) {
+        } catch (NotFoundException e) {
             volunteer = Volunteer.builder()
                 .id(userId)
                 .planningPlans(Collections.emptySet())

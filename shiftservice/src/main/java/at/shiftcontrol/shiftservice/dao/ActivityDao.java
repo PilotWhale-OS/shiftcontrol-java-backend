@@ -10,5 +10,7 @@ public interface ActivityDao extends BasicDao<Activity, Long> {
 
     Collection<Activity> findAllByEventId(Long eventId);
 
+    Collection<Activity> findAllWithoutLocationByShiftPlanId(Long shiftPlanId);
+
     Collection<Activity> searchActivitiesInEvent(Long eventId, EventScheduleDaySearchDto searchDto);
 }

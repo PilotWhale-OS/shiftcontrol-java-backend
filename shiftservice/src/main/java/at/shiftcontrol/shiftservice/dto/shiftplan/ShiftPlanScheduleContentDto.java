@@ -17,4 +17,8 @@ public class ShiftPlanScheduleContentDto {
     @NotNull
     @Valid
     private Collection<ScheduleContentDto> scheduleContentDtos;
+
+    @NotNull
+    @Valid
+    private ScheduleContentNoLocationDto scheduleContentNoLocationDto;
 }
