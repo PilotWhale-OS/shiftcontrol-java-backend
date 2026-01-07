@@ -38,7 +38,6 @@ public abstract class RestITBase {
     @LocalServerPort
     protected int port;
 
-
     @MockitoBean
     RabbitTemplate rabbitTemplate;
 
