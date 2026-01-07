@@ -23,6 +23,7 @@ import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -198,6 +199,12 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             }
             shiftsByLocation.computeIfAbsent(shift.getLocation(), k -> new ArrayList<>()).add(shift);
         }
+        // add all other locations of the event without shifts
+        var locations = shiftPlanDao.getById(shiftPlanId).getEvent().getLocations();
+        for (var location : locations) {
+            shiftsByLocation.putIfAbsent(location, new ArrayList<>());
+        }
+
         return shiftsByLocation;
     }
 
@@ -310,6 +317,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var shifts = shiftPlan.getShifts();
         if (shifts == null || shifts.isEmpty()) {
             return ShiftPlanScheduleFilterValuesDto.builder()
+                .locations(List.of())
+                .roles(List.of())
+                .firstDate(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getStartTime()))
+                .lastDate(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getEndTime()))
                 .build();
         }
         var locations = shifts.stream()
@@ -334,7 +345,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .filter(Objects::nonNull)
             .min(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
-            .orElse(LocalDate.from(shiftPlan.getEvent().getStartTime()));
+            .orElse(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getStartTime()));
         var lastDate = Stream.concat(
                 shifts.stream().map(Shift::getEndTime),
                 shifts.stream()
@@ -345,7 +356,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .filter(Objects::nonNull)
             .max(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
-            .orElse(LocalDate.from(shiftPlan.getEvent().getStartTime()));
+            .orElse(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getEndTime()));
+
         return ShiftPlanScheduleFilterValuesDto.builder()
             .locations(locations.isEmpty() ? List.of() : LocationMapper.toLocationDto(locations))
             .roles(roles.isEmpty() ? List.of() : RoleMapper.toRoleDto(roles))
