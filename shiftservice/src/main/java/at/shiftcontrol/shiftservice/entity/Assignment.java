@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.entity;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -19,6 +18,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 
 @Getter
 @Setter
@@ -61,5 +62,14 @@ public class Assignment {
     public String toString() {
         return "Assignment{id=%s, status=%s, outgoingSwitchRequests=%s, incomingSwitchRequests=%s}"
             .formatted(id, status, outgoingSwitchRequests, incomingSwitchRequests);
+    }
+
+    public static Assignment of(PositionSlot positionSlot, Volunteer volunteer, AssignmentStatus status) {
+        return Assignment.builder()
+            .id(AssignmentId.of(positionSlot.getId(), volunteer.getId()))
+            .assignedVolunteer(volunteer)
+            .positionSlot(positionSlot)
+            .status(status)
+            .build();
     }
 }

@@ -117,6 +117,47 @@ public class PositionSlotItemEndpoint {
             userProvider.getCurrentUser().getUserId());
     }
 
+    @PostMapping("/join-request")
+    @Operation(
+        operationId = "joinRequestPositionSlot",
+        description = "Request to join a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully requested to join the position slot",
+                content = @Content(
+                    schema = @Schema(implementation = AssignmentDto.class)
+                )
+            )
+        }
+    )
+    public AssignmentDto joinRequestPositionSlot(@PathVariable String positionSlotId) {
+        return positionSlotService.joinRequest(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId()
+        );
+    }
+
+    @PutMapping("/leave-request")
+    @Operation(
+        operationId = "leaveRequestPositionSlot",
+        description = "Request to leave a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully requested to leave the position slot",
+                content = @Content(
+                    schema = @Schema(implementation = AssignmentDto.class)
+                )
+            )
+        }
+    )
+    public void leaveRequestPositionSlot(@PathVariable String positionSlotId) {
+        positionSlotService.leaveRequest(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId());
+    }
+
     @PutMapping("/preference")
     @Operation(
         operationId = "setPositionSlotPreference",
@@ -171,7 +212,4 @@ public class PositionSlotItemEndpoint {
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());
     }
-
-    // TODO positionSlot request unassign
-    // TODO positionSlot request signup
 }

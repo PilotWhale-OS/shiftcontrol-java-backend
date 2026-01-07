@@ -2,11 +2,12 @@ package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 
+import lombok.NonNull;
+
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import lombok.NonNull;
 
 public interface PositionSlotService {
     PositionSlotDto findById(@NonNull Long id);
@@ -14,6 +15,10 @@ public interface PositionSlotService {
     AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto);
 
     void leave(@NonNull Long positionSlotId, @NonNull String currentUserId);
+
+    AssignmentDto joinRequest(@NonNull Long positionSlotId, @NonNull String currentUserId);
+
+    void leaveRequest(@NonNull Long positionSlotId, @NonNull String currentUserId);
 
     Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId);
 

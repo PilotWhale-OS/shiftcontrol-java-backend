@@ -25,7 +25,6 @@ import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
@@ -72,36 +71,18 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Transactional
     @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto) {
-        // get position slot
+        // get position slot and volunteer
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
-        // check access to position slot
-        securityHelper.assertUserIsVolunteer(positionSlot);
-
-
-        // check if plan is locked
-        if (LockStatusHelper.isLocked(positionSlot)) {
-            throw new IllegalStateException("join not possible, shift plan is locked");
-        }
-        // check if plan is supervised
-        if (LockStatusHelper.isSupervised(positionSlot)) {
-            throw new IllegalStateException("join not possible, shift plan is supervised");
-        }
-
-        // get volunteer
         Volunteer volunteer = volunteerDao.getById(currentUserId);
 
-        // check if already assigned, eligible and conflicts
-        eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
-        eligibilityService.validateHasConflictingAssignments(
-            currentUserId, positionSlot);
+        // check if plan is locked or supervised
+        LockStatusHelper.assertJoinPossible(positionSlot);
+
+        // check access, already assigned, eligible and conflicts
+        assertJoinPossible(positionSlot, volunteer);
 
         // create assignment
-        Assignment assignment = Assignment.builder()
-            .id(AssignmentId.of(positionSlotId, currentUserId))
-            .assignedVolunteer(volunteer)
-            .positionSlot(positionSlot)
-            .status(AssignmentStatus.ACCEPTED)
-            .build();
+        Assignment assignment = Assignment.of(positionSlot, volunteer, AssignmentStatus.ACCEPTED);
 
         rewardPointsService.onAssignmentCreated(
             assignment,
@@ -127,14 +108,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // get assignment
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
 
-        // check if plan is locked
-        if (LockStatusHelper.isLocked(assignment)) {
-            throw new IllegalStateException("leave not possible, shift plan is locked");
-        }
-        // check if plan is supervised
-        if (LockStatusHelper.isSupervised(assignment)) {
-            throw new IllegalStateException("leave not possible, shift plan is supervised");
-        }
+        // check if plan is locked or supervised
+        LockStatusHelper.assertLeavePossible(assignment);
 
         rewardPointsService.onAssignmentRemoved(
             assignment
@@ -148,6 +123,66 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", volunteerId)),
             assignment.getPositionSlot(), volunteerId));
+    }
+
+    @Override
+    @IsNotAdmin
+    public AssignmentDto joinRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
+        // TODO rewardpoints have to be updated when planner accepts request !!!
+
+        // get position slot and volunteer
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
+        Volunteer volunteer = volunteerDao.getById(currentUserId);
+
+        // check if plan is supervised
+        LockStatusHelper.assertJoinRequestPossible(positionSlot);
+
+        // check access, already assigned, eligible and conflicts
+        assertJoinPossible(positionSlot, volunteer);
+
+        // create assignment
+        Assignment joinRequest = Assignment.of(positionSlot, volunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
+
+        // publish event
+        // TODO implement for request
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
+            positionSlot, currentUserId));
+
+        return AssignmentMapper.toDto(assignmentDao.save(joinRequest));
+    }
+
+    @Override
+    @IsNotAdmin
+    public void leaveRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
+        // TODO reward points have to be updated when planner accepts request !!!
+
+        // get assignment
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+
+        // check if plan is locked or supervised
+        LockStatusHelper.assertLeaveRequestPossible(assignment);
+
+        // update assignment
+        assignment.setStatus(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
+
+        // publish event
+        // TODO implement for request
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
+            assignment.getPositionSlot(), currentUserId));
+    }
+
+    private void assertJoinPossible(PositionSlot positionSlot, Volunteer volunteer) {
+        // check access to position slot
+        securityHelper.assertUserIsVolunteer(positionSlot);
+
+        // check if already assigned, eligible and conflicts
+        eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
+        eligibilityService.validateHasConflictingAssignments(
+            volunteer.getId(), positionSlot);
     }
 
     @Override
