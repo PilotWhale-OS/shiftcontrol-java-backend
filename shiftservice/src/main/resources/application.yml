@@ -1,4 +1,8 @@
 spring:
+  rabbitmq:
+    addresses: rabbitmq:5672
+    username: shiftcontrol
+    password: password
   jackson:
     default-property-inclusion: non_null
   security:
@@ -17,3 +21,9 @@ keycloak:
       realm: master
       username: admin
       password: admin
+
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false

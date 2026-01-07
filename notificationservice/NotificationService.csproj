@@ -9,6 +9,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
         <PackageReference Include="Tapper.Analyzer" Version="1.12.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -19,5 +21,4 @@
         </PackageReference>
         <PackageReference Include="TypedSignalR.Client.TypeScript.Attributes" Version="1.14.0" />
     </ItemGroup>
-
 </Project>

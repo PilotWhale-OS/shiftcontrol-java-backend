@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import config.TestSecurityConfig;
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -20,6 +22,8 @@ import org.junit.jupiter.api.Tag;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class RestITBase {
     @LocalServerPort
     protected int port;
+
+    @MockitoBean
+    RabbitTemplate rabbitTemplate;
 
     protected RestAssuredConfig config;
 
