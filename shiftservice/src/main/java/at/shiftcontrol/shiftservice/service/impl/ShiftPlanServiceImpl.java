@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -333,7 +334,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .filter(Objects::nonNull)
             .min(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
-            .orElse(null);
+            .orElse(LocalDate.from(shiftPlan.getEvent().getStartTime()));
         var lastDate = Stream.concat(
                 shifts.stream().map(Shift::getEndTime),
                 shifts.stream()
@@ -344,7 +345,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .filter(Objects::nonNull)
             .max(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
-            .orElse(null);
+            .orElse(LocalDate.from(shiftPlan.getEvent().getStartTime()));
         return ShiftPlanScheduleFilterValuesDto.builder()
             .locations(locations.isEmpty() ? List.of() : LocationMapper.toLocationDto(locations))
             .roles(roles.isEmpty() ? List.of() : RoleMapper.toRoleDto(roles))
