@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.type.LockStatus;
@@ -12,7 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -63,20 +63,10 @@ public class ShiftPlan {
     @OneToMany(mappedBy = "shiftPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Shift> shifts;
 
-    @ManyToMany
-    @JoinTable(
-        name = "shift_plan_volunteer_volunteering",
-        joinColumns = @JoinColumn(name = "shift_plan_id"),
-        inverseJoinColumns = @JoinColumn(name = "volunteer_id")
-    )
+    @ManyToMany(mappedBy = "volunteeringPlans")
     private Collection<Volunteer> planVolunteers;
 
-    @ManyToMany
-    @JoinTable(
-        name = "shift_plan_volunteer_planing",
-        joinColumns = @JoinColumn(name = "shift_plan_id"),
-        inverseJoinColumns = @JoinColumn(name = "volunteer_id")
-    )
+    @ManyToMany(mappedBy = "planningPlans")
     private Collection<Volunteer> planPlanners;
 
     @Column(nullable = false)
@@ -92,5 +82,39 @@ public class ShiftPlan {
                 shifts.stream().map(Shift::getId).toList(),
                 planVolunteers.stream().map(Volunteer::getId).toList(),
                 planPlanners.stream().map(Volunteer::getId).toList());
+    }
+
+    public void addPlanVolunteer(Volunteer volunteer) {
+        if (this.planVolunteers == null) {
+            this.planVolunteers = new ArrayList<>();
+        }
+        if (volunteer.getVolunteeringPlans() == null) {
+            volunteer.setVolunteeringPlans(new ArrayList<>());
+        }
+
+        this.planVolunteers.add(volunteer);
+        volunteer.getVolunteeringPlans().add(this);
+    }
+
+    public void removePlanVolunteer(Volunteer volunteer) {
+        this.planVolunteers.remove(volunteer);
+        volunteer.getVolunteeringPlans().remove(this);
+    }
+
+    public void addPlanPlanner(Volunteer volunteer) {
+        if (this.planPlanners == null) {
+            this.planPlanners = new ArrayList<>();
+        }
+        if (volunteer.getPlanningPlans() == null) {
+            volunteer.setPlanningPlans(new ArrayList<>());
+        }
+
+        this.planPlanners.add(volunteer);
+        volunteer.getPlanningPlans().add(this);
+    }
+
+    public void removePlanPlanner(Volunteer volunteer) {
+        this.planPlanners.remove(volunteer);
+        volunteer.getPlanningPlans().remove(this);
     }
 }

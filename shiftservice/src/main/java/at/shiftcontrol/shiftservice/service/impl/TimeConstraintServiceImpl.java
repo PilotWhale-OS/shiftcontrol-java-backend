@@ -6,13 +6,6 @@ import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Map;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -30,6 +23,11 @@ import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -114,7 +112,10 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         for (var constraint : existingConstraints) {
             if (createDto.getFrom().isBefore(constraint.getEndTime())
                 && createDto.getTo().isAfter(constraint.getStartTime())) {
-                throw new ConflictException("New time constraint overlaps with existing time constraint id=%d".formatted(constraint.getId()));
+                log.error("New time constraint from {} to {} overlaps with existing time constraint id={} from {} to {}",
+                    createDto.getFrom(), createDto.getTo(),
+                    constraint.getId(), constraint.getStartTime(), constraint.getEndTime());
+                throw new ConflictException("New time constraint overlaps with existing time constraint.");
             }
         }
     }
@@ -122,8 +123,10 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private void checkForAssignmentOverlaps(@NonNull String userId, Instant from, Instant to) {
         var existingAssignments = assignmentDao.getConflictingAssignments(userId, from, to);
         if (!existingAssignments.isEmpty()) {
-            throw new ConflictException("New time constraint overlaps with existing assignments ids=%s"
-                .formatted(existingAssignments.stream().map(Assignment::getId).toList().toString()));
+            log.error("New time constraint from {} to {} overlaps with existing assignments ids={}",
+                from, to,
+                existingAssignments.stream().map(Assignment::getId).toList());
+            throw new ConflictException("New time constraint overlaps with existing assignments.");
         }
     }
 }

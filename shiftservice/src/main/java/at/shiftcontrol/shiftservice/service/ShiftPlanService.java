@@ -4,9 +4,10 @@ import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
@@ -21,7 +22,7 @@ public interface ShiftPlanService {
 
     ShiftPlanDto get(long shiftPlanId);
 
-    ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto);
+    ShiftPlanCreateDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto);
 
     ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto);
 
@@ -30,22 +31,22 @@ public interface ShiftPlanService {
     ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto);
 
     ShiftPlanScheduleContentDto getShiftPlanScheduleContent(long shiftPlanId, ShiftPlanScheduleDaySearchDto searchDto)
-       ;
+        ;
 
     ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId);
 
     ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
-       ;
+        ;
 
     void revokeShiftPlanInvite(long inviteId);
 
     void deleteShiftPlanInvite(long inviteId);
 
-    ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode);
+    ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(String inviteCode);
 
     Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId);
 
-    ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto);
+    void joinShiftPlan(ShiftPlanJoinRequestDto requestDto);
 
     void updateLockStatus(long shiftPlanId, LockStatus lockStatus);
 }

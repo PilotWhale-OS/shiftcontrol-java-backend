@@ -12,13 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -37,13 +30,14 @@ import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
@@ -79,6 +73,11 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -121,14 +120,42 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @AdminOnly
-    public ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) {
+    public ShiftPlanCreateDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
         plan.setLockStatus(LockStatus.SELF_SIGNUP);
         plan = shiftPlanDao.save(plan);
+
+        // create unspecific invites for volunteer and planner by default
+        var volunteerInvite = ShiftPlanInvite.builder()
+            .code(generateUniqueCode())
+            .type(ShiftPlanInviteType.VOLUNTEER_JOIN)
+            .shiftPlan(plan)
+            .active(true)
+            .uses(0)
+            .createdAt(Instant.now())
+            .build();
+        volunteerInvite = shiftPlanInviteDao.save(volunteerInvite);
+
+        var plannerInvite = ShiftPlanInvite.builder()
+            .code(generateUniqueCode())
+            .type(ShiftPlanInviteType.PLANNER_JOIN)
+            .shiftPlan(plan)
+            .active(true)
+            .uses(0)
+            .createdAt(Instant.now())
+            .build();
+        plannerInvite = shiftPlanInviteDao.save(plannerInvite);
+
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.SHIFTPLAN_CREATED, plan));
-        return ShiftPlanMapper.toShiftPlanDto(plan);
+        var shiftPlanDto = ShiftPlanMapper.toShiftPlanDto(plan);
+
+        return ShiftPlanCreateDto.builder()
+            .shiftPlan(shiftPlanDto)
+            .volunteerInvite(InviteMapper.toInviteDto(volunteerInvite, plan))
+            .plannerInvite(InviteMapper.toInviteDto(plannerInvite, plan))
+            .build();
     }
 
     @Override
@@ -512,36 +539,42 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         boolean isNotAdmin = securityHelper.isNotUserAdmin(currentUser);
         // only allowed by admins
         if (type == ShiftPlanInviteType.PLANNER_JOIN && isNotAdmin) {
-            throw new ForbiddenException("Only admins can create planner join invite codes");
+            throw new ForbiddenException("Only admins can create planner join invite codes.");
         }
     }
 
     @Override
-    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) {
+    public ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(String inviteCode) {
         var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.getByCode(inviteCode);
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
 
-        /* volunteer not necessary to get invite details */
-        Volunteer volunteer;
-        try {
-            volunteer = volunteerDao.getById(userId);
-        } catch (NotFoundException e) {
-            volunteer = null;
-        }
+        // volunteer not necessary to get invite details
+        Volunteer volunteer = volunteerDao.findById(userId).orElse(null);
 
-        boolean alreadyJoined = (volunteer != null) && userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
+        boolean alreadyJoined = volunteer != null && isUserAlreadyInShiftPlan(invite.getType(), shiftPlan, volunteer);
+        boolean upgradeToPlannerPossible = volunteer != null && isUserAlreadyInShiftPlan(ShiftPlanInviteType.VOLUNTEER_JOIN, shiftPlan, volunteer)
+            && !isUserAlreadyInShiftPlan(ShiftPlanInviteType.PLANNER_JOIN, shiftPlan, volunteer)
+            && invite.getType() == ShiftPlanInviteType.PLANNER_JOIN;
+
+        var rolesToAssign = invite.getAutoAssignRoles();
+        boolean extensionOfRolesPossible = volunteer != null
+            && rolesToAssign != null
+            && rolesToAssign.stream().anyMatch(role -> !volunteer.getRoles().contains(role));
+
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
-        return ShiftPlanJoinOverviewDto.builder()
+        return ShiftPlanInviteDetailsDto.builder()
             .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
             .joined(alreadyJoined)
+            .upgradeToPlannerPossible(upgradeToPlannerPossible)
+            .extensionOfRolesPossible(extensionOfRolesPossible)
             .inviteDto(inviteDto)
             .eventDto(eventDto)
             .build();
     }
 
-    private boolean userIsInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
+    private boolean isUserAlreadyInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
         switch (type) {
             case VOLUNTEER_JOIN -> {
                 return shiftPlan.getPlanVolunteers().contains(volunteer);
@@ -570,7 +603,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @Transactional
-    public ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto) {
+    public void joinShiftPlan(ShiftPlanJoinRequestDto requestDto) {
         String userId = userProvider.getCurrentUser().getUserId();
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
             throw new BadRequestException("Invite code is null or empty");
@@ -596,18 +629,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
 
         boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
-        // Increase uses and add roles only if joined now and ignores duplicate joins (already member)
+
+        var rolesToAssign = invite.getAutoAssignRoles();
+        addRolesToUser(rolesToAssign, volunteer);
+
+        // Increase uses and invalidate cache if joined now
         if (joinedNow) {
-            var rolesToAssign = invite.getAutoAssignRoles();
-            if (rolesToAssign != null && !rolesToAssign.isEmpty()) {
-                for (var role : rolesToAssign) {
-                    if (!volunteer.getRoles().contains(role)) {
-                        volunteer.getRoles().add(role);
-                    }
-                }
-                volunteerDao.save(volunteer);
-                userAttributeProvider.invalidateUserCache(userId);
-            }
+            userAttributeProvider.invalidateUserCache(userId);
             invite.setUses(invite.getUses() + 1);
         }
         // auto-deactivate if max uses reached
@@ -618,35 +646,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         // save updates
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
-        var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
-        var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
         publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", userId)), shiftPlan, userId));
-
-        return ShiftPlanJoinOverviewDto.builder()
-            .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
-            .joined(joinedNow)
-            .inviteDto(inviteDto)
-            .eventDto(eventDto)
-            .build();
-    }
-
-    @Override
-    public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) {
-        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
-        if (shiftPlan.getLockStatus().equals(lockStatus)) {
-            throw new BadRequestException("Lock status already in requested state");
-        }
-        if (shiftPlan.getLockStatus().equals(LockStatus.SUPERVISED)
-            && lockStatus.equals(LockStatus.SELF_SIGNUP)) {
-            assignmentService.unassignAllAuctions(shiftPlan);
-        }
-        shiftPlan.setLockStatus(lockStatus);
-        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
-        shiftPlanDao.save(shiftPlan);
     }
 
     private void validateInvite(ShiftPlanInvite invite) {
@@ -668,18 +671,47 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 if (shiftPlan.getPlanVolunteers().contains(volunteer)) {
                     return false;
                 }
-                shiftPlan.getPlanVolunteers().add(volunteer);
+                shiftPlan.addPlanVolunteer(volunteer);
                 return true;
             }
             case PLANNER_JOIN -> {
                 if (shiftPlan.getPlanPlanners().contains(volunteer)) {
                     return false;
                 }
-                shiftPlan.getPlanPlanners().add(volunteer);
-                shiftPlan.getPlanVolunteers().add(volunteer); // planners are also volunteers
+                shiftPlan.addPlanPlanner(volunteer);
+                if (!shiftPlan.getPlanVolunteers().contains(volunteer)) {
+                    shiftPlan.addPlanVolunteer(volunteer); // planners are also volunteers (if not already)
+                }
                 return true;
             }
             default -> throw new BadRequestException("Unknown invite type");
         }
+    }
+
+    private void addRolesToUser(Collection<Role> rolesToAssign, Volunteer volunteer) {
+        if (rolesToAssign != null && !rolesToAssign.isEmpty()) {
+            for (var role : rolesToAssign) {
+                if (!volunteer.getRoles().contains(role)) {
+                    volunteer.getRoles().add(role);
+                }
+            }
+            volunteerDao.save(volunteer);
+        }
+    }
+
+    @Override
+    public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) {
+        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+        if (shiftPlan.getLockStatus().equals(lockStatus)) {
+            throw new BadRequestException("Lock status already in requested state");
+        }
+        if (shiftPlan.getLockStatus().equals(LockStatus.SUPERVISED)
+            && lockStatus.equals(LockStatus.SELF_SIGNUP)) {
+            assignmentService.unassignAllAuctions(shiftPlan);
+        }
+        shiftPlan.setLockStatus(lockStatus);
+        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
+        shiftPlanDao.save(shiftPlan);
     }
 }
