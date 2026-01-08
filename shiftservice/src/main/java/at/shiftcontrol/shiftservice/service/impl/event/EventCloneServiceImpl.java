@@ -15,12 +15,16 @@ import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.EventEvent;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.service.event.EventCloneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static at.shiftcontrol.shiftservice.event.RoutingKeys.EVENT_CLONED;
 
 @Service
 @RequiredArgsConstructor
@@ -58,15 +62,15 @@ public class EventCloneServiceImpl implements EventCloneService {
         // Persist everything once (cascades handle deep graph)
         Event persisted = eventDao.save(target);
 
-//        publisher.publishEvent(
-//            EventEvent.of(
-//                RoutingKeys.format(EVENT_CLONED, Map.of(
-//                    "sourceEventId", String.valueOf(source.getId()),
-//                    "newEventId", String.valueOf(persisted.getId())
-//                )),
-//                persisted
-//            )
-//        );
+        publisher.publishEvent(
+            EventEvent.of(
+                RoutingKeys.format(EVENT_CLONED, Map.of(
+                    "sourceEventId", String.valueOf(source.getId()),
+                    "newEventId", String.valueOf(persisted.getId())
+                )),
+                persisted
+            )
+        );
 
         return EventMapper.toEventDto(persisted);
     }
