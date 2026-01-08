@@ -4,6 +4,8 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 
 public interface RewardPointsService {
+    void onAssignmentAccepted(Assignment assignment) throws ConflictException;
+
     void onAssignmentCreated(Assignment assignment, String acceptedRewardPointsHash) throws ConflictException;
 
     void onAssignmentRemoved(Assignment assignment);

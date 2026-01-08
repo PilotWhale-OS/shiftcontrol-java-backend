@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 public final class RoutingKeys {
@@ -32,6 +31,8 @@ public final class RoutingKeys {
 
     public static final String POSITIONSLOT_JOINED = "positionslot.joined.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_LEFT = "positionslot.left.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN = "positionslot.request.join.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_LEAVE = "positionslot.request.leave.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_PREFERENCE_UPDATED = "positionslot.preference.updated.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_ACCEPTED = "positionslot.request.accepted.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_DECLINED = "positionslot.request.declined.{volunteerId}.{positionSlotId}";

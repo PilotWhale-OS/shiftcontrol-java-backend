@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -33,7 +34,6 @@ import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.shiftservice.event.events.TradeEvent;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
@@ -166,6 +166,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
+    @IsNotAdmin
     public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.getById(currentUserId);
@@ -206,7 +207,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // --> if exists, executing trade would result in same primary key
         //      therefore do not create second trade and accept first one
         for (AssignmentSwitchRequest trade : trades) {
-            Optional<AssignmentSwitchRequest> inverse = getInverseTrade(trade.getId());
+            Optional<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade);
             if (inverse.isPresent()) {
                 return List.of(acceptTrade(inverse.get().getId(), currentUserId));
             }
@@ -233,6 +234,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
+    @IsNotAdmin
     public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -258,21 +260,14 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         validateTradePossible(trade.getOfferingAssignment().getPositionSlot(), trade.getRequestedAssignment().getPositionSlot(),
             trade.getOfferingAssignment().getAssignedVolunteer()); // other user
 
-        // delete inverse trade if exists, because accepting the other would result in the same primary key !
-        getInverseTrade(id).ifPresent(assignmentSwitchRequestDao::delete);
-
-        // cancel all trades for involved assignments
-        cancelOtherTrades(trade);
-
         // update assignments
-        AssignmentSwitchRequest executedTrade = executeTrade(trade);
-
-        rewardPointsService.onAssignmentReassignedTrade(executedTrade.getOfferingAssignment(), executedTrade.getRequestedAssignment());
+        AssignmentSwitchRequest executedTrade = assignmentService.executeTrade(trade);
 
         return TradeMapper.toDto(executedTrade);
     }
 
     @Override
+    @IsNotAdmin
     public TradeDto declineTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -295,6 +290,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     @Override
+    @IsNotAdmin
     public TradeDto cancelTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -342,45 +338,5 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check if any current assignments overlap with requested position slot
         eligibilityService.validateHasConflictingAssignmentsExcludingSlot(
             volunteer.getId(), slotToBeTaken.getShift().getStartTime(), slotToBeTaken.getShift().getEndTime(), ownedSlot.getId());
-    }
-
-    private void cancelOtherTrades(AssignmentSwitchRequest trade) {
-        // this trade does not need to be excluded because it will be set to ACCEPTED in the next step
-        assignmentSwitchRequestDao.cancelTradesForAssignment(
-            trade.getRequestedAssignment().getPositionSlot().getId(), trade.getRequestedAssignment().getAssignedVolunteer().getId());
-        assignmentSwitchRequestDao.cancelTradesForAssignment(
-            trade.getOfferingAssignment().getPositionSlot().getId(), trade.getOfferingAssignment().getAssignedVolunteer().getId());
-    }
-
-    private AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest oldTrade) {
-        // update fields and id of assignments
-        Volunteer requestedAssignmentVolunteer = oldTrade.getRequestedAssignment().getAssignedVolunteer();
-        Volunteer offeringAssignmentVolunteer = oldTrade.getOfferingAssignment().getAssignedVolunteer();
-        Assignment newOffer = assignmentService.reassign(oldTrade.getOfferingAssignment(), requestedAssignmentVolunteer);
-        Assignment newRequested = assignmentService.reassign(oldTrade.getRequestedAssignment(), offeringAssignmentVolunteer);
-
-        // create new trade and delete old one
-        AssignmentSwitchRequestId newId = AssignmentSwitchRequestId.of(newOffer, newRequested);
-        AssignmentSwitchRequest newTrade = new AssignmentSwitchRequest(
-            newId, newOffer, newRequested, TradeStatus.ACCEPTED, oldTrade.getCreatedAt());
-        assignmentSwitchRequestDao.save(newTrade);
-        assignmentSwitchRequestDao.delete(oldTrade);
-
-        publisher.publishEvent(AssignmentSwitchEvent.of(oldTrade.getRequestedAssignment(), oldTrade.getOfferingAssignment()));
-        return newTrade;
-    }
-
-    private void updateVolunteer(Assignment assignment, Volunteer volunteer) {
-        assignment.setAssignedVolunteer(volunteer);
-        assignment.getId().setVolunteerId(volunteer.getId());
-    }
-
-    private Optional<AssignmentSwitchRequest> getInverseTrade(AssignmentSwitchRequestId id) {
-        return assignmentSwitchRequestDao.findById(
-            new AssignmentSwitchRequestId(
-                id.getRequested(),
-                id.getOffering()
-            )
-        );
     }
 }

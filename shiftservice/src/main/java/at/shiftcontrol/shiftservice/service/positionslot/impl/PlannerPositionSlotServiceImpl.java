@@ -16,7 +16,7 @@ import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.AssignmentRequestMapper;
-import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
+import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -25,9 +25,9 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 @RequiredArgsConstructor
 public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotService {
     private final SecurityHelper securityHelper;
+    private final AssignmentService assignmentService;
     private final ShiftPlanDao shiftPlanDao;
     private final AssignmentDao assignmentDao;
-    private final AssignmentRepository assignmentRepository;
     private final ApplicationEventPublisher publisher;
 
     @Override
@@ -43,8 +43,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
-            case AUCTION_REQUEST_FOR_UNASSIGN -> assignmentDao.delete(assignment);
-            case REQUEST_FOR_ASSIGNMENT -> acceptAssignment(assignment);
+            case AUCTION_REQUEST_FOR_UNASSIGN -> assignmentService.unassign(assignment);
+            case REQUEST_FOR_ASSIGNMENT -> assignmentService.accept(assignment);
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
 
@@ -73,6 +73,6 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
 
     private void acceptAssignment(Assignment assignment) {
         assignment.setStatus(AssignmentStatus.ACCEPTED);
-        assignmentRepository.save(assignment);
+        assignmentDao.save(assignment);
     }
 }

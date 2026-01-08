@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.AssignmentId;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 
@@ -21,6 +23,8 @@ import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 public class AssignmentRepositoryTest {
     @Autowired
     private AssignmentRepository assignmentRepository;
+    @Autowired
+    private AssignmentSwitchRequestRepository assignmentSwitchRequestRepository;
     @Autowired
     private PositionSlotRepository positionSlotRepository;
 
@@ -82,5 +86,20 @@ public class AssignmentRepositoryTest {
         Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5").get();
         Assertions.assertEquals("28c02050-4f90-4f3a-b1df-3c7d27a166e5", assignment.getAssignedVolunteer().getId());
         Assertions.assertEquals(1L, assignment.getPositionSlot().getId());
+    }
+
+    @Test
+    void testDeleteCascadeToTrades() {
+        AssignmentId offeringId = AssignmentId.of(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5");
+        AssignmentId requestedId = AssignmentId.of(2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6");
+
+        AssignmentSwitchRequestId trade = AssignmentSwitchRequestId.of(offeringId, requestedId);
+
+        assignmentRepository.deleteById(offeringId);
+        assignmentRepository.flush();
+
+        Assertions.assertFalse(assignmentRepository.findById(offeringId).isPresent());
+
+        Assertions.assertFalse(assignmentSwitchRequestRepository.findById(trade).isPresent());
     }
 }

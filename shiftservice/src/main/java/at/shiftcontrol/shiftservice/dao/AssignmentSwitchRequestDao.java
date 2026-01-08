@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.dao;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
@@ -12,7 +13,7 @@ public interface AssignmentSwitchRequestDao extends  BasicDao<AssignmentSwitchRe
 
     Collection<AssignmentSwitchRequest> findTradesForShiftPlanAndUser(long shiftPlanId, String userId);
 
-    void deleteTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId);
+    void cancelTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId);
 
-    void deleteTradesForAssignment(Long positionSlotId, String assignedUser);
+    Optional<AssignmentSwitchRequest> findInverseTrade(AssignmentSwitchRequest trade);
 }

@@ -5,6 +5,8 @@ import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfigurati
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
+import at.shiftcontrol.shiftservice.service.impl.rewardpoints.RewardPointsCalculatorImpl;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 
 @TestConfiguration
@@ -13,5 +15,9 @@ public class TestConfig {
     @Bean
     public TestEntityFactory testEntityFactory() {
         return new TestEntityFactory();
+    }
+    @Bean
+    public RewardPointsCalculator rewardPointsCalculator() {
+        return new RewardPointsCalculatorImpl();
     }
 }

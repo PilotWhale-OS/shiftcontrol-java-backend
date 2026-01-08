@@ -1,17 +1,70 @@
 package at.shiftcontrol.shiftservice.service;
 
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 public interface AssignmentService {
     /**
-     * reassigns the asssignment to the given volunteer.
-     * handles all dependencies of the assignment, since reassigning results in a new primary key
-     * deletes the old assignment and persists a new one in the process
+     * reassigns the auction to the given volunteer.
+     * updates reward points & publishes event
      *
-     * @param oldAssignment the assignment containing the old assigned volunteer
-     * @param newVolunteer volunteer to replace the old volunteer
-     * @return new assignment where the given volunteer is assigned
+     * @param auction to claim
+     * @param newVolunteer to be assigned to the auction
+     * @param requestDto contains reward points hash
+     * @return reassigned and accepted auction
      */
-    Assignment reassign(Assignment oldAssignment, Volunteer newVolunteer);
+    Assignment claimAuction(Assignment auction, Volunteer newVolunteer, PositionSlotRequestDto requestDto);
+
+    /**
+     * swapps the volunteers of the given switch request.
+     * cancels all involved trades of the offering and requested assignment
+     * deletes inverse trade if present
+     * updates reward points & publishes event
+     *
+     * @param oldTrade trade to execute
+     * @return executed trade, where volunteers are swapped
+     */
+    AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest oldTrade);
+
+    /**
+     * accepts an already existing assignment.
+     * updates reward points & publishes event
+     *
+     * @param assignment to accept
+     * @return the accepted assignment
+     */
+    Assignment accept(Assignment assignment);
+
+    /**
+     * assigns the volunteer to the position slot.
+     * cancels trades where this slot was offered to the volunteer
+     * updates reward points & publishes event
+     *
+     * @param positionSlot to assign the volunteer to
+     * @param volunteer to assign to the position slot
+     * @return the newly created assignment
+     */
+    Assignment assign(PositionSlot positionSlot, Volunteer volunteer, PositionSlotRequestDto requestDto);
+
+    /**
+     * unassigns the volunteer from the position slot.
+     * deletes dependent trades and the assignment itself in the process
+     * updates reward points & publishes event
+     *
+     * @param assignment to dissolve
+     */
+    void unassign(Assignment assignment);
+
+    /**
+     * unassign all volunteers from auctions for a given shift plan.
+     * deletes all involved trades in the process
+     * updates reward points & publishes event
+     *
+     * @param shiftPlan to unassign all auctions
+     */
+    void unassignAllAuctions(ShiftPlan shiftPlan);
 }

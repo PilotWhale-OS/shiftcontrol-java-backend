@@ -71,4 +71,96 @@ public class LockStatusHelper {
     public static boolean isSelfSignup(Assignment assignment) {
         return isSelfSignup(assignment.getPositionSlot());
     }
+
+    //     --------------------- JOIN ---------------------
+
+    public static void assertJoinPossible(ShiftPlan shiftPlan) {
+        if (isLocked(shiftPlan)) {
+            throw new IllegalStateException("join not possible, shift plan is locked");
+        }
+        if (isSupervised(shiftPlan)) {
+            throw new IllegalStateException("join not possible, shift plan is supervised");
+        }
+    }
+
+    public static void assertJoinPossible(Shift shift) {
+        assertJoinPossible(shift.getShiftPlan());
+    }
+
+    public static void assertJoinPossible(PositionSlot positionSlot) {
+        assertJoinPossible(positionSlot.getShift());
+    }
+
+    public static void assertJoinPossible(Assignment assignment) {
+        assertJoinPossible(assignment.getPositionSlot());
+    }
+
+    //     --------------------- LEAVE ---------------------
+
+    public static void assertLeavePossible(ShiftPlan shiftPlan) {
+        if (isLocked(shiftPlan)) {
+            throw new IllegalStateException("leave not possible, shift plan is locked");
+        }
+        if (isSupervised(shiftPlan)) {
+            throw new IllegalStateException("leave not possible, shift plan is supervised");
+        }
+    }
+
+    public static void assertLeavePossible(Shift shift) {
+        assertLeavePossible(shift.getShiftPlan());
+    }
+
+    public static void assertLeavePossible(PositionSlot positionSlot) {
+        assertLeavePossible(positionSlot.getShift());
+    }
+
+    public static void assertLeavePossible(Assignment assignment) {
+        assertLeavePossible(assignment.getPositionSlot());
+    }
+
+    //     --------------------- JOIN REQUEST ---------------------
+
+    public static void assertJoinRequestPossible(ShiftPlan shiftPlan) {
+        if (isLocked(shiftPlan)) {
+            throw new IllegalStateException("join request not possible, shift plan is locked");
+        }
+        if (isSelfSignup(shiftPlan)) {
+            throw new IllegalStateException("join request not possible, shift plan is self signup");
+        }
+    }
+
+    public static void assertJoinRequestPossible(Shift shift) {
+        assertJoinRequestPossible(shift.getShiftPlan());
+    }
+
+    public static void assertJoinRequestPossible(PositionSlot positionSlot) {
+        assertJoinRequestPossible(positionSlot.getShift());
+    }
+
+    public static void assertJoinRequestPossible(Assignment assignment) {
+        assertJoinRequestPossible(assignment.getPositionSlot());
+    }
+
+    //     --------------------- LEAVE REQUEST ---------------------
+
+    public static void assertLeaveRequestPossible(ShiftPlan shiftPlan) {
+        if (isLocked(shiftPlan)) {
+            throw new IllegalStateException("leave request not possible, shift plan is locked");
+        }
+        if (isSelfSignup(shiftPlan)) {
+            throw new IllegalStateException("leave request not possible, shift plan is self signup");
+        }
+    }
+
+    public static void assertLeaveRequestPossible(Shift shift) {
+        assertLeaveRequestPossible(shift.getShiftPlan());
+    }
+
+    public static void assertLeaveRequestPossible(PositionSlot positionSlot) {
+        assertLeaveRequestPossible(positionSlot.getShift());
+    }
+
+    public static void assertLeaveRequestPossible(Assignment assignment) {
+        assertLeaveRequestPossible(assignment.getPositionSlot());
+    }
 }

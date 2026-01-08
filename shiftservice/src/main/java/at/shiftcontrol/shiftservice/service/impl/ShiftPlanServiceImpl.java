@@ -64,6 +64,7 @@ import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
+import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
@@ -83,16 +84,19 @@ import org.springframework.stereotype.Service;
 public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final StatisticService statisticService;
     private final EligibilityService eligibilityService;
+    private final AssignmentService assignmentService;
+
+    private final EventDao eventDao;
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftPlanInviteDao shiftPlanInviteDao;
     private final ShiftDao shiftDao;
     private final ActivityDao activityDao;
     private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
-    private final ApplicationUserProvider userProvider;
+
     private final ShiftAssemblingMapper shiftMapper;
     private final SecurityHelper securityHelper;
-    private final EventDao eventDao;
+    private final ApplicationUserProvider userProvider;
     private final ApplicationEventPublisher publisher;
     private final UserAttributeProvider userAttributeProvider;
 
@@ -545,7 +549,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var invite = shiftPlanInviteDao.getByCode(inviteCode);
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
 
-        // volunteer not necessary to get invite details 
+        // volunteer not necessary to get invite details
         Volunteer volunteer = volunteerDao.findById(userId).orElse(null);
 
         boolean alreadyJoined = volunteer != null && isUserAlreadyInShiftPlan(invite.getType(), shiftPlan, volunteer);
@@ -647,6 +651,12 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", userId)), shiftPlan, userId));
 
+        return ShiftPlanJoinOverviewDto.builder()
+            .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
+            .joined(joinedNow)
+            .inviteDto(inviteDto)
+            .eventDto(eventDto)
+            .build();
     }
 
     private void validateInvite(ShiftPlanInvite invite) {
@@ -701,6 +711,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         if (shiftPlan.getLockStatus().equals(lockStatus)) {
             throw new BadRequestException("Lock status already in requested state");
+        }
+        if (shiftPlan.getLockStatus().equals(LockStatus.SUPERVISED)
+            && lockStatus.equals(LockStatus.SELF_SIGNUP)) {
+            assignmentService.unassignAllAuctions(shiftPlan);
         }
         shiftPlan.setLockStatus(lockStatus);
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
