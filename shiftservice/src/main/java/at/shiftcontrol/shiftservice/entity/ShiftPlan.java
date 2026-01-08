@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.entity;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -68,6 +69,9 @@ public class ShiftPlan {
 
     @ManyToMany(mappedBy = "planningPlans")
     private Collection<Volunteer> planPlanners;
+
+    @OneToMany(mappedBy = "shiftPlan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<Role> roles;
 
     @Column(nullable = false)
     private int defaultNoRolePointsPerMinute;
