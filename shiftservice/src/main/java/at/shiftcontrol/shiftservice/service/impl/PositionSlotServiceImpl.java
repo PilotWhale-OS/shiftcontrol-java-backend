@@ -37,7 +37,6 @@ import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
@@ -55,7 +54,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     private final EligibilityService eligibilityService;
     private final AssignmentService assignmentService;
-    private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;

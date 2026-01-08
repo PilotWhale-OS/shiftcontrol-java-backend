@@ -40,7 +40,6 @@ import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -55,7 +54,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     private final EligibilityService eligibilityService;
     private final AssignmentService assignmentService;
-    private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
@@ -111,11 +109,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private boolean isTradePossibleForUser(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot, Volunteer volunteer) {
-        // check if eligible
-        boolean eligible = eligibilityService.isTradePossible(offeredPositionSlot, volunteer);
+        // check if assignable
+        boolean eligible = eligibilityService.isEligibleAndNotSignedUp(offeredPositionSlot, volunteer);
         // check for conflicts
         Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), offeredPositionSlot.getShift().getStartTime(), offeredPositionSlot.getShift().getEndTime(), requestedPositionSlot.getId());
+            volunteer.getId(), offeredPositionSlot, requestedPositionSlot.getId());
 
         return eligible && conflicts.isEmpty();
     }
@@ -333,10 +331,10 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         securityHelper.assertUserIsVolunteer(slotToBeTaken);
 
         // check if user is eligible for the requested position slot
-        eligibilityService.validateIsTradePossible(slotToBeTaken, volunteer);
+        eligibilityService.validateIsEligibleAndNotSignedUp(slotToBeTaken, volunteer);
 
         // check if any current assignments overlap with requested position slot
         eligibilityService.validateHasConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), slotToBeTaken.getShift().getStartTime(), slotToBeTaken.getShift().getEndTime(), ownedSlot.getId());
+            volunteer.getId(), slotToBeTaken, ownedSlot.getId());
     }
 }

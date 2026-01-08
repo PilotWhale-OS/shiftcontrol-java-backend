@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
@@ -51,5 +53,23 @@ public class SignupEndpoint {
     )
     public void declineRequest(@PathVariable String shiftPlanId, @PathVariable String positionSlotId, String userid) {
         positionSlotService.declineRequest(ConvertUtil.idToLong(shiftPlanId), ConvertUtil.idToLong(positionSlotId), userid);
+    }
+
+    @GetMapping("/assignable-users/{positionSlotId}")
+    @Operation(
+        operationId = "getAssignableUsers",
+        description = "Gets all users that could be assigned to the given slot"
+    )
+    public void getAssignableUsers(@PathVariable String positionSlotId) {
+        positionSlotService.getAssignableUsers(positionSlotId);
+    }
+
+    @PostMapping("/assign")
+    @Operation(
+        operationId = "assignUsersToSlot",
+        description = "Assigns the given users to the given slot"
+    )
+    public void assignUsersToSlot(@RequestBody AssignmentAssignDto assignmentAssignDto) {
+        positionSlotService.assignUsersToSlot(assignmentAssignDto);
     }
 }

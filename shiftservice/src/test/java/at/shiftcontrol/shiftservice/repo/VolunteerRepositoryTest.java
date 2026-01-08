@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.repo;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,5 +23,19 @@ public class VolunteerRepositoryTest {
     void testGetAllVolunteers() {
         List<Volunteer> volunteers = volunteerRepository.findAll();
         Assertions.assertFalse(volunteers.isEmpty());
+    }
+
+    @Test
+    void testFindAllByShiftPlan() {
+        long shiftPlanId = 1L;
+
+        Collection<Volunteer> volunteers = volunteerRepository.findAllByShiftPlan(shiftPlanId);
+
+        Assertions.assertFalse(volunteers.isEmpty());
+        volunteers.forEach(v -> {
+            Assertions.assertTrue(
+                v.getPlanningPlans().stream().anyMatch(plan -> plan.getId() == shiftPlanId)
+            );
+        });
     }
 }

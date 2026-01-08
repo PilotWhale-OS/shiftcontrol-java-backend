@@ -121,22 +121,27 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public boolean isTradePossible(PositionSlot positionSlot, Volunteer volunteer) {
+    public boolean isEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         return !PositionSignupState.SIGNED_UP.equals(signupState)
             && !PositionSignupState.NOT_ELIGIBLE.equals(signupState);
     }
 
     @Override
-    public void validateIsTradePossible(PositionSlot positionSlot, Volunteer volunteer) {
-        if (!isTradePossible(positionSlot, volunteer)) {
-            throw new ConflictException("position slot can not be traded with volunteer");
+    public void validateIsEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
+        if (!isEligibleAndNotSignedUp(positionSlot, volunteer)) {
+            throw new ConflictException("position slot can not be assigned to volunteer");
         }
     }
 
     @Override
     public Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
         return assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
+    }
+
+    @Override
+    public Collection<Assignment> getConflictingAssignments(String volunteerId, PositionSlot positionSlot) {
+        return getConflictingAssignments(volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
     }
 
     @Override
@@ -160,12 +165,24 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
+    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
+        return getConflictingAssignmentsExcludingSlot(
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
+    }
+
+    @Override
     public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
         var a = assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
         if (a.isEmpty()) {
             return;
         }
         throw new ConflictException("User has conflicting assignments");
+    }
+
+    @Override
+    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
+        validateHasConflictingAssignmentsExcludingSlot(
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
     }
 
     private boolean isSignedUp(PositionSlot positionSlot, Volunteer volunteer) {

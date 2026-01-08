@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -8,15 +9,25 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
+import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.AssignmentRequestMapper;
+import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
+import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -28,7 +39,10 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final AssignmentService assignmentService;
     private final ShiftPlanDao shiftPlanDao;
     private final AssignmentDao assignmentDao;
+    private final PositionSlotDao positionSlotDao;
+    private final VolunteerDao volunteerDao;
     private final ApplicationEventPublisher publisher;
+    private final EligibilityService eligibilityService;
 
     @Override
     public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) {
@@ -69,6 +83,54 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", userId)),
             assignment.getPositionSlot(), userId));
+    }
+
+    @Override
+    public Collection<VolunteerDto> getAssignableUsers(String positionSlotId) {
+        PositionSlot positionSlot = positionSlotDao.getById(
+            ConvertUtil.idToLong(positionSlotId));
+
+        // check access to plan
+        securityHelper.assertUserIsPlanner(positionSlot);
+
+        // get all volunteers with access to slot
+        Collection<Volunteer> volunteers =
+            volunteerDao.findAllByShiftPlan(positionSlot.getShift().getShiftPlan().getId());
+
+        // check if not already signed up, eligible and no conflicts
+        volunteers = volunteers.stream().filter(v -> isAssignable(positionSlot, v)).toList();
+
+        return VolunteerMapper.toDto(volunteers);
+    }
+
+    private boolean isAssignable(PositionSlot positionSlot, Volunteer volunteer) {
+        // check if assignable
+        boolean eligible = eligibilityService.isEligibleAndNotSignedUp(positionSlot, volunteer);
+        // check for conflicts
+        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignments(
+            volunteer.getId(), positionSlot);
+
+        return eligible && conflicts.isEmpty();
+    }
+
+    @Override
+    public Collection<AssignmentDto> assignUsersToSlot(AssignmentAssignDto assignmentAssignDto) {
+        // TODO implement
+        PositionSlot positionSlot = positionSlotDao.getById(
+            ConvertUtil.idToLong(assignmentAssignDto.getPositionSlotId()));
+
+        // check access to plan
+        securityHelper.assertUserIsPlanner(positionSlot);
+
+        // ignore lock status
+
+        // volunteers have to:
+        // have access to slot
+        // be eligible (handle already signed up)
+        // have no conflicts
+
+
+        return List.of();
     }
 
     private void acceptAssignment(Assignment assignment) {

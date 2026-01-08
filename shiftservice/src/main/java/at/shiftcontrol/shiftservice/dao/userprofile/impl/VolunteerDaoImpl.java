@@ -40,4 +40,9 @@ public class VolunteerDaoImpl implements VolunteerDao {
     public void delete(Volunteer entity) {
         volunteerRepository.delete(entity);
     }
+
+    @Override
+    public Collection<Volunteer> findAllByShiftPlan(long shiftPlanId) {
+        return volunteerRepository.findAllByShiftPlan(shiftPlanId);
+    }
 }
