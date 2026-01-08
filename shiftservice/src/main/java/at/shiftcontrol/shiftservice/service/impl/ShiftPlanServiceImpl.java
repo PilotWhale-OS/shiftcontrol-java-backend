@@ -516,13 +516,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var invite = shiftPlanInviteDao.getByCode(inviteCode);
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
 
-        /* volunteer not necessary to get invite details */
-        Volunteer volunteer;
-        try {
-            volunteer = volunteerDao.getById(userId);
-        } catch (NotFoundException e) {
-            volunteer = null;
-        }
+        // volunteer not necessary to get invite details 
+        Volunteer volunteer = volunteerDao.findById(userId).orElse(null);
 
         boolean alreadyJoined = (volunteer != null) && userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
@@ -564,7 +559,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @Transactional
-    public ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto) {
+    public void joinShiftPlan(ShiftPlanJoinRequestDto requestDto) {
         String userId = userProvider.getCurrentUser().getUserId();
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
             throw new BadRequestException("Invite code is null or empty");
@@ -607,19 +602,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         // save updates
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
-        var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
-        var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
 
         publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", userId)), shiftPlan, userId));
 
-        return ShiftPlanJoinOverviewDto.builder()
-            .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
-            .joined(joinedNow)
-            .inviteDto(inviteDto)
-            .eventDto(eventDto)
-            .build();
     }
 
     private void validateInvite(ShiftPlanInvite invite) {

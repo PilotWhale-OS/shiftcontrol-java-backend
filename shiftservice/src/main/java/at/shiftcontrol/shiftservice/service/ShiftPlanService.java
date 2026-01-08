@@ -30,12 +30,12 @@ public interface ShiftPlanService {
     ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto);
 
     ShiftPlanScheduleContentDto getShiftPlanScheduleContent(long shiftPlanId, ShiftPlanScheduleDaySearchDto searchDto)
-       ;
+        ;
 
     ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId);
 
     ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
-       ;
+        ;
 
     void revokeShiftPlanInvite(long inviteId);
 
@@ -45,7 +45,7 @@ public interface ShiftPlanService {
 
     Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId);
 
-    ShiftPlanJoinOverviewDto joinShiftPlan(ShiftPlanJoinRequestDto requestDto);
+    void joinShiftPlan(ShiftPlanJoinRequestDto requestDto);
 
     void updateLockStatus(long shiftPlanId, LockStatus lockStatus);
 }
