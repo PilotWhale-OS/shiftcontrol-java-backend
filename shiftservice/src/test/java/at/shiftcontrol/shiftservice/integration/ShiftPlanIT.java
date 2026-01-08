@@ -11,6 +11,8 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
@@ -39,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 class ShiftPlanIT extends RestITBase {
+    private static final String SHIFTPLAN_COLLECTION_PATH = "events/%s/shift-plans";
     private static final String INVITE_PATH = "shift-plans/%d/invites";
     private static final String INVITE_ITEM_PATH = "/invites/%s";
     private static final String JOIN_PATH = "/join";
@@ -300,6 +303,88 @@ class ShiftPlanIT extends RestITBase {
         userAttributeProvider.invalidateUserCache(volunteerNotJoined.getId());
         userAttributeProvider.invalidateUserCache(volunteerJoinedAsVolunteerOnly.getId());
         userAttributeProvider.invalidateUserCache(volunteerJoinedAsPlannerOnly.getId());
+    }
+
+    @Test
+    void createShiftPlanAsNotJoinedReturnsForbidden() {
+        var modificationDto = ShiftPlanModificationDto.builder()
+            .name("NewShiftPlan")
+            .defaultNoRolePointsPerMinute(1)
+            .build();
+
+        doRequestAsAssignedAndAssertMessage(
+            Method.POST,
+            SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
+            modificationDto,
+            FORBIDDEN.getStatusCode(),
+            "Access Denied",
+            volunteerNotJoined.getId()
+        );
+    }
+
+    @Test
+    void createShiftPlanAsVolunteerReturnsForbidden() {
+        var modificationDto = ShiftPlanModificationDto.builder()
+            .name("NewShiftPlan")
+            .defaultNoRolePointsPerMinute(1)
+            .build();
+
+        doRequestAsAssignedAndAssertMessage(
+            Method.POST,
+            SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
+            modificationDto,
+            FORBIDDEN.getStatusCode(),
+            "Access Denied",
+            volunteerJoinedAsVolunteerOnly.getId()
+        );
+    }
+
+    @Test
+    void createShiftPlanAsPlannerReturnsForbidden() {
+        var modificationDto = ShiftPlanModificationDto.builder()
+            .name("NewShiftPlan")
+            .defaultNoRolePointsPerMinute(1)
+            .build();
+
+        doRequestAsAssignedAndAssertMessage(
+            Method.POST,
+            SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
+            modificationDto,
+            FORBIDDEN.getStatusCode(),
+            "Access Denied",
+            volunteerJoinedAsPlannerOnly.getId()
+        );
+    }
+
+    @Test
+    void createShiftPlanAsAdminSucceeds() {
+        var modificationDto = ShiftPlanModificationDto.builder()
+            .name("NewShiftPlan")
+            .defaultNoRolePointsPerMinute(1)
+            .build();
+
+        var result = postRequestAsAdmin(
+            SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
+            modificationDto,
+            ShiftPlanCreateDto.class
+        );
+
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getShiftPlan()).isNotNull(),
+            () -> assertThat(result.getShiftPlan().getId()).isNotNull(),
+            () -> assertThat(result.getShiftPlan().getName()).isEqualTo("NewShiftPlan"),
+            () -> assertThat(result.getVolunteerInvite()).isNotNull(),
+            () -> assertThat(result.getVolunteerInvite().getCode()).isNotNull(),
+            () -> assertThat(result.getVolunteerInvite().getCode()).isNotBlank(),
+            () -> assertThat(result.getVolunteerInvite().getType()).isEqualTo(ShiftPlanInviteType.VOLUNTEER_JOIN),
+            () -> assertThat(result.getVolunteerInvite().getShiftPlanDto().getId()).isEqualTo(result.getShiftPlan().getId()),
+            () -> assertThat(result.getPlannerInvite()).isNotNull(),
+            () -> assertThat(result.getPlannerInvite().getCode()).isNotNull(),
+            () -> assertThat(result.getPlannerInvite().getCode()).isNotBlank(),
+            () -> assertThat(result.getPlannerInvite().getType()).isEqualTo(ShiftPlanInviteType.PLANNER_JOIN),
+            () -> assertThat(result.getPlannerInvite().getShiftPlanDto().getId()).isEqualTo(result.getShiftPlan().getId())
+        );
     }
 
     @Test

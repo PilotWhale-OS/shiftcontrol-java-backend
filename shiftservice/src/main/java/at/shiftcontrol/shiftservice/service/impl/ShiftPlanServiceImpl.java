@@ -37,6 +37,7 @@ import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
@@ -115,14 +116,42 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @AdminOnly
-    public ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) {
+    public ShiftPlanCreateDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
         plan.setLockStatus(LockStatus.SELF_SIGNUP);
         plan = shiftPlanDao.save(plan);
+
+        // create unspecific invites for volunteer and planner by default
+        var volunteerInvite = ShiftPlanInvite.builder()
+            .code(generateUniqueCode())
+            .type(ShiftPlanInviteType.VOLUNTEER_JOIN)
+            .shiftPlan(plan)
+            .active(true)
+            .uses(0)
+            .createdAt(Instant.now())
+            .build();
+        volunteerInvite = shiftPlanInviteDao.save(volunteerInvite);
+
+        var plannerInvite = ShiftPlanInvite.builder()
+            .code(generateUniqueCode())
+            .type(ShiftPlanInviteType.PLANNER_JOIN)
+            .shiftPlan(plan)
+            .active(true)
+            .uses(0)
+            .createdAt(Instant.now())
+            .build();
+        plannerInvite = shiftPlanInviteDao.save(plannerInvite);
+
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.SHIFTPLAN_CREATED, plan));
-        return ShiftPlanMapper.toShiftPlanDto(plan);
+        var shiftPlanDto = ShiftPlanMapper.toShiftPlanDto(plan);
+
+        return ShiftPlanCreateDto.builder()
+            .shiftPlan(shiftPlanDto)
+            .volunteerInvite(InviteMapper.toInviteDto(volunteerInvite, plan))
+            .plannerInvite(InviteMapper.toInviteDto(plannerInvite, plan))
+            .build();
     }
 
     @Override

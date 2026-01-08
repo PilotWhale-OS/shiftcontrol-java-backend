@@ -7,6 +7,7 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
@@ -21,7 +22,7 @@ public interface ShiftPlanService {
 
     ShiftPlanDto get(long shiftPlanId);
 
-    ShiftPlanDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto);
+    ShiftPlanCreateDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto);
 
     ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto);
 
