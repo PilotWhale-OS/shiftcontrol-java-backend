@@ -12,13 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -44,6 +37,7 @@ import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
@@ -79,6 +73,11 @@ import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -158,27 +157,49 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var scheduleLayoutDtos = shiftsByLocation.entrySet().stream()
             .map(entry -> buildScheduleLayoutDto(entry.getKey(), entry.getValue()))
             .toList();
+
+        var shiftsWithoutLocation = shiftDao.searchShiftsInShiftPlan(shiftPlanId,
+                userProvider.getCurrentUser().getUserId(),
+                filterDto).stream()
+            .filter(shift -> shift.getLocation() == null)
+            .toList();
+        var scheduleLayoutNoLocationDto = buildScheduleLayoutNoLocationDto(shiftsWithoutLocation);
+
         var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
         return ShiftPlanScheduleLayoutDto.builder()
             .scheduleLayoutDtos(scheduleLayoutDtos)
+            .scheduleLayoutNoLocationDto(scheduleLayoutNoLocationDto)
             .scheduleStatistics(stats)
             .build();
     }
 
     private ScheduleLayoutDto buildScheduleLayoutDto(Location location, List<Shift> shifts) {
         // sort for deterministic column placement
-        shifts.sort(Comparator
-            .comparing(Shift::getStartTime)
-            .thenComparing(Shift::getEndTime));
-        var shiftColumns = calculateShiftColumns(shifts);
-        int requiredShiftColumns = shiftColumns.stream()
-            .mapToInt(ShiftColumnDto::getColumnIndex)
-            .max()
-            .orElse(-1) + 1;
+        int requiredShiftColumns = getRequiredShiftColumns(shifts);
         return ScheduleLayoutDto.builder()
             .location(LocationMapper.toLocationDto(location))
             .requiredShiftColumns(requiredShiftColumns)
             .build();
+    }
+
+    private ScheduleLayoutNoLocationDto buildScheduleLayoutNoLocationDto(List<Shift> shifts) {
+        int requiredShiftColumns = getRequiredShiftColumns(shifts);
+        return ScheduleLayoutNoLocationDto.builder()
+            .requiredShiftColumns(requiredShiftColumns)
+            .build();
+    }
+
+    private int getRequiredShiftColumns(List<Shift> shifts) {
+        // sort for deterministic column placement
+        var sorted = shifts.stream()
+            .sorted(Comparator
+                .comparing(Shift::getStartTime)
+                .thenComparing(Shift::getEndTime)).toList();
+        var shiftColumns = calculateShiftColumns(sorted);
+        return shiftColumns.stream()
+            .mapToInt(ShiftColumnDto::getColumnIndex)
+            .max()
+            .orElse(-1) + 1;
     }
 
     @Override
