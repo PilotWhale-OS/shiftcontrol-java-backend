@@ -62,7 +62,7 @@ public class SignupEndpoint {
         operationId = "getAssignableUsers",
         description = "Gets all users that could be assigned to the given slot"
     )
-    public Collection<VolunteerDto> getAssignableUsers(@PathVariable String positionSlotId) {
+    public Collection<VolunteerDto> getAssignableUsers(@PathVariable String shiftPlanId, @PathVariable String positionSlotId) {
         return positionSlotService.getAssignableUsers(positionSlotId);
     }
 
@@ -71,7 +71,7 @@ public class SignupEndpoint {
         operationId = "assignUsersToSlot",
         description = "Assigns the given users to the given slot"
     )
-    public Collection<AssignmentDto> assignUsersToSlot(@RequestBody AssignmentAssignDto assignmentAssignDto) {
+    public Collection<AssignmentDto> assignUsersToSlot(@PathVariable String shiftPlanId, @RequestBody AssignmentAssignDto assignmentAssignDto) {
         return positionSlotService.assignUsersToSlot(assignmentAssignDto);
     }
 }
