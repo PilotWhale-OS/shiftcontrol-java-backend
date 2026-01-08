@@ -9,7 +9,7 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
@@ -457,7 +457,7 @@ class ShiftPlanIT extends RestITBase {
 
         var inviteDetails = getRequestAsAssigned(
             INVITE_ITEM_PATH.formatted(resultInvite.getCode()),
-            ShiftPlanJoinOverviewDto.class,
+            ShiftPlanInviteDetailsDto.class,
             volunteerJoinedAsVolunteerOnly.getId()
         );
 
@@ -512,7 +512,7 @@ class ShiftPlanIT extends RestITBase {
 
         var inviteDetails1 = getRequestAsAssigned(
             INVITE_ITEM_PATH.formatted(resultInvite1.getCode()),
-            ShiftPlanJoinOverviewDto.class,
+            ShiftPlanInviteDetailsDto.class,
             volunteerJoinedAsVolunteerOnly.getId()
         );
 
@@ -565,7 +565,7 @@ class ShiftPlanIT extends RestITBase {
 
         var inviteDetails2 = getRequestAsAssigned(
             INVITE_ITEM_PATH.formatted(resultInvite2.getCode()),
-            ShiftPlanJoinOverviewDto.class,
+            ShiftPlanInviteDetailsDto.class,
             volunteerJoinedAsVolunteerOnly.getId()
         );
 
@@ -617,7 +617,7 @@ class ShiftPlanIT extends RestITBase {
 
         var inviteDetails = getRequestAsAssigned(
             INVITE_ITEM_PATH.formatted(resultInvite.getCode()),
-            ShiftPlanJoinOverviewDto.class,
+            ShiftPlanInviteDetailsDto.class,
             volunteerJoinedAsVolunteerOnly.getId()
         );
 

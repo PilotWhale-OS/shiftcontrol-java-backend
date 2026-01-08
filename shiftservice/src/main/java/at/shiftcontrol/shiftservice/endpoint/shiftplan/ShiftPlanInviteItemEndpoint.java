@@ -1,7 +1,7 @@
 package at.shiftcontrol.shiftservice.endpoint.shiftplan;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,7 +52,7 @@ public class ShiftPlanInviteItemEndpoint {
         operationId = "getShiftPlanInviteDetails",
         description = "Get details about a specific invite code for a shift plan"
     )
-    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(@PathVariable String inviteCode) {
+    public ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(@PathVariable String inviteCode) {
         return shiftPlanService.getShiftPlanInviteDetails(inviteCode);
     }
 

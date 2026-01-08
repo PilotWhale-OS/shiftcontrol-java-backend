@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
@@ -41,7 +41,7 @@ public interface ShiftPlanService {
 
     void deleteShiftPlanInvite(long inviteId);
 
-    ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode);
+    ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(String inviteCode);
 
     Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId);
 

@@ -30,8 +30,8 @@ import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinOverviewDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
@@ -511,7 +511,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanJoinOverviewDto getShiftPlanInviteDetails(String inviteCode) {
+    public ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(String inviteCode) {
         var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.getByCode(inviteCode);
         var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
@@ -519,18 +519,29 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         // volunteer not necessary to get invite details 
         Volunteer volunteer = volunteerDao.findById(userId).orElse(null);
 
-        boolean alreadyJoined = (volunteer != null) && userIsInShiftPlan(invite.getType(), shiftPlan, volunteer);
+        boolean alreadyJoined = volunteer != null && isUserAlreadyInShiftPlan(invite.getType(), shiftPlan, volunteer);
+        boolean upgradeToPlannerPossible = volunteer != null && isUserAlreadyInShiftPlan(ShiftPlanInviteType.VOLUNTEER_JOIN, shiftPlan, volunteer)
+            && !isUserAlreadyInShiftPlan(ShiftPlanInviteType.PLANNER_JOIN, shiftPlan, volunteer)
+            && invite.getType() == ShiftPlanInviteType.PLANNER_JOIN;
+
+        var rolesToAssign = invite.getAutoAssignRoles();
+        boolean extensionOfRolesPossible = volunteer != null
+            && rolesToAssign != null
+            && rolesToAssign.stream().anyMatch(role -> !volunteer.getRoles().contains(role));
+
         var eventDto = EventMapper.toEventDto(shiftPlan.getEvent());
         var inviteDto = InviteMapper.toInviteDto(invite, shiftPlan);
-        return ShiftPlanJoinOverviewDto.builder()
+        return ShiftPlanInviteDetailsDto.builder()
             .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
             .joined(alreadyJoined)
+            .upgradeToPlannerPossible(upgradeToPlannerPossible)
+            .extensionOfRolesPossible(extensionOfRolesPossible)
             .inviteDto(inviteDto)
             .eventDto(eventDto)
             .build();
     }
 
-    private boolean userIsInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
+    private boolean isUserAlreadyInShiftPlan(ShiftPlanInviteType type, ShiftPlan shiftPlan, Volunteer volunteer) {
         switch (type) {
             case VOLUNTEER_JOIN -> {
                 return shiftPlan.getPlanVolunteers().contains(volunteer);

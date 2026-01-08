@@ -13,13 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ShiftPlanJoinOverviewDto {
+public class ShiftPlanInviteDetailsDto {
     @NotNull
     @Min(0)
     private int attendingVolunteerCount;
 
     @NotNull
     private boolean joined;
+
+    @NotNull
+    private boolean upgradeToPlannerPossible;
+
+    @NotNull
+    private boolean extensionOfRolesPossible;
 
     @NotNull
     @Valid
