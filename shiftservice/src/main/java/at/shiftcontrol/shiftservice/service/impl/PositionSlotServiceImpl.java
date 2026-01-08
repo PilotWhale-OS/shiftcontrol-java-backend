@@ -144,8 +144,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment joinRequest = Assignment.of(positionSlot, volunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
 
         // publish event
-        // TODO implement for request
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", currentUserId)),
             positionSlot, currentUserId));
@@ -168,8 +167,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignment.setStatus(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
 
         // publish event
-        // TODO implement for request
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", currentUserId)),
             assignment.getPositionSlot(), currentUserId));
