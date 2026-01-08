@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.integration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
@@ -15,6 +16,7 @@ import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
@@ -23,6 +25,7 @@ import at.shiftcontrol.shiftservice.repo.ShiftPlanInviteRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
+import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import io.restassured.http.Method;
@@ -61,6 +64,9 @@ class ShiftPlanIT extends RestITBase {
     ShiftPlanInviteRepository shiftPlanInviteRepository;
 
     @Autowired
+    RoleRepository roleRepository;
+
+    @Autowired
     UserAttributeProvider userAttributeProvider;
 
     private Event eventA;
@@ -71,9 +77,12 @@ class ShiftPlanIT extends RestITBase {
 
     private PositionSlot positionSlotA, positionSlotB;
 
+    private Role roleA, roleB, roleC;
+
     @BeforeEach
     void setUp() {
         shiftPlanInviteRepository.deleteAll();
+        roleRepository.deleteAll();
         positionSlotRepository.deleteAll();
         shiftRepository.deleteAll();
         shiftPlanRepository.deleteAll();
@@ -83,6 +92,7 @@ class ShiftPlanIT extends RestITBase {
 
         createEvents();
         createShiftPlans();
+        createRoles();
         createShifts();
         createPositionSlots();
         createVolunteers();
@@ -119,6 +129,48 @@ class ShiftPlanIT extends RestITBase {
         assertAll(
             () -> assertThat(shiftPlanA.getId()).isGreaterThan(0),
             () -> assertThat(shiftPlanRepository.existsById(shiftPlanA.getId())).isTrue()
+        );
+    }
+
+    private void createRoles() {
+        var roles = new ArrayList<Role>();
+
+        roleA = Role.builder()
+            .name("RoleA")
+            .shiftPlan(shiftPlanA)
+            .description("DescriptionA")
+            .selfAssignable(true)
+            .rewardPointsPerMinute(2)
+            .build();
+        roles.add(roleA);
+
+        roleB = Role.builder()
+            .name("RoleB")
+            .shiftPlan(shiftPlanA)
+            .description("DescriptionB")
+            .selfAssignable(true)
+            .rewardPointsPerMinute(3)
+            .build();
+        roles.add(roleB);
+
+        roleC = Role.builder()
+            .name("RoleC")
+            .shiftPlan(shiftPlanA)
+            .description("DescriptionC")
+            .selfAssignable(true)
+            .rewardPointsPerMinute(5)
+            .build();
+        roles.add(roleC);
+
+        roleRepository.saveAll(roles);
+
+        assertAll(
+            () -> assertThat(roleA.getId()).isGreaterThan(0),
+            () -> assertThat(roleB.getId()).isGreaterThan(0),
+            () -> assertThat(roleC.getId()).isGreaterThan(0),
+            () -> assertThat(roleRepository.existsById(roleA.getId())).isTrue(),
+            () -> assertThat(roleRepository.existsById(roleB.getId())).isTrue(),
+            () -> assertThat(roleRepository.existsById(roleC.getId())).isTrue()
         );
     }
 
@@ -238,6 +290,7 @@ class ShiftPlanIT extends RestITBase {
 
         shiftRepository.deleteAll();
         volunteerRepository.deleteAll();
+        roleRepository.deleteAll();
         shiftPlanRepository.deleteAll();
 
         eventRepository.deleteAll();
@@ -368,6 +421,7 @@ class ShiftPlanIT extends RestITBase {
     void createVolunteerInviteCodeAsPlannerAndJoinAsNotJoinedSucceeds() {
         var requestDto = ShiftPlanInviteCreateRequestDto.builder()
             .type(ShiftPlanInviteType.VOLUNTEER_JOIN)
+            .autoAssignRoleIds(List.of(String.valueOf(roleA.getId()), String.valueOf(roleB.getId())))
             .build();
 
         var resultInvite = postRequestAsAssigned(
@@ -383,7 +437,9 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(resultInvite.getCode()).isNotNull(),
             () -> assertThat(resultInvite.getCode()).isNotBlank(),
             () -> assertThat(resultInvite.getType()).isEqualTo(ShiftPlanInviteType.VOLUNTEER_JOIN),
-            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isFalse()
+            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isFalse(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isFalse(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isFalse()
         );
 
         // Now join as volunteer using the invite code
@@ -404,7 +460,151 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(resultJoin.getAttendingVolunteerCount()).isEqualTo(2),
             () -> assertThat(resultJoin.getEventDto()).isNotNull(),
             () -> assertThat(resultJoin.getInviteDto()).isNotNull(),
-            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isTrue()
+            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue()
+        );
+    }
+
+    @Test
+    void createTwoVolunteerInviteCodesAsPlannerAndJoinBothAsNotJoinedExtendsRolesSucceeds() {
+        // Create first invite
+        var requestDto1 = ShiftPlanInviteCreateRequestDto.builder()
+            .type(ShiftPlanInviteType.VOLUNTEER_JOIN)
+            .autoAssignRoleIds(List.of(String.valueOf(roleA.getId()), String.valueOf(roleB.getId())))
+            .build();
+
+        var resultInvite1 = postRequestAsAssigned(
+            INVITE_PATH.formatted(shiftPlanA.getId()),
+            requestDto1,
+            ShiftPlanInviteCreateResponseDto.class,
+            volunteerJoinedAsPlannerOnly.getId()
+        );
+
+
+        assertAll(
+            () -> assertThat(resultInvite1).isNotNull(),
+            () -> assertThat(resultInvite1.getCode()).isNotNull(),
+            () -> assertThat(resultInvite1.getCode()).isNotBlank(),
+            () -> assertThat(resultInvite1.getType()).isEqualTo(ShiftPlanInviteType.VOLUNTEER_JOIN),
+            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isFalse(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isFalse(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isFalse()
+        );
+
+        // Join first time
+        var joinRequestDto1 = ShiftPlanJoinRequestDto.builder()
+            .inviteCode(resultInvite1.getCode())
+            .build();
+
+        var resultJoin1 = postRequestAsAssigned(
+            JOIN_PATH,
+            joinRequestDto1,
+            ShiftPlanJoinOverviewDto.class,
+            volunteerNotJoined.getId()
+        );
+
+        assertAll(
+            () -> assertThat(resultJoin1).isNotNull(),
+            () -> assertThat(resultJoin1.isJoined()).isTrue(),
+            () -> assertThat(resultJoin1.getAttendingVolunteerCount()).isEqualTo(2),
+            () -> assertThat(resultJoin1.getEventDto()).isNotNull(),
+            () -> assertThat(resultJoin1.getInviteDto()).isNotNull(),
+            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue()
+        );
+
+        // Create second invite
+        var requestDto2 = ShiftPlanInviteCreateRequestDto.builder()
+            .type(ShiftPlanInviteType.VOLUNTEER_JOIN)
+            .autoAssignRoleIds(List.of(String.valueOf(roleC.getId())))
+            .build();
+
+        var resultInvite2 = postRequestAsAssigned(
+            INVITE_PATH.formatted(shiftPlanA.getId()),
+            requestDto2,
+            ShiftPlanInviteCreateResponseDto.class,
+            volunteerJoinedAsPlannerOnly.getId()
+        );
+
+        assertAll(
+            () -> assertThat(resultInvite2).isNotNull(),
+            () -> assertThat(resultInvite2.getCode()).isNotNull(),
+            () -> assertThat(resultInvite2.getCode()).isNotBlank(),
+            () -> assertThat(resultInvite2.getType()).isEqualTo(ShiftPlanInviteType.VOLUNTEER_JOIN),
+            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleC.getId())).isFalse()
+        );
+
+        // Join second time
+        var joinRequestDto2 = ShiftPlanJoinRequestDto.builder()
+            .inviteCode(resultInvite2.getCode())
+            .build();
+
+        var resultJoin2 = postRequestAsAssigned(
+            JOIN_PATH,
+            joinRequestDto2,
+            ShiftPlanJoinOverviewDto.class,
+            volunteerNotJoined.getId()
+        );
+
+        assertAll(
+            () -> assertThat(resultJoin2).isNotNull(),
+            () -> assertThat(resultJoin2.isJoined()).isFalse(),
+            () -> assertThat(resultJoin2.getAttendingVolunteerCount()).isEqualTo(2),
+            () -> assertThat(resultJoin2.getEventDto()).isNotNull(),
+            () -> assertThat(resultJoin2.getInviteDto()).isNotNull(),
+            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleC.getId())).isTrue()
+        );
+    }
+
+    @Test
+    void createPlannerInviteCodesAsAdminAndJoinAsVolunteerOnlyUpgradesToPlannerSucceeds() {
+        var requestDto = ShiftPlanInviteCreateRequestDto.builder()
+            .type(ShiftPlanInviteType.PLANNER_JOIN)
+            .build();
+
+        var resultInvite = postRequestAsAdmin(
+            INVITE_PATH.formatted(shiftPlanA.getId()),
+            requestDto,
+            ShiftPlanInviteCreateResponseDto.class
+        );
+
+        assertAll(
+            () -> assertThat(resultInvite).isNotNull(),
+            () -> assertThat(resultInvite.getCode()).isNotNull(),
+            () -> assertThat(resultInvite.getCode()).isNotBlank(),
+            () -> assertThat(resultInvite.getType()).isEqualTo(ShiftPlanInviteType.PLANNER_JOIN),
+            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.isPlannerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isFalse()
+        );
+
+        // Now join as planner using the invite code
+        var joinRequestDto = ShiftPlanJoinRequestDto.builder()
+            .inviteCode(resultInvite.getCode())
+            .build();
+
+        var resultJoin = postRequestAsAssigned(
+            JOIN_PATH,
+            joinRequestDto,
+            ShiftPlanJoinOverviewDto.class,
+            volunteerJoinedAsVolunteerOnly.getId()
+        );
+
+        assertAll(
+            () -> assertThat(resultJoin).isNotNull(),
+            () -> assertThat(resultJoin.isJoined()).isTrue(),
+            () -> assertThat(resultJoin.getAttendingVolunteerCount()).isEqualTo(1), // nothing changes
+            () -> assertThat(resultJoin.getEventDto()).isNotNull(),
+            () -> assertThat(resultJoin.getInviteDto()).isNotNull(),
+            () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.isPlannerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue()
         );
     }
 }

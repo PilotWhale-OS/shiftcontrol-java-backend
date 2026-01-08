@@ -590,18 +590,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         }
 
         boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
-        // Increase uses and add roles only if joined now and ignores duplicate joins (already member)
+
+        var rolesToAssign = invite.getAutoAssignRoles();
+        addRolesToUser(rolesToAssign, volunteer);
+
+        // Increase uses and invalidate cache if joined now
         if (joinedNow) {
-            var rolesToAssign = invite.getAutoAssignRoles();
-            if (rolesToAssign != null && !rolesToAssign.isEmpty()) {
-                for (var role : rolesToAssign) {
-                    if (!volunteer.getRoles().contains(role)) {
-                        volunteer.getRoles().add(role);
-                    }
-                }
-                volunteerDao.save(volunteer);
-                userAttributeProvider.invalidateUserCache(userId);
-            }
+            userAttributeProvider.invalidateUserCache(userId);
             invite.setUses(invite.getUses() + 1);
         }
         // auto-deactivate if max uses reached
@@ -654,10 +649,23 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                     return false;
                 }
                 shiftPlan.addPlanPlanner(volunteer);
-                shiftPlan.addPlanVolunteer(volunteer); // planners are also volunteers
+                if (!shiftPlan.getPlanVolunteers().contains(volunteer)) {
+                    shiftPlan.addPlanVolunteer(volunteer); // planners are also volunteers (if not already)
+                }
                 return true;
             }
             default -> throw new BadRequestException("Unknown invite type");
+        }
+    }
+
+    private void addRolesToUser(Collection<Role> rolesToAssign, Volunteer volunteer) {
+        if (rolesToAssign != null && !rolesToAssign.isEmpty()) {
+            for (var role : rolesToAssign) {
+                if (!volunteer.getRoles().contains(role)) {
+                    volunteer.getRoles().add(role);
+                }
+            }
+            volunteerDao.save(volunteer);
         }
     }
 

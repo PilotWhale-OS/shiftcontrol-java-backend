@@ -29,4 +29,13 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
         """)
     boolean isPlannerInShiftPlan(@Param("volunteerId") String volunteerId,
                                  @Param("shiftPlanId") long shiftPlanId);
+
+    @Query("""
+            select (count(r) > 0)
+            from Volunteer v
+            join v.roles r
+            where v.id = :volunteerId and r.id = :roleId
+        """)
+    boolean hasUserRole(@Param("volunteerId") String volunteerId,
+                        @Param("roleId") long roleId);
 }
