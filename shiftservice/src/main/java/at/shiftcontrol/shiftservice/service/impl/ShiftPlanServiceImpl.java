@@ -650,13 +650,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", userId)), shiftPlan, userId));
-
-        return ShiftPlanJoinOverviewDto.builder()
-            .attendingVolunteerCount(shiftPlan.getPlanVolunteers().size())
-            .joined(joinedNow)
-            .inviteDto(inviteDto)
-            .eventDto(eventDto)
-            .build();
     }
 
     private void validateInvite(ShiftPlanInvite invite) {
