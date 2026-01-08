@@ -11,7 +11,8 @@ import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
-import at.shiftcontrol.shiftservice.service.EventService;
+import at.shiftcontrol.shiftservice.service.event.EventCloneService;
+import at.shiftcontrol.shiftservice.service.event.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EventEndpoint {
     private final ApplicationUserProvider userProvider;
     private final EventService eventService;
+    private final EventCloneService eventCloneService;
     private final DashboardService dashboardService;
 
     @GetMapping("/{eventId}")
@@ -97,7 +99,7 @@ public class EventEndpoint {
         description = "Clone an existing event"
     )
     public EventDto cloneEvent(@PathVariable String eventId) {
-        return eventService.cloneEvent(ConvertUtil.idToLong(eventId));
+        return eventCloneService.cloneEvent(ConvertUtil.idToLong(eventId));
     }
 
     @GetMapping("/{eventId}/shift-plans-overview")

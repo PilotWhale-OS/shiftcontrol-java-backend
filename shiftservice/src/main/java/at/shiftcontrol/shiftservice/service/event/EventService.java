@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service;
+package at.shiftcontrol.shiftservice.service.event;
 
 import java.util.List;
 
@@ -26,6 +26,4 @@ public interface EventService {
     EventDto updateEvent(long eventId, EventModificationDto eventModificationDto);
 
     void deleteEvent(long eventId);
-    
-    EventDto cloneEvent(long eventId);
 }
