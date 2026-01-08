@@ -32,10 +32,8 @@ public class VolunteerRepositoryTest {
         Collection<Volunteer> volunteers = volunteerRepository.findAllByShiftPlan(shiftPlanId);
 
         Assertions.assertFalse(volunteers.isEmpty());
-        volunteers.forEach(v -> {
-            Assertions.assertTrue(
-                v.getPlanningPlans().stream().anyMatch(plan -> plan.getId() == shiftPlanId)
-            );
-        });
+        volunteers.forEach(v -> Assertions.assertTrue(
+            v.getVolunteeringPlans().stream().anyMatch(plan -> plan.getId() == shiftPlanId)
+        ));
     }
 }
