@@ -3,22 +3,27 @@ package at.shiftcontrol.shiftservice.integration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Shift;
@@ -34,6 +39,7 @@ import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
+import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
@@ -45,6 +51,8 @@ class ShiftPlanIT extends RestITBase {
     private static final String INVITE_PATH = "shift-plans/%d/invites";
     private static final String INVITE_ITEM_PATH = "/invites/%s";
     private static final String JOIN_PATH = "/join";
+    private static final String ASSIGNABLE_USERS_PATH = "shift-plans/%d/assignable-users/%d";
+    private static final String ASSIGN_PATH = "shift-plans/%d/assign";
 
     @Autowired
     PositionSlotRepository positionSlotRepository;
@@ -714,6 +722,42 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(inviteDetails.getInviteDto()).isNotNull(),
             () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue(),
             () -> assertThat(volunteerRepository.isPlannerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue()
+        );
+    }
+
+    @Test
+    void getAssignableUsersAsPlannerSucceeds() {
+        var result = getRequestAsAssigned(
+            ASSIGNABLE_USERS_PATH.formatted(shiftPlanA.getId(), positionSlotA.getId()),
+            Collection.class,
+            volunteerJoinedAsPlannerOnly.getId()
+        );
+
+        Assertions.assertFalse(result.isEmpty());
+        VolunteerDto volunteerDto = objectMapper.convertValue(result.stream().findFirst().get(), VolunteerDto.class);
+        Assertions.assertEquals(volunteerDto.getId(), volunteerJoinedAsVolunteerOnly.getId());
+    }
+
+    @Test
+    void assignUsersToSlotAsPlannerSucceeds() {
+        var assignmentAssignDto = AssignmentAssignDto.builder()
+            .positionSlotId(String.valueOf(positionSlotA.getId()))
+            .volunteers(List.of(new VolunteerDto(volunteerJoinedAsVolunteerOnly.getId())))
+            .build();
+
+        var result = postRequestAsAssigned(
+            ASSIGN_PATH.formatted(shiftPlanA.getId()),
+            assignmentAssignDto,
+            Collection.class,
+            volunteerJoinedAsPlannerOnly.getId()
+        );
+
+        Assertions.assertEquals(1, result.size());
+        AssignmentDto assignmentDto = objectMapper.convertValue(result.stream().findFirst().get(), AssignmentDto.class);
+        Assertions.assertAll(
+            () -> Assertions.assertEquals(AssignmentStatus.ACCEPTED, assignmentDto.getStatus()),
+            () -> Assertions.assertEquals(String.valueOf(positionSlotA.getId()), assignmentDto.getPositionSlotId()),
+            () -> Assertions.assertEquals(volunteerJoinedAsVolunteerOnly.getId(), assignmentDto.getAssignedVolunteer().getId())
         );
     }
 }

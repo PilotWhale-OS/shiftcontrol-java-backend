@@ -36,4 +36,22 @@ public class VolunteerRepositoryTest {
             v.getVolunteeringPlans().stream().anyMatch(plan -> plan.getId() == shiftPlanId)
         ));
     }
+
+    @Test
+    void testFindAllByShiftPlanAndVolunteerIds() {
+        long shiftPlanId = 1L;
+        Collection<String> volunteerIds = List.of(
+            "28c02050-4f90-4f3a-b1df-3c7d27a166e5",
+            "28c02050-4f90-4f3a-b1df-3c7d27a166e6"
+        );
+
+        Collection<Volunteer> volunteers = volunteerRepository.findAllByShiftPlanAndVolunteerIds(shiftPlanId, volunteerIds);
+
+        Assertions.assertEquals(volunteerIds.size(), volunteers.size());
+        volunteers.forEach(v -> Assertions.assertAll(
+            () -> Assertions.assertTrue(
+                v.getVolunteeringPlans().stream().anyMatch(plan -> plan.getId() == shiftPlanId)),
+            () -> Assertions.assertTrue(volunteerIds.contains(v.getId()))
+        ));
+    }
 }
