@@ -5,13 +5,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -23,11 +16,17 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
+import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.ActivityEvent;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -98,9 +97,12 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BadRequestException("Cannot modify read-only activity");
         }
 
-        var location = locationDao.getById(ConvertUtil.idToLong(modificationDto.getLocationId()));
-        if (location.isReadOnly()) {
-            throw new BadRequestException("Cannot assign read-only location to activity");
+        Location location = null;
+        if (StringUtils.isNotBlank(modificationDto.getLocationId())) {
+            location = locationDao.getById(ConvertUtil.idToLong(modificationDto.getLocationId()));
+            if (location.isReadOnly()) {
+                throw new BadRequestException("Cannot assign read-only location to activity");
+            }
         }
 
         return ActivityMapper.updateActivity(modificationDto, location, activity);
