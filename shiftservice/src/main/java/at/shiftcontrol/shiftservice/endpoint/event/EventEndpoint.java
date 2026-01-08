@@ -92,7 +92,6 @@ public class EventEndpoint {
         eventService.deleteEvent(ConvertUtil.idToLong(eventId));
     }
 
-    // clone event
     @PostMapping("/{eventId}/clone")
     @Operation(
         operationId = "cloneEvent",
