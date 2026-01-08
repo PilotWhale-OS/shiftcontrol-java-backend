@@ -7,4 +7,6 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 public interface VolunteerDao extends BasicDao<Volunteer, String> {
     Collection<Volunteer> findAllByShiftPlan(long shiftPlanId);
+
+    Collection<Volunteer> findAllByShiftPlanAndVolunteerIds(long shiftPlanId, Collection<String> volunteerIds);
 }

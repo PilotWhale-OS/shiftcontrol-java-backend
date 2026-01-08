@@ -1,11 +1,12 @@
 package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +25,7 @@ import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
 import at.shiftcontrol.shiftservice.mapper.AssignmentRequestMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
@@ -86,6 +88,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
+    @Transactional
     public Collection<VolunteerDto> getAssignableUsers(String positionSlotId) {
         PositionSlot positionSlot = positionSlotDao.getById(
             ConvertUtil.idToLong(positionSlotId));
@@ -114,8 +117,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
+    @Transactional
     public Collection<AssignmentDto> assignUsersToSlot(AssignmentAssignDto assignmentAssignDto) {
-        // TODO implement
         PositionSlot positionSlot = positionSlotDao.getById(
             ConvertUtil.idToLong(assignmentAssignDto.getPositionSlotId()));
 
@@ -124,13 +127,22 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
 
         // ignore lock status
 
-        // volunteers have to:
-        // have access to slot
-        // be eligible (handle already signed up)
-        // have no conflicts
+        // get all requested volunteers with access to slot
+        Collection<Volunteer> volunteers = volunteerDao.findAllByShiftPlanAndVolunteerIds(
+            positionSlot.getShift().getShiftPlan().getId(),
+            assignmentAssignDto.getVolunteers().stream().map(VolunteerDto::getId).toList());
 
+        // check if not already signed up, eligible and no conflicts
+        volunteers = volunteers.stream().filter(v -> isAssignable(positionSlot, v)).toList();
 
-        return List.of();
+        // assign volunteers to slot
+        Collection<Assignment> assignments = new ArrayList<>(volunteers.size());
+        volunteers.forEach(v -> assignments.add(
+            assignmentService.accept(
+                Assignment.of(positionSlot, v, AssignmentStatus.REQUEST_FOR_ASSIGNMENT))
+        ));
+
+        return AssignmentMapper.toDto(assignments);
     }
 
     private void acceptAssignment(Assignment assignment) {

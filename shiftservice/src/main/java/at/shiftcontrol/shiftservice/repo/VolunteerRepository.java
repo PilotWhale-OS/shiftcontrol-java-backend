@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 @Repository
-public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
+public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
     Optional<Volunteer> findById(String userId);
 
     @Query("""
@@ -48,4 +48,13 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
             WHERE p.id = :shiftPlanId
         """)
     Collection<Volunteer> findAllByShiftPlan(long shiftPlanId);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            JOIN v.volunteeringPlans p
+            WHERE p.id = :shiftPlanId
+              AND v.id IN :volunteerIds
+        """)
+    Collection<Volunteer> findAllByShiftPlanAndVolunteerIds(long shiftPlanId, Collection<String> volunteerIds);
 }

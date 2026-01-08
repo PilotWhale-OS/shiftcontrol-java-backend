@@ -5,7 +5,13 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
-import at.shiftcontrol.lib.util.ConvertUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import io.restassured.http.Method;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
@@ -30,12 +36,6 @@ import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
-import io.restassured.http.Method;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -275,9 +275,9 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(volunteerNotJoined.getId()).isNotNull(),
             () -> assertThat(volunteerJoinedAsVolunteerOnly.getId()).isNotNull(),
             () -> assertThat(volunteerJoinedAsPlannerOnly.getId()).isNotNull(),
-            () -> assertThat(volunteerRepository.existsById(ConvertUtil.idToLong(volunteerNotJoined.getId()))).isTrue(),
-            () -> assertThat(volunteerRepository.existsById(ConvertUtil.idToLong(volunteerJoinedAsVolunteerOnly.getId()))).isTrue(),
-            () -> assertThat(volunteerRepository.existsById(ConvertUtil.idToLong(volunteerJoinedAsPlannerOnly.getId()))).isTrue(),
+            () -> assertThat(volunteerRepository.existsById(volunteerNotJoined.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.existsById(volunteerJoinedAsVolunteerOnly.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.existsById(volunteerJoinedAsPlannerOnly.getId())).isTrue(),
             () -> assertThat(volunteerRepository.isVolunteerInShiftPlan("11111", shiftPlanA.getId())).isFalse(),
             () -> assertThat(volunteerRepository.isPlannerInShiftPlan("11111", shiftPlanA.getId())).isFalse(),
             () -> assertThat(volunteerRepository.isVolunteerInShiftPlan("22222", shiftPlanA.getId())).isTrue(),
