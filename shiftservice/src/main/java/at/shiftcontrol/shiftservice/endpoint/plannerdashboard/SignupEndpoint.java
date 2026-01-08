@@ -17,8 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
 
 @Slf4j
@@ -60,8 +62,8 @@ public class SignupEndpoint {
         operationId = "getAssignableUsers",
         description = "Gets all users that could be assigned to the given slot"
     )
-    public void getAssignableUsers(@PathVariable String positionSlotId) {
-        positionSlotService.getAssignableUsers(positionSlotId);
+    public Collection<VolunteerDto> getAssignableUsers(@PathVariable String positionSlotId) {
+        return positionSlotService.getAssignableUsers(positionSlotId);
     }
 
     @PostMapping("/assign")
@@ -69,7 +71,7 @@ public class SignupEndpoint {
         operationId = "assignUsersToSlot",
         description = "Assigns the given users to the given slot"
     )
-    public void assignUsersToSlot(@RequestBody AssignmentAssignDto assignmentAssignDto) {
-        positionSlotService.assignUsersToSlot(assignmentAssignDto);
+    public Collection<AssignmentDto> assignUsersToSlot(@RequestBody AssignmentAssignDto assignmentAssignDto) {
+        return positionSlotService.assignUsersToSlot(assignmentAssignDto);
     }
 }
