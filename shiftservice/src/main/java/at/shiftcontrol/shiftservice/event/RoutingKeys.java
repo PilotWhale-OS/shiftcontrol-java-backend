@@ -18,6 +18,7 @@ public final class RoutingKeys {
     public static final String TRADE_REQUEST_CANCELED = "trade.request.canceled.{requestedVolunteerId}.{offeringVolunteerId}";
 
     public static final String EVENT_CREATED = "event.created";
+    public static final String EVENT_CLONED = "event.cloned.{sourceEventId}.{newEventId}";
     public static final String EVENT_UPDATED = "event.updated.{eventId}";
     public static final String EVENT_DELETED = "event.deleted.{eventId}";
 

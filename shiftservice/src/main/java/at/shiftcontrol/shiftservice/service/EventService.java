@@ -26,4 +26,6 @@ public interface EventService {
     EventDto updateEvent(long eventId, EventModificationDto eventModificationDto);
 
     void deleteEvent(long eventId);
+    
+    EventDto cloneEvent(long eventId);
 }
