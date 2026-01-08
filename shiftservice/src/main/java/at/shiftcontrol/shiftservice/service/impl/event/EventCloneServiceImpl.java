@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
@@ -33,7 +34,7 @@ public class EventCloneServiceImpl implements EventCloneService {
     private final ApplicationEventPublisher publisher;
 
     @Override
-//    @AdminOnly
+    @AdminOnly
     @Transactional
     public EventDto cloneEvent(long eventId) {
         Event source = eventDao.getById(eventId);
