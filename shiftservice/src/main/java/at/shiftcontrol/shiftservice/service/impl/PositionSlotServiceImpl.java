@@ -81,21 +81,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // check access, already assigned, eligible and conflicts
         assertJoinPossible(positionSlot, volunteer);
 
-        // create assignment
-        Assignment assignment = Assignment.of(positionSlot, volunteer, AssignmentStatus.ACCEPTED);
-
-        rewardPointsService.onAssignmentCreated(
-            assignment,
-            requestDto.getAcceptedRewardPointsConfigHash());
-
-        // close trades where this slot was offered to current user
-        assignmentSwitchRequestDao.cancelTradesForOfferedPositionAndRequestedUser(positionSlotId, currentUserId);
-
-        // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", currentUserId)),
-            positionSlot, currentUserId));
+        // assign volunteer to slot
+        Assignment assignment = assignmentService.assign(positionSlot, volunteer, requestDto);
 
         // save and return
         return AssignmentMapper.toDto(assignmentDao.save(assignment));
@@ -111,25 +98,13 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // check if plan is locked or supervised
         LockStatusHelper.assertLeavePossible(assignment);
 
-        rewardPointsService.onAssignmentRemoved(
-            assignment
-        );
-
         // leave
-        assignmentDao.delete(assignment);
-
-        // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", volunteerId)),
-            assignment.getPositionSlot(), volunteerId));
+        assignmentService.unassign(assignment);
     }
 
     @Override
     @IsNotAdmin
     public AssignmentDto joinRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
-        // TODO rewardpoints have to be updated when planner accepts request !!!
-
         // get position slot and volunteer
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         Volunteer volunteer = volunteerDao.getById(currentUserId);
@@ -155,8 +130,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     @IsNotAdmin
     public void leaveRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
-        // TODO reward points have to be updated when planner accepts request !!!
-
         // get assignment
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
 
@@ -243,15 +216,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // cancel existing trades
         assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
         // execute claim
-        Assignment claimedAuction = assignmentService.reassign(auction, currentUser);
+        Assignment claimedAuction = assignmentService.claimAuction(auction, currentUser, requestDto);
 
-        rewardPointsService.onAssignmentReassignedAuction(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
-
-        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
-            "positionSlotId", String.valueOf(positionSlotId),
-            "volunteerId", currentUserId)), claimedAuction
-        ));
-        return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
+        return AssignmentMapper.toDto(claimedAuction);
     }
 
     @Override

@@ -4,6 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -14,18 +20,20 @@ import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class RewardPointsServiceImpl implements RewardPointsService {
-
     private final RewardPointsCalculator calculator;
     private final RewardPointsLedgerService ledgerService;
 
+    @Override
+    @Transactional
+    @IsNotAdmin
+    public void onAssignmentAccepted(Assignment assignment) throws ConflictException {
+        // no need to validate hash, because not available when planner accepts signup request
+        onAssignmentJoined(assignment);
+    }
 
     @Override
     @Transactional
@@ -34,9 +42,13 @@ public class RewardPointsServiceImpl implements RewardPointsService {
         PositionSlot slot = assignment.getPositionSlot();
         validateHash(slot, acceptedRewardPointsHash);
 
-        RewardPointsSnapshotDto snapshot = calculator.calculateForAssignment(slot);
+        onAssignmentJoined(assignment);
+    }
 
-        String sourceKey = sourceKeyJoin(slot.getId(), assignment.getAssignedVolunteer().getId());
+    private void onAssignmentJoined(@NonNull Assignment assignment) {
+        RewardPointsSnapshotDto snapshot = calculator.calculateForAssignment(assignment.getPositionSlot());
+
+        String sourceKey = sourceKeyJoin(assignment.getPositionSlot().getId(), assignment.getAssignedVolunteer().getId());
 
         var result = ledgerService.bookEarn(RewardPointsMapper.toRewardPointsTransactionDto(
             assignment,
@@ -204,6 +216,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
         ));
     }
 }
-    
 
-    
+
+
