@@ -48,4 +48,9 @@ public class RewardPointsShareTokenDaoImpl implements RewardPointsShareTokenDao 
     public boolean existsByToken(String token) {
         return rewardPointsShareTokenRepository.existsByToken(token);
     }
+
+    @Override
+    public boolean existsByName(String name) {
+        return rewardPointsShareTokenRepository.existsByName(name);
+    }
 }

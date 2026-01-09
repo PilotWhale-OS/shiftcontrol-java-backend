@@ -287,6 +287,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     public RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto) {
         var tokenCode = callGenerateUniqueCode();
 
+        boolean nameAlreadyExists = rewardPointsShareTokenDao.existsByName(requestDto.getName());
+        if (nameAlreadyExists) {
+            throw new IllegalArgumentException("A share token with the given name already exists");
+        }
+
         var token = RewardPointsShareToken.builder()
             .token(tokenCode)
             .name(requestDto.getName())
@@ -303,7 +308,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
         }
 
         // TODO publish event
-        // TODO add liquibase file
         // TODO Return real points in overviewdtos instead of -1
 
         return RewardPointsMapper.toRewardPointsShareTokenDto(token);
