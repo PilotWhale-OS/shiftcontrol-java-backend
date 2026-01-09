@@ -734,7 +734,9 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(inviteDetails.getInviteDto()).isNotNull(),
             () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue(),
             () -> assertThat(volunteerRepository.isPlannerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue(),
-            () -> Mockito.verify(rabbitTemplate, Mockito.times(0))
+
+            // We only send planner joined event here, no volunteer joined event
+            () -> Mockito.verify(rabbitTemplate, Mockito.never())
                 .convertAndSend(Mockito.eq(RabbitMqConfig.EXCHANGE_NAME), Mockito.matches("^shiftcontrol.shiftplan.joined.volunteer.*"), Mockito.any(BaseEvent.class)),
             () -> Mockito.verify(rabbitTemplate, Mockito.times(1))
                 .convertAndSend(Mockito.eq(RabbitMqConfig.EXCHANGE_NAME), Mockito.matches("^shiftcontrol.shiftplan.joined.planner.*"), Mockito.any(BaseEvent.class))
