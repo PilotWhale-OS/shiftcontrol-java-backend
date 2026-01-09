@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -230,6 +231,13 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @AdminOnly
+    public Collection<RewardPointsShareTokenDto> getAllRewardPointsShareTokens() {
+        var tokens = rewardPointsShareTokenDao.findAll();
+        return RewardPointsMapper.toRewardPointsShareTokenDto(tokens);
+    }
+
+    @Override
+    @AdminOnly
     public RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto) {
         var tokenCode = callGenerateUniqueCode();
 
@@ -248,12 +256,9 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             rewardPointsShareTokenDao.save(token);
         }
 
-        return RewardPointsShareTokenDto.builder()
-            .id(String.valueOf(token.getId()))
-            .token(token.getToken())
-            .name(token.getName())
-            .createdAt(token.getCreatedAt())
-            .build();
+        // TODO publish event
+
+        return RewardPointsMapper.toRewardPointsShareTokenDto(token);
     }
 
     private String callGenerateUniqueCode() {
@@ -263,6 +268,16 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             MAX_SHARE_TOKEN_GENERATION_ATTEMPTS,
             rewardPointsShareTokenDao::existsByToken
         );
+    }
+
+    @Override
+    @AdminOnly
+    public void deleteRewardPointsShareToken(long id) {
+        var token = rewardPointsShareTokenDao.getById(id);
+
+        rewardPointsShareTokenDao.delete(token);
+
+        // TODO publish event
     }
 }
 

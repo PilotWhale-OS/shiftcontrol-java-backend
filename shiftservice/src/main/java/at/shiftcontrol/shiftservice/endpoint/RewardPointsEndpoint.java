@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.endpoint;
 import java.util.Collection;
 
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
@@ -15,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,9 +63,18 @@ public class RewardPointsEndpoint {
         return rewardPointsLedgerService.getPointsForEvent(currentUser.getUserId(), eventId);
     }
 
-    //    @GetMapping("/share")
-//    @DeleteMapping("/share/{shareId}")
-//    @GetMapping("/share/{shareToken}")
+    //    @GetMapping("/share/{shareToken}")
+    @GetMapping("/share")
+
+    @Operation(
+        operationId = "getAllRewardPointsShareTokens",
+        description = "List all share tokens for reward points"
+    )
+    public Collection<RewardPointsShareTokenDto> getAllRewardPointsShareTokens() {
+        return rewardPointsService.getAllRewardPointsShareTokens();
+    }
+
+
     @PostMapping("/share")
     @Operation(
         operationId = "createRewardPointsShareToken",
@@ -72,5 +83,14 @@ public class RewardPointsEndpoint {
     public RewardPointsShareTokenDto createRewardPointsShareToken(@RequestBody @Valid RewardPointsShareTokenCreateRequestDto requestDto)
         throws NotFoundException {
         return rewardPointsService.createRewardPointsShareToken(requestDto);
+    }
+
+    @DeleteMapping("/share/{tokenId}")
+    @Operation(
+        operationId = "deleteRewardPointsShareToken",
+        description = "Delete a share token for reward points"
+    )
+    public void deleteRewardPointsShareToken(@PathVariable String tokenId) {
+        rewardPointsService.deleteRewardPointsShareToken(ConvertUtil.idToLong(tokenId));
     }
 }

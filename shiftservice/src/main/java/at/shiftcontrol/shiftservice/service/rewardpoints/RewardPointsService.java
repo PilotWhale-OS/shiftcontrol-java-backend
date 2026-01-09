@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.service.rewardpoints;
 
+import java.util.Collection;
+
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
@@ -20,5 +22,9 @@ public interface RewardPointsService {
 
     void manualAdjust(String volunteerId, long eventId, int points, String reason);
 
+    Collection<RewardPointsShareTokenDto> getAllRewardPointsShareTokens();
+
     RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto);
+
+    void deleteRewardPointsShareToken(long id);
 }
