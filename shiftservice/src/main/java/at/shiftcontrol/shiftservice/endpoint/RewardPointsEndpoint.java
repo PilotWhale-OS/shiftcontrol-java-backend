@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "api/v1/me/reward-points", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "api/v1/reward-points", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class RewardPointsEndpoint {
     private final RewardPointsLedgerService rewardPointsLedgerService;
@@ -53,4 +53,9 @@ public class RewardPointsEndpoint {
         var currentUser = userProvider.getCurrentUser();
         return rewardPointsLedgerService.getPointsForEvent(currentUser.getUserId(), eventId);
     }
+
+//    @GetMapping("/share")
+//    @PostMapping("/share")
+//    @DeleteMapping("/share/{shareId}")
+//    @GetMapping("/share/{shareToken}")
 }
