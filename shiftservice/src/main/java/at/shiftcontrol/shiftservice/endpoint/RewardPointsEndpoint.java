@@ -79,7 +79,7 @@ public class RewardPointsEndpoint {
         operationId = "getRewardPointsWithShareToken",
         description = "Get reward points using a share token"
     )
-    public RewardPointsExportDto getRewardPointsWithShareToken(@PathVariable String shareToken) throws NotFoundException {
+    public Collection<RewardPointsExportDto> getRewardPointsWithShareToken(@PathVariable String shareToken) throws NotFoundException {
         return rewardPointsService.getRewardPointsWithShareToken(shareToken);
     }
 

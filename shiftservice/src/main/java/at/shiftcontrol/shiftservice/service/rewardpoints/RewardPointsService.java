@@ -25,7 +25,7 @@ public interface RewardPointsService {
 
     Collection<RewardPointsShareTokenDto> getAllRewardPointsShareTokens();
 
-    RewardPointsExportDto getRewardPointsWithShareToken(String token);
+    Collection<RewardPointsExportDto> getRewardPointsWithShareToken(String token);
 
     RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto);
 

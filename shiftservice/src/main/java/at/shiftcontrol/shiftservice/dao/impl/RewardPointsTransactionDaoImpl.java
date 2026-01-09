@@ -53,8 +53,8 @@ public class RewardPointsTransactionDaoImpl implements RewardPointsTransactionDa
     }
 
     @Override
-    public Collection<EventPointsDto> sumPointsGroupedByEvent(String volunteerId) {
-        return RewardPointsMapper.toEventPointsDto(repo.sumPointsGroupedByEvent(volunteerId));
+    public Collection<EventPointsDto> sumPointsForUserGroupedByEvent(String volunteerId) {
+        return RewardPointsMapper.toEventPointsDto(repo.sumPointsForUserGroupedByEvent(volunteerId));
     }
 
     public Collection<RewardPointsTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId) {

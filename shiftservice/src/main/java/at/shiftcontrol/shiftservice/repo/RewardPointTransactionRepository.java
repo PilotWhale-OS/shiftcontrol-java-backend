@@ -41,7 +41,7 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
             group by t.eventId
             order by t.eventId
         """)
-    List<EventPointsInternalDto> sumPointsGroupedByEvent(String volunteerId);
+    List<EventPointsInternalDto> sumPointsForUserGroupedByEvent(String volunteerId);
 
     List<RewardPointsTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId);
 }

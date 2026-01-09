@@ -3,12 +3,10 @@ package at.shiftcontrol.shiftservice.dao.impl;
 import java.util.Collection;
 import java.util.Optional;
 
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
 import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
 import at.shiftcontrol.shiftservice.repo.RewardPointsShareTokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -44,12 +42,6 @@ public class RewardPointsShareTokenDaoImpl implements RewardPointsShareTokenDao 
     @Override
     public Collection<RewardPointsShareToken> findAll() {
         return rewardPointsShareTokenRepository.findAll();
-    }
-
-    @Override
-    public RewardPointsShareToken getByToken(String token) {
-        LoggerFactory.getLogger("RewardPointsShareTokenDaoLogger").info("Share token not found: {}", token);
-        return rewardPointsShareTokenRepository.findByToken(token).orElseThrow(() -> new NotFoundException("Share token not found"));
     }
 
     @Override

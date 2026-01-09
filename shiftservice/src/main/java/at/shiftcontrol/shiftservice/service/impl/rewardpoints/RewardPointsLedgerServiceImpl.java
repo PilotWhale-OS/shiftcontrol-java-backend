@@ -160,6 +160,6 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
     @Transactional(readOnly = true)
     @IsNotAdmin
     public Collection<EventPointsDto> getPointsGroupedByEvent(String userId) {
-        return dao.sumPointsGroupedByEvent(userId);
+        return dao.sumPointsForUserGroupedByEvent(userId);
     }
 }

@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,14 +11,20 @@ import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
+import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsExportDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.VolunteerPointsDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
+import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
@@ -33,7 +40,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class RewardPointsServiceImpl implements RewardPointsService {
     private final RewardPointsCalculator calculator;
     private final RewardPointsLedgerService ledgerService;
+
     private final RewardPointsShareTokenDao rewardPointsShareTokenDao;
+    private final EventDao eventDao;
+    private final VolunteerDao volunteerDao;
+    private final RewardPointsTransactionDao rewardPointsTransactionDao;
+
+    private final KeycloakUserService keycloakService;
 
     private final UniqueCodeGenerator uniqueCodeGenerator;
 
@@ -238,8 +251,35 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     }
 
     @Override
-    public RewardPointsExportDto getRewardPointsWithShareToken(String token) {
-        return null;
+    public Collection<RewardPointsExportDto> getRewardPointsWithShareToken(String token) {
+        rewardPointsShareTokenDao.existsByToken(token);
+
+        var allEvents = eventDao.findAll();
+
+        var exportDtos = new ArrayList<RewardPointsExportDto>();
+        for (var event : allEvents) {
+            var exportDto = new RewardPointsExportDto();
+            exportDto.setEvent(EventMapper.toEventDto(event));
+            var isEventFinished = event.getEndTime().isBefore(Instant.now());
+            exportDto.setEventFinished(isEventFinished);
+
+            var volunteersOfEvent = volunteerDao.findAllByEvent(event.getId());
+            var volunteerPointsDtos = new ArrayList<VolunteerPointsDto>();
+            for (var volunteer : volunteersOfEvent) {
+                var volunteerPointsDto = new VolunteerPointsDto();
+                volunteerPointsDto.setVolunteerId(volunteer.getId());
+                var keyCloakUser = keycloakService.getUserById(volunteer.getId());
+                volunteerPointsDto.setFistName(keyCloakUser.getFirstName());
+                volunteerPointsDto.setLastName(keyCloakUser.getLastName());
+                volunteerPointsDto.setEmail(keyCloakUser.getEmail());
+                var pointsForEvent = rewardPointsTransactionDao.sumPointsByVolunteerAndEvent(volunteer.getId(), event.getId());
+                volunteerPointsDto.setRewardPoints((int) pointsForEvent);
+            }
+            exportDto.setVolunteerPoints(volunteerPointsDtos);
+            exportDtos.add(exportDto);
+        }
+
+        return exportDtos;
     }
 
     @Override
@@ -264,6 +304,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         // TODO publish event
         // TODO add liquibase file
+        // TODO Return real points in overviewdtos instead of -1
 
         return RewardPointsMapper.toRewardPointsShareTokenDto(token);
     }
