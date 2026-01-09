@@ -25,6 +25,8 @@ import at.shiftcontrol.shiftservice.dto.rewardpoints.VolunteerPointsDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
+import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.shiftservice.event.events.RewardPointsShareTokenEvent;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
@@ -32,6 +34,7 @@ import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerServi
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +51,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     private final RewardPointsTransactionDao rewardPointsTransactionDao;
 
     private final KeycloakUserService keycloakService;
+    private final ApplicationEventPublisher publisher;
 
     private final UniqueCodeGenerator uniqueCodeGenerator;
 
@@ -314,7 +318,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             rewardPointsShareTokenDao.save(token);
         }
 
-        // TODO publish event
+        publisher.publishEvent(RewardPointsShareTokenEvent.of(
+            RoutingKeys.REWARDPOINTS_SHARETOKEN_CREATED,
+            token
+        ));
+
         // TODO add liquibase transaction insert files for test data
         // TODO Return real points in overviewdtos instead of -1
 
@@ -337,7 +345,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         rewardPointsShareTokenDao.delete(token);
 
-        // TODO publish event
+
+        publisher.publishEvent(RewardPointsShareTokenEvent.of(
+            RoutingKeys.REWARDPOINTS_SHARETOKEN_DELETED,
+            token
+        ));
     }
 }
 
