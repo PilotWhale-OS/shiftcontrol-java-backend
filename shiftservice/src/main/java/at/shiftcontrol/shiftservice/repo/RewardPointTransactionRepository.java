@@ -29,6 +29,14 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
         """)
     long sumPointsByVolunteerAndEvent(String volunteerId, Long eventId);
 
+    @Query("""
+            select coalesce(sum(t.points), 0)
+            from RewardPointsTransaction t
+            where t.volunteerId = :volunteerId
+              and t.shiftPlanId = :shiftPlanId
+        """)
+    long sumPointsByVolunteerAndShiftPlan(String volunteerId, Long shiftPlanId);
+
     /**
      * Points per event for a volunteer: GROUP BY event.
      */

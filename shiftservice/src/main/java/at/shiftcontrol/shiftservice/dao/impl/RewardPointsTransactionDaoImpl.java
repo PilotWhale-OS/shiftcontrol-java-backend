@@ -53,6 +53,11 @@ public class RewardPointsTransactionDaoImpl implements RewardPointsTransactionDa
     }
 
     @Override
+    public long sumPointsByVolunteerAndShiftPlan(String volunteerId, long shiftPlanId) {
+        return repo.sumPointsByVolunteerAndShiftPlan(volunteerId, shiftPlanId);
+    }
+
+    @Override
     public Collection<EventPointsDto> sumPointsForUserGroupedByEvent(String volunteerId) {
         return RewardPointsMapper.toEventPointsDto(repo.sumPointsForUserGroupedByEvent(volunteerId));
     }

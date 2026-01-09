@@ -11,7 +11,9 @@ public interface RewardPointsTransactionDao extends BasicDao<RewardPointsTransac
 
     long sumPointsByVolunteerAndEvent(String volunteerId, long eventId);
 
+    long sumPointsByVolunteerAndShiftPlan(String volunteerId, long shiftPlanId);
+
     Collection<EventPointsDto> sumPointsForUserGroupedByEvent(String volunteerId);
-    
+
     Collection<RewardPointsTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId);
 }
