@@ -42,13 +42,13 @@ public class RewardPointsShareTokenDaoImpl implements RewardPointsShareTokenDao 
     }
 
     @Override
-    public RewardPointsShareToken getByCode(String token) {
+    public RewardPointsShareToken getByToken(String token) {
         LoggerFactory.getLogger("RewardPointsShareTokenDaoLogger").info("Share token not found: {}", token);
         return rewardPointsShareTokenRepository.findByToken(token).orElseThrow(() -> new NotFoundException("Share token not found"));
     }
 
     @Override
-    public boolean existsByCode(String token) {
+    public boolean existsByToken(String token) {
         return rewardPointsShareTokenRepository.existsByToken(token);
     }
 }

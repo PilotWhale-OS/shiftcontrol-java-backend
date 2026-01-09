@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -31,6 +32,12 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     private final RewardPointsCalculator calculator;
     private final RewardPointsLedgerService ledgerService;
     private final RewardPointsShareTokenDao rewardPointsShareTokenDao;
+
+    private final UniqueCodeGenerator uniqueCodeGenerator;
+
+    private static final String SHARE_TOKEN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    private static final int SHARE_TOKEN_LENGTH = 10;
+    private static final int MAX_SHARE_TOKEN_GENERATION_ATTEMPTS = 10;
 
     @Override
     @Transactional
@@ -224,13 +231,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     @Override
     @AdminOnly
     public RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto) {
-
-
-        var tokenCode = null;
+        var tokenCode = callGenerateUniqueCode();
 
         var token = RewardPointsShareToken.builder()
             .token(tokenCode)
-            .name(null)
+            .name(requestDto.getName())
             .createdAt(Instant.now())
             .build();
 
@@ -239,7 +244,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             rewardPointsShareTokenDao.save(token);
         } catch (DataIntegrityViolationException e) {
             // fallback once, because code uniqueness might collide under concurrency
-            token.setToken(null); // TODO set according to logic
+            token.setToken(callGenerateUniqueCode());
             rewardPointsShareTokenDao.save(token);
         }
 
@@ -249,6 +254,15 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             .name(token.getName())
             .createdAt(token.getCreatedAt())
             .build();
+    }
+
+    private String callGenerateUniqueCode() {
+        return uniqueCodeGenerator.generateUnique(
+            SHARE_TOKEN_ALPHABET,
+            SHARE_TOKEN_LENGTH,
+            MAX_SHARE_TOKEN_GENERATION_ATTEMPTS,
+            rewardPointsShareTokenDao::existsByToken
+        );
     }
 }
 

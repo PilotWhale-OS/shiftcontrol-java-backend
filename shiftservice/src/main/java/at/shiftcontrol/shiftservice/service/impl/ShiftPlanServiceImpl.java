@@ -1,6 +1,5 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -100,7 +100,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final ApplicationEventPublisher publisher;
     private final UserAttributeProvider userAttributeProvider;
 
-    private final SecureRandom secureRandom = new SecureRandom();
+    private final UniqueCodeGenerator uniqueCodeGenerator;
 
     // URL-safe, human-friendly alphabet (no 0/O, 1/I to reduce confusion)
     private static final String INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -129,7 +129,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         // create unspecific invites for volunteer and planner by default
         var volunteerInvite = ShiftPlanInvite.builder()
-            .code(generateUniqueCode())
+            .code(callGenerateUniqueCode())
             .type(ShiftPlanInviteType.VOLUNTEER_JOIN)
             .shiftPlan(plan)
             .active(true)
@@ -139,7 +139,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         volunteerInvite = shiftPlanInviteDao.save(volunteerInvite);
 
         var plannerInvite = ShiftPlanInvite.builder()
-            .code(generateUniqueCode())
+            .code(callGenerateUniqueCode())
             .type(ShiftPlanInviteType.PLANNER_JOIN)
             .shiftPlan(plan)
             .active(true)
@@ -446,7 +446,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             throw new BadRequestException("maxUses must be positive");
         }
         // Generate a unique code (retry a few times)
-        String code = generateUniqueCode();
+        String code = callGenerateUniqueCode();
         Collection<Role> rolesToAssign = List.of();
         if (requestDto.getAutoAssignRoleIds() != null && !requestDto.getAutoAssignRoleIds().isEmpty()) {
             rolesToAssign = roleDao.findAllById(requestDto.getAutoAssignRoleIds().stream().map(ConvertUtil::idToLong).toList());
@@ -473,7 +473,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             shiftPlanInviteDao.save(invite);
         } catch (DataIntegrityViolationException e) {
             // fallback once, because code uniqueness might collide under concurrency
-            invite.setCode(generateUniqueCode());
+            invite.setCode(callGenerateUniqueCode());
             shiftPlanInviteDao.save(invite);
         }
         publisher.publishEvent(ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_CREATED,
@@ -487,25 +487,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
     }
 
-    private String generateUniqueCode() {
-        final char[] alphabet = INVITE_CODE_ALPHABET.toCharArray();
-        for (int attempt = 0; attempt < MAX_INVITE_CODE_GENERATION_ATTEMPTS; attempt++) {
-            String code = randomString(alphabet);
-            if (!shiftPlanInviteDao.existsByCode(code)) {
-                return code;
-            }
-        }
-        // extremely unlikely unless length is too short / huge volume
-        throw new RuntimeException("Could not generate unique invite code");
-    }
-
-    private String randomString(char[] alphabet) {
-        var sb = new StringBuilder(INVITE_CODE_LENGTH);
-        for (int i = 0; i < INVITE_CODE_LENGTH; i++) {
-            int idx = secureRandom.nextInt(alphabet.length);
-            sb.append(alphabet[idx]);
-        }
-        return sb.toString();
+    private String callGenerateUniqueCode() {
+        return uniqueCodeGenerator.generateUnique(
+            INVITE_CODE_ALPHABET,
+            INVITE_CODE_LENGTH,
+            MAX_INVITE_CODE_GENERATION_ATTEMPTS,
+            shiftPlanInviteDao::existsByCode
+        );
     }
 
     @Override
