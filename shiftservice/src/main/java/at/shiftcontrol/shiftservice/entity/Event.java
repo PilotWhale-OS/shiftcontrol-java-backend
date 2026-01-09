@@ -56,6 +56,9 @@ public class Event {
     private Collection<Location> locations;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<Activity> activities;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<ShiftPlan> shiftPlans;
 
     @Override

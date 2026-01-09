@@ -2,12 +2,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
@@ -22,7 +16,14 @@ import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.service.impl.event.EventServiceImpl;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -98,7 +99,8 @@ class EventServiceTest {
         long eventId = 999L;
         String userId = "420696742";
 
-        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);;
+        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);
+        ;
 
         assertThatThrownBy(() -> eventService.getUserRelatedShiftPlansOfEvent(eventId, userId))
             .isInstanceOf(NotFoundException.class);
@@ -116,7 +118,8 @@ class EventServiceTest {
         event.setShiftPlans(List.of());
 
         when(eventDao.getById(eventId)).thenReturn(event);
-        when(volunteerDao.getById(userId)).thenThrow(NotFoundException.class);;
+        when(volunteerDao.getById(userId)).thenThrow(NotFoundException.class);
+        ;
 
         assertThatThrownBy(() -> eventService.getUserRelatedShiftPlansOfEvent(eventId, userId))
             .isInstanceOf(NotFoundException.class);
@@ -176,7 +179,8 @@ class EventServiceTest {
         long eventId = 999L;
         String userId = "420696742";
 
-        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);;
+        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);
+        ;
 
         assertThatThrownBy(() -> eventService.getEventShiftPlansOverview(eventId, userId))
             .isInstanceOf(NotFoundException.class);

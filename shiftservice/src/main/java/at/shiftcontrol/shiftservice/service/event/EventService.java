@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service;
+package at.shiftcontrol.shiftservice.service.event;
 
 import java.util.List;
 
