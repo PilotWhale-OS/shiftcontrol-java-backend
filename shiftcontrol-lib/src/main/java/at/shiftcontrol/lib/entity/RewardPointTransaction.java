@@ -18,7 +18,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Immutable;
 
 import at.shiftcontrol.lib.type.RewardPointTransactionType;
 import at.shiftcontrol.lib.util.JsonMapConverter;
@@ -29,7 +28,6 @@ import at.shiftcontrol.lib.util.JsonMapConverter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Immutable
 @Table(name = "reward_point_transaction",
     indexes = {
         @Index(name = "idx_rpt_volunteer", columnList = "volunteer_id"),

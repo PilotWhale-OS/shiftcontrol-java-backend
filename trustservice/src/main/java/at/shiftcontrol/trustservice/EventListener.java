@@ -8,10 +8,11 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.event.events.EventEvent;
+
 @Slf4j
 @Component
 public class EventListener {
-
     @RabbitListener(queues = "${trust.rabbitmq.queue}")
     public void onMessage(
         @Payload EventEvent event,
@@ -22,8 +23,5 @@ public class EventListener {
             event.getActingUserId(),
             event.getTimestamp()
         );
-
-        // Later:
-        // trustEvaluationService.process(event, routingKey);
     }
 }

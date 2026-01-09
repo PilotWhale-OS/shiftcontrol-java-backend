@@ -10,9 +10,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: password
     labels:
       - traefik.enable=true
-      - traefik.http.routers.shiftservice.entrypoints=web
-      - traefik.http.routers.shiftservice.rule=Host(`trustservice.127.0.0.1.nip.io`)
-      - traefik.http.services.shiftservice.loadbalancer.server.port=8080
+      - traefik.http.routers.trustservice.entrypoints=web
+      - traefik.http.routers.trustservice.rule=Host(`trustservice.127.0.0.1.nip.io`)
+      - traefik.http.services.trustservice.loadbalancer.server.port=8080
     volumes:
       - ./config/application.yml:/app/application.yml
     networks:
