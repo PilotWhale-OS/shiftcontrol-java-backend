@@ -323,9 +323,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             token
         ));
 
-        // TODO add liquibase transaction insert files for test data
-        // TODO Return real points in overviewdtos instead of -1
-
         return RewardPointsMapper.toRewardPointsShareTokenDto(token);
     }
 
