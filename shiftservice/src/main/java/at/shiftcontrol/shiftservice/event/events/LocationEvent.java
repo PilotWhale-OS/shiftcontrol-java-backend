@@ -3,7 +3,7 @@ package at.shiftcontrol.shiftservice.event.events;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import at.shiftcontrol.shiftservice.entity.Location;
+import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.shiftservice.event.BaseEvent;
 import at.shiftcontrol.shiftservice.event.events.parts.LocationPart;
 

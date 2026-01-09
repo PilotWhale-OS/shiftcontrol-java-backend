@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
-import at.shiftcontrol.shiftservice.entity.Event;
+import at.shiftcontrol.lib.entity.Event;
 
 @AllArgsConstructor
 @Data

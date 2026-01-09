@@ -11,7 +11,7 @@ import config.TestConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.lib.entity.Volunteer;
 
 @DataJpaTest
 @Import({TestConfig.class})

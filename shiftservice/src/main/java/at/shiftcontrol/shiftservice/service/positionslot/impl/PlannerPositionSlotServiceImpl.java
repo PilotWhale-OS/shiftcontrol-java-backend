@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -20,9 +24,6 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
@@ -31,7 +32,6 @@ import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service

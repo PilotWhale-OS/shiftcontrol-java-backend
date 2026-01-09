@@ -4,9 +4,9 @@ import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
 
+import at.shiftcontrol.lib.entity.Activity;
+import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
-import at.shiftcontrol.shiftservice.entity.Location;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

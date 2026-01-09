@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.dto;
 
-import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 
 @Data
 @NoArgsConstructor

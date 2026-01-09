@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.PositionSlot;
 
 @Data
 @Builder

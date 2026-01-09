@@ -1,11 +1,11 @@
 package at.shiftcontrol.shiftservice.service;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 public interface AssignmentService {
     /**

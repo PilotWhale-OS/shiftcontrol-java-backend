@@ -3,7 +3,7 @@ package at.shiftcontrol.shiftservice.event.events;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
+import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.event.BaseEvent;
 import at.shiftcontrol.shiftservice.event.events.parts.TimeConstraintPart;
 

@@ -3,7 +3,7 @@ package at.shiftcontrol.shiftservice.event.events;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.shiftservice.event.events.parts.RolePart;
 
 @Data

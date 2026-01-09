@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.event.events.parts;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.PositionSlot;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

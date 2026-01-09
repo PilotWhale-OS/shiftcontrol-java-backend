@@ -4,8 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 
 @Data
 @Builder

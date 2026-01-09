@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import at.shiftcontrol.shiftservice.entity.Activity;
+import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.shiftservice.event.BaseEvent;
 import at.shiftcontrol.shiftservice.event.events.parts.ActivityPart;
 

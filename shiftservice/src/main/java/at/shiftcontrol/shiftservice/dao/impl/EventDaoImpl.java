@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
+import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
-import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 
 @RequiredArgsConstructor

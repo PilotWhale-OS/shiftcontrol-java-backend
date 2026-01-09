@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.event.events;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.Location;
+import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.shiftservice.event.events.parts.LocationPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;

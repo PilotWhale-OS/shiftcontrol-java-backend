@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.type.TradeStatus;
 
 @AllArgsConstructor
 @Data

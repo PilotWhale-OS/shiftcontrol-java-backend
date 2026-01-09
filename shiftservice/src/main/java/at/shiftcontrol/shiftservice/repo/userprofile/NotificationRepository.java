@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignment;
-import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignmentId;
-import at.shiftcontrol.shiftservice.type.NotificationType;
+import at.shiftcontrol.lib.entity.VolunteerNotificationAssignment;
+import at.shiftcontrol.lib.entity.VolunteerNotificationAssignmentId;
+import at.shiftcontrol.lib.type.NotificationType;
 
 public interface NotificationRepository extends JpaRepository<VolunteerNotificationAssignment, VolunteerNotificationAssignmentId> {
     List<VolunteerNotificationAssignment> findAllByVolunteerNotificationAssignmentId_VolunteerId(String volunteerId);

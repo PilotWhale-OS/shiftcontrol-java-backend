@@ -1,7 +1,7 @@
 package at.shiftcontrol.shiftservice.service.rewardpoints;
 
+import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.shiftservice.entity.Assignment;
 
 public interface RewardPointsService {
     void onAssignmentAccepted(Assignment assignment) throws ConflictException;

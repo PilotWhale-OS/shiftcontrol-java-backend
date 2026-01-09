@@ -5,9 +5,9 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import at.shiftcontrol.lib.type.NotificationChannel;
+import at.shiftcontrol.lib.type.NotificationType;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.type.NotificationChannel;
-import at.shiftcontrol.shiftservice.type.NotificationType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NotificationSettingsPartTest {

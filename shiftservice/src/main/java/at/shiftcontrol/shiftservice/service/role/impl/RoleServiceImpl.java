@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -20,8 +22,6 @@ import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.RoleEvent;
 import at.shiftcontrol.shiftservice.event.events.RoleVolunteerEvent;

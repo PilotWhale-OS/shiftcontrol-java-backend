@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
-import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.lib.entity.Role;
 
 @Data
 @AllArgsConstructor

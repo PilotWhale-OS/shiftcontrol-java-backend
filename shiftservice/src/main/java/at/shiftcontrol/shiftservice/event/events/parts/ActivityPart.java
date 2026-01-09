@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
+import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
 
 @Data
 @AllArgsConstructor

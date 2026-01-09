@@ -3,6 +3,14 @@ package at.shiftcontrol.shiftservice.service.impl.event;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -16,8 +24,6 @@ import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.EventEvent;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
@@ -25,10 +31,6 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

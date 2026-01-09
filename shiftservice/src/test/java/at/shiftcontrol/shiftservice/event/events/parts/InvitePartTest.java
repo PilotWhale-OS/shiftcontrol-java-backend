@@ -5,10 +5,10 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
-import at.shiftcontrol.shiftservice.entity.role.Role;
-import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
+import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.ShiftPlanInvite;
+import at.shiftcontrol.lib.type.ShiftPlanInviteType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;

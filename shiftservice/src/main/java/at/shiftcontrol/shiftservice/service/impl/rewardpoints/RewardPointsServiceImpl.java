@@ -10,12 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;

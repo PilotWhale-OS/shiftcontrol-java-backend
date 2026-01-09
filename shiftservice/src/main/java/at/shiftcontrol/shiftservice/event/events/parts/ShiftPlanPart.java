@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.type.LockStatus;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.type.LockStatus;
 
 @AllArgsConstructor
 @Data

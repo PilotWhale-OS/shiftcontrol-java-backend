@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.TimeConstraint;
+import at.shiftcontrol.lib.type.TimeConstraintType;
 import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
-import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 
 @RequiredArgsConstructor
 @Component

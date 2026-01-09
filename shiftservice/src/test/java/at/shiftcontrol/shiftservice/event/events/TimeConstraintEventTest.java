@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.event.events;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
+import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.shiftservice.event.events.parts.TimeConstraintPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
