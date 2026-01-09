@@ -5,6 +5,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,11 @@ public class RabbitEventPublisher {
 
     @EventListener
     public void onImmediate(BaseEvent event) {
+        // If a transaction is active, defer to the transactional listener to avoid duplicate handling.
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            log.trace("Skipping immediate handling for event inside active transaction: {}", event.getClass().getName());
+            return;
+        }
         publishEvent(event);
     }
 
