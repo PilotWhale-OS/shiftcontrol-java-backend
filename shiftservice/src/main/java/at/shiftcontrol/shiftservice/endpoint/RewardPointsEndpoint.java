@@ -5,14 +5,20 @@ import java.util.Collection;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RewardPointsEndpoint {
     private final RewardPointsLedgerService rewardPointsLedgerService;
+    private final RewardPointsService rewardPointsService;
     private final ApplicationUserProvider userProvider;
 
     @GetMapping()
@@ -54,8 +61,16 @@ public class RewardPointsEndpoint {
         return rewardPointsLedgerService.getPointsForEvent(currentUser.getUserId(), eventId);
     }
 
-//    @GetMapping("/share")
-//    @PostMapping("/share")
+    //    @GetMapping("/share")
 //    @DeleteMapping("/share/{shareId}")
 //    @GetMapping("/share/{shareToken}")
+    @PostMapping("/share")
+    @Operation(
+        operationId = "createRewardPointsShareToken",
+        description = "Create a share token for reward points"
+    )
+    public RewardPointsShareTokenDto createRewardPointsShareToken(@RequestBody @Valid RewardPointsShareTokenCreateRequestDto requestDto)
+        throws NotFoundException {
+        return rewardPointsService.createRewardPointsShareToken(requestDto);
+    }
 }

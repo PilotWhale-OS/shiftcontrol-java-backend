@@ -3,7 +3,7 @@ package at.shiftcontrol.shiftservice.event.events.parts;
 import java.time.Instant;
 import java.util.Map;
 
-import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
+import at.shiftcontrol.shiftservice.entity.RewardPointsTransaction;
 import at.shiftcontrol.shiftservice.type.RewardPointTransactionType;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class RewardPointTransactionPart {
 
 
     @NonNull
-    public static RewardPointTransactionPart of(@NonNull RewardPointTransaction transaction) {
+    public static RewardPointTransactionPart of(@NonNull RewardPointsTransaction transaction) {
         return RewardPointTransactionPart.builder()
             .volunteerId(transaction.getVolunteerId())
             .eventId(String.valueOf(transaction.getEventId()))

@@ -1,31 +1,36 @@
 package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
+import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 import at.shiftcontrol.shiftservice.entity.PositionSlot;
+import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class RewardPointsServiceImpl implements RewardPointsService {
     private final RewardPointsCalculator calculator;
     private final RewardPointsLedgerService ledgerService;
+    private final RewardPointsShareTokenDao rewardPointsShareTokenDao;
 
     @Override
     @Transactional
@@ -214,6 +219,36 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             sourceKey,
             metadata
         ));
+    }
+
+    @Override
+    @AdminOnly
+    public RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto) {
+
+
+        var tokenCode = null;
+
+        var token = RewardPointsShareToken.builder()
+            .token(tokenCode)
+            .name(null)
+            .createdAt(Instant.now())
+            .build();
+
+        // Should not happen but just in case we retry once
+        try {
+            rewardPointsShareTokenDao.save(token);
+        } catch (DataIntegrityViolationException e) {
+            // fallback once, because code uniqueness might collide under concurrency
+            token.setToken(null); // TODO set according to logic
+            rewardPointsShareTokenDao.save(token);
+        }
+
+        return RewardPointsShareTokenDto.builder()
+            .id(String.valueOf(token.getId()))
+            .token(token.getToken())
+            .name(token.getName())
+            .createdAt(token.getCreatedAt())
+            .build();
     }
 }
 

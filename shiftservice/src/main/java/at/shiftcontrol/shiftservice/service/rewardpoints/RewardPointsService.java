@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.service.rewardpoints;
 
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;
 
 public interface RewardPointsService {
@@ -17,4 +19,6 @@ public interface RewardPointsService {
         throws ConflictException;
 
     void manualAdjust(String volunteerId, long eventId, int points, String reason);
+
+    RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto);
 }

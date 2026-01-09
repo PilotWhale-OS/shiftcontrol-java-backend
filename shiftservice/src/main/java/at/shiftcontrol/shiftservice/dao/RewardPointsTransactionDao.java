@@ -3,9 +3,9 @@ package at.shiftcontrol.shiftservice.dao;
 import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
-import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
+import at.shiftcontrol.shiftservice.entity.RewardPointsTransaction;
 
-public interface RewardPointTransactionDao extends BasicDao<RewardPointTransaction, Long> {
+public interface RewardPointsTransactionDao extends BasicDao<RewardPointsTransaction, Long> {
 
     long sumPointsByVolunteer(String volunteerId);
 
@@ -13,5 +13,5 @@ public interface RewardPointTransactionDao extends BasicDao<RewardPointTransacti
 
     Collection<EventPointsDto> sumPointsGroupedByEvent(String volunteerId);
 
-    Collection<RewardPointTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId);
+    Collection<RewardPointsTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId);
 }

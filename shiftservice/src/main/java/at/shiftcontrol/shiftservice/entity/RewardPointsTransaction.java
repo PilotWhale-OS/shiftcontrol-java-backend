@@ -37,7 +37,7 @@ import org.hibernate.annotations.Immutable;
         @Index(name = "idx_rpt_slot", columnList = "position_slot_id")
     }
 )
-public class RewardPointTransaction {
+public class RewardPointsTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
