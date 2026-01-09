@@ -6,6 +6,7 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsExportDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
@@ -63,7 +64,6 @@ public class RewardPointsEndpoint {
         return rewardPointsLedgerService.getPointsForEvent(currentUser.getUserId(), eventId);
     }
 
-    //    @GetMapping("/share/{shareToken}")
     @GetMapping("/share")
 
     @Operation(
@@ -72,6 +72,15 @@ public class RewardPointsEndpoint {
     )
     public Collection<RewardPointsShareTokenDto> getAllRewardPointsShareTokens() {
         return rewardPointsService.getAllRewardPointsShareTokens();
+    }
+
+    @GetMapping("/share/{shareToken}")
+    @Operation(
+        operationId = "getRewardPointsWithShareToken",
+        description = "Get reward points using a share token"
+    )
+    public RewardPointsExportDto getRewardPointsWithShareToken(@PathVariable String shareToken) throws NotFoundException {
+        return rewardPointsService.getRewardPointsWithShareToken(shareToken);
     }
 
 

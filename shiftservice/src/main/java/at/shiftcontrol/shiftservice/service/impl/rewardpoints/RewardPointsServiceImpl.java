@@ -11,6 +11,7 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsExportDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
@@ -237,6 +238,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     }
 
     @Override
+    public RewardPointsExportDto getRewardPointsWithShareToken(String token) {
+        return null;
+    }
+
+    @Override
     @AdminOnly
     public RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto) {
         var tokenCode = callGenerateUniqueCode();
@@ -257,6 +263,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
         }
 
         // TODO publish event
+        // TODO add liquibase file
 
         return RewardPointsMapper.toRewardPointsShareTokenDto(token);
     }
