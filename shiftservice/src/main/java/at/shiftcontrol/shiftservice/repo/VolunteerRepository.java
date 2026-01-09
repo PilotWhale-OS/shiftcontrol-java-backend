@@ -57,4 +57,28 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
               AND v.id IN :volunteerIds
         """)
     Collection<Volunteer> findAllByShiftPlanAndVolunteerIds(long shiftPlanId, Collection<String> volunteerIds);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            JOIN v.volunteeringPlans p
+            WHERE p.event.id = :eventId
+              AND v.id IN :volunteerIds
+        """)
+    Collection<Volunteer> findAllByEventAndVolunteerIds(long eventId, Collection<String> volunteerIds);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            JOIN v.volunteeringPlans p
+            WHERE p.event.id = :eventId
+        """)
+    Collection<Volunteer> findAllByEvent(long eventId);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            WHERE v.id IN :volunteerIds
+        """)
+    Collection<Volunteer> findAllByVolunteerIds(Collection<String> volunteerIds);
 }

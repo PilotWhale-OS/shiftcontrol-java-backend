@@ -51,6 +51,7 @@ public final class RoutingKeys {
     public static final String SHIFTPLAN_INVITE_REVOKED = "shiftplan.invite.revoked.{shiftPlanId}.{inviteId}";
     public static final String SHIFTPLAN_INVITE_DELETED = "shiftplan.invite.deleted.{shiftPlanId}.{inviteId}";
     public static final String SHIFTPLAN_JOINED_VOLUNTEER = "shiftplan.joined.volunteer.{shiftPlanId}.{volunteerId}";
+    public static final String SHIFTPLAN_JOINED_PLANNER = "shiftplan.joined.planner.{shiftPlanId}.{volunteerId}";
     public static final String SHIFTPLAN_LOCKSTATUS_CHANGED = "shiftplan.lockstatus.changed.{shiftPlanId}";
 
     public static final String SHIFT_CREATED = "shift.created";

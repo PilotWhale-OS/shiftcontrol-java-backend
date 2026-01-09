@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.userprofile.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -32,6 +33,16 @@ public class VolunteerDaoImpl implements VolunteerDao {
     }
 
     @Override
+    public Collection<Volunteer> findAllByEvent(long eventId) {
+        return volunteerRepository.findAllByEvent(eventId);
+    }
+
+    @Override
+    public Collection<Volunteer> findAllByVolunteerIds(Collection<String> volunteerIds) {
+        return volunteerRepository.findAllByVolunteerIds(volunteerIds);
+    }
+
+    @Override
     public Volunteer save(Volunteer entity) {
         return volunteerRepository.save(entity);
     }
@@ -49,5 +60,10 @@ public class VolunteerDaoImpl implements VolunteerDao {
     @Override
     public Collection<Volunteer> findAllByShiftPlanAndVolunteerIds(long shiftPlanId, Collection<String> volunteerIds) {
         return volunteerRepository.findAllByShiftPlanAndVolunteerIds(shiftPlanId, volunteerIds);
+    }
+
+    @Override
+    public Collection<Volunteer> findAllByEventAndVolunteerIds(long eventId, Collection<String> volunteerIds) {
+        return volunteerRepository.findAllByEventAndVolunteerIds(eventId, volunteerIds);
     }
 }

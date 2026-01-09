@@ -202,7 +202,7 @@
                 <configuration>
                   <workingDirectory>${project.build.directory}</workingDirectory>
                   <arguments>
-                    exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype --src-lang schema --lang csharp --features just-types-and-namespace --out "${codegen.csharp.out}" --namespace "ShiftControl.Events" "./"
+                    exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype --src-lang schema --lang csharp --out "${codegen.csharp.out}" --namespace "ShiftControl.Events" "./"
                   </arguments>
                 </configuration>
               </execution>

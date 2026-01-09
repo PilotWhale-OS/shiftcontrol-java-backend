@@ -670,7 +670,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
 
-        publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
+        var key = invite.getType() == ShiftPlanInviteType.VOLUNTEER_JOIN
+            ? RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER
+            : RoutingKeys.SHIFTPLAN_JOINED_PLANNER;
+        publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(key,
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", userId)), shiftPlan, userId));
     }
