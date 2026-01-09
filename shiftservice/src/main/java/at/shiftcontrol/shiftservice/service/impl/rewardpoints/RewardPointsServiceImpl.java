@@ -253,7 +253,11 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     public Collection<RewardPointsExportDto> getRewardPointsWithShareToken(String token) {
-        rewardPointsShareTokenDao.existsByToken(token);
+        var tokenExists = rewardPointsShareTokenDao.existsByToken(token);
+
+        if (!tokenExists) {
+            throw new BadRequestException("Invalid reward points share token");
+        }
 
         var allEvents = eventDao.findAll();
 
@@ -311,6 +315,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
         }
 
         // TODO publish event
+        // TODO add liquibase transaction insert files for test data
         // TODO Return real points in overviewdtos instead of -1
 
         return RewardPointsMapper.toRewardPointsShareTokenDto(token);
