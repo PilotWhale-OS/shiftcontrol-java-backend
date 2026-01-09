@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
-import at.shiftcontrol.lib.dto.location.LocationDto;
 import at.shiftcontrol.lib.entity.Activity;
 
 @Data
@@ -22,7 +21,7 @@ public class ActivityPart {
     private final Instant startTime;
     @NotNull
     private final Instant endTime;
-    private final LocationDto location;
+    private final LocationPart location;
     @NotNull
     private final boolean readOnly;
 
@@ -34,7 +33,7 @@ public class ActivityPart {
             activity.getDescription(),
             activity.getStartTime(),
             activity.getEndTime(),
-            activity.getLocation() != null ? new LocationDto(
+            activity.getLocation() != null ? new LocationPart(
                 String.valueOf(activity.getLocation().getId()),
                 activity.getLocation().getName(),
                 activity.getLocation().getDescription(),

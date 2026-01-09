@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.dto.location.LocationDto;
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 
 public interface LocationService {

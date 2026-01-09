@@ -3,7 +3,7 @@ package at.shiftcontrol.lib.event.events;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import at.shiftcontrol.lib.dto.userprofile.NotificationSettingsDto;
+import at.shiftcontrol.lib.entity.NotificationSettings;
 import at.shiftcontrol.lib.event.BaseEvent;
 import at.shiftcontrol.lib.event.events.parts.NotificationSettingsPart;
 
@@ -19,7 +19,7 @@ public class NotificationSettingsEvent extends BaseEvent {
         this.notificationSettings = notificationSettings;
     }
 
-    public static NotificationSettingsEvent of(String routingKey, String volunteerId, NotificationSettingsDto notificationSettings) {
+    public static NotificationSettingsEvent of(String routingKey, String volunteerId, NotificationSettings notificationSettings) {
         return new NotificationSettingsEvent(routingKey, volunteerId, NotificationSettingsPart.of(notificationSettings));
     }
 }

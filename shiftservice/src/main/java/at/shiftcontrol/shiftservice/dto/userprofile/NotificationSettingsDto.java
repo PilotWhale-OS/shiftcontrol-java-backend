@@ -1,4 +1,4 @@
-package at.shiftcontrol.lib.dto.userprofile;
+package at.shiftcontrol.shiftservice.dto.userprofile;
 
 import java.util.Set;
 

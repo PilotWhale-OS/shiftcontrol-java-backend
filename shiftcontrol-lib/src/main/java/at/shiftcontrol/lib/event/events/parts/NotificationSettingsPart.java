@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import at.shiftcontrol.lib.dto.userprofile.NotificationSettingsDto;
+import at.shiftcontrol.lib.entity.NotificationSettings;
 import at.shiftcontrol.lib.type.NotificationChannel;
 import at.shiftcontrol.lib.type.NotificationType;
 
@@ -18,7 +18,7 @@ public class NotificationSettingsPart {
     @NotNull
     private Set<NotificationChannel> channels;
 
-    public static NotificationSettingsPart of(NotificationSettingsDto dto) {
+    public static NotificationSettingsPart of(NotificationSettings dto) {
         return new NotificationSettingsPart(
             dto.getType(),
             dto.getChannels()
