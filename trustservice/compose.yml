@@ -1,0 +1,23 @@
+services:
+
+  trustservice:
+    build:
+      context: ../
+      dockerfile: trustservice/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shiftservice
+      SPRING_DATASOURCE_USERNAME: shiftcontrol
+      SPRING_DATASOURCE_PASSWORD: password
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.shiftservice.entrypoints=web
+      - traefik.http.routers.shiftservice.rule=Host(`trustservice.127.0.0.1.nip.io`)
+      - traefik.http.services.shiftservice.loadbalancer.server.port=8080
+    volumes:
+      - ./config/application.yml:/app/application.yml
+    networks:
+      - shiftcontrol
+
+networks:
+  shiftcontrol:
+    external: true

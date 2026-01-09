@@ -1,3 +1,4 @@
 include:
   - shiftservice/compose.yml
   - notificationservice/compose.yml
+  - trustservice/compose.yml
