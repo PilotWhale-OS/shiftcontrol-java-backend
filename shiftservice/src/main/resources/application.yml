@@ -27,3 +27,6 @@ management:
     metrics:
       export:
         enabled: false
+
+preTalxHost: http://localhost:8080
+
