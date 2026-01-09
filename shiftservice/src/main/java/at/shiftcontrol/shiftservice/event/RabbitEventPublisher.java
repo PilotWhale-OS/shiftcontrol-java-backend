@@ -1,11 +1,9 @@
 package at.shiftcontrol.shiftservice.event;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
@@ -26,21 +24,10 @@ public class RabbitEventPublisher {
 
     private static final String ROUTING_KEY_PREFIX = "shiftcontrol.";
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onTransactional(BaseEvent event) {
-        publishEvent(event);
-    }
-
-    @EventListener
-    public void onImmediate(BaseEvent event) {
-        // If a transaction is active, defer to the transactional listener to avoid duplicate handling.
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            log.trace("Skipping immediate handling for event inside active transaction: {}", event.getClass().getName());
-            return;
-        }
-        publishEvent(event);
-    }
-
+    @TransactionalEventListener(
+        phase = TransactionPhase.AFTER_COMMIT,
+        fallbackExecution = true
+    )
     private void publishEvent(BaseEvent event) {
         event.setTraceId(getTraceId());
         event.setActingUserId(getCurrentUserId());
