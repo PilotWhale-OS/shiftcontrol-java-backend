@@ -1,5 +1,9 @@
 package at.shiftcontrol.shiftservice.auth;
 
+import at.shiftcontrol.lib.auth.NonDevTestCondition;
+import at.shiftcontrol.lib.auth.UserAuthenticationToken;
+import at.shiftcontrol.shiftservice.auth.config.props.KeycloakProps;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -15,12 +19,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import lombok.RequiredArgsConstructor;
-
-import at.shiftcontrol.lib.auth.NonDevTestCondition;
-import at.shiftcontrol.lib.auth.UserAuthenticationToken;
-import at.shiftcontrol.shiftservice.auth.config.props.KeycloakProps;
 
 @Conditional(NonDevTestCondition.class)
 @EnableWebSecurity
@@ -59,6 +57,8 @@ public class JwtSecurityConfig {
                 .requestMatchers("/swagger-ui/**")
                 .permitAll()
                 .requestMatchers("/v3/api-docs*/**")
+                .permitAll()
+                .requestMatchers("/api/v1/reward-points/share/**") // permit access to reward points share endpoint via token
                 .permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**")
                 .permitAll() // Permit all OPTIONS requests (preflight))
