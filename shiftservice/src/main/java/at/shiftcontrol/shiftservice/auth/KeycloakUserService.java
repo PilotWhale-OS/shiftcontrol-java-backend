@@ -31,4 +31,11 @@ public class KeycloakUserService {
             .users()
             .list();
     }
+
+    public List<UserRepresentation> getAllAdmins(){
+        return keycloak
+            .realm(realm)
+            .users()
+            .searchByAttributes("userType:ADMIN");
+    }
 }

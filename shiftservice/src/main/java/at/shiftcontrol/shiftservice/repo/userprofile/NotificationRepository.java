@@ -20,33 +20,24 @@ public interface NotificationRepository extends JpaRepository<VolunteerNotificat
     List<VolunteerNotificationAssignment> findAllByVolunteerNotificationAssignmentId_VolunteerId(String volunteerId);
 
     @Query("""
-    select v
-    from Volunteer v
-    where v.id in (
-        select vna.volunteerNotificationAssignmentId.volunteerId
-        from VolunteerNotificationAssignment vna
-        where vna.volunteerNotificationAssignmentId.notificationType = :notificationType
-          and vna.volunteerNotificationAssignmentId.notificationChannel = :notificationChannel
-    )
+    select vna.volunteerNotificationAssignmentId.volunteerId
+    from VolunteerNotificationAssignment vna
+    where vna.volunteerNotificationAssignmentId.notificationType = :notificationType
+      and vna.volunteerNotificationAssignmentId.notificationChannel = :notificationChannel
 """)
-    List<Volunteer> findAllByNotificationTypeAndChannelEnabled(
+    List<String> findAllByNotificationTypeAndChannelEnabled(
         @Param("notificationType") NotificationType notificationType,
         @Param("notificationChannel") NotificationChannel notificationChannel
     );
 
 
     @Query("""
-    select v
-    from Volunteer v
-    where v.id in :volunteerIds
-      and v.id in (
-        select vna.volunteerNotificationAssignmentId.volunteerId
-        from VolunteerNotificationAssignment vna
-        where vna.volunteerNotificationAssignmentId.notificationType = :notificationType
-          and vna.volunteerNotificationAssignmentId.notificationChannel = :notificationChannel
-    )
+    select vna.volunteerNotificationAssignmentId.volunteerId
+    from VolunteerNotificationAssignment vna
+    where vna.volunteerNotificationAssignmentId.notificationType = :notificationType
+      and vna.volunteerNotificationAssignmentId.notificationChannel = :notificationChannel
 """)
-    List<Volunteer> findAllByVolunteerIdAndNotificationTypeAndChannelEnabled(
+    List<String> findAllByVolunteerIdAndNotificationTypeAndChannelEnabled(
         @Param("notificationType") NotificationType notificationType,
         @Param("notificationChannel") NotificationChannel notificationChannel,
         @Param("volunteerIds") Collection<String> volunteerIds

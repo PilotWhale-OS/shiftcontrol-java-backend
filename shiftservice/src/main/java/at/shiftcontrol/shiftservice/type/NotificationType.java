@@ -14,6 +14,6 @@ public enum NotificationType {
     PLANNER_TRUST_ALERT_TRIGGERED,
 
     /* admin notifications */
-    ADMIN_PLANNER_JOINED,
+    ADMIN_PLANNER_JOINED_PLAN,
     ADMIN_REWARD_SYNC_USED
 }
