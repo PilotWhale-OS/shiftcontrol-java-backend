@@ -8,6 +8,8 @@ import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
+import at.shiftcontrol.lib.event.events.parts.TradePart;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;

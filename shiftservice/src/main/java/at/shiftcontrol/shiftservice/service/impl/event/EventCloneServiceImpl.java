@@ -19,14 +19,14 @@ import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.EventEvent;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.EventEvent;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.service.event.EventCloneService;
-import static at.shiftcontrol.shiftservice.event.RoutingKeys.EVENT_CLONED;
+import static at.shiftcontrol.lib.event.RoutingKeys.EVENT_CLONED;
 
 @Service
 @RequiredArgsConstructor

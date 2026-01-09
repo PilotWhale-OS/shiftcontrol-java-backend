@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.TimeConstraint;
+import at.shiftcontrol.lib.event.events.parts.TimeConstraintPart;
 import at.shiftcontrol.lib.type.TimeConstraintType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

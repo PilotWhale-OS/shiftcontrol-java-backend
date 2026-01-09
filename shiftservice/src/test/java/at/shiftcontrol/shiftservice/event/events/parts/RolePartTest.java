@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.event.events.parts.RolePart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

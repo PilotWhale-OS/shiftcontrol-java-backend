@@ -2,8 +2,9 @@ package at.shiftcontrol.shiftservice.event.events;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.event.events.parts.NotificationSettingsPart;
+import at.shiftcontrol.lib.dto.userprofile.NotificationSettingsDto;
+import at.shiftcontrol.lib.event.events.NotificationSettingsEvent;
+import at.shiftcontrol.lib.event.events.parts.NotificationSettingsPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 

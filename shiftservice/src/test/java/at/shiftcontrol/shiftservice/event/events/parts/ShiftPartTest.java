@@ -9,6 +9,8 @@ import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
+import at.shiftcontrol.lib.event.events.parts.ShiftPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

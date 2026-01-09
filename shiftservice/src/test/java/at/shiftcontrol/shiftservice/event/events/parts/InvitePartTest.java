@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.ShiftPlanInvite;
+import at.shiftcontrol.lib.event.events.parts.InvitePart;
+import at.shiftcontrol.lib.event.events.parts.RolePart;
 import at.shiftcontrol.lib.type.ShiftPlanInviteType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

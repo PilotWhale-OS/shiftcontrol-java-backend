@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
+import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

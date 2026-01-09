@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import at.shiftcontrol.shiftservice.dto.location.LocationDto;
+import at.shiftcontrol.lib.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 
 @Data

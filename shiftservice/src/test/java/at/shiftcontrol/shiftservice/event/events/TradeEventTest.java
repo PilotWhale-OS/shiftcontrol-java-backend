@@ -3,7 +3,8 @@ package at.shiftcontrol.shiftservice.event.events;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.event.events.parts.TradePart;
+import at.shiftcontrol.lib.event.events.TradeEvent;
+import at.shiftcontrol.lib.event.events.parts.TradePart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
