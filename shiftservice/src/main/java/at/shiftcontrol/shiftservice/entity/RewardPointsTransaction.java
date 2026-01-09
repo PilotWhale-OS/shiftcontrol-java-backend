@@ -29,7 +29,7 @@ import org.hibernate.annotations.Immutable;
 @Builder
 @Entity
 @Immutable
-@Table(name = "reward_point_transaction",
+@Table(name = "reward_points_transaction",
     indexes = {
         @Index(name = "idx_rpt_volunteer", columnList = "volunteer_id"),
         @Index(name = "idx_rpt_volunteer_event", columnList = "volunteer_id,event_id"),
