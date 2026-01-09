@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.event;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -25,16 +24,10 @@ public class RabbitEventPublisher {
 
     private static final String ROUTING_KEY_PREFIX = "shiftcontrol.";
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onTransactional(BaseEvent event) {
-        publishEvent(event);
-    }
-
-    @EventListener
-    public void onImmediate(BaseEvent event) {
-        publishEvent(event);
-    }
-
+    @TransactionalEventListener(
+        phase = TransactionPhase.AFTER_COMMIT,
+        fallbackExecution = true
+    )
     private void publishEvent(BaseEvent event) {
         event.setTraceId(getTraceId());
         event.setActingUserId(getCurrentUserId());
