@@ -2,14 +2,14 @@ package at.shiftcontrol.lib.event.events.parts;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
 import at.shiftcontrol.lib.entity.Event;
 
-@AllArgsConstructor
 @Data
 public class EventPart {
     @NotNull
@@ -22,6 +22,23 @@ public class EventPart {
     private Instant startTime;
     @NotNull
     private Instant endTime;
+
+    @JsonCreator
+    public EventPart(
+        @JsonProperty("id") String id,
+        @JsonProperty("name") String name,
+        @JsonProperty("shortDescription") String shortDescription,
+        @JsonProperty("longDescription") String longDescription,
+        @JsonProperty("startTime") Instant startTime,
+        @JsonProperty("endTime") Instant endTime
+    ) {
+        this.id = id;
+        this.name = name;
+        this.shortDescription = shortDescription;
+        this.longDescription = longDescription;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 
     @NonNull
     public static EventPart of(@NonNull Event event) {
