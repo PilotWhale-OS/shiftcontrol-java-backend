@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.PositionConstraint;
+import at.shiftcontrol.lib.entity.PositionConstraintId;
 import at.shiftcontrol.shiftservice.dao.PositionConstraintDao;
-import at.shiftcontrol.shiftservice.entity.PositionConstraint;
-import at.shiftcontrol.shiftservice.entity.PositionConstraintId;
 import at.shiftcontrol.shiftservice.repo.PositionConstraintRepository;
 
 @RequiredArgsConstructor

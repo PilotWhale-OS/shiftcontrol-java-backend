@@ -4,7 +4,8 @@ import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.Event;
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.event.events.parts.EventPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

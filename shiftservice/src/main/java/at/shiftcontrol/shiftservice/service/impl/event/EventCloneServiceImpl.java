@@ -5,27 +5,28 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import at.shiftcontrol.shiftservice.annotation.AdminOnly;
-import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dto.event.EventDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.Location;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Shift;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.entity.role.Role;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.EventEvent;
-import at.shiftcontrol.shiftservice.mapper.EventMapper;
-import at.shiftcontrol.shiftservice.service.event.EventCloneService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static at.shiftcontrol.shiftservice.event.RoutingKeys.EVENT_CLONED;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.entity.Activity;
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.Location;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.EventEvent;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
+import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.mapper.EventMapper;
+import at.shiftcontrol.shiftservice.service.event.EventCloneService;
+import static at.shiftcontrol.lib.event.RoutingKeys.EVENT_CLONED;
 
 @Service
 @RequiredArgsConstructor

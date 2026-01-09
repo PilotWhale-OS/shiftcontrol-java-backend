@@ -5,14 +5,22 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Set;
 
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Shift;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import io.restassured.http.Method;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
@@ -20,14 +28,6 @@ import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.type.LockStatus;
-import io.restassured.http.Method;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;

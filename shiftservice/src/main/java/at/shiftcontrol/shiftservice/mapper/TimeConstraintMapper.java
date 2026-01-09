@@ -2,14 +2,13 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-
 import lombok.NoArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.TimeConstraint;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class TimeConstraintMapper {

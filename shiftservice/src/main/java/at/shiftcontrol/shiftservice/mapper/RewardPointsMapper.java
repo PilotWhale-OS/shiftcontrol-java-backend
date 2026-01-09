@@ -3,12 +3,13 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Map;
 
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
+import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsTransactionDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class RewardPointsMapper {

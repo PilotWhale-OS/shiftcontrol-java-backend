@@ -3,12 +3,12 @@ package at.shiftcontrol.shiftservice.service;
 import java.time.Instant;
 import java.util.Collection;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
+import at.shiftcontrol.lib.type.PositionSignupState;
 
 public interface EligibilityService {
     /**

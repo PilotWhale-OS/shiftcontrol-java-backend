@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -9,7 +10,6 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsDto;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsFilterDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.AccountInfoMapper;
 import at.shiftcontrol.shiftservice.repo.userprofile.NotificationRepository;
 import at.shiftcontrol.shiftservice.service.NotificationRecipientService;

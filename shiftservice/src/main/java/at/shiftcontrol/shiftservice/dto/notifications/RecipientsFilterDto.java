@@ -1,8 +1,7 @@
 package at.shiftcontrol.shiftservice.dto.notifications;
 
-import at.shiftcontrol.shiftservice.type.NotificationChannel;
-import at.shiftcontrol.shiftservice.type.NotificationType;
-
+import at.shiftcontrol.lib.type.NotificationChannel;
+import at.shiftcontrol.lib.type.NotificationType;
 import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
 
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.lib.entity.Volunteer;
 
 @Repository
 public interface VolunteerRepository extends JpaRepository<Volunteer, String> {

@@ -5,16 +5,16 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Shift;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 
 @Service
 @RequiredArgsConstructor

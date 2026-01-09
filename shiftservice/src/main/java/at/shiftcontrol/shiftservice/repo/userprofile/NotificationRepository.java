@@ -3,15 +3,13 @@ package at.shiftcontrol.shiftservice.repo.userprofile;
 import java.util.Collection;
 import java.util.List;
 
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-
-import at.shiftcontrol.shiftservice.type.NotificationChannel;
+import at.shiftcontrol.lib.type.NotificationChannel;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignment;
-import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignmentId;
-import at.shiftcontrol.shiftservice.type.NotificationType;
+import at.shiftcontrol.lib.entity.VolunteerNotificationAssignment;
+import at.shiftcontrol.lib.entity.VolunteerNotificationAssignmentId;
+import at.shiftcontrol.lib.type.NotificationType;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
