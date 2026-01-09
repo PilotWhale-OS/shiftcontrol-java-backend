@@ -17,7 +17,10 @@ public class UserEventDto {
     private String id;
 
     @NotNull
-    private String username;
+    private String fistName;
+
+    @NotNull
+    private String lastName;
 
     @NotNull
     private String email;

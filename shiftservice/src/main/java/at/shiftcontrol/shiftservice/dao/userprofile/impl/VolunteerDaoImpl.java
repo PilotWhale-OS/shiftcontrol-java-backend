@@ -50,4 +50,9 @@ public class VolunteerDaoImpl implements VolunteerDao {
     public Collection<Volunteer> findAllByShiftPlanAndVolunteerIds(long shiftPlanId, Collection<String> volunteerIds) {
         return volunteerRepository.findAllByShiftPlanAndVolunteerIds(shiftPlanId, volunteerIds);
     }
+
+    @Override
+    public Collection<Volunteer> findAllByEvent(long eventId) {
+        return volunteerRepository.findAllByEvent(eventId);
+    }
 }
