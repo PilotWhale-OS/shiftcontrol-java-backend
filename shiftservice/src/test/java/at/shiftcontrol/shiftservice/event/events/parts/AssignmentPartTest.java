@@ -2,10 +2,12 @@ package at.shiftcontrol.shiftservice.event.events.parts;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
+import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

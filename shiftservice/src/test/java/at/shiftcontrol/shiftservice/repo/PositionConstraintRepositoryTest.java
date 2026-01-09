@@ -10,7 +10,7 @@ import config.TestConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.PositionConstraint;
+import at.shiftcontrol.lib.entity.PositionConstraint;
 
 @DataJpaTest
 @Import({TestConfig.class})

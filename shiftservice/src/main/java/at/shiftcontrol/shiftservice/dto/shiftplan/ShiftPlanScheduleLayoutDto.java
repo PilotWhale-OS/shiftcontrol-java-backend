@@ -16,5 +16,9 @@ public class ShiftPlanScheduleLayoutDto {
 
     @NotNull
     @Valid
+    private ScheduleLayoutNoLocationDto scheduleLayoutNoLocationDto;
+
+    @NotNull
+    @Valid
     private ScheduleStatisticsDto scheduleStatistics;
 }

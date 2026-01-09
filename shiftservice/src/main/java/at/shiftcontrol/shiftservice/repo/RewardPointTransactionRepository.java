@@ -2,10 +2,11 @@ package at.shiftcontrol.shiftservice.repo;
 
 import java.util.List;
 
-import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto;
-import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import at.shiftcontrol.lib.entity.RewardPointTransaction;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto;
 
 public interface RewardPointTransactionRepository extends JpaRepository<RewardPointTransaction, Long> {
     /**

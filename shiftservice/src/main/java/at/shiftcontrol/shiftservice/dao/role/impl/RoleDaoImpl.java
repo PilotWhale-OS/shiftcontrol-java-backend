@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
-import at.shiftcontrol.shiftservice.entity.role.Role;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 
 @RequiredArgsConstructor

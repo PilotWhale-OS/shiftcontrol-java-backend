@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.event.BaseEvent;
+
 @Data
 @Builder
 @RequiredArgsConstructor

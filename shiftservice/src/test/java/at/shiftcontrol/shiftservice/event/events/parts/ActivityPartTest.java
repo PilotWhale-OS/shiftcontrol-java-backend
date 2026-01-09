@@ -4,9 +4,10 @@ import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.dto.location.LocationDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
-import at.shiftcontrol.shiftservice.entity.Location;
+import at.shiftcontrol.lib.entity.Activity;
+import at.shiftcontrol.lib.entity.Location;
+import at.shiftcontrol.lib.event.events.parts.ActivityPart;
+import at.shiftcontrol.lib.event.events.parts.LocationPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -47,12 +48,12 @@ class ActivityPartTest {
         assertTrue(activityPart.isReadOnly());
 
         assertNotNull(activityPart.getLocation());
-        LocationDto locationDto = activityPart.getLocation();
-        assertEquals(String.valueOf(location.getId()), locationDto.getId());
-        assertEquals(location.getName(), locationDto.getName());
-        assertEquals(location.getDescription(), locationDto.getDescription());
-        assertEquals(location.getUrl(), locationDto.getUrl());
-        assertEquals(location.isReadOnly(), locationDto.isReadOnly());
+        LocationPart locationPart = activityPart.getLocation();
+        assertEquals(String.valueOf(location.getId()), locationPart.getId());
+        assertEquals(location.getName(), locationPart.getName());
+        assertEquals(location.getDescription(), locationPart.getDescription());
+        assertEquals(location.getUrl(), locationPart.getUrl());
+        assertEquals(location.isReadOnly(), locationPart.isReadOnly());
     }
 
     @Test

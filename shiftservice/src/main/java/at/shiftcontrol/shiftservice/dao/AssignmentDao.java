@@ -3,8 +3,8 @@ package at.shiftcontrol.shiftservice.dao;
 import java.time.Instant;
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentId;
 
 public interface AssignmentDao extends BasicDao<Assignment, AssignmentId> {
     Collection<Assignment> findAuctionsByShiftPlanId(long shiftPlanId);

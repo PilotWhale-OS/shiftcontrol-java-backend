@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.representations.idm.UserRepresentation;
 
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 
 @RequiredArgsConstructor
 @Service

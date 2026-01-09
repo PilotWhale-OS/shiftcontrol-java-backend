@@ -2,8 +2,9 @@ package at.shiftcontrol.shiftservice.event.events.parts;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.type.LockStatus;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.event.events.parts.ShiftPlanPart;
+import at.shiftcontrol.lib.type.LockStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

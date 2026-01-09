@@ -5,9 +5,11 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import at.shiftcontrol.lib.event.events.parts.NotificationSettingsPart;
+import at.shiftcontrol.lib.type.NotificationChannel;
+import at.shiftcontrol.lib.type.NotificationType;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.type.NotificationChannel;
-import at.shiftcontrol.shiftservice.type.NotificationType;
+import at.shiftcontrol.shiftservice.mapper.NotificationSettingsMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NotificationSettingsPartTest {
@@ -20,7 +22,8 @@ class NotificationSettingsPartTest {
         dto.setChannels(Collections.singleton(NotificationChannel.EMAIL));
 
         // Act
-        NotificationSettingsPart part = NotificationSettingsPart.of(dto);
+        NotificationSettingsPart part = NotificationSettingsPart.of(
+            NotificationSettingsMapper.toEntity(dto));
 
         // Assert
         assertEquals(dto.getType(), part.getType());
@@ -35,7 +38,8 @@ class NotificationSettingsPartTest {
         dto.setChannels(Set.of(NotificationChannel.EMAIL, NotificationChannel.PUSH));
 
         // Act
-        NotificationSettingsPart part = NotificationSettingsPart.of(dto);
+        NotificationSettingsPart part = NotificationSettingsPart.of(
+            NotificationSettingsMapper.toEntity(dto));
 
         // Assert
         assertEquals(dto.getType(), part.getType());

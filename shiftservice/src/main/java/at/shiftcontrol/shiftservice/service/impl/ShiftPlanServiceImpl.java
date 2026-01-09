@@ -12,9 +12,32 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.entity.Activity;
+import at.shiftcontrol.lib.entity.Location;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.ShiftPlanInvite;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.ShiftPlanEvent;
+import at.shiftcontrol.lib.event.events.ShiftPlanInviteEvent;
+import at.shiftcontrol.lib.event.events.ShiftPlanVolunteerEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.type.LockStatus;
+import at.shiftcontrol.lib.type.PositionSignupState;
+import at.shiftcontrol.lib.type.ShiftPlanInviteType;
+import at.shiftcontrol.lib.type.ShiftRelevance;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -37,6 +60,7 @@ import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
@@ -45,18 +69,6 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
-import at.shiftcontrol.shiftservice.entity.Location;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Shift;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.entity.role.Role;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.ShiftPlanEvent;
-import at.shiftcontrol.shiftservice.event.events.ShiftPlanInviteEvent;
-import at.shiftcontrol.shiftservice.event.events.ShiftPlanVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.InviteMapper;
@@ -68,16 +80,7 @@ import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import at.shiftcontrol.shiftservice.type.LockStatus;
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
-import at.shiftcontrol.shiftservice.type.ShiftRelevance;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -185,27 +188,49 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var scheduleLayoutDtos = shiftsByLocation.entrySet().stream()
             .map(entry -> buildScheduleLayoutDto(entry.getKey(), entry.getValue()))
             .toList();
+
+        var shiftsWithoutLocation = shiftDao.searchShiftsInShiftPlan(shiftPlanId,
+                userProvider.getCurrentUser().getUserId(),
+                filterDto).stream()
+            .filter(shift -> shift.getLocation() == null)
+            .toList();
+        var scheduleLayoutNoLocationDto = buildScheduleLayoutNoLocationDto(shiftsWithoutLocation);
+
         var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
         return ShiftPlanScheduleLayoutDto.builder()
             .scheduleLayoutDtos(scheduleLayoutDtos)
+            .scheduleLayoutNoLocationDto(scheduleLayoutNoLocationDto)
             .scheduleStatistics(stats)
             .build();
     }
 
     private ScheduleLayoutDto buildScheduleLayoutDto(Location location, List<Shift> shifts) {
         // sort for deterministic column placement
-        shifts.sort(Comparator
-            .comparing(Shift::getStartTime)
-            .thenComparing(Shift::getEndTime));
-        var shiftColumns = calculateShiftColumns(shifts);
-        int requiredShiftColumns = shiftColumns.stream()
-            .mapToInt(ShiftColumnDto::getColumnIndex)
-            .max()
-            .orElse(-1) + 1;
+        int requiredShiftColumns = getRequiredShiftColumns(shifts);
         return ScheduleLayoutDto.builder()
             .location(LocationMapper.toLocationDto(location))
             .requiredShiftColumns(requiredShiftColumns)
             .build();
+    }
+
+    private ScheduleLayoutNoLocationDto buildScheduleLayoutNoLocationDto(List<Shift> shifts) {
+        int requiredShiftColumns = getRequiredShiftColumns(shifts);
+        return ScheduleLayoutNoLocationDto.builder()
+            .requiredShiftColumns(requiredShiftColumns)
+            .build();
+    }
+
+    private int getRequiredShiftColumns(List<Shift> shifts) {
+        // sort for deterministic column placement
+        var sorted = shifts.stream()
+            .sorted(Comparator
+                .comparing(Shift::getStartTime)
+                .thenComparing(Shift::getEndTime)).toList();
+        var shiftColumns = calculateShiftColumns(sorted);
+        return shiftColumns.stream()
+            .mapToInt(ShiftColumnDto::getColumnIndex)
+            .max()
+            .orElse(-1) + 1;
     }
 
     @Override

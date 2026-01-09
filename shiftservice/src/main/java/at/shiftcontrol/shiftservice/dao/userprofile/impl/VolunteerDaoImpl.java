@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 
 @RequiredArgsConstructor

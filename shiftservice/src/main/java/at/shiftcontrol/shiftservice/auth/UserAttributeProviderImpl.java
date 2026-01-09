@@ -14,8 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 
 @Component
 @RequiredArgsConstructor

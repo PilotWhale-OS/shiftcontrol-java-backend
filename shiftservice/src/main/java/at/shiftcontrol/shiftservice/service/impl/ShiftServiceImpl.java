@@ -2,6 +2,16 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import io.micrometer.common.util.StringUtils;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.ShiftEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -11,20 +21,12 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
-import at.shiftcontrol.shiftservice.entity.Shift;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.ShiftEvent;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import io.micrometer.common.util.StringUtils;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
