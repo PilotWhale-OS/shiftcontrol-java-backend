@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import at.shiftcontrol.lib.common.UniqueCodeGenerator;
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -274,6 +275,8 @@ public class RewardPointsServiceImpl implements RewardPointsService {
                 volunteerPointsDto.setEmail(keyCloakUser.getEmail());
                 var pointsForEvent = rewardPointsTransactionDao.sumPointsByVolunteerAndEvent(volunteer.getId(), event.getId());
                 volunteerPointsDto.setRewardPoints((int) pointsForEvent);
+
+                volunteerPointsDtos.add(volunteerPointsDto);
             }
             exportDto.setVolunteerPoints(volunteerPointsDtos);
             exportDtos.add(exportDto);
@@ -289,7 +292,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         boolean nameAlreadyExists = rewardPointsShareTokenDao.existsByName(requestDto.getName());
         if (nameAlreadyExists) {
-            throw new IllegalArgumentException("A share token with the given name already exists");
+            throw new BadRequestException("A share token with the given name already exists");
         }
 
         var token = RewardPointsShareToken.builder()
