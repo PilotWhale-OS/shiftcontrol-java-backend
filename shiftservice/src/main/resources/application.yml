@@ -28,5 +28,7 @@ management:
       export:
         enabled: false
 
-preTalxHost: http://localhost:8080
-
+pretalx:
+  apiKeyRefreshIntervalMs: 60000 # 1 minute
+  host: http://localhost:8080
+  locale: en

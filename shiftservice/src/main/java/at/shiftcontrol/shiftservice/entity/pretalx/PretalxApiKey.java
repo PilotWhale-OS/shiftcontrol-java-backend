@@ -15,7 +15,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 @AllArgsConstructor
 @Builder
 @Entity
-public class PreTalxApiKey {
+public class PretalxApiKey {
     @Id
     private String apiKey;
 

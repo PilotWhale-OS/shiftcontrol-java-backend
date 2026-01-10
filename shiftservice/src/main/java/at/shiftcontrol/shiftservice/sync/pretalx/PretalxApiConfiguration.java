@@ -9,11 +9,11 @@ import at.shiftcontrol.pretalxclient.api.EventsApi;
 import at.shiftcontrol.pretalxclient.invoker.ApiClient;
 
 @Configuration
-public class PreTalxApiConfiguration {
+public class PretalxApiConfiguration {
     private final RestClient restClient;
     private final ApiClient apiClient;
 
-    public PreTalxApiConfiguration(RestClient.Builder restClientBuilder, @Value("${preTalxHost}") String preTalxHost) {
+    public PretalxApiConfiguration(RestClient.Builder restClientBuilder, @Value("${pretalxHost}") String preTalxHost) {
         restClient = restClientBuilder.baseUrl(preTalxHost).build();
         apiClient = new ApiClient(restClient);
     }

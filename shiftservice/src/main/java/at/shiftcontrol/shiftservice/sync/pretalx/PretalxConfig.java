@@ -5,6 +5,6 @@ import java.util.Map;
 import lombok.Value;
 
 @Value
-public class PreTalxConfig {
+public class PretalxConfig {
     Map<String, String> eventToApiKeyMap;
 }

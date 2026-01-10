@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 public final class RoutingKeys {
@@ -67,6 +66,8 @@ public final class RoutingKeys {
     public static final String VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED = "volunteer.notification.preference.updated.{volunteerId}";
     public static final String REWARDPOINT_TRANSACTION_CREATED = "rewardpoint.transaction.created.{volunteerId}.{transactionId}";
     public static final String REWARDPOINT_TRANSACTION_FAILED = "rewardpoint.transaction.failed.{volunteerId}";
+
+    public static final String PRETALX_API_KEY_INVALID = "pretalx.apikey.invalid.{apiKey}";
 
 
     public static @NonNull String format(@NonNull String template, @NonNull Map<String, ?> values) {
