@@ -11,7 +11,7 @@ import lombok.NonNull;
 
 @Data
 @Builder
-public class RewardPointTransactionPart {
+public class RewardPointsTransactionPart {
     private String volunteerId;
     private String eventId;
     private Long positionSlotId;
@@ -23,8 +23,8 @@ public class RewardPointTransactionPart {
 
 
     @NonNull
-    public static RewardPointTransactionPart of(@NonNull RewardPointsTransaction transaction) {
-        return RewardPointTransactionPart.builder()
+    public static RewardPointsTransactionPart of(@NonNull RewardPointsTransaction transaction) {
+        return RewardPointsTransactionPart.builder()
             .volunteerId(transaction.getVolunteerId())
             .eventId(String.valueOf(transaction.getEventId()))
             .positionSlotId(transaction.getPositionSlotId())
