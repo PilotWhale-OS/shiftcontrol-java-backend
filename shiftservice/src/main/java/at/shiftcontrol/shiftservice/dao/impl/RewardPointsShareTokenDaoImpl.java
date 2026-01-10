@@ -3,8 +3,8 @@ package at.shiftcontrol.shiftservice.dao.impl;
 import java.util.Collection;
 import java.util.Optional;
 
+import at.shiftcontrol.lib.entity.RewardPointsShareToken;
 import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
-import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
 import at.shiftcontrol.shiftservice.repo.RewardPointsShareTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

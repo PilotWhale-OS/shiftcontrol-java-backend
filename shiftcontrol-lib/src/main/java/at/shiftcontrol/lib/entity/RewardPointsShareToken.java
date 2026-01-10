@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.entity;
+package at.shiftcontrol.lib.entity;
 
 import java.time.Instant;
 

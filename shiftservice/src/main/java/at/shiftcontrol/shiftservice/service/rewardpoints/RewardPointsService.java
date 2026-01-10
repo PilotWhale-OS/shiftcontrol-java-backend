@@ -7,7 +7,6 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsExportDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
 
 public interface RewardPointsService {
     void onAssignmentAccepted(Assignment assignment) throws ConflictException;

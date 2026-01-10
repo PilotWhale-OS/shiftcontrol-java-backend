@@ -8,15 +8,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import at.shiftcontrol.lib.common.UniqueCodeGenerator;
-import at.shiftcontrol.lib.exception.BadRequestException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.RewardPointsShareToken;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.RewardPointsShareTokenEvent;
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -30,11 +27,6 @@ import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreat
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.VolunteerPointsDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.RewardPointsShareTokenEvent;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;

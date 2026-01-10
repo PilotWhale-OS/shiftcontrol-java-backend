@@ -1,7 +1,7 @@
-package at.shiftcontrol.shiftservice.event.events;
+package at.shiftcontrol.lib.event.events;
 
-import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
-import at.shiftcontrol.shiftservice.event.BaseEvent;
+import at.shiftcontrol.lib.entity.RewardPointsShareToken;
+import at.shiftcontrol.lib.event.BaseEvent;
 import at.shiftcontrol.shiftservice.event.events.parts.RewardPointsShareTokenPart;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

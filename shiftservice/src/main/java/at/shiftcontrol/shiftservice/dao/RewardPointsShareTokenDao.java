@@ -2,7 +2,8 @@ package at.shiftcontrol.shiftservice.dao;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
+import at.shiftcontrol.lib.entity.RewardPointsShareToken;
+
 
 public interface RewardPointsShareTokenDao extends BasicDao<RewardPointsShareToken, Long> {
     Collection<RewardPointsShareToken> findAll();

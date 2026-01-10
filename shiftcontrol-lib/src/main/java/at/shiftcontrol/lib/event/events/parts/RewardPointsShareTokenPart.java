@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.event.events.parts;
 
 import java.time.Instant;
 
-import at.shiftcontrol.shiftservice.entity.RewardPointsShareToken;
+import at.shiftcontrol.lib.entity.RewardPointsShareToken;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;

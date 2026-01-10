@@ -1,11 +1,10 @@
 package at.shiftcontrol.lib.event.events;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import at.shiftcontrol.lib.entity.RewardPointTransaction;
+import at.shiftcontrol.lib.entity.RewardPointsTransaction;
 import at.shiftcontrol.lib.event.BaseEvent;
 import at.shiftcontrol.lib.event.events.parts.RewardPointTransactionPart;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

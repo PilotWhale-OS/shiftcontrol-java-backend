@@ -5,13 +5,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import io.restassured.http.Method;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.Event;
@@ -32,8 +25,6 @@ import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.type.LockStatus;
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

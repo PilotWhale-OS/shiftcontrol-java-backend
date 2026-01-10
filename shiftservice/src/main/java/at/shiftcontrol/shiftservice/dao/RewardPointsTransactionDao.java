@@ -2,8 +2,8 @@ package at.shiftcontrol.shiftservice.dao;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.entity.RewardPointsTransaction;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
-import at.shiftcontrol.shiftservice.entity.RewardPointsTransaction;
 
 public interface RewardPointsTransactionDao extends BasicDao<RewardPointsTransaction, Long> {
 
