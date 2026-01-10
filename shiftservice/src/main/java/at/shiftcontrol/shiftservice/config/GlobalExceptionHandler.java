@@ -3,6 +3,18 @@ package at.shiftcontrol.shiftservice.config;
 import java.lang.invoke.MethodHandles;
 import java.util.stream.Collectors;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.FileExportException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.ImportValidationException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
+import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
+import at.shiftcontrol.lib.exception.UnauthorizedException;
+import at.shiftcontrol.lib.exception.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -14,18 +26,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.FileExportException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
-import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
-import at.shiftcontrol.lib.exception.UnauthorizedException;
-import at.shiftcontrol.lib.exception.ValidationException;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleInternal(ex, request, NOT_FOUND);
     }
 
-    @ExceptionHandler(value = {ValidationException.class})
+    @ExceptionHandler(value = {ValidationException.class, ImportValidationException.class})
     protected ResponseEntity<Object> handleValidation(Exception ex, WebRequest request) {
         return handleInternal(ex, request, UNPROCESSABLE_ENTITY);
     }

@@ -10,4 +10,6 @@ public interface EventDao extends BasicDao<Event, Long> {
     List<Event> search(EventSearchDto searchDto);
 
     Collection<Event> findAll();
+
+    boolean existsByNameIgnoreCase(String name);
 }

@@ -298,7 +298,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     public RewardPointsShareTokenDto createRewardPointsShareToken(RewardPointsShareTokenCreateRequestDto requestDto) {
         var tokenCode = callGenerateUniqueCode();
 
-        boolean nameAlreadyExists = rewardPointsShareTokenDao.existsByName(requestDto.getName());
+        boolean nameAlreadyExists = rewardPointsShareTokenDao.existsByNameIgnoreCase(requestDto.getName());
         if (nameAlreadyExists) {
             throw new BadRequestException("A share token with the given name already exists");
         }
