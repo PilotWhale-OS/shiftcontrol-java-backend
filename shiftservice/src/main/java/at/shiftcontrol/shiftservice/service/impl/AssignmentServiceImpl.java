@@ -24,7 +24,7 @@ import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.AssignmentEvent;
 import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
-import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
+import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import at.shiftcontrol.shiftservice.type.AssignmentStatus;
@@ -102,7 +102,7 @@ public class AssignmentServiceImpl implements AssignmentService {
      */
     private Assignment reassign(Assignment oldAssignment, Volunteer newVolunteer) {
         // Create new assignment with new PK
-        Assignment newAssignment = AssignmentMapper.shallowCopy(oldAssignment);
+        Assignment newAssignment = AssignmentAssemblingMapper.shallowCopy(oldAssignment);
         newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
         newAssignment.setStatus(AssignmentStatus.ACCEPTED);
         newAssignment.setAssignedVolunteer(newVolunteer);

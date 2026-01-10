@@ -57,11 +57,12 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
+    private final TradeMapper tradeMapper;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) {
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     @Override
@@ -217,7 +218,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                    "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         )));
-        return TradeMapper.toDto(trades);
+        return tradeMapper.toDto(trades);
     }
 
     private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
@@ -261,7 +262,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // update assignments
         AssignmentSwitchRequest executedTrade = assignmentService.executeTrade(trade);
 
-        return TradeMapper.toDto(executedTrade);
+        return tradeMapper.toDto(executedTrade);
     }
 
     @Override
@@ -284,7 +285,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         ));
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     @Override
@@ -307,7 +308,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         ));
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     private AssignmentSwitchRequest createAssignmentSwitchRequest(Assignment offering, Assignment requested) {

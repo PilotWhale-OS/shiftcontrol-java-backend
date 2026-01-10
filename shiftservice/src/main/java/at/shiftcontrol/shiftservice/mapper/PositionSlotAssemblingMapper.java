@@ -3,6 +3,11 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -21,9 +26,7 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import static at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper.ACTIVE_AUCTION_STATES;
 
 @RequiredArgsConstructor
 @Service
@@ -34,6 +37,8 @@ public class PositionSlotAssemblingMapper {
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
     private final PositionSlotDao positionSlotDao;
+    private final AssignmentAssemblingMapper assignmentAssemblingMapper;
+    private final TradeMapper tradeMapper;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
@@ -70,7 +75,7 @@ public class PositionSlotAssemblingMapper {
             .toList();
     }
 
-    public static PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
+    public PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
                                         Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue, RewardPointsDto rewardPointsDto) {
         var assignments = positionSlot.getAssignments();
         Collection<AssignmentDto> assignmentDtos;
@@ -80,8 +85,10 @@ public class PositionSlotAssemblingMapper {
             assignmentDtos = null;
             auctionDtos = null;
         } else {
-            assignmentDtos = AssignmentMapper.toDto(positionSlot.getAssignments());
-            auctionDtos = AssignmentMapper.toAuctionDto(assignments); // get open auctions for this slot
+            assignmentDtos = assignmentAssemblingMapper.toDto(assignments);
+            auctionDtos = assignmentAssemblingMapper.toDto(assignments.stream()
+                .filter(a -> ACTIVE_AUCTION_STATES.contains(a.getStatus()))
+                .toList()); // get open auctions for this slot
         }
         return new PositionSlotDto(
             String.valueOf(positionSlot.getId()),
@@ -93,7 +100,7 @@ public class PositionSlotAssemblingMapper {
             assignmentDtos,
             positionSlot.getDesiredVolunteerCount(),
             positionSignupState,
-            TradeMapper.toTradeInfoDto(tradesForUser),
+            tradeMapper.toTradeInfoDto(tradesForUser),
             auctionDtos,
             preferenceValue,
             positionSlot.getShift().getShiftPlan().getLockStatus(),
@@ -104,7 +111,7 @@ public class PositionSlotAssemblingMapper {
         Collection<AccountInfoDto> accountInfoDtos = volunteers.stream().map(
             v -> {
                 try {
-                    return userProfileService.getUserProfile(v.getId()).getAccount();
+                    return userProfileService.getUserProfile(v.getId()).getAccount(); // todo change to volunteerDto
                 } catch (NotFoundException | ForbiddenException e) {
                     throw new RuntimeException(e);
                 }

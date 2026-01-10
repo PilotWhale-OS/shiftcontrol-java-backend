@@ -14,7 +14,7 @@ import at.shiftcontrol.shiftservice.auth.UserType;
 @Builder
 public class AccountInfoDto {
     @NotNull
-    private String id;
+    private String id; // todo use volunteerdto
     @NotNull
     private String username;
     @NotNull
