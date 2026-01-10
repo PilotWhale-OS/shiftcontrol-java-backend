@@ -23,6 +23,8 @@ import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.EventEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.FileExportException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
@@ -72,6 +74,11 @@ public class EventExportServiceImpl implements EventExportService {
             case CSV -> "application/csv";
             case XLSX -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         });
+
+        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_EXPORTED, Map.of(
+            "eventId", String.valueOf(eventId),
+            "exportFormat", exportFormat.name()
+        )), event));
 
         return EventExportDto.builder()
             .exportStream(new ByteArrayInputStream(out.toByteArray()))

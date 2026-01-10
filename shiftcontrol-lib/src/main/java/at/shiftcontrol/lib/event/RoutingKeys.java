@@ -21,6 +21,7 @@ public final class RoutingKeys {
     public static final String EVENT_CLONED = "event.cloned.{sourceEventId}.{newEventId}";
     public static final String EVENT_UPDATED = "event.updated.{eventId}";
     public static final String EVENT_DELETED = "event.deleted.{eventId}";
+    public static final String EVENT_EXPORTED = "event.exported.{eventId}.{exportFormat}";
 
     public static final String LOCATION_CREATED = "location.created";
     public static final String LOCATION_UPDATED = "location.updated.{locationId}";
