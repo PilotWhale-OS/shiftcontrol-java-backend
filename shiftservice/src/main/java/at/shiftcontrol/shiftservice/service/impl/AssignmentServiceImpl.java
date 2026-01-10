@@ -40,6 +40,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public Assignment claimAuction(Assignment auction, Volunteer newVolunteer, PositionSlotRequestDto requestDto) {
+        String oldVolunteerId = auction.getAssignedVolunteer().getId();
         // execute auction
         Assignment claimedAuction = reassign(auction, newVolunteer);
 
@@ -50,7 +51,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
             "positionSlotId", String.valueOf(auction.getPositionSlot().getId()),
-            "volunteerId", newVolunteer.getId())), claimedAuction
+            "oldVolunteerId", oldVolunteerId)), claimedAuction
         ));
 
         return claimedAuction;

@@ -37,7 +37,7 @@ public final class RoutingKeys {
     public static final String POSITIONSLOT_PREFERENCE_UPDATED = "positionslot.preference.updated.{volunteerId}.{positionSlotId}";
 
     public static final String AUCTION_CREATED = "auction.created.{positionSlotId}";
-    public static final String AUCTION_CLAIMED = "auction.claimed.{positionSlotId}.{volunteerId}";
+    public static final String AUCTION_CLAIMED = "auction.claimed.{positionSlotId}.{oldVolunteerId}";
     public static final String AUCTION_CANCELED = "auction.canceled.{positionSlotId}";
 
     public static final String TRADE_REQUEST_CREATED = "trade.request.created.{requestedVolunteerId}.{offeringVolunteerId}";
