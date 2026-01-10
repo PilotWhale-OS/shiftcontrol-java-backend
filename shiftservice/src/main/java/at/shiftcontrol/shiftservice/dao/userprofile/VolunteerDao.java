@@ -10,5 +10,5 @@ public interface VolunteerDao extends BasicDao<Volunteer, String> {
 
     Collection<Volunteer> findAllByShiftPlanAndVolunteerIds(long shiftPlanId, Collection<String> volunteerIds);
 
-    Collection<Volunteer> findAllByEvent(long eventId);
+    Collection<Volunteer> findAll();
 }

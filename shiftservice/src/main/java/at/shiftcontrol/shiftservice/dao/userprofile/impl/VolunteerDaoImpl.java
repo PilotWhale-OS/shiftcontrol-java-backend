@@ -52,7 +52,7 @@ public class VolunteerDaoImpl implements VolunteerDao {
     }
 
     @Override
-    public Collection<Volunteer> findAllByEvent(long eventId) {
-        return volunteerRepository.findAllByEvent(eventId);
+    public Collection<Volunteer> findAll() {
+        return volunteerRepository.findAll();
     }
 }
