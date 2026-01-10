@@ -12,6 +12,7 @@ import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.event.EventCloneService;
+import at.shiftcontrol.shiftservice.service.event.EventExportService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -40,6 +41,7 @@ public class EventEndpoint {
     private final ApplicationUserProvider userProvider;
     private final EventService eventService;
     private final EventCloneService eventCloneService;
+    private final EventExportService eventExportService;
     private final DashboardService dashboardService;
 
     @GetMapping("/{eventId}")
@@ -130,7 +132,7 @@ public class EventEndpoint {
         description = "Export event data for external use"
     )
     public ResponseEntity<Resource> exportEventData(@PathVariable String eventId, @RequestParam String format) {
-        var export = eventService.exportEvent(ConvertUtil.idToLong(eventId), format);
+        var export = eventExportService.exportEvent(ConvertUtil.idToLong(eventId), format);
 
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + export.getFileName())
