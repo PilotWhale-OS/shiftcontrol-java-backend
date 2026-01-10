@@ -69,7 +69,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.getById(requestedPositionSlotId);
 
-        securityHelper.assertUserIsVolunteer(requestedPositionSlot);
+        securityHelper.assertUserIsVolunteer(requestedPositionSlot, false);
 
         // get volunteers assigned to PositionSlot
         Collection<Volunteer> assignedVolunteers = requestedPositionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
@@ -328,7 +328,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(slotToBeTaken);
+        securityHelper.assertUserIsVolunteer(slotToBeTaken, true);
 
         // check if user is eligible for the requested position slot
         eligibilityService.validateIsEligibleAndNotSignedUp(slotToBeTaken, volunteer);

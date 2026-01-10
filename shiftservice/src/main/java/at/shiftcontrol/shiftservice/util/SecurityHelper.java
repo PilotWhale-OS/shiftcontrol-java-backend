@@ -81,33 +81,42 @@ public class SecurityHelper {
         return isVolunteerInPlan(shiftPlanId, currentUser);
     }
 
+    public boolean isVolunteerLickedInPlan(long shiftPlanId, ShiftControlUser user) {
+        return user.isLockedInPlan(shiftPlanId);
+    }
+
     public boolean isUserOnlyVolunteerInPlan(long shiftPlanId) {
         var currentUser = userProvider.getCurrentUser();
         return isVolunteerInPlan(shiftPlanId, currentUser) && !isUserPlanner(shiftPlanId, currentUser);
     }
 
-    public void assertUserIsVolunteer(long shiftPlanId, ShiftControlUser user) {
+    public void assertUserIsVolunteer(long shiftPlanId, ShiftControlUser user, boolean needsWriteAccess) {
         if (!isVolunteerInPlan(shiftPlanId, user)) {
             log.error("User is not a volunteer in plan with id: {}", shiftPlanId);
             throw new ForbiddenException("User is not a volunteer in plan.");
         }
+        if (needsWriteAccess && isVolunteerLickedInPlan(shiftPlanId, user)) {
+            log.error("User is locked in plan with id: {}", shiftPlanId);
+            throw new ForbiddenException("User is locked in plan.");
+        }
     }
 
-    public void assertUserIsVolunteer(long shiftPlanId) {
-        assertUserIsVolunteer(shiftPlanId, userProvider.getCurrentUser());
+    public void assertUserIsVolunteer(long shiftPlanId, boolean needsWriteAccess) {
+        assertUserIsVolunteer(shiftPlanId, userProvider.getCurrentUser(), needsWriteAccess);
     }
 
-    public void assertUserIsVolunteer(ShiftPlan shiftPlan) {
-        assertUserIsVolunteer(shiftPlan.getId());
+    public void assertUserIsVolunteer(ShiftPlan shiftPlan, boolean needsWriteAccess) {
+        assertUserIsVolunteer(shiftPlan.getId(), needsWriteAccess);
     }
 
-    public void assertUserIsVolunteer(Shift shift) {
-        assertUserIsVolunteer(shift.getShiftPlan());
+    public void assertUserIsVolunteer(Shift shift, boolean needsWriteAccess) {
+        assertUserIsVolunteer(shift.getShiftPlan(), needsWriteAccess);
     }
 
-    public void assertUserIsVolunteer(PositionSlot positionSlot) {
-        assertUserIsVolunteer(positionSlot.getShift());
+    public void assertUserIsVolunteer(PositionSlot positionSlot, boolean needsWriteAccess) {
+        assertUserIsVolunteer(positionSlot.getShift(), needsWriteAccess);
     }
+
     //     --------------------- Volunteer or Planner ---------------------
 
     private boolean isUserInPlan(long shiftPlanId) {

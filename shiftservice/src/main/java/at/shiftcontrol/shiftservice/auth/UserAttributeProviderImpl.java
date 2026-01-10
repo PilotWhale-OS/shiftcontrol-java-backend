@@ -31,7 +31,9 @@ public class UserAttributeProviderImpl implements UserAttributeProvider {
             .build((userId) -> volunteerDao.findById(userId)
                 .map(volunteer -> new UserAttributes(
                     volunteer.getVolunteeringPlans().stream().map(ShiftPlan::getId).collect(Collectors.toUnmodifiableSet()),
-                    volunteer.getPlanningPlans().stream().map(ShiftPlan::getId).collect(Collectors.toUnmodifiableSet()))).orElse(null));
+                    volunteer.getPlanningPlans().stream().map(ShiftPlan::getId).collect(Collectors.toUnmodifiableSet()),
+                    volunteer.getLockedPlans().stream().map(ShiftPlan::getId).collect(Collectors.toUnmodifiableSet())
+                )).orElse(null));
     }
 
     @Override
@@ -49,9 +51,15 @@ public class UserAttributeProviderImpl implements UserAttributeProvider {
         return Optional.ofNullable(attributesCache.get(userId)).map(attributes -> attributes.plannerPlans).orElse(Collections.EMPTY_SET);
     }
 
+    @Override
+    public Set<Long> getPlansWhereUserIsLocked(@NonNull String userId) {
+        return Optional.ofNullable(attributesCache.get(userId)).map(attributes -> attributes.lockedPlans).orElse(Collections.EMPTY_SET);
+    }
+
     @AllArgsConstructor
     private static class UserAttributes {
         Set<Long> volunteerPlans;
         Set<Long> plannerPlans;
+        Set<Long> lockedPlans;
     }
 }
