@@ -30,6 +30,7 @@ public class TrustService {
         String userId = event.getVolunteerId();
         String slotId = String.valueOf(event.getPositionSlot().getPositionSlotId());
         redisService.removeSignUp(userId, slotId);
+        checkSpam(userId, slotId);
     }
 
     public void handleTradeRequestCreated(TradeEvent event) {

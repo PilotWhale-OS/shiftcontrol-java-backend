@@ -15,7 +15,7 @@ public class RedisService {
     private final StringRedisTemplate redis;
 
     private static final long SPAM_WINDOW_SECONDS = 3600;       // 1h
-    private static final long SPAM_THRESHOLD = 2;
+    private static final long SPAM_THRESHOLD = 4;
     private static final long OVERLOAD_WINDOW_SECONDS = 1800;   // 30m
     private static final long OVERLOAD_THRESHOLD = 5;
     private static final long TRADE_THRESHOLD = 10;
@@ -30,7 +30,7 @@ public class RedisService {
     // ============================================
 
     public void addSignUp(String userId, String slotId) {
-        long now = Instant.now().getEpochSecond();
+        long now = Instant.now().toEpochMilli();
 
         // OVERLOAD tracking: add to signups ZSET
         redis.opsForZSet().add(overloadKey(userId), slotId, now);
@@ -47,7 +47,7 @@ public class RedisService {
     }
 
     public void removeSignUp(String userId, String slotId) {
-        long now = Instant.now().getEpochSecond();
+        long now = Instant.now().toEpochMilli();
 
         // OVERLOAD tracking: remove from signups ZSET
         redis.opsForZSet().remove(overloadKey(userId), slotId);
@@ -99,6 +99,7 @@ public class RedisService {
 
     public boolean hasTooManySignupsAndOffs(String userId, String slotId) {
         cleanupOld(spamKey(userId, slotId), SPAM_WINDOW_SECONDS);
+        System.out.println("CHECK SPAM: " + redis.opsForZSet().zCard(spamKey(userId, slotId)));
         return redis.opsForZSet().zCard(spamKey(userId, slotId)) >= SPAM_THRESHOLD;
     }
 
