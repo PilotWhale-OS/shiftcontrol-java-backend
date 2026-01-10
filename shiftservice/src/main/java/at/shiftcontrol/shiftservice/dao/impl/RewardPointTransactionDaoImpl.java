@@ -30,6 +30,10 @@ public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao 
 
     @Override
     public RewardPointTransaction save(RewardPointTransaction entity) {
+        findById(entity.getId())
+            .ifPresent(e -> {
+                throw new IllegalStateException("RewardPointTransaction already exists and cannot be updated.");
+            });
         return repo.save(entity);
     }
 
