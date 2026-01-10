@@ -11,4 +11,8 @@ public interface UserAdministrationService {
     UserEventDto getUser(String userId);
 
     UserEventDto updateUser(String userId, UserEventUpdateDto updateDto);
+
+    UserEventDto lockUser(String userId, long shiftPlanId);
+
+    UserEventDto unLockuser(String userId, long shiftPlanId);
 }

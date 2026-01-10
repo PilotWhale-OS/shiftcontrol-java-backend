@@ -29,5 +29,8 @@ public class UserEventDto {
     private Collection<String> planningPlans;
 
     @NotNull
+    private Collection<String> lockedPlans;
+
+    @NotNull
     private Collection<String> volunteeringPlans;
 }

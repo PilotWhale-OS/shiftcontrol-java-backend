@@ -28,6 +28,10 @@ public class UserMapper {
                 .stream()
                 .map(shiftPlan -> String.valueOf(shiftPlan.getId()))
                 .toList())
+            .lockedPlans(volunteer.getLockedPlans()
+                .stream()
+                .map(shiftPlan -> String.valueOf(shiftPlan.getId()))
+                .toList())
             .build();
     }
 

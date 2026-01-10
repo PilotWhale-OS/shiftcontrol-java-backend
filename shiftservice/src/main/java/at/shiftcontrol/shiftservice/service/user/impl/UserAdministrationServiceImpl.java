@@ -7,8 +7,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
@@ -21,6 +23,7 @@ import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.UserMapper;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     private final ShiftPlanDao shiftPlanDao;
     private final KeycloakUserService keycloakUserService;
     private final UserAttributeProvider userAttributeProvider;
+    private final SecurityHelper securityHelper;
 
     @Override
     @AdminOnly
@@ -42,11 +46,11 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @AdminOnly
     public UserEventDto getUser(String userId) {
         var volunteer = volunteerDao.getById(userId);
-        var user = keycloakUserService.getUserById(userId);
-        return UserMapper.toUserEventDto(volunteer, user);
+        return mapUser(volunteer);
     }
 
     @Override
+    @Transactional
     @AdminOnly
     public UserEventDto updateUser(String userId, UserEventUpdateDto updateDto) {
         var volunteer = volunteerDao.getById(userId);
@@ -66,14 +70,63 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         return UserMapper.toUserEventDto(volunteer, user);
     }
 
+    @Override
+    @Transactional
+    public UserEventDto lockUser(String userId, long shiftPlanId) {
+        securityHelper.assertUserIsPlanner(shiftPlanId);
+        var volunteer = volunteerDao.getById(userId);
+        var plan = shiftPlanDao.getById(shiftPlanId);
+        securityHelper.assertVolunteerIsNotLockedInPlan(plan, volunteer);
+        if (volunteer.getLockedPlans() == null) {
+            volunteer.setLockedPlans(new HashSet<>());
+        }
+        volunteer.getLockedPlans().add(plan);
+
+        userAttributeProvider.invalidateUserCache(userId);
+
+        return mapUser(volunteer);
+    }
+
+    @Override
+    @Transactional
+    public UserEventDto unLockuser(String userId, long shiftPlanId) {
+        securityHelper.assertUserIsPlanner(shiftPlanId);
+        var volunteer = volunteerDao.getById(userId);
+        var plan = shiftPlanDao.getById(shiftPlanId);
+        securityHelper.assertVolunteerIsLockedInPlan(plan, volunteer);
+        volunteer.getLockedPlans().remove(plan);
+
+        userAttributeProvider.invalidateUserCache(userId);
+
+        return mapUser(volunteer);
+    }
+
+    private UserEventDto mapUser(Volunteer volunteer) {
+        var user = keycloakUserService.getUserById(volunteer.getId());
+        return UserMapper.toUserEventDto(volunteer, user);
+    }
+
     private void addPlans(Volunteer volunteer, Set<Long> volunteerToAdd, Set<Long> planningToAdd) {
-        volunteer.getVolunteeringPlans().addAll(shiftPlanDao.getByIds(volunteerToAdd));
-        volunteer.getPlanningPlans().addAll(shiftPlanDao.getByIds(planningToAdd));
+        if (volunteerToAdd != null && !volunteerToAdd.isEmpty()) {
+            volunteer.setVolunteeringPlans(initIfNull(volunteer.getVolunteeringPlans()));
+            volunteer.getVolunteeringPlans().addAll(shiftPlanDao.getByIds(volunteerToAdd));
+        }
+        if (planningToAdd != null && !planningToAdd.isEmpty()) {
+            volunteer.setPlanningPlans(initIfNull(volunteer.getPlanningPlans()));
+            volunteer.getPlanningPlans().addAll(shiftPlanDao.getByIds(planningToAdd));
+        }
     }
 
     private void removePlans(Volunteer volunteer, Set<Long> volunteerToRemove, Set<Long> planningToRemove) {
-        volunteer.getVolunteeringPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
-        volunteer.getPlanningPlans().removeIf(x -> planningToRemove.contains(x.getId()));
+        if (volunteer.getVolunteeringPlans() != null) {
+            volunteer.getVolunteeringPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
+        }
+        if (volunteer.getVolunteeringPlans() != null) {
+            volunteer.getLockedPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
+        }
+        if (volunteer.getVolunteeringPlans() != null) {
+            volunteer.getPlanningPlans().removeIf(x -> planningToRemove.contains(x.getId()));
+        }
     }
 
     private Set<Long> toAdd(Collection<String> request, Collection<ShiftPlan> existingPlans) {
@@ -87,7 +140,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var existingIds = existingPlans.stream().map(ShiftPlan::getId).collect(Collectors.toSet());
         var requestSet = request.stream().map(ConvertUtil::idToLong).collect(Collectors.toSet());
         existingIds.removeAll(requestSet);
-        return requestSet;
+        return existingIds;
     }
 
     private void assertPlansChanged(Volunteer volunteer, UserEventUpdateDto updateDto) {
@@ -95,7 +148,11 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var currentPlaningPlans = volunteer.getPlanningPlans().stream().map(x -> String.valueOf(x.getId())).toList();
         if (new HashSet<>(currentVolunteeringPlans).equals(new HashSet<>(updateDto.getVolunteeringPlans()))
             && new HashSet<>(currentPlaningPlans).equals(new HashSet<>(updateDto.getPlanningPlans()))) {
-            throw new IllegalArgumentException("Update does not change anything");
+            throw new BadRequestException("Update does not change anything");
         }
+    }
+
+    private static <T> Collection<T> initIfNull(Collection<T> set) {
+        return set != null ? set : new HashSet<>();
     }
 }
