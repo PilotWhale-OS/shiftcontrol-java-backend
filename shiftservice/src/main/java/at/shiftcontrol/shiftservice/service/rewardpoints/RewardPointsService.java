@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.rewardpoints;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsExportDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;

@@ -9,6 +9,14 @@ import java.util.UUID;
 
 import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.exception.BadRequestException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;

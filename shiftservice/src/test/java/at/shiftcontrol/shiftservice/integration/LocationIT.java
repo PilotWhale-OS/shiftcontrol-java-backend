@@ -4,19 +4,20 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
-import at.shiftcontrol.shiftservice.dto.location.LocationDto;
-import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.Location;
-import at.shiftcontrol.shiftservice.integration.config.RestITBase;
-import at.shiftcontrol.shiftservice.repo.EventRepository;
-import at.shiftcontrol.shiftservice.repo.LocationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.Location;
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
+import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
+import at.shiftcontrol.shiftservice.integration.config.RestITBase;
+import at.shiftcontrol.shiftservice.repo.EventRepository;
+import at.shiftcontrol.shiftservice.repo.LocationRepository;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;

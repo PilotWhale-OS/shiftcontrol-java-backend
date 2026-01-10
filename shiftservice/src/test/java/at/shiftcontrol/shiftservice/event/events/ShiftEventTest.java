@@ -2,8 +2,9 @@ package at.shiftcontrol.shiftservice.event.events;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.entity.Shift;
-import at.shiftcontrol.shiftservice.event.events.parts.ShiftPart;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.event.events.ShiftEvent;
+import at.shiftcontrol.lib.event.events.parts.ShiftPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 

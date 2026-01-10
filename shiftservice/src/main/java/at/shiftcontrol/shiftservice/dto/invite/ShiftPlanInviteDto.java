@@ -11,9 +11,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import at.shiftcontrol.lib.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.type.ShiftPlanInviteType;
 
 @Data
 @NoArgsConstructor

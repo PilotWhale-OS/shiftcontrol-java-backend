@@ -5,9 +5,9 @@ import java.time.ZoneOffset;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
 
 public final class ActivitySpecifications {
     private ActivitySpecifications() {

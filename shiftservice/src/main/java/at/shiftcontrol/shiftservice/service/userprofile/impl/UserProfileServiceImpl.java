@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.type.NotificationType;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -15,7 +16,6 @@ import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
-import at.shiftcontrol.shiftservice.type.NotificationType;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service

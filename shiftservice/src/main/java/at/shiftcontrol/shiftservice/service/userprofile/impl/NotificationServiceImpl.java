@@ -15,16 +15,17 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.VolunteerNotificationAssignment;
+import at.shiftcontrol.lib.entity.VolunteerNotificationAssignmentId;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.NotificationSettingsEvent;
 import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
+import at.shiftcontrol.lib.type.NotificationChannel;
+import at.shiftcontrol.lib.type.NotificationType;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignment;
-import at.shiftcontrol.shiftservice.entity.VolunteerNotificationAssignmentId;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.NotificationSettingsEvent;
+import at.shiftcontrol.shiftservice.mapper.NotificationSettingsMapper;
 import at.shiftcontrol.shiftservice.repo.userprofile.NotificationRepository;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
-import at.shiftcontrol.shiftservice.type.NotificationChannel;
-import at.shiftcontrol.shiftservice.type.NotificationType;
 
 @Service
 @RequiredArgsConstructor
@@ -100,7 +101,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         publisher.publishEvent(NotificationSettingsEvent.of(RoutingKeys.format(RoutingKeys.VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED,
             Map.of("volunteerId", userId)),
-            userId, settings));
+            userId, NotificationSettingsMapper.toEntity(settings)));
         return settings;
     }
 

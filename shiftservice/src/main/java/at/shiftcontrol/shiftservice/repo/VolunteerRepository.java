@@ -3,7 +3,7 @@ package at.shiftcontrol.shiftservice.repo;
 import java.util.Collection;
 import java.util.Optional;
 
-import at.shiftcontrol.shiftservice.entity.Volunteer;
+import at.shiftcontrol.lib.entity.Volunteer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -58,6 +58,32 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
     Collection<Volunteer> findAllByEvent(long eventId);
 
     @Query("""
+            SELECT v
+            FROM Volunteer v
+            JOIN v.planningPlans p
+            WHERE p.id = :shiftPlanId
+        """)
+    Collection<Volunteer> findAllPlannersByShiftPlan(long shiftPlanId);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            JOIN v.planningPlans p
+            WHERE p.id = :shiftPlanId
+              AND v.id IN :plannerIds
+        """)
+    Collection<Volunteer> findAllByShiftPlanAndPlannerIds(long shiftPlanId, Collection<String> plannerIds);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            JOIN v.planningPlans p
+            WHERE p.event.id = :eventId
+              AND v.id IN :plannerIds
+        """)
+    Collection<Volunteer> findAllByEventAndPlannerIds(long eventId, Collection<String> plannerIds);
+
+    @Query("""
             SELECT DISTINCT v
             FROM Volunteer v
             JOIN v.volunteeringPlans p
@@ -65,4 +91,36 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
               AND v.id IN :volunteerIds
         """)
     Collection<Volunteer> findAllByShiftPlanAndVolunteerIds(long shiftPlanId, Collection<String> volunteerIds);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            JOIN v.volunteeringPlans p
+            WHERE p.event.id = :eventId
+              AND v.id IN :volunteerIds
+        """)
+    Collection<Volunteer> findAllByEventAndVolunteerIds(long eventId, Collection<String> volunteerIds);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            JOIN v.planningPlans p
+            WHERE p.event.id = :eventId
+        """)
+    Collection<Volunteer> findAllPlannersByEvent(long eventId);
+
+    @Query("""
+            SELECT DISTINCT v
+            FROM Volunteer v
+            WHERE v.id IN :volunteerIds
+        """)
+    Collection<Volunteer> findAllByVolunteerIds(Collection<String> volunteerIds);
+
+    @Query("""
+            select (count(sp) > 0)
+            from Volunteer v
+            join v.planningPlans sp
+            where v.id IN :plannerIds
+        """)
+    Collection<Volunteer> findAllByPlannerIds(Collection<String> plannerIds);
 }

@@ -2,12 +2,13 @@ package at.shiftcontrol.shiftservice.repo;
 
 import java.util.List;
 
-import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto;
-import at.shiftcontrol.shiftservice.entity.RewardPointsTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface RewardPointTransactionRepository extends JpaRepository<RewardPointsTransaction, Long> {
+import at.shiftcontrol.lib.entity.RewardPointTransaction;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto;
+
+public interface RewardPointTransactionRepository extends JpaRepository<RewardPointTransaction, Long> {
     /**
      * Global points for a volunteer: SUM(points).
      */

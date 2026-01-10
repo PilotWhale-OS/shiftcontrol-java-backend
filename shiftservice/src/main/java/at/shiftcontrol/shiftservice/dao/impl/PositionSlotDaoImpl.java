@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.PositionSlotPreference;
+import at.shiftcontrol.lib.entity.PositionSlotPreferenceId;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.PositionSlotPreference;
-import at.shiftcontrol.shiftservice.entity.PositionSlotPreferenceId;
 import at.shiftcontrol.shiftservice.repo.PositionSlotPreferenceRepository;
 import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 

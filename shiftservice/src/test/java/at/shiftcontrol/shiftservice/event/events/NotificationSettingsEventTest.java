@@ -2,8 +2,9 @@ package at.shiftcontrol.shiftservice.event.events;
 
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
-import at.shiftcontrol.shiftservice.event.events.parts.NotificationSettingsPart;
+import at.shiftcontrol.lib.entity.NotificationSettings;
+import at.shiftcontrol.lib.event.events.NotificationSettingsEvent;
+import at.shiftcontrol.lib.event.events.parts.NotificationSettingsPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -13,13 +14,13 @@ class NotificationSettingsEventTest {
     void of() {
         String routingKey = "routingKey";
         String volunteerId = "volunteerId";
-        NotificationSettingsDto notificationSettingsDto = mock(NotificationSettingsDto.class);
+        NotificationSettings notificationSettings = mock(NotificationSettings.class);
 
         NotificationSettingsPart notificationSettingsPart = mock(NotificationSettingsPart.class);
         try (var notificationSettingsPartMock = org.mockito.Mockito.mockStatic(NotificationSettingsPart.class)) {
-            notificationSettingsPartMock.when(() -> NotificationSettingsPart.of(notificationSettingsDto)).thenReturn(notificationSettingsPart);
+            notificationSettingsPartMock.when(() -> NotificationSettingsPart.of(notificationSettings)).thenReturn(notificationSettingsPart);
 
-            NotificationSettingsEvent notificationSettingsEvent = NotificationSettingsEvent.of(routingKey, volunteerId, notificationSettingsDto);
+            NotificationSettingsEvent notificationSettingsEvent = NotificationSettingsEvent.of(routingKey, volunteerId, notificationSettings);
 
             assertEquals(routingKey, notificationSettingsEvent.getRoutingKey());
             assertEquals(volunteerId, notificationSettingsEvent.getVolunteerId());

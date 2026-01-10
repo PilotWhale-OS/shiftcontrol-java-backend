@@ -7,20 +7,20 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.PositionSignupState;
+import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
 
 @Service
 @RequiredArgsConstructor

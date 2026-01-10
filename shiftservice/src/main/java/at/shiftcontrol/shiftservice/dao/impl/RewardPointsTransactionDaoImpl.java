@@ -3,13 +3,15 @@ package at.shiftcontrol.shiftservice.dao.impl;
 import java.util.Collection;
 import java.util.Optional;
 
-import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.entity.RewardPointTransaction;
+import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
-import at.shiftcontrol.shiftservice.entity.RewardPointsTransaction;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.repo.RewardPointTransactionRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
