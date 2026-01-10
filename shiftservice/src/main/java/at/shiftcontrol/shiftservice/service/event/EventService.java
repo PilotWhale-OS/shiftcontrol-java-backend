@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service.event;
 import java.util.List;
 
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.dto.event.EventExportDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
@@ -26,4 +27,6 @@ public interface EventService {
     EventDto updateEvent(long eventId, EventModificationDto eventModificationDto);
 
     void deleteEvent(long eventId);
+
+    EventExportDto exportEvent(long eventId, String format);
 }
