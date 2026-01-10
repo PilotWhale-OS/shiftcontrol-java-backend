@@ -51,11 +51,11 @@ class RoutingKeysTest {
 
     @Test
     void format_usesAssignmentSwitchCompletedConstant() {
-        var template = RoutingKeys.ASSIGNMENT_SWITCH_COMPLETED;
+        var template = RoutingKeys.TRADE_REQUEST_COMPLETED;
         var result = RoutingKeys.format(template, Map.of(
                 "requestedVolunteerId", "req",
                 "offeringVolunteerId", "off"));
-        assertEquals("assignment.switch.completed.req.off", result);
+        assertEquals("trade.request.completed.req.off", result);
     }
 
 }

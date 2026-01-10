@@ -20,7 +20,7 @@ public class AssignmentSwitchEvent extends BaseEvent {
     private final AssignmentPart offeringAssignment;
 
     public AssignmentSwitchEvent(AssignmentPart requestedAssignment, AssignmentPart offeringAssignment) {
-        super(RoutingKeys.format(RoutingKeys.ASSIGNMENT_SWITCH_COMPLETED,
+        super(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_COMPLETED,
             Map.of("requestedVolunteerId", requestedAssignment.getVolunteerId(),
                    "offeringVolunteerId", offeringAssignment.getVolunteerId())));
         this.requestedAssignment = requestedAssignment;

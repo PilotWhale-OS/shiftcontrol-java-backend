@@ -13,10 +13,6 @@ public final class RoutingKeys {
     public static final String ACTIVITY_UPDATED = "activity.updated.{activityId}";
     public static final String ACTIVITY_DELETED = "activity.deleted.{activityId}";
 
-    public static final String TRADE_REQUEST_CREATED = "trade.request.created.{requestedVolunteerId}.{offeringVolunteerId}";
-    public static final String TRADE_REQUEST_DECLINED = "trade.request.declined.{requestedVolunteerId}.{offeringVolunteerId}";
-    public static final String TRADE_REQUEST_CANCELED = "trade.request.canceled.{requestedVolunteerId}.{offeringVolunteerId}";
-
     public static final String EVENT_CREATED = "event.created";
     public static final String EVENT_CLONED = "event.cloned.{sourceEventId}.{newEventId}";
     public static final String EVENT_UPDATED = "event.updated.{eventId}";
@@ -33,16 +29,22 @@ public final class RoutingKeys {
     public static final String POSITIONSLOT_JOINED = "positionslot.joined.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_LEFT = "positionslot.left.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_JOIN = "positionslot.request.join.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_ACCEPTED = "positionslot.request.join.accepted.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_DECLINED = "positionslot.request.join.declined.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_LEAVE = "positionslot.request.leave.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_ACCEPTED = "positionslot.request.leave.accepted.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_DECLINED = "positionslot.request.leave.declined.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_PREFERENCE_UPDATED = "positionslot.preference.updated.{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_ACCEPTED = "positionslot.request.accepted.{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_DECLINED = "positionslot.request.declined.{volunteerId}.{positionSlotId}";
 
     public static final String AUCTION_CREATED = "auction.created.{positionSlotId}";
     public static final String AUCTION_CLAIMED = "auction.claimed.{positionSlotId}.{volunteerId}";
     public static final String AUCTION_CANCELED = "auction.canceled.{positionSlotId}";
 
-    public static final String ASSIGNMENT_SWITCH_COMPLETED = "assignment.switch.completed.{requestedVolunteerId}.{offeringVolunteerId}";
+    public static final String TRADE_REQUEST_CREATED = "trade.request.created.{requestedVolunteerId}.{offeringVolunteerId}";
+    public static final String TRADE_REQUEST_DECLINED = "trade.request.declined.{requestedVolunteerId}.{offeringVolunteerId}";
+    public static final String TRADE_REQUEST_CANCELED = "trade.request.canceled.{requestedVolunteerId}.{offeringVolunteerId}";
+    public static final String TRADE_REQUEST_COMPLETED = "trade.request.completed.{requestedVolunteerId}.{offeringVolunteerId}";
+
 
     public static final String SHIFTPLAN_CREATED = "shiftplan.created";
     public static final String SHIFTPLAN_UPDATED = "shiftplan.updated.{shiftPlanId}";
