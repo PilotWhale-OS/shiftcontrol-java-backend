@@ -17,9 +17,7 @@ public class TrustService {
     }
 
     public void handlePositionSlotJoined(PositionSlotVolunteerEvent event) {
-        redisService.set(event.getVolunteerId(), event.getRoutingKey());
-        String test = redisService.get(event.getVolunteerId());
-        System.out.println("REDIS test: " + test);
+
     }
 
     public void handlePositionSlotLeft(PositionSlotVolunteerEvent event) {

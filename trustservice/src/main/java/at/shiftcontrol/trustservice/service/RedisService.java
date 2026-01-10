@@ -12,12 +12,5 @@ public class RedisService {
         this.redis = redis;
     }
 
-    public void set(String key, String value) {
-        redis.opsForValue().set(key, value);
-    }
-
-    public String get(String key) {
-        return redis.opsForValue().get(key);
-    }
 
 }
