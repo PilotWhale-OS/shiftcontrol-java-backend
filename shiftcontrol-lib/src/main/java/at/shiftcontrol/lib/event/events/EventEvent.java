@@ -1,7 +1,5 @@
 package at.shiftcontrol.lib.event.events;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,11 +12,7 @@ import at.shiftcontrol.lib.event.events.parts.EventPart;
 public class EventEvent extends BaseEvent {
     private final EventPart event;
 
-    @JsonCreator
-    public EventEvent(
-        @JsonProperty("routingKey") String routingKey,
-        @JsonProperty("event") EventPart event
-    ) {
+    public EventEvent(String routingKey, EventPart event) {
         super(routingKey);
         this.event = event;
     }

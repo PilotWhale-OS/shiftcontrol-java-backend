@@ -10,12 +10,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.event.events.EventEvent;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.AssignmentEvent;
+import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
+import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.event.events.TradeEvent;
 
 @Slf4j
 @Component
 public class EventListener {
     private final ObjectMapper objectMapper;
+    private final String PREFIX = "shiftcontrol.";
 
     public EventListener(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -23,13 +28,75 @@ public class EventListener {
 
     @RabbitListener(queues = "${trust.rabbitmq.queue}")
     public void onMessage(
-        @Payload EventEvent event,
+        @Payload String rawJson,
         @Header(AmqpHeaders.RECEIVED_ROUTING_KEY) String routingKey
     ) throws JsonProcessingException {
-        log.info("Received event [{}] from user [{}] at [{}]",
-            routingKey,
-            event.getActingUserId(),
-            event.getTimestamp()
-        );
+        try {
+            log.info("Received message: routingKey={}, payload={}",
+                routingKey, rawJson);
+            if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_JOINED_PREFIX)) {
+                PositionSlotVolunteerEvent event =
+                    objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_LEFT_PREFIX)) {
+                PositionSlotVolunteerEvent event =
+                    objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.TRADE_REQUEST_CREATED_PREFIX)) {
+                TradeEvent event =
+                    objectMapper.readValue(rawJson, TradeEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.TRADE_REQUEST_DECLINED_PREFIX)) {
+                TradeEvent event =
+                    objectMapper.readValue(rawJson, TradeEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.TRADE_REQUEST_CANCELED_PREFIX)) {
+                TradeEvent event =
+                    objectMapper.readValue(rawJson, TradeEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.TRADE_REQUEST_COMPLETED_PREFIX)) {
+                AssignmentSwitchEvent event =
+                    objectMapper.readValue(rawJson, AssignmentSwitchEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.AUCTION_CREATED_PREFIX)) {
+                AssignmentEvent event =
+                    objectMapper.readValue(rawJson, AssignmentEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.AUCTION_CLAIMED_PREFIX)) {
+                AssignmentEvent event =
+                    objectMapper.readValue(rawJson, AssignmentEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.AUCTION_CANCELED_PREFIX)) {
+                AssignmentEvent event =
+                    objectMapper.readValue(rawJson, AssignmentEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX)) {
+                PositionSlotVolunteerEvent event =
+                    objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX)) {
+                PositionSlotVolunteerEvent event =
+                    objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
+            } else if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_PREFIX)) {
+                PositionSlotVolunteerEvent event =
+                    objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
+            } else {
+                log.warn("Unknown routing key: {}", routingKey);
+            }
+        } catch (JsonProcessingException e) {
+            log.error(
+                "Failed to deserialize message. routingKey={}, payload={}",
+                routingKey,
+                rawJson,
+                e
+            );
+        }
+        /*
+        - POSITIONSLOT_JOINED
+        - POSITIONSLOT_LEFT
+        - TRADE_REQUEST_CREATED
+        - TRADE_REQUEST_DECLINED
+        - TRADE_REQUEST_CANCELED
+        - TRADE_REQUEST_COMPLETED
+        - AUCTION_CREATED
+        - AUCTION_CLAIMED
+        - AUCTION_CANCELED
+        - POSITIONSLOT_REQUEST_LEAVE_ACCEPTED
+        - POSITIONSLOT_REQUEST_LEAVE_DECLINED
+        - POSITIONSLOT_REQUEST_LEAVE
+         */
+
+
+
     }
 }

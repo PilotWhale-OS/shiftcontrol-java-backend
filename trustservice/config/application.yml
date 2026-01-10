@@ -11,5 +11,5 @@ spring:
 trust:
   rabbitmq:
     exchange: shiftcontrol
-    queue: trust-alert-service
+    queue: trust-service
     routing-key: shiftcontrol.#
