@@ -112,28 +112,28 @@ public class TrustService {
     private void checkSpam(String userId, String slot) {
         if (redisService.hasTooManySignupsAndOffs(userId, slot)) {
             alertService.sendAlert("SPAM", userId);
-            // TODO reset after alert sent?
+            redisService.resetSpam(userId, slot);
         }
     }
 
     private void checkOverload(String userId) {
         if (redisService.hasTooManySignups(userId)) {
             alertService.sendAlert("OVERLOAD", userId);
-            // TODO reset after alert sent?
+            redisService.resetOverload(userId);
         }
     }
 
     private void checkTrade(String userId) {
         if (redisService.hasTooManyTrades(userId)) {
             alertService.sendAlert("TRADE", userId);
-            // TODO reset after alert sent?
+            redisService.resetTrades(userId);
         }
     }
 
     private void checkAuction(String userId) {
         if (redisService.hasTooManyAuctions(userId)) {
             alertService.sendAlert("AUCTION", userId);
-            // TODO reset after alert sent?
+            redisService.resetAuctions(userId);
         }
     }
 }

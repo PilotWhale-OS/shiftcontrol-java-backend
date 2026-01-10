@@ -92,8 +92,11 @@ public class RedisService {
     // QUERIES
     // ============================================
 
+    // TODO delete souts
+
     public boolean hasTooManySignups(String userId) {
         cleanupOld(overloadKey(userId), OVERLOAD_WINDOW_SECONDS);
+        System.out.println("CHECK OVERLOAD: " + redis.opsForZSet().zCard(overloadKey(userId)));
         return redis.opsForZSet().zCard(overloadKey(userId)) >= OVERLOAD_THRESHOLD;
     }
 
@@ -104,10 +107,12 @@ public class RedisService {
     }
 
     public boolean hasTooManyTrades(String userId) {
+        System.out.println("CHECK TRADE: " + redis.opsForSet().size(tradeKey(userId)));
         return redis.opsForSet().size(tradeKey(userId)) >= TRADE_THRESHOLD;
     }
 
     public boolean hasTooManyAuctions(String userId) {
+        System.out.println("CHECK AUCTION: " + redis.opsForSet().size(auctionKey(userId)));
         return redis.opsForSet().size(auctionKey(userId)) >= AUCTION_THRESHOLD;
     }
 
@@ -119,6 +124,26 @@ public class RedisService {
         long cutoff = Instant.now().minusSeconds(windowSeconds).getEpochSecond();
         redis.opsForZSet().removeRangeByScore(key, 0, cutoff);
     }
+
+    // RESETS
+
+    public void resetSpam(String userId, String slotId) {
+        redis.delete(spamKey(userId, slotId));
+    }
+
+    public void resetOverload(String userId) {
+        redis.delete(overloadKey(userId));
+    }
+
+    public void resetTrades(String userId) {
+        redis.delete(tradeKey(userId));
+    }
+
+    public void resetAuctions(String userId) {
+        redis.delete(auctionKey(userId));
+    }
+
+    // KEYS
 
     private String spamKey(String userId, String slotId) {
         return "trust:" + userId + ":join-leave:" + slotId;
