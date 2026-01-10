@@ -1,5 +1,13 @@
 services:
 
+  redis:
+    image: redis:7-alpine
+    container_name: trustservice-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - shiftcontrol
+
   trustservice:
     build:
       context: ../
@@ -8,6 +16,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shiftservice
       SPRING_DATASOURCE_USERNAME: shiftcontrol
       SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      - redis
     labels:
       - traefik.enable=true
       - traefik.http.routers.trustservice.entrypoints=web

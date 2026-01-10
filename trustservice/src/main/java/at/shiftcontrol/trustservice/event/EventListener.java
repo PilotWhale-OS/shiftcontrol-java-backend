@@ -23,6 +23,8 @@ public class EventListener {
     private final ObjectMapper objectMapper;
     private final TrustService trustService;
 
+    private static final String ROUTING_KEY_PREFIX = "shiftcontrol.";
+
     public EventListener(
         ObjectMapper objectMapper,
         TrustService trustService
@@ -40,62 +42,62 @@ public class EventListener {
             log.info("Received message: routingKey={}, payload={}",
                 routingKey, rawJson);
 
-            if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_JOINED_PREFIX)) {
+            if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_JOINED_PREFIX)) {
                 PositionSlotVolunteerEvent event =
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotJoined(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_LEFT_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_LEFT_PREFIX)) {
                 PositionSlotVolunteerEvent event =
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotLeft(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.TRADE_REQUEST_CREATED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.TRADE_REQUEST_CREATED_PREFIX)) {
                 TradeEvent event =
                     objectMapper.readValue(rawJson, TradeEvent.class);
                 trustService.handleTradeRequestCreated(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.TRADE_REQUEST_DECLINED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.TRADE_REQUEST_DECLINED_PREFIX)) {
                 TradeEvent event =
                     objectMapper.readValue(rawJson, TradeEvent.class);
                 trustService.handleTradeRequestDeclined(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.TRADE_REQUEST_CANCELED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.TRADE_REQUEST_CANCELED_PREFIX)) {
                 TradeEvent event =
                     objectMapper.readValue(rawJson, TradeEvent.class);
                 trustService.handleTradeRequestCanceled(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.TRADE_REQUEST_COMPLETED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.TRADE_REQUEST_COMPLETED_PREFIX)) {
                 AssignmentSwitchEvent event =
                     objectMapper.readValue(rawJson, AssignmentSwitchEvent.class);
                 trustService.handleTradeRequestCompleted(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.AUCTION_CREATED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.AUCTION_CREATED_PREFIX)) {
                 AssignmentEvent event =
                     objectMapper.readValue(rawJson, AssignmentEvent.class);
                 trustService.handleAuctionCreated(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.AUCTION_CLAIMED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.AUCTION_CLAIMED_PREFIX)) {
                 AssignmentEvent event =
                     objectMapper.readValue(rawJson, AssignmentEvent.class);
                 trustService.handleAuctionClaimed(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.AUCTION_CANCELED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.AUCTION_CANCELED_PREFIX)) {
                 AssignmentEvent event =
                     objectMapper.readValue(rawJson, AssignmentEvent.class);
                 trustService.handleAuctionCanceled(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX)) {
                 PositionSlotVolunteerEvent event =
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotRequestLeaveAccepted(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX)) {
                 PositionSlotVolunteerEvent event =
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotRequestLeaveDeclined(event);
 
-            } else if (routingKey.startsWith(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_PREFIX)) {
                 PositionSlotVolunteerEvent event =
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotRequestLeave(event);

@@ -10,8 +10,16 @@ import at.shiftcontrol.lib.event.events.TradeEvent;
 @Service
 public class TrustService {
 
-    public void handlePositionSlotJoined(PositionSlotVolunteerEvent event) {
+    private final RedisService redisService;
 
+    public TrustService(RedisService redisService) {
+        this.redisService = redisService;
+    }
+
+    public void handlePositionSlotJoined(PositionSlotVolunteerEvent event) {
+        redisService.set(event.getVolunteerId(), event.getRoutingKey());
+        String test = redisService.get(event.getVolunteerId());
+        System.out.println("REDIS test: " + test);
     }
 
     public void handlePositionSlotLeft(PositionSlotVolunteerEvent event) {
