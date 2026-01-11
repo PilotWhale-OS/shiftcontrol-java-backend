@@ -48,8 +48,8 @@ public class AdminUserAdministrationItemEndpoint {
 
     @PatchMapping("/lock")
     @Operation(
-        operationId = "updateUserPlans",
-        description = "Update user plans"
+        operationId = "lockUseeInPlan",
+        description = "Lock a user in a given plan"
     )
     public UserEventDto lockUserForPlan(
         @PathVariable String userId,
@@ -59,8 +59,8 @@ public class AdminUserAdministrationItemEndpoint {
 
     @PatchMapping("/unlock")
     @Operation(
-        operationId = "updateUserPlans",
-        description = "Update user plans"
+        operationId = "unlockUserInPlan",
+        description = "Unlock a user in a given plan"
     )
     public UserEventDto unLockUserForPlan(
         @PathVariable String userId,
