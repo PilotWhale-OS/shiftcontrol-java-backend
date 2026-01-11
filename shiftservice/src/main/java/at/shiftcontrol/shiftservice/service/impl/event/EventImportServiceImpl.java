@@ -38,6 +38,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -62,6 +63,7 @@ public class EventImportServiceImpl implements EventImportService {
 
     @Override
     @AdminOnly
+    @Transactional
     public EventImportResultDto importEvent(@NonNull MultipartFile file) {
         List<String> errors = new ArrayList<>();
 
@@ -108,7 +110,7 @@ public class EventImportServiceImpl implements EventImportService {
         Map<String, Activity> activityCache = new HashMap<>();
 
         for (ShiftRow r : model.shifts) {
-            ShiftPlan shiftPlan = null;
+            ShiftPlan shiftPlan;
             if (!shiftPlanCache.containsKey(r.shiftPlanName)) {
                 shiftPlan = ShiftPlan.builder()
                     .event(event)
@@ -118,6 +120,8 @@ public class EventImportServiceImpl implements EventImportService {
                     .build();
                 shiftPlan = shiftPlanDao.save(shiftPlan);
                 shiftPlanCache.put(r.shiftPlanName, shiftPlan);
+            } else {
+                shiftPlan = shiftPlanCache.get(r.shiftPlanName);
             }
 
             Location location = null;
@@ -129,6 +133,8 @@ public class EventImportServiceImpl implements EventImportService {
                     .build();
                 location = locationDao.save(location);
                 locationCache.put(r.locationName, location);
+            } else if (StringUtils.isNotBlank(r.locationName)) {
+                location = locationCache.get(r.locationName);
             }
 
             Activity activity = null;
@@ -142,6 +148,8 @@ public class EventImportServiceImpl implements EventImportService {
                     .build();
                 activity = activityDao.save(activity);
                 activityCache.put(r.activityName, activity);
+            } else if (StringUtils.isNotBlank(r.activityName)) {
+                activity = activityCache.get(r.activityName);
             }
 
             Shift shift = Shift.builder()
@@ -286,6 +294,20 @@ public class EventImportServiceImpl implements EventImportService {
         if (s == null || s.isBlank()) {
             return null;
         }
+
+        s = s.trim();
+
+        // Normalize common variants
+        if (s.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}Z")) {
+            // add seconds
+            s = s.replace("Z", ":00Z");
+        }
+
+        if (s.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$")) {
+            // assume UTC
+            s = s + ":00Z";
+        }
+
         try {
             return Instant.parse(s);
         } catch (Exception e) {
