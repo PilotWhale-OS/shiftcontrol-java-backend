@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.repo;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +24,22 @@ public class TrustAlertRepositoryTest {
     private TrustAlertRepository trustAlertRepository;
 
     @Test
-    void testGetAllActivities() {
+    void testGetAllTrustAlerts() {
         List<TrustAlert> trustAlerts = trustAlertRepository.findAll();
         Assertions.assertFalse(trustAlerts.isEmpty());
     }
 
     @Test
-    void testSaveActivity() {
+    void testGetAllByEventId() {
+        long eventId = 1L;
+        Collection<TrustAlert> trustAlerts = trustAlertRepository.findAllByEventId(eventId);
+        Assertions.assertFalse(trustAlerts.isEmpty());
+        trustAlerts.forEach(a -> Assertions.assertEquals(
+            eventId, a.getPositionSlot().getShift().getShiftPlan().getEvent().getId()));
+    }
+
+    @Test
+    void testSaveTrustAlert() {
         TrustAlert trustAlert = TrustAlert.builder()
             .alertType(TrustAlertType.OVERLOAD)
             .createdAt(Instant.now())
