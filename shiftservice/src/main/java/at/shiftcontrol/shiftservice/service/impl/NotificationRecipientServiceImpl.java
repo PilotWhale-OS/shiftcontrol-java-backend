@@ -1,5 +1,9 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -13,20 +17,11 @@ import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.mapper.AccountInfoMapper;
 import at.shiftcontrol.shiftservice.repo.userprofile.NotificationRepository;
 import at.shiftcontrol.shiftservice.service.NotificationRecipientService;
-
 import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
-
-import org.apache.commons.lang3.NotImplementedException;
-
-import org.keycloak.representations.idm.AbstractUserRepresentation;
-
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
-
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.apache.commons.lang3.NotImplementedException;
+import org.keycloak.representations.idm.AbstractUserRepresentation;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -39,11 +34,7 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
     @AdminOnly
     @Override
     public AccountInfoDto getRecipientInformation(String recipientid) {
-        var volunteerOpt = volunteerDao.findById(recipientid);
-        if(volunteerOpt.isEmpty()){
-            throw new BadRequestException("No volunteer found with id: " + recipientid);
-        }
-        var volunteer = volunteerOpt.get();
+        var volunteer = volunteerDao.getById(recipientid);
         var user = keycloakUserService.getUserById(volunteer.getId());
         return AccountInfoDto.builder()
             .id(user.getId())
@@ -67,17 +58,15 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
         Collection<String> recipientIds = null;
 
         /* if admin access level, all other filters are automatically true: in all plans and events */
-        if(filter.getReceiverAccessLevel() == ReceiverAccessLevel.ADMIN) {
+        if (filter.getReceiverAccessLevel() == ReceiverAccessLevel.ADMIN) {
             var admins = keycloakUserService.getAllAdmins();
 
-            if(filter.getRelatedVolunteerIds() != null){
+            if (filter.getRelatedVolunteerIds() != null) {
                 recipientIds = admins.stream()
                     .map(AbstractUserRepresentation::getId)
                     .filter(id -> filter.getRelatedVolunteerIds().contains(id))
                     .collect(Collectors.toSet());
-            }
-
-            else {
+            } else {
                 recipientIds = admins.stream()
                     .map(AbstractUserRepresentation::getId)
                     .collect(Collectors.toSet());
@@ -85,10 +74,10 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
         }
 
         // if specific volunteers are requested, only query those
-        else if(filter.getRelatedVolunteerIds() != null) {
+        else if (filter.getRelatedVolunteerIds() != null) {
 
             /* filter volunteers on plan level */
-            if(filter.getRelatedShiftPlanId() != null){
+            if (filter.getRelatedShiftPlanId() != null) {
 
                 /* depending on access type */
                 recipientIds = (switch (filter.getReceiverAccessLevel()) {
@@ -105,7 +94,7 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
             }
 
             /* filter on event level */
-            else if(filter.getRelatedEventId() != null) {
+            else if (filter.getRelatedEventId() != null) {
 
                 /* depending on access type */
                 recipientIds = (switch (filter.getReceiverAccessLevel()) {
@@ -139,7 +128,7 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
         else {
 
             /* filter by shift plan */
-            if(filter.getRelatedShiftPlanId() != null){
+            if (filter.getRelatedShiftPlanId() != null) {
 
                 /* depending on access type */
                 recipientIds = (switch (filter.getReceiverAccessLevel()) {
@@ -154,7 +143,7 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
             }
 
             /* filter by event */
-            else if(filter.getRelatedEventId() != null) {
+            else if (filter.getRelatedEventId() != null) {
 
                 /* depending on access level */
                 recipientIds = (switch (filter.getReceiverAccessLevel()) {
@@ -169,7 +158,7 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
             }
         }
 
-        if(recipientIds != null) {
+        if (recipientIds != null) {
 
             // if preselection made: filter by notification type and channel
             recipientIds = notificationRepository.findAllByVolunteerIdAndNotificationTypeAndChannelEnabled(
@@ -186,12 +175,12 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
         }
 
         /* no recipients; just return empty  */
-        if(recipientIds.isEmpty()){
+        if (recipientIds.isEmpty()) {
             return RecipientsDto.builder().recipients(Set.of()).build();
         }
 
         /* only one recipient found; get by id from keycloak  */
-        else if(recipientIds.size() == 1) {
+        else if (recipientIds.size() == 1) {
             var recipientId = recipientIds.iterator().next();
             var user = keycloakUserService.getUserById(recipientId);
             var accountInfo = AccountInfoMapper.toDto(user);
@@ -218,7 +207,7 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
     }
 
     private void validateFilter(RecipientsFilterDto filter) {
-        if(filter.getRelatedEventId() != null && filter.getRelatedShiftPlanId() != null) {
+        if (filter.getRelatedEventId() != null && filter.getRelatedShiftPlanId() != null) {
             throw new BadRequestException("Recipients can be filtered either by associated event or shift plan.");
         }
     }

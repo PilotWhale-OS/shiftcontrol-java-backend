@@ -11,13 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
+import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.entity.PositionSlot;
@@ -30,10 +24,8 @@ import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.ShiftPlanEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanInviteEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanVolunteerEvent;
-import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.lib.type.ShiftPlanInviteType;
@@ -81,6 +73,11 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -626,20 +623,17 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         validateInvite(invite);
         ShiftPlan shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
 
-        /* volunteer data might not yet exist */
-        Volunteer volunteer;
-        try {
-            volunteer = volunteerDao.getById(userId);
-        } catch (NotFoundException e) {
-            volunteer = Volunteer.builder()
+        // volunteer data might not yet exist
+        Volunteer volunteer = volunteerDao.findById(userId).orElseGet(() -> {
+            var newVolunteer = Volunteer.builder()
                 .id(userId)
                 .planningPlans(Collections.emptySet())
                 .volunteeringPlans(Collections.emptySet())
                 .roles(Collections.emptySet())
                 .notificationAssignments(Collections.emptySet())
                 .build();
-            volunteerDao.save(volunteer);
-        }
+            return volunteerDao.save(newVolunteer);
+        });
 
         boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
 
