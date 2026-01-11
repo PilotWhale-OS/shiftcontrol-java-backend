@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.type.TrustAlertType;
 import at.shiftcontrol.trustservice.config.EmbeddedRedisConfig;
 import at.shiftcontrol.trustservice.config.TrustServiceTestConfig;
 import at.shiftcontrol.trustservice.util.TestEntityFactory;
@@ -51,17 +52,17 @@ public class TrustServiceIT {
         trustService.handlePositionSlotJoined(
             TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, positionSlotId));
 
-        verify(alertService, Mockito.never()).sendAlert(any(), eq(userId));
+        verify(alertService, Mockito.never()).sendAlert(any(), eq(userId), eq(String.valueOf(positionSlotId)));
 
         // send alert only after threshold
         trustService.handlePositionSlotLeft(
             TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_LEFT, userId, positionSlotId));
-        verify(alertService, Mockito.atLeastOnce()).sendAlert(eq("SPAM"), eq(userId));
+        verify(alertService, Mockito.atLeastOnce()).sendAlert(eq(TrustAlertType.SPAM), eq(userId), eq(String.valueOf(positionSlotId)));
 
         // check that counter has been reset
         trustService.handlePositionSlotJoined(
             TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, positionSlotId));
-        verify(alertService, Mockito.times(1)).sendAlert(eq("SPAM"), eq(userId));
+        verify(alertService, Mockito.times(1)).sendAlert(eq(TrustAlertType.SPAM), eq(userId), eq(String.valueOf(positionSlotId)));
     }
 
     @Test
@@ -72,17 +73,17 @@ public class TrustServiceIT {
             trustService.handlePositionSlotJoined(
                 TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, i));
         }
-        verify(alertService, Mockito.never()).sendAlert(any(), eq(userId));
+        verify(alertService, Mockito.never()).sendAlert(any(), eq(userId), any());
 
         // send alert only after threshold
         trustService.handlePositionSlotJoined(
-            TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, i++));
-        verify(alertService, Mockito.atLeastOnce()).sendAlert(eq("OVERLOAD"), eq(userId));
+            TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, i));
+        verify(alertService, Mockito.atLeastOnce()).sendAlert(eq(TrustAlertType.OVERLOAD), eq(userId), eq(String.valueOf(i++)));
 
         // check that counter has been reset
         trustService.handlePositionSlotJoined(
-            TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, i++));
-        verify(alertService, Mockito.times(1)).sendAlert(eq("OVERLOAD"), eq(userId));
+            TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, i));
+        verify(alertService, Mockito.times(1)).sendAlert(eq(TrustAlertType.OVERLOAD), eq(userId), any());
     }
 
     @Test
@@ -95,38 +96,39 @@ public class TrustServiceIT {
                 TestEntityFactory.getTradeEvent(RoutingKeys.TRADE_REQUEST_CREATED,
                     userId, offeringPositionSlotId, String.valueOf(i), i));
         }
-        verify(alertService, Mockito.never()).sendAlert(any(), eq(userId));
+        verify(alertService, Mockito.never()).sendAlert(any(), eq(userId), any());
 
         // send alert only after threshold
         trustService.handleTradeRequestCreated(
             TestEntityFactory.getTradeEvent(RoutingKeys.TRADE_REQUEST_CREATED,
-                userId, offeringPositionSlotId, String.valueOf(i), i++));
-        verify(alertService, Mockito.atLeastOnce()).sendAlert(eq("TRADE"), eq(userId));
+                userId, offeringPositionSlotId, String.valueOf(i), i));
+        verify(alertService, Mockito.atLeastOnce()).sendAlert(eq(TrustAlertType.TRADE), eq(userId), eq(String.valueOf(offeringPositionSlotId)));
 
         // check that counter has been reset
         trustService.handleTradeRequestCreated(
             TestEntityFactory.getTradeEvent(RoutingKeys.TRADE_REQUEST_CREATED,
-                userId, offeringPositionSlotId, String.valueOf(i), i++));
-        verify(alertService, Mockito.times(1)).sendAlert(eq("TRADE"), eq(userId));
+                userId, offeringPositionSlotId, String.valueOf(i), i));
+        verify(alertService, Mockito.times(1)).sendAlert(eq(TrustAlertType.TRADE), eq(userId), any());
     }
 
     @Test
     void testAuctionAlert() {
         String userId = "42";
-        for (int i = 0; i < 2; i++) {
+        int i = 0;
+        for (; i < 2; i++) {
             trustService.handleAuctionCreated(
                 TestEntityFactory.getAssignmentEvent(RoutingKeys.AUCTION_CREATED, userId, i));
         }
-        verify(alertService, Mockito.never()).sendAlert(any(), eq(userId));
+        verify(alertService, Mockito.never()).sendAlert(any(), eq(userId), any());
 
         // send alert only after threshold
         trustService.handleAuctionCreated(
-            TestEntityFactory.getAssignmentEvent(RoutingKeys.AUCTION_CREATED, userId, 3));
-        verify(alertService, Mockito.atLeastOnce()).sendAlert(eq("AUCTION"), eq(userId));
+            TestEntityFactory.getAssignmentEvent(RoutingKeys.AUCTION_CREATED, userId, i));
+        verify(alertService, Mockito.atLeastOnce()).sendAlert(eq(TrustAlertType.AUCTION), eq(userId), eq(String.valueOf(i++)));
 
         // check that counter has been reset
         trustService.handleAuctionCreated(
-            TestEntityFactory.getAssignmentEvent(RoutingKeys.AUCTION_CREATED, userId, 4));
-        verify(alertService, Mockito.times(1)).sendAlert(eq("AUCTION"), eq(userId));
+            TestEntityFactory.getAssignmentEvent(RoutingKeys.AUCTION_CREATED, userId, i));
+        verify(alertService, Mockito.times(1)).sendAlert(eq(TrustAlertType.AUCTION), eq(userId), any());
     }
 }

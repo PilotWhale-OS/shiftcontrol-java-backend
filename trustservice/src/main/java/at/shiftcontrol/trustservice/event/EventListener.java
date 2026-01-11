@@ -103,11 +103,11 @@ public class EventListener {
                 trustService.handlePositionSlotRequestLeave(event);
 
             } else {
-                log.warn("Unknown routing key: {}", routingKey);
+                log.warn("Not processing routing key: {}", routingKey);
             }
         } catch (JsonProcessingException e) {
             log.error(
-                "Failed to deserialize message. routingKey={}, payload={}",
+                "Failed to process message. routingKey={}, payload={}",
                 routingKey,
                 rawJson,
                 e
