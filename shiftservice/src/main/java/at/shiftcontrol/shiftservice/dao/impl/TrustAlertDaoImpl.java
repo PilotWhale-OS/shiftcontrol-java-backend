@@ -13,11 +13,16 @@ import at.shiftcontrol.shiftservice.repo.TrustAlertRepository;
 @RequiredArgsConstructor
 @Component
 public class TrustAlertDaoImpl implements TrustAlertDao {
-
     TrustAlertRepository repository;
 
     @Override
-    public Collection<TrustAlert> findAllByEventId(long eventId) {
-        return repository.findAllByEventId(eventId);
+    public Collection<TrustAlert> getAllPaginated(long page, long size) {
+        long offset = page * size;
+        return repository.getAllPaginated(offset, size);
+    }
+
+    @Override
+    public TrustAlert save(TrustAlert alert) {
+        return repository.save(alert);
     }
 }

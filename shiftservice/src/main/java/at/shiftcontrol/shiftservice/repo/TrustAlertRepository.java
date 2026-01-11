@@ -10,8 +10,10 @@ import at.shiftcontrol.lib.entity.TrustAlert;
 public interface TrustAlertRepository extends JpaRepository<TrustAlert, Long> {
 
     @Query("""
-        SELECT a FROM TrustAlert a
-        WHERE a.positionSlot.shift.shiftPlan.event.id = :eventId
+            SELECT a
+            FROM TrustAlert a
+            ORDER BY a.createdAt DESC
+            LIMIT :size OFFSET :offset
         """)
-    Collection<TrustAlert> findAllByEventId(long eventId);
+    Collection<TrustAlert> getAllPaginated(long offset, long size);
 }

@@ -5,6 +5,7 @@ import java.util.Collection;
 import at.shiftcontrol.lib.entity.TrustAlert;
 
 public interface TrustAlertDao {
+    Collection<TrustAlert> getAllPaginated(long page, long size);
 
-    Collection<TrustAlert> findAllByEventId(long eventId);
+    TrustAlert save(TrustAlert alert);
 }

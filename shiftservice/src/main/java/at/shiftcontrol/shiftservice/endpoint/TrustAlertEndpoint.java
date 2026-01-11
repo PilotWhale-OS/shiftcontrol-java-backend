@@ -1,0 +1,43 @@
+package at.shiftcontrol.shiftservice.endpoint;
+
+import java.util.Collection;
+
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.entity.TrustAlert;
+import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
+import at.shiftcontrol.shiftservice.service.TrustAlertService;
+
+@RestController
+@RequestMapping(value = "api/v1/trust-alerts", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
+public class TrustAlertEndpoint {
+    TrustAlertService trustAlertService;
+
+    @GetMapping
+    @Operation(
+        operationId = "getAllTrustAlerts",
+        description = "Retrieves all trust alerts"
+    )
+    public Collection<TrustAlertDisplayDto> getAllTrustAlerts(@RequestParam long page, @RequestParam long size) {
+        return trustAlertService.getAllPaginated(page, size);
+    }
+
+    @PostMapping
+    @Operation(
+        operationId = "saveTrustAlert",
+        description = "Saves the trust alert"
+    )
+    public TrustAlertDisplayDto saveTrustAlert(@RequestBody TrustAlert trustAlert) {
+        return trustAlertService.save(trustAlert);
+    }
+}

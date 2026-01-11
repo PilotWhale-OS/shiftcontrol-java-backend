@@ -31,11 +31,10 @@ public class TrustAlertRepositoryTest {
 
     @Test
     void testGetAllByEventId() {
-        long eventId = 1L;
-        Collection<TrustAlert> trustAlerts = trustAlertRepository.findAllByEventId(eventId);
-        Assertions.assertFalse(trustAlerts.isEmpty());
-        trustAlerts.forEach(a -> Assertions.assertEquals(
-            eventId, a.getPositionSlot().getShift().getShiftPlan().getEvent().getId()));
+        long page = 0L;
+        long size = 2L;
+        Collection<TrustAlert> trustAlerts = trustAlertRepository.getAllPaginated(page, size);
+        Assertions.assertEquals(size, trustAlerts.size());
     }
 
     @Test
