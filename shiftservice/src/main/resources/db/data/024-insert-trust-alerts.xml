@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="024-insert-trust-alerts" author="paul" context="dev">
+
+    <insert tableName="trust_alert">
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+      <column name="position_slot_id" valueNumeric="1"/>
+      <column name="alert_type" value="SPAM"/>
+      <column name="created_at" value="2025-09-12T07:00:00Z"/>
+    </insert>
+
+    <insert tableName="trust_alert">
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+      <column name="position_slot_id" valueNumeric="2"/>
+      <column name="alert_type" value="OVERLOAD"/>
+      <column name="created_at" value="2025-09-12T07:10:00Z"/>
+    </insert>
+
+    <insert tableName="trust_alert">
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+      <column name="position_slot_id" valueNumeric="1"/>
+      <column name="alert_type" value="TRADE"/>
+      <column name="created_at" value="2025-09-12T07:30:00Z"/>
+    </insert>
+
+    <insert tableName="trust_alert">
+      <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+      <column name="position_slot_id" valueNumeric="2"/>
+      <column name="alert_type" value="AUCTION"/>
+      <column name="created_at" value="2025-09-12T08:00:00Z"/>
+    </insert>
+
+  </changeSet>
+
+</databaseChangeLog>
