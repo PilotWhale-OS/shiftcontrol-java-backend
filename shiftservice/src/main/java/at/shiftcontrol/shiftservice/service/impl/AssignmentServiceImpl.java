@@ -10,25 +10,25 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.AssignmentEvent;
+import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
+import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.AssignmentEvent;
-import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
-import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
 
 @Service
 @RequiredArgsConstructor

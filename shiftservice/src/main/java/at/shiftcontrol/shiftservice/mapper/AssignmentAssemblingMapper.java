@@ -9,6 +9,11 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import lombok.NonNull;
+
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;

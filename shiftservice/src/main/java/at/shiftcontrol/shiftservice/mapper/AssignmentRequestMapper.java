@@ -9,6 +9,13 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
 import at.shiftcontrol.shiftservice.entity.Assignment;

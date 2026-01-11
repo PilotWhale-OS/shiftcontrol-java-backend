@@ -2,18 +2,18 @@ package at.shiftcontrol.shiftservice.repo;
 
 import java.util.List;
 
+import at.shiftcontrol.lib.entity.RewardPointsTransaction;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto;
-import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface RewardPointTransactionRepository extends JpaRepository<RewardPointTransaction, Long> {
+public interface RewardPointTransactionRepository extends JpaRepository<RewardPointsTransaction, Long> {
     /**
      * Global points for a volunteer: SUM(points).
      */
     @Query("""
             select coalesce(sum(t.points), 0)
-            from RewardPointTransaction t
+            from RewardPointsTransaction t
             where t.volunteerId = :volunteerId
         """)
     long sumPointsByVolunteer(String volunteerId);
@@ -23,11 +23,19 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
      */
     @Query("""
             select coalesce(sum(t.points), 0)
-            from RewardPointTransaction t
+            from RewardPointsTransaction t
             where t.volunteerId = :volunteerId
               and t.eventId = :eventId
         """)
     long sumPointsByVolunteerAndEvent(String volunteerId, Long eventId);
+
+    @Query("""
+            select coalesce(sum(t.points), 0)
+            from RewardPointsTransaction t
+            where t.volunteerId = :volunteerId
+              and t.shiftPlanId = :shiftPlanId
+        """)
+    long sumPointsByVolunteerAndShiftPlan(String volunteerId, Long shiftPlanId);
 
     /**
      * Points per event for a volunteer: GROUP BY event.
@@ -36,12 +44,12 @@ public interface RewardPointTransactionRepository extends JpaRepository<RewardPo
             select new at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto(
                 t.eventId, coalesce(sum(t.points), 0)
             )
-            from RewardPointTransaction t
+            from RewardPointsTransaction t
             where t.volunteerId = :volunteerId
             group by t.eventId
             order by t.eventId
         """)
-    List<EventPointsInternalDto> sumPointsGroupedByEvent(String volunteerId);
+    List<EventPointsInternalDto> sumPointsForUserGroupedByEvent(String volunteerId);
 
-    List<RewardPointTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId);
+    List<RewardPointsTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId);
 }

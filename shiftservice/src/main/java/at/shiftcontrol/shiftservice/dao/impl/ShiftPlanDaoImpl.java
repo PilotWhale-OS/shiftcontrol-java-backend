@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 
 @RequiredArgsConstructor

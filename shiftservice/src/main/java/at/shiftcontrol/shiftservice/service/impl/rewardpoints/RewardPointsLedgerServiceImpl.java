@@ -4,19 +4,19 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 
+import at.shiftcontrol.lib.entity.RewardPointsTransaction;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.RewardPointTransactionEvent;
+import at.shiftcontrol.lib.type.RewardPointTransactionType;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.BookingResultDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsTransactionDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
-import at.shiftcontrol.shiftservice.entity.RewardPointTransaction;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.RewardPointTransactionEvent;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
-import at.shiftcontrol.shiftservice.type.RewardPointTransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService {
-    private final RewardPointTransactionDao dao;
+    private final RewardPointsTransactionDao dao;
     private final VolunteerDao volunteerDao;
     private final EventDao eventDao;
     private final ApplicationEventPublisher publisher;
@@ -91,7 +91,7 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
     ) {
         validateInputs(userId, eventId, points, sourceKey, type);
 
-        RewardPointTransaction tx = RewardPointTransaction.builder()
+        RewardPointsTransaction tx = RewardPointsTransaction.builder()
             .volunteerId(userId)
             .eventId(eventId)
             .shiftPlanId(shiftPlanId) // optional
@@ -104,16 +104,16 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
             .build();
 
         try {
-            RewardPointTransaction saved = dao.save(tx);
+            RewardPointsTransaction saved = dao.save(tx);
 
-            publisher.publishEvent(RewardPointTransactionEvent.of(RoutingKeys.format(RoutingKeys.REWARDPOINT_TRANSACTION_CREATED, Map.of(
+            publisher.publishEvent(RewardPointTransactionEvent.of(RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_CREATED, Map.of(
                 "volunteerId", saved.getVolunteerId(),
                 "transactionId", saved.getId())), saved
             ));
             return new BookingResultDto(true, saved);
         } catch (DataIntegrityViolationException e) {
             // publish failed event with uncommitted transaction data
-            publisher.publishEvent(RewardPointTransactionEvent.of(RoutingKeys.format(RoutingKeys.REWARDPOINT_TRANSACTION_FAILED, Map.of(
+            publisher.publishEvent(RewardPointTransactionEvent.of(RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_FAILED, Map.of(
                 "volunteerId", tx.getVolunteerId())), tx
             ));
 
@@ -160,6 +160,6 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
     @Transactional(readOnly = true)
     @IsNotAdmin
     public Collection<EventPointsDto> getPointsGroupedByEvent(String userId) {
-        return dao.sumPointsGroupedByEvent(userId);
+        return dao.sumPointsForUserGroupedByEvent(userId);
     }
 }

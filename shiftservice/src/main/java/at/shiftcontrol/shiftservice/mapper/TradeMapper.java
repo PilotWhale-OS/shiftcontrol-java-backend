@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
 import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 
 @RequiredArgsConstructor
 @Service

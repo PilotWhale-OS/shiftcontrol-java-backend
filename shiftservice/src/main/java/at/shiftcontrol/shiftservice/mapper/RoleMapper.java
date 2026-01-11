@@ -3,12 +3,14 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
-import at.shiftcontrol.shiftservice.dto.role.RoleDto;
-import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
-import at.shiftcontrol.shiftservice.entity.role.Role;
+import org.springframework.stereotype.Service;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+
+import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 
 @RequiredArgsConstructor
 @Service

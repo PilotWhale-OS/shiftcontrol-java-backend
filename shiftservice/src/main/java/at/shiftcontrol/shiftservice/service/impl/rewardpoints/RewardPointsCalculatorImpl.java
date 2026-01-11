@@ -3,17 +3,19 @@ package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
 import java.util.HashMap;
 import java.util.Map;
 
-import at.shiftcontrol.lib.util.TimeUtil;
-import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.role.Role;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.stereotype.Service;
+
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.util.TimeUtil;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsSnapshotDto;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 
 @Service
 @RequiredArgsConstructor

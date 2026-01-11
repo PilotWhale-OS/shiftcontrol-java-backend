@@ -2,8 +2,8 @@ package at.shiftcontrol.shiftservice.dao;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
-import at.shiftcontrol.shiftservice.type.TimeConstraintType;
+import at.shiftcontrol.lib.entity.TimeConstraint;
+import at.shiftcontrol.lib.type.TimeConstraintType;
 
 public interface TimeConstraintDao extends BasicDao<TimeConstraint, Long> {
     Collection<TimeConstraint> searchByVolunteerAndEvent(String volunteerId, long eventId);

@@ -3,12 +3,14 @@ package at.shiftcontrol.shiftservice.dao.impl.specification;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
+import org.springframework.data.jpa.domain.Specification;
+
+import jakarta.persistence.criteria.JoinType;
+
+import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.entity.Shift;
-import jakarta.persistence.criteria.JoinType;
-import org.springframework.data.jpa.domain.Specification;
 
 public final class ShiftSpecifications {
     private ShiftSpecifications() {

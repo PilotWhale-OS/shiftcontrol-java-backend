@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 
 @Repository
 public interface ShiftPlanRepository extends JpaRepository<ShiftPlan, Long>, JpaSpecificationExecutor<ShiftPlan> {

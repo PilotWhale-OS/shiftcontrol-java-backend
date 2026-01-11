@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateResponseDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
@@ -15,7 +16,6 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
-import at.shiftcontrol.shiftservice.type.LockStatus;
 
 public interface ShiftPlanService {
     Collection<ShiftPlanDto> getAll(long eventId);

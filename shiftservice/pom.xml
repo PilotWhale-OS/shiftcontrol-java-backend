@@ -2,267 +2,275 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>at.shiftcontrol</groupId>
-    <artifactId>shiftcontrol-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>at.shiftcontrol</groupId>
+        <artifactId>shiftcontrol-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>shiftservice</artifactId>
+    <artifactId>shiftservice</artifactId>
 
-  <properties>
-    <maven.compiler.source>25</maven.compiler.source>
-    <maven.compiler.target>25</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <!-- codegen defaults (can be overridden via -D...) -->
-    <codegen.schemas.dir>${project.build.directory}/schemas</codegen.schemas.dir>
-    <codegen.csharp.out>${project.build.directory}/../../notificationservice/Generated/EventClasses.cs</codegen.csharp.out>
+        <!-- codegen defaults (can be overridden via -D...) -->
+        <codegen.schemas.dir>${project.build.directory}/schemas</codegen.schemas.dir>
+        <codegen.csharp.out>${project.build.directory}/../../notificationservice/Generated/EventClasses.cs
+        </codegen.csharp.out>
 
-    <!-- pin versions -->
-    <codegen.node.version>v24.12.0</codegen.node.version>
-    <codegen.npm.version>11.7.0</codegen.npm.version>
-    <codegen.quicktype.version>23.2.6</codegen.quicktype.version>
-  </properties>
+        <!-- pin versions -->
+        <codegen.node.version>v24.12.0</codegen.node.version>
+        <codegen.npm.version>11.7.0</codegen.npm.version>
+        <codegen.quicktype.version>23.2.6</codegen.quicktype.version>
+    </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-amqp</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-opentelemetry</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-liquibase</artifactId>
-      <version>4.0.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>at.shiftcontrol</groupId>
-      <artifactId>shiftcontrol-lib</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>at.shiftcontrol</groupId>
-      <artifactId>pretalx-client</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-admin-client</artifactId>
-      <version>26.0.7</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-
-  <build>
-    <plugins>
-      <!-- keep normal build clean -->
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>codegen</id>
-      <build>
-        <plugins>
-          <!-- 1) Generate JSON Schemas from event classes -->
-          <plugin>
-            <groupId>com.github.victools</groupId>
-            <artifactId>jsonschema-maven-plugin</artifactId>
-            <version>4.38.0</version>
-            <executions>
-              <execution>
-                <id>generate-event-schemas</id>
-                <phase>compile</phase>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-                <configuration>
-                  <packageNames>at/shiftcontrol/shiftservice/event/**</packageNames>
-
-                  <schemaFilePath>${project.build.directory}</schemaFilePath>
-                  <schemaFileName>{0}.schema</schemaFileName>
-
-                  <schemaVersion>DRAFT_2020_12</schemaVersion>
-
-                  <skipAbstractTypes>true</skipAbstractTypes>
-                  <skipInterfaces>true</skipInterfaces>
-
-                  <classpath>PROJECT_ONLY</classpath>
-                  <failIfNoClassesMatch>true</failIfNoClassesMatch>
-
-                  <options>
-                    <preset>PLAIN_JSON</preset>
-                    <enabled>
-                      <option>DEFINITIONS_FOR_ALL_OBJECTS</option>
-                      <option>FORBIDDEN_ADDITIONAL_PROPERTIES_BY_DEFAULT</option>
-<!--                      <option>NULLABLE_FIELDS_BY_DEFAULT</option>-->
-                      <option>VALUES_FROM_CONSTANT_FIELDS</option>
-                      <option>PUBLIC_STATIC_FIELDS</option>
-<!--                      <option>DEFINITION_FOR_MAIN_SCHEMA</option>-->
-                    </enabled>
-                  </options>
-
-                  <modules>
-                    <module>
-                      <name>Jackson</name>
-                    </module>
-                    <module>
-                      <name>JakartaValidation</name>
-                    </module>
-                  </modules>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <!-- 2) Install Node/NPM + run quicktype OS-agnostically -->
-          <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>1.15.1</version>
-            <executions>
-              <execution>
-                <id>install-node-and-npm</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>install-node-and-npm</goal>
-                </goals>
-                <configuration>
-                  <nodeVersion>${codegen.node.version}</nodeVersion>
-                  <npmVersion>${codegen.npm.version}</npmVersion>
-
-                  <!-- all local to target/, works on Windows/Linux/macOS -->
-                  <installDirectory>${project.build.directory}</installDirectory>
-                  <workingDirectory>${project.build.directory}</workingDirectory>
-                </configuration>
-              </execution>
-
-              <!-- Run quicktype via npm exec (no hardcoded node.exe, no exec-maven-plugin) -->
-              <execution>
-                <id>quicktype-csharp</id>
-                <phase>compile</phase>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <configuration>
-                  <workingDirectory>${project.build.directory}</workingDirectory>
-                  <arguments>
-                    exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype --src-lang schema --lang csharp --features just-types-and-namespace --out "${codegen.csharp.out}" --namespace "ShiftControl.Events" "./"
-                  </arguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>openapi</id>
-      <build>
-        <plugins>
-          <plugin>
+    <dependencies>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>start</id>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <profiles>openapi</profiles>
-                  <jvmArguments>-Dserver.port=8080</jvmArguments>
-                </configuration>
-              </execution>
-              <execution>
-                <id>stop</id>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-                <phase>post-integration-test</phase>
-              </execution>
-            </executions>
-          </plugin>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-opentelemetry</artifactId>
+        </dependency>
 
-          <plugin>
+        <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-maven-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-              <execution>
-                <id>generate-openapi</id>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-                <phase>integration-test</phase>
-              </execution>
-            </executions>
-            <configuration>
-              <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
-              <outputFileName>openapi.json</outputFileName>
-              <outputDir>${project.build.directory}</outputDir>
-            </configuration>
-          </plugin>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-liquibase</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>at.shiftcontrol</groupId>
+            <artifactId>shiftcontrol-lib</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>at.shiftcontrol</groupId>
+            <artifactId>pretalx-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>26.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <!-- keep normal build clean -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>codegen</id>
+            <build>
+                <plugins>
+                    <!-- 1) Generate JSON Schemas from event classes -->
+                    <plugin>
+                        <groupId>com.github.victools</groupId>
+                        <artifactId>jsonschema-maven-plugin</artifactId>
+                        <version>4.38.0</version>
+                        <executions>
+                            <execution>
+                                <id>generate-event-schemas</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <configuration>
+                                    <packageNames>at/shiftcontrol/shiftservice/event/**</packageNames>
+
+                                    <schemaFilePath>${project.build.directory}</schemaFilePath>
+                                    <schemaFileName>{0}.schema</schemaFileName>
+
+                                    <schemaVersion>DRAFT_2020_12</schemaVersion>
+
+                                    <skipAbstractTypes>true</skipAbstractTypes>
+                                    <skipInterfaces>true</skipInterfaces>
+
+                                    <classpath>PROJECT_ONLY</classpath>
+                                    <failIfNoClassesMatch>true</failIfNoClassesMatch>
+
+                                    <options>
+                                        <preset>PLAIN_JSON</preset>
+                                        <enabled>
+                                            <option>DEFINITIONS_FOR_ALL_OBJECTS</option>
+                                            <option>FORBIDDEN_ADDITIONAL_PROPERTIES_BY_DEFAULT</option>
+                                            <!--                      <option>NULLABLE_FIELDS_BY_DEFAULT</option>-->
+                                            <option>VALUES_FROM_CONSTANT_FIELDS</option>
+                                            <option>PUBLIC_STATIC_FIELDS</option>
+                                            <!--                      <option>DEFINITION_FOR_MAIN_SCHEMA</option>-->
+                                        </enabled>
+                                    </options>
+
+                                    <modules>
+                                        <module>
+                                            <name>Jackson</name>
+                                        </module>
+                                        <module>
+                                            <name>JakartaValidation</name>
+                                        </module>
+                                    </modules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- 2) Install Node/NPM + run quicktype OS-agnostically -->
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>1.15.1</version>
+                        <executions>
+                            <execution>
+                                <id>install-node-and-npm</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>install-node-and-npm</goal>
+                                </goals>
+                                <configuration>
+                                    <nodeVersion>${codegen.node.version}</nodeVersion>
+                                    <npmVersion>${codegen.npm.version}</npmVersion>
+
+                                    <!-- all local to target/, works on Windows/Linux/macOS -->
+                                    <installDirectory>${project.build.directory}</installDirectory>
+                                    <workingDirectory>${project.build.directory}</workingDirectory>
+                                </configuration>
+                            </execution>
+
+                            <!-- Run quicktype via npm exec (no hardcoded node.exe, no exec-maven-plugin) -->
+                            <execution>
+                                <id>quicktype-csharp</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <workingDirectory>${project.build.directory}</workingDirectory>
+                                    <arguments>
+                                        exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype
+                                        --src-lang schema --lang csharp --out "${codegen.csharp.out}" --namespace
+                                        "ShiftControl.Events" "./"
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>openapi</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start</id>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <profiles>openapi</profiles>
+                                    <jvmArguments>-Dserver.port=8080</jvmArguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop</id>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                                <phase>post-integration-test</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.springdoc</groupId>
+                        <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>generate-openapi</id>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+                            <outputFileName>openapi.json</outputFileName>
+                            <outputDir>${project.build.directory}</outputDir>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
