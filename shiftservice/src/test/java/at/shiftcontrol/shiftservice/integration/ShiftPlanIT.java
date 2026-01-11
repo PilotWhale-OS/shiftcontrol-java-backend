@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import at.shiftcontrol.lib.event.BaseEvent;
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import io.restassured.http.Method;
@@ -13,6 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
@@ -24,6 +28,7 @@ import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.ShiftPlanInviteType;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import at.shiftcontrol.shiftservice.config.RabbitMqConfig;
 import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteCreateRequestDto;
@@ -90,6 +95,8 @@ class ShiftPlanIT extends RestITBase {
     private PositionSlot positionSlotA, positionSlotB;
 
     private Role roleA, roleB, roleC;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @BeforeEach
     void setUp() {
@@ -562,7 +569,9 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(inviteDetails.getInviteDto()).isNotNull(),
             () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isTrue(),
             () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isTrue(),
-            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue()
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue(),
+            () -> Mockito.verify(rabbitTemplate, Mockito.times(1))
+                .convertAndSend(Mockito.eq(RabbitMqConfig.EXCHANGE_NAME), Mockito.matches("^shiftcontrol.shiftplan.joined.volunteer.*"), Mockito.any(BaseEvent.class))
         );
     }
 
@@ -617,7 +626,9 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(inviteDetails1.getInviteDto()).isNotNull(),
             () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isTrue(),
             () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isTrue(),
-            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue()
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue(),
+            () -> Mockito.verify(rabbitTemplate, Mockito.times(1))
+                .convertAndSend(Mockito.eq(RabbitMqConfig.EXCHANGE_NAME), Mockito.matches("^shiftcontrol.shiftplan.joined.volunteer.*"), Mockito.any(BaseEvent.class))
         );
 
         // Create second invite
@@ -671,7 +682,9 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerNotJoined.getId(), shiftPlanA.getId())).isTrue(),
             () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleA.getId())).isTrue(),
             () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleB.getId())).isTrue(),
-            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleC.getId())).isTrue()
+            () -> assertThat(volunteerRepository.hasUserRole(volunteerNotJoined.getId(), roleC.getId())).isTrue(),
+            () -> Mockito.verify(rabbitTemplate, Mockito.times(2))
+                .convertAndSend(Mockito.eq(RabbitMqConfig.EXCHANGE_NAME), Mockito.matches("^shiftcontrol.shiftplan.joined.volunteer.*"), Mockito.any(BaseEvent.class))
         );
     }
 
@@ -721,7 +734,13 @@ class ShiftPlanIT extends RestITBase {
             () -> assertThat(inviteDetails.getEventDto()).isNotNull(),
             () -> assertThat(inviteDetails.getInviteDto()).isNotNull(),
             () -> assertThat(volunteerRepository.isVolunteerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue(),
-            () -> assertThat(volunteerRepository.isPlannerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue()
+            () -> assertThat(volunteerRepository.isPlannerInShiftPlan(volunteerJoinedAsVolunteerOnly.getId(), shiftPlanA.getId())).isTrue(),
+
+            // We only send planner joined event here, no volunteer joined event
+            () -> Mockito.verify(rabbitTemplate, Mockito.never())
+                .convertAndSend(Mockito.eq(RabbitMqConfig.EXCHANGE_NAME), Mockito.matches("^shiftcontrol.shiftplan.joined.volunteer.*"), Mockito.any(BaseEvent.class)),
+            () -> Mockito.verify(rabbitTemplate, Mockito.times(1))
+                .convertAndSend(Mockito.eq(RabbitMqConfig.EXCHANGE_NAME), Mockito.matches("^shiftcontrol.shiftplan.joined.planner.*"), Mockito.any(BaseEvent.class))
         );
     }
 

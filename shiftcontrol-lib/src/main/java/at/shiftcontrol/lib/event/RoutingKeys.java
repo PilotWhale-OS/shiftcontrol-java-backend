@@ -17,6 +17,7 @@ public final class RoutingKeys {
     public static final String EVENT_CLONED = "event.cloned.{sourceEventId}.{newEventId}";
     public static final String EVENT_UPDATED = "event.updated.{eventId}";
     public static final String EVENT_DELETED = "event.deleted.{eventId}";
+    public static final String EVENT_EXPORTED = "event.exported.{eventId}.{exportFormat}";
 
     public static final String LOCATION_CREATED = "location.created";
     public static final String LOCATION_UPDATED = "location.updated.{locationId}";
@@ -65,6 +66,7 @@ public final class RoutingKeys {
     public static final String SHIFTPLAN_INVITE_REVOKED = "shiftplan.invite.revoked.{shiftPlanId}.{inviteId}";
     public static final String SHIFTPLAN_INVITE_DELETED = "shiftplan.invite.deleted.{shiftPlanId}.{inviteId}";
     public static final String SHIFTPLAN_JOINED_VOLUNTEER = "shiftplan.joined.volunteer.{shiftPlanId}.{volunteerId}";
+    public static final String SHIFTPLAN_JOINED_PLANNER = "shiftplan.joined.planner.{shiftPlanId}.{volunteerId}";
     public static final String SHIFTPLAN_LOCKSTATUS_CHANGED = "shiftplan.lockstatus.changed.{shiftPlanId}";
 
     public static final String SHIFT_CREATED = "shift.created";
@@ -81,8 +83,10 @@ public final class RoutingKeys {
     public static final String ROLE_UNASSIGNED = "role.unassigned.{roleId}.{volunteerId}";
 
     public static final String VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED = "volunteer.notification.preference.updated.{volunteerId}";
-    public static final String REWARDPOINT_TRANSACTION_CREATED = "rewardpoint.transaction.created.{volunteerId}.{transactionId}";
-    public static final String REWARDPOINT_TRANSACTION_FAILED = "rewardpoint.transaction.failed.{volunteerId}";
+    public static final String REWARDPOINTS_TRANSACTION_CREATED = "rewardpoints.transaction.created.{volunteerId}.{transactionId}";
+    public static final String REWARDPOINTS_TRANSACTION_FAILED = "rewardpoints.transaction.failed.{volunteerId}";
+    public static final String REWARDPOINTS_SHARETOKEN_CREATED = "rewardpoints.sharetoken.created.{shareTokenId}";
+    public static final String REWARDPOINTS_SHARETOKEN_DELETED = "rewardpoints.sharetoken.deleted.{shareTokenId}";
 
 
     public static @NonNull String format(@NonNull String template, @NonNull Map<String, ?> values) {

@@ -18,7 +18,7 @@ class NotificationSettingsPartTest {
     void of() {
         // Arrange
         NotificationSettingsDto dto = new NotificationSettingsDto();
-        dto.setType(NotificationType.SHIFT_REMINDER);
+        dto.setType(NotificationType.VOLUNTEER_SHIFT_REMINDER);
         dto.setChannels(Collections.singleton(NotificationChannel.EMAIL));
 
         // Act
@@ -34,7 +34,7 @@ class NotificationSettingsPartTest {
     void of_withMultipleChannels() {
         // Arrange
         NotificationSettingsDto dto = new NotificationSettingsDto();
-        dto.setType(NotificationType.SHIFT_REMINDER);
+        dto.setType(NotificationType.VOLUNTEER_SHIFT_REMINDER);
         dto.setChannels(Set.of(NotificationChannel.EMAIL, NotificationChannel.PUSH));
 
         // Act

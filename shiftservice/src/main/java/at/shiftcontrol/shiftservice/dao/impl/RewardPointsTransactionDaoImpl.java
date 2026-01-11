@@ -3,19 +3,17 @@ package at.shiftcontrol.shiftservice.dao.impl;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
-import lombok.RequiredArgsConstructor;
-
-import at.shiftcontrol.lib.entity.RewardPointTransaction;
-import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
+import at.shiftcontrol.lib.entity.RewardPointsTransaction;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.repo.RewardPointTransactionRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao {
+public class RewardPointsTransactionDaoImpl implements RewardPointsTransactionDao {
     @Override
     public String getName() {
         return "RewardPointTransaction";
@@ -24,12 +22,12 @@ public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao 
     private final RewardPointTransactionRepository repo;
 
     @Override
-    public Optional<RewardPointTransaction> findById(Long id) {
+    public Optional<RewardPointsTransaction> findById(Long id) {
         return repo.findById(id);
     }
 
     @Override
-    public RewardPointTransaction save(RewardPointTransaction entity) {
+    public RewardPointsTransaction save(RewardPointsTransaction entity) {
         findById(entity.getId())
             .ifPresent(e -> {
                 throw new IllegalStateException("RewardPointTransaction already exists and cannot be updated.");
@@ -38,12 +36,12 @@ public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao 
     }
 
     @Override
-    public Collection<RewardPointTransaction> saveAll(Collection<RewardPointTransaction> entities) {
+    public Collection<RewardPointsTransaction> saveAll(Collection<RewardPointsTransaction> entities) {
         return repo.saveAll(entities);
     }
 
     @Override
-    public void delete(RewardPointTransaction entity) {
+    public void delete(RewardPointsTransaction entity) {
         // Ledger is append-only: deleting is not allowed by design.
         throw new UnsupportedOperationException("RewardPointTransaction is append-only and cannot be deleted");
     }
@@ -59,11 +57,16 @@ public class RewardPointTransactionDaoImpl implements RewardPointTransactionDao 
     }
 
     @Override
-    public Collection<EventPointsDto> sumPointsGroupedByEvent(String volunteerId) {
-        return RewardPointsMapper.toEventPointsDto(repo.sumPointsGroupedByEvent(volunteerId));
+    public long sumPointsByVolunteerAndShiftPlan(String volunteerId, long shiftPlanId) {
+        return repo.sumPointsByVolunteerAndShiftPlan(volunteerId, shiftPlanId);
     }
 
-    public Collection<RewardPointTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId) {
+    @Override
+    public Collection<EventPointsDto> sumPointsForUserGroupedByEvent(String volunteerId) {
+        return RewardPointsMapper.toEventPointsDto(repo.sumPointsForUserGroupedByEvent(volunteerId));
+    }
+
+    public Collection<RewardPointsTransaction> findAllByVolunteerIdOrderByCreatedAtAsc(String volunteerId) {
         return repo.findAllByVolunteerIdOrderByCreatedAtAsc(volunteerId);
     }
 }

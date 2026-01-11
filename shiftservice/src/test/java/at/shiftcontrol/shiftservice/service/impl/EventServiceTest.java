@@ -15,6 +15,7 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
@@ -46,6 +47,9 @@ class EventServiceTest {
 
     @Mock
     private ApplicationUserProvider userProvider;
+
+    @Mock
+    private RewardPointsTransactionDao rewardPointsTransactionDao;
 
     @Mock
     private SecurityHelper securityHelper;
@@ -155,6 +159,7 @@ class EventServiceTest {
 
         when(statisticService.getOwnStatisticsOfShiftPlans(List.of(spRelevant), userId)).thenReturn(ownStats);
         when(statisticService.getOverallEventStatistics(event)).thenReturn(overallStats);
+        when(rewardPointsTransactionDao.sumPointsByVolunteerAndEvent(userId, eventId)).thenReturn(10L);
 
         var result = eventService.getEventShiftPlansOverview(eventId, userId);
 
@@ -164,7 +169,7 @@ class EventServiceTest {
 
         assertThat(result.getEventOverview()).isEqualTo(expectedEventOverview);
         assertThat(result.getShiftPlans()).isEqualTo(expectedShiftPlans);
-        assertThat(result.getRewardPoints()).isEqualTo(-1);
+        assertThat(result.getRewardPoints()).isEqualTo(10L);
         assertThat(result.getOwnEventStatistics()).isEqualTo(ownStats);
         assertThat(result.getOverallEventStatistics()).isEqualTo(overallStats);
 

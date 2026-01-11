@@ -3,16 +3,15 @@ package at.shiftcontrol.lib.event.events.parts;
 import java.time.Instant;
 import java.util.Map;
 
+import at.shiftcontrol.lib.entity.RewardPointsTransaction;
+import at.shiftcontrol.lib.type.RewardPointTransactionType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
-import at.shiftcontrol.lib.entity.RewardPointTransaction;
-import at.shiftcontrol.lib.type.RewardPointTransactionType;
-
 @Data
 @Builder
-public class RewardPointTransactionPart {
+public class RewardPointsTransactionPart {
     private String volunteerId;
     private String eventId;
     private Long positionSlotId;
@@ -24,8 +23,8 @@ public class RewardPointTransactionPart {
 
 
     @NonNull
-    public static RewardPointTransactionPart of(@NonNull RewardPointTransaction transaction) {
-        return RewardPointTransactionPart.builder()
+    public static RewardPointsTransactionPart of(@NonNull RewardPointsTransaction transaction) {
+        return RewardPointsTransactionPart.builder()
             .volunteerId(transaction.getVolunteerId())
             .eventId(String.valueOf(transaction.getEventId()))
             .positionSlotId(transaction.getPositionSlotId())

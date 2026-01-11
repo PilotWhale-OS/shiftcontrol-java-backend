@@ -3,13 +3,14 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Map;
 
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
 import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.RewardPointsShareToken;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsInternalDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsTransactionDto;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class RewardPointsMapper {
@@ -47,5 +48,20 @@ public class RewardPointsMapper {
             .sourceKey(sourceKey)
             .metadata(metadata)
             .build();
+    }
+
+    public static RewardPointsShareTokenDto toRewardPointsShareTokenDto(@NonNull RewardPointsShareToken rewardPointsShareToken) {
+        return RewardPointsShareTokenDto.builder()
+            .id(String.valueOf(rewardPointsShareToken.getId()))
+            .token(rewardPointsShareToken.getToken())
+            .name(rewardPointsShareToken.getName())
+            .createdAt(rewardPointsShareToken.getCreatedAt())
+            .build();
+    }
+
+    public static Collection<RewardPointsShareTokenDto> toRewardPointsShareTokenDto(Collection<RewardPointsShareToken> rewardPointsShareTokens) {
+        return rewardPointsShareTokens.stream()
+            .map(RewardPointsMapper::toRewardPointsShareTokenDto)
+            .toList();
     }
 }

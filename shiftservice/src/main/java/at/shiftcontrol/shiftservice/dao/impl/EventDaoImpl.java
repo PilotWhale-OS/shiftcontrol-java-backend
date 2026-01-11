@@ -62,4 +62,9 @@ public class EventDaoImpl implements EventDao {
             return predicates;
         });
     }
+
+    @Override
+    public Collection<Event> findAll() {
+        return eventRepository.findAll();
+    }
 }

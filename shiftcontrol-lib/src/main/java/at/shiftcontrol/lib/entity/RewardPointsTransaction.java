@@ -28,7 +28,7 @@ import at.shiftcontrol.lib.util.JsonMapConverter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "reward_point_transaction",
+@Table(name = "reward_points_transaction",
     indexes = {
         @Index(name = "idx_rpt_volunteer", columnList = "volunteer_id"),
         @Index(name = "idx_rpt_volunteer_event", columnList = "volunteer_id,event_id"),
@@ -36,7 +36,7 @@ import at.shiftcontrol.lib.util.JsonMapConverter;
         @Index(name = "idx_rpt_slot", columnList = "position_slot_id")
     }
 )
-public class RewardPointTransaction {
+public class RewardPointsTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

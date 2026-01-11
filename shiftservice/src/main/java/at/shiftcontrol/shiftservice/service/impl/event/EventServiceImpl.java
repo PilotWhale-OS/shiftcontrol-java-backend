@@ -30,6 +30,7 @@ import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
@@ -43,6 +44,10 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +55,7 @@ public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
     private final ActivityDao activityDao;
     private final VolunteerDao volunteerDao;
+    private final RewardPointsTransactionDao rewardPointsTransactionDao;
     private final StatisticService statisticService;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
@@ -105,11 +111,10 @@ public class EventServiceImpl implements EventService {
         var eventOverviewDto = EventMapper.toEventDto(event);
         var userRelevantShiftPlans = getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId);
 
-        //Todo: implement reward points
         return EventShiftPlansOverviewDto.builder()
             .eventOverview(eventOverviewDto)
             .shiftPlans(ShiftPlanMapper.toShiftPlanDto(userRelevantShiftPlans))
-            .rewardPoints(-1)
+            .rewardPoints((int) rewardPointsTransactionDao.sumPointsByVolunteerAndEvent(userId, eventId))
             .ownEventStatistics(statisticService.getOwnStatisticsOfShiftPlans(userRelevantShiftPlans, userId))
             .overallEventStatistics(statisticService.getOverallEventStatistics(event))
             .build();

@@ -1,23 +1,22 @@
 package at.shiftcontrol.lib.event.events;
 
+import at.shiftcontrol.lib.entity.RewardPointsTransaction;
+import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.events.parts.RewardPointsTransactionPart;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import at.shiftcontrol.lib.entity.RewardPointTransaction;
-import at.shiftcontrol.lib.event.BaseEvent;
-import at.shiftcontrol.lib.event.events.parts.RewardPointTransactionPart;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class RewardPointTransactionEvent extends BaseEvent {
-    private final RewardPointTransactionPart rewardPointTransactionPart;
+    private final RewardPointsTransactionPart rewardPointsTransactionPart;
 
-    public RewardPointTransactionEvent(String routingKey, RewardPointTransactionPart rewardPointTransactionPart) {
+    public RewardPointTransactionEvent(String routingKey, RewardPointsTransactionPart rewardPointsTransactionPart) {
         super(routingKey);
-        this.rewardPointTransactionPart = rewardPointTransactionPart;
+        this.rewardPointsTransactionPart = rewardPointsTransactionPart;
     }
 
-    public static RewardPointTransactionEvent of(String routingKey, RewardPointTransaction transaction) {
-        return new RewardPointTransactionEvent(routingKey, RewardPointTransactionPart.of(transaction));
+    public static RewardPointTransactionEvent of(String routingKey, RewardPointsTransaction transaction) {
+        return new RewardPointTransactionEvent(routingKey, RewardPointsTransactionPart.of(transaction));
     }
 }

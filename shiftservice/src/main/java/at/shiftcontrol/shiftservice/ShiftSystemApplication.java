@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "at.shiftcontrol")
 @EntityScan(basePackages = {"at.shiftcontrol.lib.entity"})
 @EnableScheduling
 public class ShiftSystemApplication {
