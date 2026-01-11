@@ -22,12 +22,12 @@ public class PositionSlotDaoImpl implements PositionSlotDao {
     private final PositionSlotPreferenceRepository positionSlotPreferenceRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "PositionSlot";
     }
 
     @Override
-    public Optional<PositionSlot> findById(Long id) {
+    public @NonNull Optional<PositionSlot> findById(Long id) {
         return positionSlotRepository.findById(id);
     }
 

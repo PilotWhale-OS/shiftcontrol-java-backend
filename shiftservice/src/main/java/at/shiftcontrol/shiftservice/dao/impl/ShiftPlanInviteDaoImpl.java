@@ -3,13 +3,16 @@ package at.shiftcontrol.shiftservice.dao.impl;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.slf4j.LoggerFactory;
+
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanInviteRepository;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -17,12 +20,12 @@ public class ShiftPlanInviteDaoImpl implements ShiftPlanInviteDao {
     private final ShiftPlanInviteRepository shiftPlanInviteRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "ShiftPlanInvite";
     }
 
     @Override
-    public Optional<ShiftPlanInvite> findById(Long id) {
+    public @NonNull Optional<ShiftPlanInvite> findById(Long id) {
         return shiftPlanInviteRepository.findById(id);
     }
 

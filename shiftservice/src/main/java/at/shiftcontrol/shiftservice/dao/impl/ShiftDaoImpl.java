@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.impl.specification.ShiftSpecifications;
@@ -21,12 +22,12 @@ public class ShiftDaoImpl implements ShiftDao {
     private final ShiftRepository shiftRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "Shift";
     }
 
     @Override
-    public Optional<Shift> findById(Long id) {
+    public @NonNull Optional<Shift> findById(Long id) {
         return shiftRepository.findById(id);
     }
 

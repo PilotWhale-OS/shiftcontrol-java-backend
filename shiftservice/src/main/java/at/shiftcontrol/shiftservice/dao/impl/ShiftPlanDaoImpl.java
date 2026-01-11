@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.entity.ShiftPlan;
@@ -17,12 +18,12 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     private final ShiftPlanRepository shiftPlanRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "ShiftPlan";
     }
 
     @Override
-    public Optional<ShiftPlan> findById(Long id) {
+    public @NonNull Optional<ShiftPlan> findById(Long id) {
         return shiftPlanRepository.findById(id);
     }
 

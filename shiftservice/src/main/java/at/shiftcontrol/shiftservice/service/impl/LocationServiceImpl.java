@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,6 +16,7 @@ import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
+import at.shiftcontrol.shiftservice.dto.location.LocationSearchDto;
 import at.shiftcontrol.shiftservice.entity.Location;
 import at.shiftcontrol.shiftservice.event.RoutingKeys;
 import at.shiftcontrol.shiftservice.event.events.LocationEvent;
@@ -43,6 +45,11 @@ public class LocationServiceImpl implements LocationService {
         var locations = locationDao.findAllByEventId(eventId);
 
         return LocationMapper.toLocationDto(locations.stream().toList());
+    }
+
+    @Override
+    public Collection<LocationDto> searchLocations(LocationSearchDto searchDto) {
+        return List.of();
     }
 
     @Override

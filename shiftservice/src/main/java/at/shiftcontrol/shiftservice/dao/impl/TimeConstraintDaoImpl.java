@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.entity.TimeConstraint;
@@ -18,12 +19,12 @@ public class TimeConstraintDaoImpl implements TimeConstraintDao {
     private final TimeConstraintRepository timeConstraintRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "TimeConstraint";
     }
 
     @Override
-    public Optional<TimeConstraint> findById(Long id) {
+    public @NonNull Optional<TimeConstraint> findById(Long id) {
         return timeConstraintRepository.findById(id);
     }
 

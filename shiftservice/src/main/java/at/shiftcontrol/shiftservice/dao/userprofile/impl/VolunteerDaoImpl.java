@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.entity.Volunteer;
@@ -17,12 +18,12 @@ public class VolunteerDaoImpl implements VolunteerDao {
     private final VolunteerRepository volunteerRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "Volunteer";
     }
 
     @Override
-    public Optional<Volunteer> findById(String id) {
+    public @NonNull Optional<Volunteer> findById(String id) {
         return volunteerRepository.findById(id);
     }
 

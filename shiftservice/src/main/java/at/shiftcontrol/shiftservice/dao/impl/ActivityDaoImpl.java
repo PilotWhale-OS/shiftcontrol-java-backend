@@ -3,14 +3,17 @@ package at.shiftcontrol.shiftservice.dao.impl;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.impl.specification.ActivitySpecifications;
 import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -18,12 +21,12 @@ public class ActivityDaoImpl implements ActivityDao {
     private final ActivityRepository activityRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "Activity";
     }
 
     @Override
-    public Optional<Activity> findById(Long id) {
+    public @NonNull Optional<Activity> findById(Long id) {
         return activityRepository.findById(id);
     }
 
