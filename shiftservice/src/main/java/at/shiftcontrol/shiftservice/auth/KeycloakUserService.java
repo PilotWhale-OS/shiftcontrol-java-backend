@@ -1,13 +1,12 @@
 package at.shiftcontrol.shiftservice.auth;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
-
-import java.util.List;
 
 @Service
 public class KeycloakUserService {
@@ -27,7 +26,7 @@ public class KeycloakUserService {
             .toRepresentation();
     }
 
-    public Collection<UserRepresentation> getUserById(Collection<String> userIds) {
+    public Collection<UserRepresentation> getUserByIds(Collection<String> userIds) {
         return keycloak
             .realm(realm)
             .users()

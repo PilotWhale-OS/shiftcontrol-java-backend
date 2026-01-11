@@ -38,7 +38,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @AdminOnly
     public Collection<UserEventDto> getAllUsers() {
         var volunteers = volunteerDao.findAll();
-        var users = keycloakUserService.getUserById(volunteers.stream().map(Volunteer::getId).toList());
+        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
         return UserMapper.toUserEventDto(volunteers, users);
     }
 

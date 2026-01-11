@@ -22,7 +22,7 @@ public class VolunteerAssemblingMapper {
     }
 
     public Collection<VolunteerDto> toDto(Collection<Volunteer> volunteers) {
-        var users = keycloakUserService.getUserById(volunteers.stream().map(Volunteer::getId).toList());
+        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
         return toDtoFromUser(users);
     }
 
