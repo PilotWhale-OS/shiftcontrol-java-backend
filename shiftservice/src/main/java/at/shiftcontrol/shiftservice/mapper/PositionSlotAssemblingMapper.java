@@ -12,8 +12,6 @@ import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -22,23 +20,21 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
-import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import static at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper.ACTIVE_AUCTION_STATES;
 
 @RequiredArgsConstructor
 @Service
 public class PositionSlotAssemblingMapper {
     private final EligibilityService eligibilityService;
-    private final UserProfileService userProfileService;
     private final RewardPointsCalculator rewardPointsCalculator;
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
     private final PositionSlotDao positionSlotDao;
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
     private final TradeMapper tradeMapper;
+    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
@@ -108,17 +104,9 @@ public class PositionSlotAssemblingMapper {
     }
 
     public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {
-        Collection<AccountInfoDto> accountInfoDtos = volunteers.stream().map(
-            v -> {
-                try {
-                    return userProfileService.getUserProfile(v.getId()).getAccount(); // todo change to volunteerDto
-                } catch (NotFoundException | ForbiddenException e) {
-                    throw new RuntimeException(e);
-                }
-            }).toList();
         return new TradeCandidatesDto(
             String.valueOf(positionSlot.getId()),
-            accountInfoDtos
+            volunteerAssemblingMapper.toDto(volunteers)
         );
     }
 }

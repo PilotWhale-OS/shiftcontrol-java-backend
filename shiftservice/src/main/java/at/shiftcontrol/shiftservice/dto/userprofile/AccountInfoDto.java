@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dto.userprofile;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,15 +15,15 @@ import at.shiftcontrol.shiftservice.auth.UserType;
 @Builder
 public class AccountInfoDto {
     @NotNull
-    private String id; // todo use volunteerdto
+    @Valid
+    private VolunteerDto volunteer;
+
     @NotNull
     private String username;
-    @NotNull
-    private String fistName;
-    @NotNull
-    private String lastName;
+
     @NotNull
     private String email;
+
     @NotNull
     private UserType userType;
 }

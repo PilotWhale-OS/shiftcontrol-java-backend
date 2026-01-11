@@ -1,11 +1,20 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.NotImplementedException;
+import org.keycloak.representations.idm.AbstractUserRepresentation;
+
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsDto;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsFilterDto;
@@ -13,20 +22,7 @@ import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.mapper.AccountInfoMapper;
 import at.shiftcontrol.shiftservice.repo.userprofile.NotificationRepository;
 import at.shiftcontrol.shiftservice.service.NotificationRecipientService;
-
 import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
-
-import org.apache.commons.lang3.NotImplementedException;
-
-import org.keycloak.representations.idm.AbstractUserRepresentation;
-
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,19 +36,12 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
     @Override
     public AccountInfoDto getRecipientInformation(String recipientid) {
         var volunteerOpt = volunteerDao.findById(recipientid);
-        if(volunteerOpt.isEmpty()){
+        if (volunteerOpt.isEmpty()) {
             throw new BadRequestException("No volunteer found with id: " + recipientid);
         }
         var volunteer = volunteerOpt.get();
         var user = keycloakUserService.getUserById(volunteer.getId());
-        return AccountInfoDto.builder()
-            .id(user.getId())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .fistName(user.getFirstName())
-            .lastName(user.getLastName())
-            .userType(UserType.ASSIGNED) // TODO: determine user type properly? not really relevant here. could also use a slim DTO
-            .build();
+        return AccountInfoMapper.toDto(user);
     }
 
     @Override

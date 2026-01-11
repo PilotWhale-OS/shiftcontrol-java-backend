@@ -16,9 +16,7 @@ import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 public class UserMapper {
     public static UserEventDto toUserEventDto(Volunteer volunteer, UserRepresentation user) {
         return UserEventDto.builder()
-            .id(user.getId()) // todo change to volunteer dto and use mapper
-            .fistName(user.getFirstName())
-            .lastName(user.getLastName())
+            .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
             .email(user.getEmail())
             .volunteeringPlans(volunteer.getVolunteeringPlans()
                 .stream()

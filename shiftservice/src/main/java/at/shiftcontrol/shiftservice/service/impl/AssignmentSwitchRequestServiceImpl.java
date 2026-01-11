@@ -34,7 +34,6 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
@@ -138,7 +137,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         //  this does not check for existing inverse trade requests
         return slotsToOffer.stream()
             .map(candidate -> {
-                List<AccountInfoDto> filteredVolunteers =
+                List<VolunteerDto> filteredVolunteers =
                     candidate.getAssignedVolunteers().stream()
                         .filter(volunteer -> {
                             AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
