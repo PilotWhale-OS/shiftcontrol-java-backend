@@ -38,7 +38,6 @@ public class TrustAlertEndpoint {
         description = "Saves the trust alert"
     )
     public TrustAlertDisplayDto saveTrustAlert(@RequestBody TrustAlertDto trustAlert) {
-        System.out.println("RECEIVED ALERT: " + trustAlert);
         return trustAlertService.save(trustAlert);
     }
 }
