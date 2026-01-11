@@ -138,11 +138,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return slotsToOffer.stream()
             .map(candidate -> {
                 List<VolunteerDto> filteredVolunteers =
-                    candidate.getAssignedVolunteers().stream()
+                    candidate.getEligibleTradeRecipients().stream()
                         .filter(volunteer -> {
                             AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
                                 AssignmentId.of(
-                                    ConvertUtil.idToLong(candidate.getPositionSlotId()),
+                                    ConvertUtil.idToLong(candidate.getOwnPosition().getId()),
                                     currentUserId),
                                 AssignmentId.of(
                                     requestedPositionSlotId,
@@ -153,12 +153,12 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                         })
                         .toList();
                 return new TradeCandidatesDto(
-                    candidate.getPositionSlotId(),
+                    candidate.getOwnPosition(),
                     filteredVolunteers
                 );
             })
             // remove dto if no volunteers are left
-            .filter(c -> !c.getAssignedVolunteers().isEmpty())
+            .filter(c -> !c.getEligibleTradeRecipients().isEmpty())
             .toList();
     }
 

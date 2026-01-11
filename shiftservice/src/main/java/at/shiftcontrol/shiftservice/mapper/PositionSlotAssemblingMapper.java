@@ -111,7 +111,7 @@ public class PositionSlotAssemblingMapper {
 
     public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {
         return new TradeCandidatesDto(
-            String.valueOf(positionSlot.getId()),
+            assemble(positionSlot),
             volunteerAssemblingMapper.toDto(volunteers)
         );
     }

@@ -92,7 +92,7 @@ public class AssignmentSwitchRequestServiceIT {
         Collection<TradeCandidatesDto> result = assignmentSwitchRequestService.getPositionSlotsToOffer(positionSlotId, currentUserId);
 
         Assertions.assertFalse(result.isEmpty());
-        Assertions.assertNotEquals(String.valueOf(positionSlotId), result.stream().findFirst().get().getPositionSlotId());
+        Assertions.assertNotEquals(String.valueOf(positionSlotId), result.stream().findFirst().get().getOwnPosition().getId());
     }
 
     @Test
