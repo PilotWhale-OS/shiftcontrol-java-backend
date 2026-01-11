@@ -380,17 +380,30 @@ public class EventImportServiceImpl implements EventImportService {
             b.error("Event.start_time_utc", "Event start_time_utc must be before end_time_utc.");
         }
 
-        // Shift validation
-        Map<String, List<ShiftRow>> byName = model.shifts.stream()
-            .collect(Collectors.groupingBy(s -> s.shiftName().toLowerCase()));
+        // Duplicate shift_name is only forbidden within the same shift plan
+        Map<String, List<ShiftRow>> byPlanAndShift = model.shifts().stream()
+            .collect(Collectors.groupingBy(s ->
+                normalizeKey(s.shiftPlanName()) + "||" + normalizeKey(s.shiftName())
+            ));
 
-        for (var entry : byName.entrySet()) {
-            if (entry.getValue().size() > 1) {
-                String rows = entry.getValue().stream()
-                    .map(s -> String.valueOf(s.excelRow()))
-                    .collect(Collectors.joining(", "));
-                b.error("Shifts.shift_name", "Duplicate shift_name '" + entry.getKey() + "' in rows: " + rows + ".");
+        for (var entry : byPlanAndShift.entrySet()) {
+            List<ShiftRow> rows = entry.getValue();
+            if (rows.size() <= 1) {
+                continue;
             }
+
+            ShiftRow first = rows.get(0);
+            String plan = first.shiftPlanName();
+            String shift = first.shiftName();
+
+            String rowNums = rows.stream()
+                .map(r -> String.valueOf(r.excelRow()))
+                .collect(Collectors.joining(", "));
+
+            b.error(
+                "Shifts.shift_name",
+                "Duplicate shift_name '" + shift + "' in shift_plan '" + plan + "' (rows: " + rowNums + ")."
+            );
         }
 
         for (ShiftRow s : model.shifts) {
@@ -410,6 +423,13 @@ public class EventImportServiceImpl implements EventImportService {
                 b.error("Shifts.end_time_utc", "Sheet 'Shifts', row " + s.excelRow + ": shift ends after event end.");
             }
         }
+    }
+
+    private static String normalizeKey(String s) {
+        if (s == null) {
+            return "";
+        }
+        return s.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
     }
 
     private record ImportModel(EventRow eventRow, List<ShiftRow> shifts) {
