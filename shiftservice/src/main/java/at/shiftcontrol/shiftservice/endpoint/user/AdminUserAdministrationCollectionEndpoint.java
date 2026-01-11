@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,8 +27,8 @@ public class AdminUserAdministrationCollectionEndpoint {
         operationId = "getAllUsers",
         description = "Find all users."
     )
-    public Collection<UserEventDto> getAllUsersForEvent() {
-        return service.getAllUsers();
+    public Collection<UserEventDto> getAllUsers(@RequestParam long page, @RequestParam long size) {
+        return service.getAllUsers(page, size);
     }
 
     //todo add bulk endpoint

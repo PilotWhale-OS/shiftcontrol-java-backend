@@ -3,11 +3,13 @@ package at.shiftcontrol.shiftservice.dao.userprofile.impl;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -90,7 +92,7 @@ public class VolunteerDaoImpl implements VolunteerDao {
     }
 
     @Override
-    public Collection<Volunteer> findAll() {
-        return volunteerRepository.findAll();
+    public Collection<Volunteer> findAll(long page, long size) {
+        return volunteerRepository.findAll(page * size, size);
     }
 }

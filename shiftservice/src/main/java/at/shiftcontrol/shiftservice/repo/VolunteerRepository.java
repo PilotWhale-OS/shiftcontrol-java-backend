@@ -15,6 +15,14 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
     Optional<Volunteer> findById(String userId);
 
     @Query("""
+            SELECT v
+            FROM Volunteer v
+            ORDER BY v.id DESC
+            LIMIT :size OFFSET :offset
+        """)
+    Collection<Volunteer> findAll(long offset, long size);
+
+    @Query("""
             select (count(sp) > 0)
             from Volunteer v
             join v.volunteeringPlans sp

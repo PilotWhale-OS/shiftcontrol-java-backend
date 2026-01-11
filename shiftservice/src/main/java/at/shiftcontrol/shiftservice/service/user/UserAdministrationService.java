@@ -6,7 +6,7 @@ import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
 
 public interface UserAdministrationService {
-    Collection<UserEventDto> getAllUsers();
+    Collection<UserEventDto> getAllUsers(long page, long size);
 
     UserEventDto getUser(String userId);
 

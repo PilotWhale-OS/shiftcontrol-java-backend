@@ -21,7 +21,7 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
-import at.shiftcontrol.shiftservice.mapper.UserMapper;
+import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
@@ -33,20 +33,21 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     private final KeycloakUserService keycloakUserService;
     private final UserAttributeProvider userAttributeProvider;
     private final SecurityHelper securityHelper;
+    private final UserAssemblingMapper userAssemblingMapper;
 
     @Override
     @AdminOnly
-    public Collection<UserEventDto> getAllUsers() {
-        var volunteers = volunteerDao.findAll();
+    public Collection<UserEventDto> getAllUsers(long page, long size) {
+        var volunteers = volunteerDao.findAll(page, size);
         var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
-        return UserMapper.toUserEventDto(volunteers, users);
+        return UserAssemblingMapper.toUserEventDto(volunteers, users);
     }
 
     @Override
     @AdminOnly
     public UserEventDto getUser(String userId) {
         var volunteer = volunteerDao.getById(userId);
-        return mapUser(volunteer);
+        return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
         var user = keycloakUserService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
-        return UserMapper.toUserEventDto(volunteer, user);
+        return UserAssemblingMapper.toUserEventDto(volunteer, user);
     }
 
     @Override
@@ -83,8 +84,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         volunteer.getLockedPlans().add(plan);
 
         userAttributeProvider.invalidateUserCache(userId);
-
-        return mapUser(volunteer);
+        return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
     @Override
@@ -97,13 +97,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         volunteer.getLockedPlans().remove(plan);
 
         userAttributeProvider.invalidateUserCache(userId);
-
-        return mapUser(volunteer);
-    }
-
-    private UserEventDto mapUser(Volunteer volunteer) {
-        var user = keycloakUserService.getUserById(volunteer.getId());
-        return UserMapper.toUserEventDto(volunteer, user);
+        return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
     private void addPlans(Volunteer volunteer, Set<Long> volunteerToAdd, Set<Long> planningToAdd) {

@@ -9,11 +9,19 @@ import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 
 @RequiredArgsConstructor
 @Service
-public class UserMapper {
+public class UserAssemblingMapper {
+    private final KeycloakUserService keycloakUserService;
+
+    public UserEventDto toUserEventDto(Volunteer volunteer) {
+        var user = keycloakUserService.getUserById(volunteer.getId());
+        return UserAssemblingMapper.toUserEventDto(volunteer, user);
+    }
+
     public static UserEventDto toUserEventDto(Volunteer volunteer, UserRepresentation user) {
         return UserEventDto.builder()
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
