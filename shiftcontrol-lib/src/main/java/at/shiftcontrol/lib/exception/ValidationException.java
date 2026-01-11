@@ -9,10 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import lombok.Getter;
 
 /**
  * Exception representing one or more validation errors.
@@ -21,9 +20,9 @@ import lombok.Getter;
  * Usage:
  * <code>
  * ValidationException.Builder b = ValidationException.builder()
- *     .context("Create User")
- *     .error("email", "must be a valid email")
- *     .error("password", "must be at least 8 characters");
+ * .context("Create User")
+ * .error("email", "must be a valid email")
+ * .error("password", "must be at least 8 characters");
  * b.throwIfInvalid();
  * </code>
  */
@@ -77,7 +76,7 @@ public class ValidationException extends RuntimeException {
         validationErrors.forEach((field, messages) -> {
             String joined = messages.stream()
                 .map(Objects::toString)
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining("; "));
             sb.append(" - ").append(field).append(": ").append(joined).append("\n");
         });
         return sb.toString().trim();

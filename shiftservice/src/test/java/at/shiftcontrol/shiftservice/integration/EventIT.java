@@ -206,7 +206,9 @@ class EventIT extends RestITBase {
             () -> assertThat(volunteerA.getId()).isNotNull(),
             () -> assertThat(volunteerB.getId()).isNotNull(),
             () -> assertThat(volunteerA.getVolunteeringPlans()).contains(shiftPlanA),
-            () -> assertThat(volunteerB.getVolunteeringPlans()).contains(shiftPlanA),
+            () -> assertThat(volunteerB.getVolunteeringPlans()).contains(shiftPlanA)
+        );
+        assertAll(
             () -> assertThat(volunteerRepository.existsById(volunteerA.getId())).isTrue(),
             () -> assertThat(volunteerRepository.existsById(volunteerB.getId())).isTrue()
         );

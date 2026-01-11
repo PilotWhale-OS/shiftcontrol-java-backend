@@ -71,4 +71,37 @@
       onDelete="CASCADE"/>
   </changeSet>
 
+  <!-- 004: shift_plan_volunteer_planing join table -->
+  <changeSet id="004-create-shiftplan-volunteer-locked-join" author="marco">
+    <createTable tableName="shift_plan_volunteer_locked">
+      <column name="volunteer_id" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="shift_plan_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addPrimaryKey
+      tableName="shift_plan_volunteer_locked"
+      columnNames="volunteer_id, shift_plan_id"
+      constraintName="pk_sp_vol_locked"/>
+
+    <addForeignKeyConstraint
+      constraintName="fk_sp_locked_volunteer"
+      baseTableName="shift_plan_volunteer_locked"
+      baseColumnNames="volunteer_id"
+      referencedTableName="volunteer"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+
+    <addForeignKeyConstraint
+      constraintName="fk_sp_locked_shift_plan"
+      baseTableName="shift_plan_volunteer_locked"
+      baseColumnNames="shift_plan_id"
+      referencedTableName="shift_plan"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+  </changeSet>
+
 </databaseChangeLog>

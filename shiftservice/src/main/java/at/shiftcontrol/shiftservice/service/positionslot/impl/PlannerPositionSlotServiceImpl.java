@@ -26,9 +26,9 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
+import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.AssignmentRequestMapper;
-import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
+import at.shiftcontrol.shiftservice.mapper.VolunteerAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
@@ -45,12 +45,15 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final VolunteerDao volunteerDao;
     private final ApplicationEventPublisher publisher;
     private final EligibilityService eligibilityService;
+    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
+    private final AssignmentAssemblingMapper assignmentAssemblingMapper;
+    private final AssignmentRequestMapper assignmentRequestMapper;
 
     @Override
     public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) {
         var plan = shiftPlanDao.getById(shiftPlanId);
         securityHelper.assertUserIsPlanner(plan);
-        return AssignmentRequestMapper.toAssignmentRequestDto(plan.getShifts());
+        return assignmentRequestMapper.toAssignmentRequestDto(plan.getShifts());
     }
 
     @Override
@@ -103,7 +106,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // check if not already signed up, eligible and no conflicts
         volunteers = volunteers.stream().filter(v -> isAssignable(positionSlot, v)).toList();
 
-        return VolunteerMapper.toDto(volunteers);
+        return volunteerAssemblingMapper.toDto(volunteers);
     }
 
     private boolean isAssignable(PositionSlot positionSlot, Volunteer volunteer) {
@@ -142,7 +145,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
                 Assignment.of(positionSlot, v, AssignmentStatus.REQUEST_FOR_ASSIGNMENT))
         ));
 
-        return AssignmentMapper.toDto(assignments);
+        return assignmentAssemblingMapper.toDto(assignments);
     }
 
     private void acceptAssignment(Assignment assignment) {

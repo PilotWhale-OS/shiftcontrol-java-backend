@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 
 @Data
 @NoArgsConstructor
@@ -21,5 +21,5 @@ public class TradeCandidatesDto {
 
     @NotNull
     @Valid
-    private Collection<AccountInfoDto> assignedVolunteers;
+    private Collection<VolunteerDto> assignedVolunteers;
 }

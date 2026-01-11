@@ -2,11 +2,14 @@ package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
@@ -49,5 +52,18 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     @Override
     public Collection<ShiftPlan> findAllUserRelatedShiftPlans(String userId) {
         return shiftPlanRepository.findAllUserRelatedShiftPlans(userId);
+    }
+
+    @Override
+    public Collection<ShiftPlan> getByIds(Set<Long> shiftPlanIds) {
+        var plans = shiftPlanRepository.getByIds(shiftPlanIds);
+        if (plans.size() != shiftPlanIds.size()) {
+            var foundId = plans.stream()
+                .map(ShiftPlan::getId)
+                .collect(Collectors.toSet());
+            shiftPlanIds.removeAll(foundId);
+            throw PartiallyNotFoundException.of(getName(), shiftPlanIds);
+        }
+        return shiftPlanRepository.getByIds(shiftPlanIds);
     }
 }

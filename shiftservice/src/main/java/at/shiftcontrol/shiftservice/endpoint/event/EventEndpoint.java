@@ -5,6 +5,7 @@ import java.util.Collection;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
@@ -13,9 +14,11 @@ import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.event.EventCloneService;
 import at.shiftcontrol.shiftservice.service.event.EventExportService;
+import at.shiftcontrol.shiftservice.service.event.EventImportService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
@@ -31,7 +34,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -42,6 +47,7 @@ public class EventEndpoint {
     private final EventService eventService;
     private final EventCloneService eventCloneService;
     private final EventExportService eventExportService;
+    private final EventImportService eventImportService;
     private final DashboardService dashboardService;
 
     @GetMapping("/{eventId}")
@@ -139,5 +145,28 @@ public class EventEndpoint {
             // filename will be set in frontend regardless of this value because header value is not used, but it is good practice to set it here anyway
             .contentType(export.getMediaType())
             .body(new InputStreamResource(export.getExportStream()));
+    }
+
+    @PostMapping("/import")
+    @Operation(
+        operationId = "importEventData",
+        description = "Import event data from external source"
+    )
+    public EventImportResultDto importEventData(@RequestPart("file") @NotNull MultipartFile file) {
+        return eventImportService.importEvent(file);
+    }
+
+    @GetMapping("import/template")
+    @Operation(
+        operationId = "downloadEventImportTemplate",
+        description = "Download event import template file"
+    )
+    public ResponseEntity<Resource> downloadEventImportTemplate() {
+        var template = eventImportService.getEventImportTemplate();
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + template.getFileName())
+            // filename will be set in frontend regardless of this value because header value is not used, but it is good practice to set it here anyway
+            .contentType(template.getMediaType())
+            .body(new InputStreamResource(template.getExportStream()));
     }
 }

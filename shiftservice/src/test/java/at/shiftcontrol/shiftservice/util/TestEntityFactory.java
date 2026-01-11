@@ -24,6 +24,7 @@ import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
@@ -135,11 +136,14 @@ public class TestEntityFactory {
 
     public UserProfileDto getUserProfileDtoWithId(String userId) {
         UserProfileDto profile = new UserProfileDto();
-        AccountInfoDto info = new AccountInfoDto(
+        VolunteerDto volunteer = new VolunteerDto(
             userId,
-            "Test Username",
             "first name",
-            "last name",
+            "last name"
+        );
+        AccountInfoDto info = new AccountInfoDto(
+            volunteer,
+            "Test Username",
             "mail@mail.com",
             UserType.ASSIGNED
         );

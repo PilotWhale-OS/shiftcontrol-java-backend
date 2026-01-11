@@ -55,15 +55,24 @@ public class Volunteer {
     )
     private Collection<ShiftPlan> planningPlans;
 
+    @ManyToMany
+    @JoinTable(
+        name = "shift_plan_volunteer_locked",
+        joinColumns = @JoinColumn(name = "volunteer_id"),
+        inverseJoinColumns = @JoinColumn(name = "shift_plan_id")
+    )
+    private Collection<ShiftPlan> lockedPlans;
+
     @Override
     public String toString() {
-        return "Volunteer{id='%s', roles=%s, notificationAssignments=%s, volunteeringPlans=%s, planningPlans=%s}"
+        return "Volunteer{id='%s', roles=%s, notificationAssignments=%s, volunteeringPlans=%s, planningPlans=%s, lockedPlans=%s}"
             .formatted(
                 id,
                 roles,
                 notificationAssignments,
                 volunteeringPlans.stream().map(ShiftPlan::getId).toList(),
-                planningPlans.stream().map(ShiftPlan::getId).toList()
+                planningPlans.stream().map(ShiftPlan::getId).toList(),
+                lockedPlans.stream().map(ShiftPlan::getId).toList()
             );
     }
 }

@@ -18,19 +18,20 @@ import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
 @RequiredArgsConstructor
 @Service
 public class AssignmentRequestMapper {
+    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
 
-    public static Collection<AssignmentRequestDto> toAssignmentRequestDto(Collection<Shift> shifts) {
+    public Collection<AssignmentRequestDto> toAssignmentRequestDto(Collection<Shift> shifts) {
         if (shifts == null || shifts.isEmpty()) {
             return List.of();
         }
 
         return shifts.stream()
             .filter(Objects::nonNull)
-            .map(AssignmentRequestMapper::toAssignmentRequestDto)
+            .map(this::toAssignmentRequestDto)
             .collect(Collectors.toList());
     }
 
-    private static AssignmentRequestDto toAssignmentRequestDto(Shift shift) {
+    private AssignmentRequestDto toAssignmentRequestDto(Shift shift) {
         Collection<AssignmentDto> requests =
             safeSlots(shift.getSlots()).stream()
                 .flatMap(slot -> safeAssignments(slot.getAssignments()).stream()
@@ -45,10 +46,10 @@ public class AssignmentRequestMapper {
             .build();
     }
 
-    private static AssignmentDto toAssignmentDto(PositionSlot slot, Assignment assignment) {
+    private AssignmentDto toAssignmentDto(PositionSlot slot, Assignment assignment) {
         return AssignmentDto.builder()
             .positionSlotId(String.valueOf(slot.getId()))
-            .assignedVolunteer(VolunteerMapper.toDto(assignment.getAssignedVolunteer()))
+            .assignedVolunteer(volunteerAssemblingMapper.toDto(assignment.getAssignedVolunteer()))
             .status(assignment.getStatus())
             .acceptedRewardPoints(assignment.getAcceptedRewardPoints())
             .build();

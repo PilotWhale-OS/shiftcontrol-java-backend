@@ -9,6 +9,7 @@ import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -81,32 +82,64 @@ public class SecurityHelper {
         return isVolunteerInPlan(shiftPlanId, currentUser);
     }
 
+    public boolean isVolunteerLockedInPlan(long shiftPlanId, ShiftControlUser user) {
+        return user.isLockedInPlan(shiftPlanId);
+    }
+
+    public boolean isVolunteerLockedInPlan(ShiftPlan plan, Volunteer volunteer) {
+        return volunteer.getLockedPlans().contains(plan);
+    }
+
     public boolean isUserOnlyVolunteerInPlan(long shiftPlanId) {
         var currentUser = userProvider.getCurrentUser();
         return isVolunteerInPlan(shiftPlanId, currentUser) && !isUserPlanner(shiftPlanId, currentUser);
     }
 
-    public void assertUserIsVolunteer(long shiftPlanId, ShiftControlUser user) {
+    public void assertUserIsVolunteer(long shiftPlanId, ShiftControlUser user, boolean needsWriteAccess) {
         if (!isVolunteerInPlan(shiftPlanId, user)) {
             log.error("User is not a volunteer in plan with id: {}", shiftPlanId);
             throw new ForbiddenException("User is not a volunteer in plan.");
         }
+        if (needsWriteAccess && isVolunteerLockedInPlan(shiftPlanId, user)) {
+            log.error("User is locked in plan with id: {}", shiftPlanId);
+            throw new ForbiddenException("User is locked in plan.");
+        }
     }
 
-    public void assertUserIsVolunteer(long shiftPlanId) {
-        assertUserIsVolunteer(shiftPlanId, userProvider.getCurrentUser());
+    public void assertUserIsVolunteer(long shiftPlanId, boolean needsWriteAccess) {
+        assertUserIsVolunteer(shiftPlanId, userProvider.getCurrentUser(), needsWriteAccess);
     }
 
-    public void assertUserIsVolunteer(ShiftPlan shiftPlan) {
-        assertUserIsVolunteer(shiftPlan.getId());
+    public void assertUserIsVolunteer(ShiftPlan shiftPlan, boolean needsWriteAccess) {
+        assertUserIsVolunteer(shiftPlan.getId(), needsWriteAccess);
     }
 
-    public void assertUserIsVolunteer(Shift shift) {
-        assertUserIsVolunteer(shift.getShiftPlan());
+    public void assertUserIsVolunteer(Shift shift, boolean needsWriteAccess) {
+        assertUserIsVolunteer(shift.getShiftPlan(), needsWriteAccess);
     }
 
-    public void assertUserIsVolunteer(PositionSlot positionSlot) {
-        assertUserIsVolunteer(positionSlot.getShift());
+    public void assertUserIsVolunteer(PositionSlot positionSlot, boolean needsWriteAccess) {
+        assertUserIsVolunteer(positionSlot.getShift(), needsWriteAccess);
+    }
+
+    public void assertVolunteerIsVolunteer(ShiftPlan plan, Volunteer volunteer) {
+        if (!volunteer.getVolunteeringPlans().contains(plan)) {
+            throw new IllegalArgumentException("User not contained in a plan cannot be lockt for the plan.");
+        }
+    }
+
+    public void assertVolunteerIsLockedInPlan(ShiftPlan plan, Volunteer volunteer) {
+        assertVolunteerIsVolunteer(plan, volunteer);
+        if (!isVolunteerLockedInPlan(plan, volunteer)) {
+            throw new ForbiddenException("User is already not locked");
+        }
+    }
+
+    public void assertVolunteerIsNotLockedInPlan(ShiftPlan plan, Volunteer volunteer) {
+        assertVolunteerIsVolunteer(plan, volunteer);
+        if (isVolunteerLockedInPlan(plan, volunteer)) {
+            throw new ForbiddenException("User is already locked");
+        }
     }
     //     --------------------- Volunteer or Planner ---------------------
 
