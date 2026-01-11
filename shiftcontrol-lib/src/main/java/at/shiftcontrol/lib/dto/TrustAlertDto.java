@@ -20,9 +20,6 @@ public class TrustAlertDto {
     private String userId;
 
     @NotNull
-    private String slotId;
-
-    @NotNull
     private TrustAlertType alertType;
 
     @NotNull

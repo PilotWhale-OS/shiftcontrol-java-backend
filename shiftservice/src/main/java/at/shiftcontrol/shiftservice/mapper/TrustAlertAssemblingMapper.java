@@ -9,15 +9,12 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.dto.TrustAlertDto;
 import at.shiftcontrol.lib.entity.TrustAlert;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 
 @Component
 @RequiredArgsConstructor
 public class TrustAlertAssemblingMapper {
-    private final PositionSlotDao positionSlotDao;
     private final VolunteerDao volunteerDao;
 
     public TrustAlertDisplayDto toDto(TrustAlert alert) {
@@ -39,7 +36,6 @@ public class TrustAlertAssemblingMapper {
     public TrustAlert toEntity(TrustAlertDto alert) {
         return TrustAlert.builder()
             .volunteer(volunteerDao.getById(alert.getUserId()))
-            .positionSlot(positionSlotDao.getById(ConvertUtil.idToLong(alert.getSlotId())))
             .alertType(alert.getAlertType())
             .createdAt(alert.getCreatedAt())
             .build();

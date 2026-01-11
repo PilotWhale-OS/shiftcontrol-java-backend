@@ -38,11 +38,6 @@ public class TrustAlert {
     private Volunteer volunteer;
 
     @NotNull
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "position_slot_id", nullable = false)
-    private PositionSlot positionSlot;
-
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TrustAlertType alertType;

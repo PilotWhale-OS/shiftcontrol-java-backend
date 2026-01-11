@@ -23,11 +23,9 @@ public class AlertService {
         this.restClient = restClient;
     }
 
-    public void sendAlert(TrustAlertType alertType, String userId, String slotId) {
-        log.info("Sending {} alert for user {} on slot {}", alertType, userId, slotId);
-        TrustAlertDto dto = getDto(alertType, userId, slotId);
-
-        // TODO implement
+    public void sendAlert(TrustAlertType alertType, String userId) {
+        log.info("Sending {} alert for user {}", alertType, userId);
+        TrustAlertDto dto = getDto(alertType, userId);
         sendAlert(dto);
     }
 
@@ -43,10 +41,9 @@ public class AlertService {
         }
     }
 
-    private TrustAlertDto getDto(TrustAlertType alertType, String userId, String slotId) {
+    private TrustAlertDto getDto(TrustAlertType alertType, String userId) {
         return TrustAlertDto.builder()
             .userId(userId)
-            .slotId(slotId)
             .alertType(alertType)
             .createdAt(Instant.now())
             .build();

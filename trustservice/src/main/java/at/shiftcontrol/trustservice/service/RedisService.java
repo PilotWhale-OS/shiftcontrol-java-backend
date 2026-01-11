@@ -7,7 +7,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class RedisService {
 
@@ -92,27 +94,25 @@ public class RedisService {
     // QUERIES
     // ============================================
 
-    // TODO delete souts
-
     public boolean hasTooManySignups(String userId) {
         cleanupOld(overloadKey(userId), OVERLOAD_WINDOW_SECONDS);
-        System.out.println("CHECK OVERLOAD: " + redis.opsForZSet().zCard(overloadKey(userId)));
+        log.info("CHECK OVERLOAD: {}", redis.opsForZSet().zCard(overloadKey(userId)));
         return redis.opsForZSet().zCard(overloadKey(userId)) >= OVERLOAD_THRESHOLD;
     }
 
     public boolean hasTooManySignupsAndOffs(String userId, String slotId) {
         cleanupOld(spamKey(userId, slotId), SPAM_WINDOW_SECONDS);
-        System.out.println("CHECK SPAM: " + redis.opsForZSet().zCard(spamKey(userId, slotId)));
+        log.info("CHECK SPAM: {}", redis.opsForZSet().zCard(spamKey(userId, slotId)));
         return redis.opsForZSet().zCard(spamKey(userId, slotId)) >= SPAM_THRESHOLD;
     }
 
     public boolean hasTooManyTrades(String userId) {
-        System.out.println("CHECK TRADE: " + redis.opsForSet().size(tradeKey(userId)));
+        log.info("CHECK TRADE: {}", redis.opsForSet().size(tradeKey(userId)));
         return redis.opsForSet().size(tradeKey(userId)) >= TRADE_THRESHOLD;
     }
 
     public boolean hasTooManyAuctions(String userId) {
-        System.out.println("CHECK AUCTION: " + redis.opsForSet().size(auctionKey(userId)));
+        log.info("CHECK AUCTION: {}", redis.opsForSet().size(auctionKey(userId)));
         return redis.opsForSet().size(auctionKey(userId)) >= AUCTION_THRESHOLD;
     }
 

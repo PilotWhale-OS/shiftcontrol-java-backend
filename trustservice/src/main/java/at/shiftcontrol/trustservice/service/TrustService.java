@@ -112,28 +112,28 @@ public class TrustService {
 
     private void checkSpam(String userId, String slot) {
         if (redisService.hasTooManySignupsAndOffs(userId, slot)) {
-            alertService.sendAlert(TrustAlertType.SPAM, userId, slot);
+            alertService.sendAlert(TrustAlertType.SPAM, userId);
             redisService.resetSpam(userId, slot);
         }
     }
 
     private void checkOverload(String userId, String slot) {
         if (redisService.hasTooManySignups(userId)) {
-            alertService.sendAlert(TrustAlertType.OVERLOAD, userId, slot);
+            alertService.sendAlert(TrustAlertType.OVERLOAD, userId);
             redisService.resetOverload(userId);
         }
     }
 
     private void checkTrade(String userId, String slot) {
         if (redisService.hasTooManyTrades(userId)) {
-            alertService.sendAlert(TrustAlertType.TRADE, userId, slot);
+            alertService.sendAlert(TrustAlertType.TRADE, userId);
             redisService.resetTrades(userId);
         }
     }
 
     private void checkAuction(String userId, String slot) {
         if (redisService.hasTooManyAuctions(userId)) {
-            alertService.sendAlert(TrustAlertType.AUCTION, userId, slot);
+            alertService.sendAlert(TrustAlertType.AUCTION, userId);
             redisService.resetAuctions(userId);
         }
     }

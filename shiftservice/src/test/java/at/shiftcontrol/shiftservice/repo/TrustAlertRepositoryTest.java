@@ -12,7 +12,6 @@ import config.TestConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.TrustAlert;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.TrustAlertType;
@@ -42,7 +41,6 @@ public class TrustAlertRepositoryTest {
         TrustAlert trustAlert = TrustAlert.builder()
             .alertType(TrustAlertType.OVERLOAD)
             .createdAt(Instant.now())
-            .positionSlot(PositionSlot.builder().id(1L).build())
             .volunteer(Volunteer.builder().id("28c02050-4f90-4f3a-b1df-3c7d27a166e6").build())
             .build();
 
