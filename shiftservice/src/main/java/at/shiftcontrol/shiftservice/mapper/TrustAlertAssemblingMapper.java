@@ -16,11 +16,12 @@ import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 @RequiredArgsConstructor
 public class TrustAlertAssemblingMapper {
     private final VolunteerDao volunteerDao;
+    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
 
     public TrustAlertDisplayDto toDto(TrustAlert alert) {
         return TrustAlertDisplayDto.builder()
             .id(String.valueOf(alert.getId()))
-            // TODO map volunteer when user assembling mapper is available
+            .volunteerDto(volunteerAssemblingMapper.toDto(alert.getVolunteer()))
             .alertType(alert.getAlertType())
             .createdAt(alert.getCreatedAt())
             .build();

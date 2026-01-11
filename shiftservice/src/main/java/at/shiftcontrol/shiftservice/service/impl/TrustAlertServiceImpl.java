@@ -31,7 +31,6 @@ public class TrustAlertServiceImpl implements TrustAlertService {
 
     @Override
     public TrustAlertDisplayDto save(TrustAlertDto alert) {
-        // TODO add entities in notification service
         TrustAlert entity = trustAlertAssemblingMapper.toEntity(alert);
         entity = trustAlertDao.save(entity);
 
