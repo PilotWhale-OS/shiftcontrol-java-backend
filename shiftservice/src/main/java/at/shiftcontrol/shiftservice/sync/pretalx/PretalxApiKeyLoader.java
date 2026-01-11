@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.sync.pretalx;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.pretalxclient.model.EventList;
+import at.shiftcontrol.shiftservice.entity.pretalx.PretalxApiKey;
 import at.shiftcontrol.shiftservice.event.events.PretalxApiKeyInvalidEvent;
 import at.shiftcontrol.shiftservice.repo.pretalx.PretalxApiKeyRepository;
 
@@ -48,6 +50,7 @@ public class PretalxApiKeyLoader {
         apiKeyCache.clear();
 
         var apiKeys = pretalxApiKeyRepository.findAll();
+        apiKeys = List.of(PretalxApiKey.builder().apiKey("hvha5l5clxescv75isqvs875j1gnpfn29r9hvy4r99w2txggv67lcvw3ggusafu4").build());
         for (var apiKey : apiKeys) {
             var eventsApi = pretalxApiSupplier.eventsApi(apiKey);
             try {

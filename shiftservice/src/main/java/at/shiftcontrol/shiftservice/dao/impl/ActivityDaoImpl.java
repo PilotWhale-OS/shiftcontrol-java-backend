@@ -67,4 +67,9 @@ public class ActivityDaoImpl implements ActivityDao {
 
         return activityRepository.findAll(spec);
     }
+
+    @Override
+    public Optional<Activity> findByEventAndName(Long eventId, String name) {
+        return activityRepository.findByEventAndName(eventId, name);
+    }
 }
