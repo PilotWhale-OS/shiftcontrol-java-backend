@@ -13,7 +13,7 @@ import at.shiftcontrol.shiftservice.repo.TrustAlertRepository;
 @RequiredArgsConstructor
 @Component
 public class TrustAlertDaoImpl implements TrustAlertDao {
-    TrustAlertRepository repository;
+    private final TrustAlertRepository repository;
 
     @Override
     public Collection<TrustAlert> getAllPaginated(long page, long size) {

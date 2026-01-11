@@ -1,0 +1,9 @@
+trust:
+  shiftservice:
+    baseUrl: http://shiftservice:8080/
+    endpoint: api/v1/trust-alerts
+  keycloak:
+    baseUrl: http://keycloak:8080
+    clientId: internal
+    clientSecret: 3mnwKdFacOw8DiTfcCHHSVVMiHjzIoms
+    realm: dev

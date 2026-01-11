@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.lib.entity.TrustAlert;
+import at.shiftcontrol.lib.dto.TrustAlertDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 import at.shiftcontrol.shiftservice.service.TrustAlertService;
 
@@ -21,7 +21,7 @@ import at.shiftcontrol.shiftservice.service.TrustAlertService;
 @RequestMapping(value = "api/v1/trust-alerts", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class TrustAlertEndpoint {
-    TrustAlertService trustAlertService;
+    private final TrustAlertService trustAlertService;
 
     @GetMapping
     @Operation(
@@ -37,7 +37,8 @@ public class TrustAlertEndpoint {
         operationId = "saveTrustAlert",
         description = "Saves the trust alert"
     )
-    public TrustAlertDisplayDto saveTrustAlert(@RequestBody TrustAlert trustAlert) {
+    public TrustAlertDisplayDto saveTrustAlert(@RequestBody TrustAlertDto trustAlert) {
+        System.out.println("RECEIVED ALERT: " + trustAlert);
         return trustAlertService.save(trustAlert);
     }
 }
