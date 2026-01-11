@@ -13,4 +13,10 @@ import lombok.NoArgsConstructor;
 public class VolunteerDto {
     @NotNull
     private String id;
+
+    @NotNull
+    private String fistName;
+
+    @NotNull
+    private String lastName;
 }

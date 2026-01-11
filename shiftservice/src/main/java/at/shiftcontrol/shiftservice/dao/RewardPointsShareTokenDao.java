@@ -10,5 +10,5 @@ public interface RewardPointsShareTokenDao extends BasicDao<RewardPointsShareTok
 
     boolean existsByToken(String token);
 
-    boolean existsByName(String name);
+    boolean existsByNameIgnoreCase(String name);
 }

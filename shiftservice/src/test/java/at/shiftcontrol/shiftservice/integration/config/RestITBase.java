@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.integration.config;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +24,15 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.mockito.Mockito;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @Import(TestSecurityConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -40,6 +45,9 @@ public abstract class RestITBase {
 
     @MockitoBean
     RabbitTemplate rabbitTemplate;
+
+    @MockitoBean
+    protected KeycloakUserService keycloakUserService;
 
     protected ObjectMapper objectMapper = new ObjectMapper();
 
@@ -113,6 +121,34 @@ public abstract class RestITBase {
         Thread var10000 = Thread.currentThread();
         long var10001 = Thread.currentThread().getId();
         var10000.setName(var10001 + "-" + this.getClass().getSimpleName());
+    }
+
+    @BeforeEach
+    public void setKcTestVariables() {
+        UserRepresentation userRep = new UserRepresentation();
+        userRep.setId("11111");
+        userRep.setFirstName("Kerbert");
+        userRep.setLastName("Huttelwascher");
+        Mockito.when(keycloakUserService.getUserById("11111"))
+            .thenReturn(userRep);
+
+        UserRepresentation userRep2 = new UserRepresentation();
+        userRep2.setId("22222");
+        userRep2.setFirstName("Kerbert");
+        userRep2.setLastName("Huttelwascher");
+        Mockito.when(keycloakUserService.getUserById("22222"))
+            .thenReturn(userRep2);
+
+        UserRepresentation userRep3 = new UserRepresentation();
+        userRep3.setId("33333");
+        userRep3.setFirstName("Kerbert");
+        userRep3.setLastName("Huttelwascher");
+        Mockito.when(keycloakUserService.getUserById("33333"))
+            .thenReturn(userRep3);
+
+
+        Mockito.when(keycloakUserService.getUserByIds(Collections.singleton(any())))
+            .thenReturn(List.of(userRep2));
     }
 
     public String getBasePath() {

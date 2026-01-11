@@ -34,7 +34,6 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
@@ -57,11 +56,12 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
+    private final TradeMapper tradeMapper;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) {
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.getById(requestedPositionSlotId);
 
-        securityHelper.assertUserIsVolunteer(requestedPositionSlot);
+        securityHelper.assertUserIsVolunteer(requestedPositionSlot, false);
 
         // get volunteers assigned to PositionSlot
         Collection<Volunteer> assignedVolunteers = requestedPositionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
@@ -137,7 +137,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         //  this does not check for existing inverse trade requests
         return slotsToOffer.stream()
             .map(candidate -> {
-                List<AccountInfoDto> filteredVolunteers =
+                List<VolunteerDto> filteredVolunteers =
                     candidate.getAssignedVolunteers().stream()
                         .filter(volunteer -> {
                             AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
@@ -217,7 +217,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                    "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         )));
-        return TradeMapper.toDto(trades);
+        return tradeMapper.toDto(trades);
     }
 
     private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
@@ -261,7 +261,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // update assignments
         AssignmentSwitchRequest executedTrade = assignmentService.executeTrade(trade);
 
-        return TradeMapper.toDto(executedTrade);
+        return tradeMapper.toDto(executedTrade);
     }
 
     @Override
@@ -284,7 +284,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         ));
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     @Override
@@ -307,7 +307,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         ));
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     private AssignmentSwitchRequest createAssignmentSwitchRequest(Assignment offering, Assignment requested) {
@@ -328,7 +328,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(slotToBeTaken);
+        securityHelper.assertUserIsVolunteer(slotToBeTaken, true);
 
         // check if user is eligible for the requested position slot
         eligibilityService.validateIsEligibleAndNotSignedUp(slotToBeTaken, volunteer);

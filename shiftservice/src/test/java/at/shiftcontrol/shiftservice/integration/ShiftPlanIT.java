@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import at.shiftcontrol.lib.event.BaseEvent;
-
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,6 +22,7 @@ import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.BaseEvent;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.ShiftPlanInviteType;
@@ -761,7 +760,7 @@ class ShiftPlanIT extends RestITBase {
     void assignUsersToSlotAsPlannerSucceeds() {
         var assignmentAssignDto = AssignmentAssignDto.builder()
             .positionSlotId(String.valueOf(positionSlotA.getId()))
-            .volunteers(List.of(new VolunteerDto(volunteerJoinedAsVolunteerOnly.getId())))
+            .volunteers(List.of( VolunteerDto.builder().id(volunteerJoinedAsVolunteerOnly.getId()).build()))
             .build();
 
         var result = postRequestAsAssigned(

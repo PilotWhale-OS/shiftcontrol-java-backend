@@ -26,7 +26,7 @@ import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
+import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 
@@ -103,7 +103,7 @@ public class AssignmentServiceImpl implements AssignmentService {
      */
     private Assignment reassign(Assignment oldAssignment, Volunteer newVolunteer) {
         // Create new assignment with new PK
-        Assignment newAssignment = AssignmentMapper.shallowCopy(oldAssignment);
+        Assignment newAssignment = AssignmentAssemblingMapper.shallowCopy(oldAssignment);
         newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
         newAssignment.setStatus(AssignmentStatus.ACCEPTED);
         newAssignment.setAssignedVolunteer(newVolunteer);

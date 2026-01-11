@@ -50,7 +50,7 @@ public class RewardPointsShareTokenDaoImpl implements RewardPointsShareTokenDao 
     }
 
     @Override
-    public boolean existsByName(String name) {
-        return rewardPointsShareTokenRepository.existsByName(name);
+    public boolean existsByNameIgnoreCase(String name) {
+        return rewardPointsShareTokenRepository.existsByNameIgnoreCase(name);
     }
 }

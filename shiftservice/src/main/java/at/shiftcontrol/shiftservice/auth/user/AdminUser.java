@@ -16,4 +16,9 @@ public class AdminUser extends ShiftControlUser {
     public boolean isPlannerInPlan(long shiftPlanId) {
         return true;
     }
+
+    @Override
+    public boolean isLockedInPlan(long shiftPlanId) {
+        return false;
+    }
 }

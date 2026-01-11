@@ -10,4 +10,6 @@ public interface UserAttributeProvider {
     Set<Long> getPlansWhereUserIsVolunteer(@NonNull String userId);
 
     Set<Long> getPlansWhereUserIsPlanner(@NonNull String userId);
+
+    Set<Long> getPlansWhereUserIsLocked(@NonNull String userId);
 }
