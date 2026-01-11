@@ -14,6 +14,8 @@ import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.EventEvent;
 import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -22,6 +24,7 @@ import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.dto.event.EventExportDto;
 import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
@@ -37,6 +40,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -172,8 +176,9 @@ public class EventImportServiceImpl implements EventImportService {
 
         shiftDao.saveAll(shifts);
 
-        // TODO fire event
-        // TODO where to store excel template? Extra endpoint?
+        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_IMPORTED, Map.of(
+            "eventId", String.valueOf(event.getId())
+        )), event));
 
         return EventImportResultDto.builder()
             .event(EventMapper.toEventDto(event))
@@ -417,4 +422,23 @@ public class EventImportServiceImpl implements EventImportService {
                             String shortDescription, String longDescription, int excelRow) {
     }
 
+    @Override
+    public EventExportDto getEventImportTemplate() {
+        var mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        try {
+            InputStream templateStream = this.getClass().getResourceAsStream("/templates/event_import_template.xlsx");
+            if (templateStream == null) {
+                throw new FileNotFoundException("Event import template not found.");
+            }
+
+            return EventExportDto.builder()
+                .exportStream(templateStream)
+                .fileName("event_import_template.xlsx")
+                .mediaType(MediaType.parseMediaType(mediaType))
+                .build();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load event import template: " + e.getMessage(), e);
+        }
+    }
 }

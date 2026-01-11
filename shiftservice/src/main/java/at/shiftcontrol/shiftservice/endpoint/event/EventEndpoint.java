@@ -155,4 +155,18 @@ public class EventEndpoint {
     public EventImportResultDto importEventData(@RequestPart("file") @NotNull MultipartFile file) {
         return eventImportService.importEvent(file);
     }
+
+    @GetMapping("import/template")
+    @Operation(
+        operationId = "downloadEventImportTemplate",
+        description = "Download event import template file"
+    )
+    public ResponseEntity<Resource> downloadEventImportTemplate() {
+        var template = eventImportService.getEventImportTemplate();
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + template.getFileName())
+            // filename will be set in frontend regardless of this value because header value is not used, but it is good practice to set it here anyway
+            .contentType(template.getMediaType())
+            .body(new InputStreamResource(template.getExportStream()));
+    }
 }
