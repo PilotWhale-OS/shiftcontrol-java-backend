@@ -88,6 +88,8 @@ public final class RoutingKeys {
     public static final String REWARDPOINTS_SHARETOKEN_CREATED = "rewardpoints.sharetoken.created.{shareTokenId}";
     public static final String REWARDPOINTS_SHARETOKEN_DELETED = "rewardpoints.sharetoken.deleted.{shareTokenId}";
 
+    public static final String TRUST_ALERT_RECEIVED = "trustalert.received.{alertId}";
+
 
     public static @NonNull String format(@NonNull String template, @NonNull Map<String, ?> values) {
         var m = PLACEHOLDER.matcher(template);
