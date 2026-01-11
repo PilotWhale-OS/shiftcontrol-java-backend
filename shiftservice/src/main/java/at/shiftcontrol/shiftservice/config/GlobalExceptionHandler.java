@@ -7,7 +7,6 @@ import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.FileExportException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.ImportValidationException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
 import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
@@ -60,7 +59,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleInternal(ex, request, NOT_FOUND);
     }
 
-    @ExceptionHandler(value = {ValidationException.class, ImportValidationException.class})
+    @ExceptionHandler(value = {ValidationException.class})
     protected ResponseEntity<Object> handleValidation(Exception ex, WebRequest request) {
         return handleInternal(ex, request, UNPROCESSABLE_ENTITY);
     }

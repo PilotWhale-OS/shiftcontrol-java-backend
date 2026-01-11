@@ -14,7 +14,7 @@ import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
-import at.shiftcontrol.lib.exception.ImportValidationException;
+import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -65,33 +65,37 @@ public class EventImportServiceImpl implements EventImportService {
     @AdminOnly
     @Transactional
     public EventImportResultDto importEvent(@NonNull MultipartFile file) {
-        List<String> errors = new ArrayList<>();
+        ValidationException.Builder b = ValidationException.builder()
+            .context("Import Event (XLSX)");
 
         if (file.isEmpty()) {
-            throw new ImportValidationException(List.of("Uploaded file is empty."));
+            b.error("file", "Uploaded file is empty.");
         }
 
         if (file.getOriginalFilename() == null || !file.getOriginalFilename().endsWith(".xlsx")) {
-            throw new ImportValidationException(List.of("Invalid file type. Please upload an Excel .xlsx file."));
+            b.error("file", "Invalid file type. Please upload an Excel .xlsx file.");
         }
+
+        b.throwIfInvalid();
 
         ImportModel model;
         try (InputStream in = file.getInputStream(); Workbook wb = new XSSFWorkbook(in)) {
-            model = parseWorkbook(wb, errors);
+            model = parseWorkbook(wb, b);
         } catch (Exception e) {
-            throw new ImportValidationException(List.of("Failed to read Excel file: " + e.getMessage()));
+            throw ValidationException.builder()
+                .context("Import Event (XLSX)")
+                .error("file", "Failed to read Excel file: " + e.getMessage())
+                .build();
         }
 
-        validateModel(model, errors);
-
-        if (!errors.isEmpty()) {
-            throw new ImportValidationException(errors);
-        }
+        validateModel(model, b);
+        b.throwIfInvalid();
 
         if (eventDao.existsByNameIgnoreCase(model.eventRow().eventName)) {
-            throw new ImportValidationException(List.of(
-                "Event name already exists: '" + model.eventRow.eventName + "'. Import aborted."
-            ));
+            throw ValidationException.builder()
+                .context("Import Event (XLSX)")
+                .error("Event.event_name", "Event name already exists: '" + model.eventRow().eventName + "'.")
+                .build();
         }
 
         Event event = Event.builder()
@@ -168,42 +172,48 @@ public class EventImportServiceImpl implements EventImportService {
 
         shiftDao.saveAll(shifts);
 
+        // TODO fire event
+        // TODO where to store excel template? Extra endpoint?
+
         return EventImportResultDto.builder()
             .event(EventMapper.toEventDto(event))
             .shifts(shiftMapper.assemble(shifts))
             .build();
     }
 
-    private ImportModel parseWorkbook(Workbook wb, List<String> errors) {
+    private ImportModel parseWorkbook(Workbook wb, ValidationException.Builder b) {
         Sheet eventSheet = wb.getSheet(SHEET_EVENT);
         if (eventSheet == null) {
-            throw new ImportValidationException(List.of("Missing sheet '" + SHEET_EVENT + "'."));
+            b.error("file", "Missing sheet '" + SHEET_EVENT + "'.");
         }
 
         Sheet shiftsSheet = wb.getSheet(SHEET_SHIFTS);
         if (shiftsSheet == null) {
-            throw new ImportValidationException(List.of("Missing sheet '" + SHEET_SHIFTS + "'."));
+            b.error("file", "Missing sheet '" + SHEET_SHIFTS + "'.");
         }
 
-        EventRow eventRow = parseEventSheet(eventSheet, errors);
-        List<ShiftRow> shiftRows = parseShiftsSheet(shiftsSheet, errors);
+        b.throwIfInvalid();
+
+        EventRow eventRow = parseEventSheet(eventSheet, b);
+        List<ShiftRow> shiftRows = parseShiftsSheet(shiftsSheet, b);
+        b.throwIfInvalid();
 
         return new ImportModel(eventRow, shiftRows);
     }
 
-    private EventRow parseEventSheet(Sheet sheet, List<String> errors) {
+    private EventRow parseEventSheet(Sheet sheet, ValidationException.Builder b) {
         Map<String, Integer> header = readHeader(sheet, 0);
 
-        String eventName = readStringCell(sheet, 2, header, "event_name", errors, true);
-        Instant start = readInstantCell(sheet, 2, header, "start_time_utc", errors, true);
-        Instant end = readInstantCell(sheet, 2, header, "end_time_utc", errors, true);
-        String shortDescription = readStringCell(sheet, 2, header, "short_description", errors, false);
-        String longDescription = readStringCell(sheet, 2, header, "long_description", errors, false);
+        String eventName = readStringCell(sheet, 2, header, "event_name", b, true);
+        Instant start = readInstantCell(sheet, 2, header, "start_time_utc", b, true);
+        Instant end = readInstantCell(sheet, 2, header, "end_time_utc", b, true);
+        String shortDescription = readStringCell(sheet, 2, header, "short_description", b, false);
+        String longDescription = readStringCell(sheet, 2, header, "long_description", b, false);
 
         return new EventRow(normalizeName(eventName), start, end, shortDescription, longDescription);
     }
 
-    private List<ShiftRow> parseShiftsSheet(Sheet sheet, List<String> errors) {
+    private List<ShiftRow> parseShiftsSheet(Sheet sheet, ValidationException.Builder b) {
         Map<String, Integer> header = readHeader(sheet, 0);
 
         int lastRow = sheet.getLastRowNum();
@@ -215,14 +225,14 @@ public class EventImportServiceImpl implements EventImportService {
                 continue;
             }
 
-            String shiftPlanName = readStringCell(sheet, r, header, "shift_plan_name", errors, false);
-            String name = readStringCell(sheet, r, header, "shift_name", errors, true);
-            Instant start = readInstantCell(sheet, r, header, "start_time_utc", errors, true);
-            Instant end = readInstantCell(sheet, r, header, "end_time_utc", errors, true);
-            String locationName = readStringCell(sheet, r, header, "location_name", errors, false);
-            String activityName = readStringCell(sheet, r, header, "activity_name", errors, false);
-            String shortDescription = readStringCell(sheet, r, header, "short_description", errors, false);
-            String longDescription = readStringCell(sheet, r, header, "long_description", errors, false);
+            String shiftPlanName = readStringCell(sheet, r, header, "shift_plan_name", b, false);
+            String name = readStringCell(sheet, r, header, "shift_name", b, true);
+            Instant start = readInstantCell(sheet, r, header, "start_time_utc", b, true);
+            Instant end = readInstantCell(sheet, r, header, "end_time_utc", b, true);
+            String locationName = readStringCell(sheet, r, header, "location_name", b, false);
+            String activityName = readStringCell(sheet, r, header, "activity_name", b, false);
+            String shortDescription = readStringCell(sheet, r, header, "short_description", b, false);
+            String longDescription = readStringCell(sheet, r, header, "long_description", b, false);
 
             shifts.add(new ShiftRow(
                 normalizeName(shiftPlanName),
@@ -238,7 +248,7 @@ public class EventImportServiceImpl implements EventImportService {
         }
 
         if (shifts.isEmpty()) {
-            errors.add("Sheet 'Shifts' must contain at least one shift row.");
+            b.error("file", "Sheet '" + sheet.getSheetName() + "' contains no shift entries.");
         }
 
         return shifts;
@@ -247,7 +257,10 @@ public class EventImportServiceImpl implements EventImportService {
     private Map<String, Integer> readHeader(Sheet sheet, int headerRowIndex) {
         Row headerRow = sheet.getRow(headerRowIndex);
         if (headerRow == null) {
-            throw new ImportValidationException(List.of("Missing header row in sheet '" + sheet.getSheetName() + "'."));
+            throw ValidationException.builder()
+                .context("Import Event (XLSX)")
+                .error("file", "Sheet '" + sheet.getSheetName() + "' is missing header row at index " + (headerRowIndex + 1) + ".")
+                .build();
         }
 
         Map<String, Integer> map = new HashMap<>();
@@ -262,17 +275,18 @@ public class EventImportServiceImpl implements EventImportService {
     }
 
     private String readStringCell(Sheet sheet, int rowIndex, Map<String, Integer> header,
-                                  String column, List<String> errors, boolean required) {
+                                  String column, ValidationException.Builder b, boolean required) {
         Integer colIndex = header.get(column);
         if (colIndex == null) {
-            errors.add("Missing required column '" + column + "' in sheet '" + sheet.getSheetName() + "'.");
+            b.error("file", "Missing required column '" + column + "' in sheet '" + sheet.getSheetName() + "'.");
             return null;
         }
 
         Row row = sheet.getRow(rowIndex);
         if (row == null) {
             if (required) {
-                errors.add("Missing required row " + (rowIndex + 1) + " in sheet '" + sheet.getSheetName() + "'.");
+                b.error("file", "Sheet '" + sheet.getSheetName() + "', row " + (rowIndex + 1) +
+                    ": '" + column + "' is required.");
             }
             return null;
         }
@@ -281,7 +295,7 @@ public class EventImportServiceImpl implements EventImportService {
         String value = cellToString(cell);
 
         if (required && (value == null || value.trim().isEmpty())) {
-            errors.add("Sheet '" + sheet.getSheetName() + "', row " + (rowIndex + 1) +
+            b.error("file", "Sheet '" + sheet.getSheetName() + "', row " + (rowIndex + 1) +
                 ": '" + column + "' is required.");
         }
 
@@ -289,8 +303,8 @@ public class EventImportServiceImpl implements EventImportService {
     }
 
     private Instant readInstantCell(Sheet sheet, int rowIndex, Map<String, Integer> header,
-                                    String column, List<String> errors, boolean required) {
-        String s = readStringCell(sheet, rowIndex, header, column, errors, required);
+                                    String column, ValidationException.Builder b, boolean required) {
+        String s = readStringCell(sheet, rowIndex, header, column, b, required);
         if (s == null || s.isBlank()) {
             return null;
         }
@@ -311,8 +325,8 @@ public class EventImportServiceImpl implements EventImportService {
         try {
             return Instant.parse(s);
         } catch (Exception e) {
-            errors.add("Sheet '" + sheet.getSheetName() + "', row " + (rowIndex + 1) +
-                ": '" + column + "' must be ISO-8601 UTC, e.g. 2026-05-12T10:00Z. Got: '" + s + "'");
+            b.error("file", "Sheet '" + sheet.getSheetName() + "', row " + (rowIndex + 1) +
+                ": '" + column + "' has invalid datetime format: '" + s + "'. Expected ISO 8601 format.");
             return null;
         }
     }
@@ -356,18 +370,9 @@ public class EventImportServiceImpl implements EventImportService {
         return name.trim().replaceAll("\\s+", " ");
     }
 
-    private void validateModel(ImportModel model, List<String> errors) {
-        if (StringUtils.isBlank(model.eventRow().eventName)) {
-            errors.add("Event name is required.");
-        }
-        if (model.eventRow.start == null) {
-            errors.add("Event start_time_utc is required.");
-        }
-        if (model.eventRow().end == null) {
-            errors.add("Event end_time_utc is required.");
-        }
+    private void validateModel(ImportModel model, ValidationException.Builder b) {
         if (model.eventRow().start != null && model.eventRow.end != null && !model.eventRow.start.isBefore(model.eventRow().end)) {
-            errors.add("Event start_time_utc must be before end_time_utc.");
+            b.error("Event.start_time_utc", "Event start_time_utc must be before end_time_utc.");
         }
 
         // Shift validation
@@ -379,39 +384,25 @@ public class EventImportServiceImpl implements EventImportService {
                 String rows = entry.getValue().stream()
                     .map(s -> String.valueOf(s.excelRow()))
                     .collect(Collectors.joining(", "));
-                errors.add("Duplicate shift_name '" + entry.getValue().get(0).shiftName() +
-                    "' in sheet 'Shifts' (rows: " + rows + ").");
+                b.error("Shifts.shift_name", "Duplicate shift_name '" + entry.getKey() + "' in rows: " + rows + ".");
             }
         }
 
         for (ShiftRow s : model.shifts) {
-            if (StringUtils.isBlank(s.shiftPlanName)) {
-                errors.add("Sheet 'Shifts', row " + s.excelRow + ": shift_plan_name is required.");
-            }
-            if (StringUtils.isBlank(s.shiftName)) {
-                errors.add("Sheet 'Shifts', row " + s.excelRow + ": shift_name is required.");
-                continue;
-            }
-            if (s.start == null) {
-                errors.add("Sheet 'Shifts', row " + s.excelRow + ": start_time_utc is required.");
-            }
-            if (s.end == null) {
-                errors.add("Sheet 'Shifts', row " + s.excelRow + ": end_time_utc is required.");
-            }
             if (s.start != null && s.end != null && !s.start.isBefore(s.end)) {
-                errors.add("Sheet 'Shifts', row " + s.excelRow + ": start_time_utc must be before end_time_utc.");
+                b.error("Shifts.start_time_utc", "Sheet 'Shifts', row " + s.excelRow + ": start_time_utc must be before end_time_utc.");
             }
 
             if (StringUtils.isNotBlank(s.locationName) && StringUtils.isNotBlank(s.activityName)) {
-                errors.add("Sheet 'Shifts', row " + s.excelRow + ": specify either location_name or activity_name, not both.");
+                b.error("Shifts.location_name", "Sheet 'Shifts', row " + s.excelRow + ": Cannot set both location_name and activity_name.");
             }
 
             // Enforce within event range
             if (model.eventRow.start != null && s.start != null && s.start.isBefore(model.eventRow.start)) {
-                errors.add("Sheet 'Shifts', row " + s.excelRow + ": shift starts before event start.");
+                b.error("Shifts.start_time_utc", "Sheet 'Shifts', row " + s.excelRow + ": shift starts before event start.");
             }
             if (model.eventRow.end != null && s.end != null && s.end.isAfter(model.eventRow.end)) {
-                errors.add("Sheet 'Shifts', row " + s.excelRow + ": shift ends after event end.");
+                b.error("Shifts.end_time_utc", "Sheet 'Shifts', row " + s.excelRow + ": shift ends after event end.");
             }
         }
     }
