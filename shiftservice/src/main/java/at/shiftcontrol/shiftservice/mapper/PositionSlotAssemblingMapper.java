@@ -26,7 +26,6 @@ import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
 import static at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper.ACTIVE_AUCTION_STATES;
 
 @RequiredArgsConstructor

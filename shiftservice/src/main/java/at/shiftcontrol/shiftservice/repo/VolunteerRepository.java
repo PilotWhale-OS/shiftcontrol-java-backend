@@ -3,11 +3,12 @@ package at.shiftcontrol.shiftservice.repo;
 import java.util.Collection;
 import java.util.Optional;
 
-import at.shiftcontrol.lib.entity.Volunteer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import at.shiftcontrol.lib.entity.Volunteer;
 
 @Repository
 public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
@@ -123,12 +124,4 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
             where v.id IN :plannerIds
         """)
     Collection<Volunteer> findAllByPlannerIds(Collection<String> plannerIds);
-
-    @Query("""
-            SELECT v
-            FROM Volunteer v
-            JOIN v.volunteeringPlans p
-            WHERE p.event.id = :eventId
-        """)
-    Collection<Volunteer> findAllByEvent(long eventId);
 }
