@@ -166,7 +166,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public AssignmentDto getUserAssignment(@NonNull Long positionSlotId, @NonNull String volunteerId) {
-        return AssignmentMapper.toDto(assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId));
+        return assignmentAssemblingMapper.toDto(assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId));
     }
 
     @Override

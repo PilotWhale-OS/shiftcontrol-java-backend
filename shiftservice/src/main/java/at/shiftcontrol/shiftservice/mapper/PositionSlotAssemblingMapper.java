@@ -60,8 +60,7 @@ public class PositionSlotAssemblingMapper {
             eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer),
             filterTradesForUser(positionSlot.getAssignments(), volunteer.getId()),
             preferenceValue,
-            rewardPointsDto,
-            assignmentDao.getActiveAssignmentsOfSlot(positionSlot.getId()));
+            rewardPointsDto);
     }
 
     public Collection<PositionSlotDto> assemble(@NonNull Collection<PositionSlot> positionSlots) {
@@ -78,11 +77,12 @@ public class PositionSlotAssemblingMapper {
             .toList();
     }
 
-    public static PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
-                                        Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue, RewardPointsDto rewardPointsDto, Collection<Assignment> activeAssignments) {
+    public PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
+                                        Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue, RewardPointsDto rewardPointsDto) {
         Collection<AssignmentDto> assignmentDtos;
         Collection<AssignmentDto> auctionDtos;
 
+        var activeAssignments = assignmentDao.getActiveAssignmentsOfSlot(positionSlot.getId());
         if (activeAssignments == null) {
             assignmentDtos = null;
             auctionDtos = null;
