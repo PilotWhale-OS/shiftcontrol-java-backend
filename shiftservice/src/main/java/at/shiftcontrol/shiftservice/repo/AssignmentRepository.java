@@ -47,6 +47,12 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Assignme
 
     @Query("""
         SELECT a FROM Assignment a
+        WHERE a.positionSlot.id = :positionSlotId AND a.status NOT IN ('REQUEST_FOR_ASSIGNMENT')
+        """)
+    Collection<Assignment> getActiveAssignmentsOfSlot(long positionSlotId);
+
+    @Query("""
+        SELECT a FROM Assignment a
         WHERE a.positionSlot.id = :positionSlotId AND a.assignedVolunteer.id = :userId
         """)
     Optional<Assignment> findAssignmentForPositionSlotAndUser(long positionSlotId, String userId);

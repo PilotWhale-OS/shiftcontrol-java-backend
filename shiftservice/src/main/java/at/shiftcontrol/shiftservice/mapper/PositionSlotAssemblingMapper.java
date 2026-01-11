@@ -2,6 +2,11 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
+
+import at.shiftcontrol.lib.type.AssignmentStatus;
+
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 
 import org.springframework.stereotype.Service;
 
@@ -35,6 +40,7 @@ public class PositionSlotAssemblingMapper {
     private final RewardPointsCalculator rewardPointsCalculator;
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
+    private final AssignmentDao assignmentDao;
     private final PositionSlotDao positionSlotDao;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
@@ -55,7 +61,8 @@ public class PositionSlotAssemblingMapper {
             eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer),
             filterTradesForUser(positionSlot.getAssignments(), volunteer.getId()),
             preferenceValue,
-            rewardPointsDto);
+            rewardPointsDto,
+            assignmentDao.getActiveAssignmentsOfSlot(positionSlot.getId()));
     }
 
     public Collection<PositionSlotDto> assemble(@NonNull Collection<PositionSlot> positionSlots) {
@@ -73,17 +80,16 @@ public class PositionSlotAssemblingMapper {
     }
 
     public static PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
-                                        Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue, RewardPointsDto rewardPointsDto) {
-        var assignments = positionSlot.getAssignments();
+                                        Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue, RewardPointsDto rewardPointsDto, Collection<Assignment> activeAssignments) {
         Collection<AssignmentDto> assignmentDtos;
         Collection<AssignmentDto> auctionDtos;
 
-        if (assignments == null) {
+        if (activeAssignments == null) {
             assignmentDtos = null;
             auctionDtos = null;
         } else {
-            assignmentDtos = AssignmentMapper.toDto(positionSlot.getAssignments());
-            auctionDtos = AssignmentMapper.toAuctionDto(assignments); // get open auctions for this slot
+            assignmentDtos = AssignmentMapper.toDto(activeAssignments);
+            auctionDtos = AssignmentMapper.toAuctionDto(activeAssignments); // get open auctions for this slot
         }
         return new PositionSlotDto(
             String.valueOf(positionSlot.getId()),

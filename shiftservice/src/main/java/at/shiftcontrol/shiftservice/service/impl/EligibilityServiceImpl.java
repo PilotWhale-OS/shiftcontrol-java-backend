@@ -62,7 +62,7 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.SIGNUP_VIA_AUCTION;
         }
 
-        boolean hasCapacity = positionSlot.getAssignments() == null || positionSlot.getAssignments().size() < positionSlot.getDesiredVolunteerCount();
+        boolean hasCapacity = positionSlot.getAssignments() == null || assignmentDao.getActiveAssignmentsOfSlot(positionSlot.getId()).size() < positionSlot.getDesiredVolunteerCount();
         boolean isTradePossible = hasOpenTradeForUser(positionSlot, volunteer.getId());
 
         if (hasCapacity && isTradePossible) {
@@ -192,7 +192,8 @@ public class EligibilityServiceImpl implements EligibilityService {
 
         for (var assignment : positionSlot.getAssignments()) {
             if (assignment.getAssignedVolunteer() != null && assignment.getAssignedVolunteer().getId().equals(volunteer.getId())) {
-                return true;
+                var status = assignment.getStatus();
+                return status != AssignmentStatus.REQUEST_FOR_ASSIGNMENT; // pending requests do not count as signed up
             }
         }
         return false;

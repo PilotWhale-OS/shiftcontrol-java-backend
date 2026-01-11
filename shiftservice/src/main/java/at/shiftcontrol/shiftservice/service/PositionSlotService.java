@@ -26,6 +26,8 @@ public interface PositionSlotService {
 
     int getPreference(@NonNull String currentUserId, long positionSlotId);
 
+    AssignmentDto getUserAssignment(@NonNull Long positionSlotId, @NonNull String volunteerId);
+
     AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId);
 
     AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId,

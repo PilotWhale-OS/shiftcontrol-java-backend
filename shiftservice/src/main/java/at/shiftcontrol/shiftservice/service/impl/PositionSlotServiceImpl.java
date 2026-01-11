@@ -142,6 +142,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", currentUserId)),
             assignment.getPositionSlot(), currentUserId));
+
+        assignmentDao.save(assignment);
     }
 
     private void assertJoinPossible(PositionSlot positionSlot, Volunteer volunteer) {
@@ -159,6 +161,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsInPlan(positionSlot);
         return AssignmentMapper.toDto(positionSlot.getAssignments());
+    }
+
+    @Override
+    public AssignmentDto getUserAssignment(@NonNull Long positionSlotId, @NonNull String volunteerId) {
+        return AssignmentMapper.toDto(assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId));
     }
 
     @Override

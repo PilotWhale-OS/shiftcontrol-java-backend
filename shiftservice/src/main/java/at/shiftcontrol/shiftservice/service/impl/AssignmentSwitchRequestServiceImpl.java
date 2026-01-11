@@ -72,7 +72,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         securityHelper.assertUserIsVolunteer(requestedPositionSlot);
 
         // get volunteers assigned to PositionSlot
-        Collection<Volunteer> assignedVolunteers = requestedPositionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
+        Collection<Volunteer> assignedVolunteers = assignmentDao.getActiveAssignmentsOfSlot(requestedPositionSlotId).stream().map(Assignment::getAssignedVolunteer).toList();
         // return if no volunteers exist to trade with
         if (assignedVolunteers.isEmpty()) {
             return List.of();
