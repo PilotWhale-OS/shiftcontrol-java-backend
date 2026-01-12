@@ -53,8 +53,32 @@ public class PretalxApiKeyLoader {
         apiKeys = List.of(PretalxApiKey.builder().apiKey("hvha5l5clxescv75isqvs875j1gnpfn29r9hvy4r99w2txggv67lcvw3ggusafu4").build());
         for (var apiKey : apiKeys) {
             var eventsApi = pretalxApiSupplier.eventsApi(apiKey);
+            var roomsApi = pretalxApiSupplier.roomsApi(apiKey);
             try {
-                var accessibleEvents = eventsApi.apiEventsList(null, null, null);
+                var allEvents = eventsApi.apiEventsList(null, null, null);
+
+                //Verify access to rooms endpoint for each event
+                var accessibleEvents = allEvents.stream().filter(event -> {
+                    try {
+                        roomsApi.roomsList(event.getSlug(), 1, null, 0, null);
+                        return true;
+                    } catch (RestClientResponseException e) {
+                        if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED) ||
+                            e.getStatusCode().isSameCodeAs(HttpStatus.FORBIDDEN)) {
+                            return false;
+                        } else {
+                            throw e;
+                        }
+                    }
+                }).toList();
+
+                if (accessibleEvents.isEmpty()) {
+                    pretalxApiKeyRepository.delete(apiKey);
+                    eventPublisher.publishEvent(new PretalxApiKeyInvalidEvent(apiKey.getApiKey()));
+                    log.info("Removed invalid Pretalx API key: {}", apiKey.getApiKey());
+                    continue;
+                }
+
                 var keyData = new PretalxApiKeyData(apiKey.getApiKey(),
                     accessibleEvents.stream().map(EventList::getSlug).toList());
                 activeApiKeys.add(keyData);
@@ -70,6 +94,15 @@ public class PretalxApiKeyLoader {
                     throw e;
                 }
             }
+        }
+    }
+
+    public Set<String> accessibleEventSlugs() {
+        lock.readLock().lock();
+        try {
+            return new HashSet<>(apiKeyCache.keySet());
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
@@ -91,12 +124,7 @@ public class PretalxApiKeyLoader {
     public Optional<String> findApiKeyForEventSlug(String eventSlug) {
         lock.readLock().lock();
         try {
-            for (var keyData : activeApiKeys) {
-                if (keyData.getEventSlugs().contains(eventSlug)) {
-                    return Optional.of(keyData.getApiKey());
-                }
-            }
-            return Optional.empty();
+            return Optional.ofNullable(apiKeyCache.get(eventSlug));
         } finally {
             lock.readLock().unlock();
         }

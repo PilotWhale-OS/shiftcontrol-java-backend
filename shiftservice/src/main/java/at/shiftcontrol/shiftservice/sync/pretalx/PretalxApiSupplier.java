@@ -24,9 +24,7 @@ public class PretalxApiSupplier {
     }
 
     public EventsApi eventsApi(String apiToken) {
-        var restClient = buildRestClient(apiToken);
-        var apiClient = new ApiClient(restClient);
-        return new EventsApi(apiClient);
+        return new EventsApi(buildApiClient(apiToken));
     }
 
     public EventsApi eventsApi(PretalxApiKey apiKey) {
@@ -34,9 +32,7 @@ public class PretalxApiSupplier {
     }
 
     public RoomsApi roomsApi(String apiToken) {
-        var restClient = buildRestClient(apiToken);
-        var apiClient = new ApiClient(restClient);
-        return new RoomsApi(apiClient);
+        return new RoomsApi(buildApiClient(apiToken));
     }
 
     public RoomsApi roomsApi(PretalxApiKey apiKey) {
@@ -44,15 +40,19 @@ public class PretalxApiSupplier {
     }
 
     public SubmissionsApi submissionsApi(String apiToken) {
-        var restClient = buildRestClient(apiToken);
-        var apiClient = new ApiClient(restClient);
-        return new SubmissionsApi(apiClient);
+        return new SubmissionsApi(buildApiClient(apiToken));
     }
 
     public SlotsApi slotsApi(String apiToken) {
+        return new SlotsApi(buildApiClient(apiToken));
+    }
+
+    private @NonNull ApiClient buildApiClient(String apiToken) {
         var restClient = buildRestClient(apiToken);
         var apiClient = new ApiClient(restClient);
-        return new SlotsApi(apiClient);
+        apiClient.setBasePath(pretalxHost);
+
+        return apiClient;
     }
 
     private @NonNull RestClient buildRestClient(String apiToken) {

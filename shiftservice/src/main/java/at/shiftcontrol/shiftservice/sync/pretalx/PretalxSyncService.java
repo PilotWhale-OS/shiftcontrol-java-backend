@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.sync.pretalx;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,70 +8,78 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.pretalxclient.model.EventList;
 import at.shiftcontrol.pretalxclient.model.Room;
 import at.shiftcontrol.pretalxclient.model.Submission;
 import at.shiftcontrol.pretalxclient.model.TalkSlot;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
-import at.shiftcontrol.shiftservice.dto.event.EventDto;
-import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationSearchDto;
 import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.entity.Event;
 import at.shiftcontrol.shiftservice.entity.Location;
-import at.shiftcontrol.shiftservice.service.EventService;
 
 @Slf4j
 @Service
 public class PretalxSyncService {
+    private final PretalxApiKeyLoader apiKeyLoader;
     private final PretalxDataGatherer dataGatherer;
 
-    private final EventService eventService;
     private final EventDao eventDao;
     private final LocationDao locationDao;
     private final ActivityDao activityDao;
 
     private final String locale;
 
-    public PretalxSyncService(PretalxDataGatherer dataGatherer, EventService eventService, EventDao eventDao, LocationDao locationDao, ActivityDao activityDao, @Value("${pretalx.locale}") String locale) {
+    public PretalxSyncService(PretalxApiKeyLoader apiKeyLoader, PretalxDataGatherer dataGatherer, EventDao eventDao, LocationDao locationDao, ActivityDao activityDao, @Value("${pretalx.locale}") String locale) {
+        this.apiKeyLoader = apiKeyLoader;
         this.dataGatherer = dataGatherer;
-        this.eventService = eventService;
         this.eventDao = eventDao;
         this.locationDao = locationDao;
         this.activityDao = activityDao;
         this.locale = locale;
     }
 
+
+    //Call on startup
+    @EventListener
+    public void onStartup(ApplicationStartedEvent event) {
+        syncAll();
+    }
+
     @Scheduled(cron = "${pretalx.sync.cron}")
     public void syncAll() {
-        var events = dataGatherer.gatherEvents();
-        log.info("Starting Pretalx synchronization for {} events", events.size());
+        apiKeyLoader.refreshApiKeys();
+        var accessibleEvents = apiKeyLoader.accessibleEventSlugs();
+        log.info("Starting Pretalx synchronization for {} events", accessibleEvents.size());
+        var now = Instant.now();
 
-        for (var ptEvent : events) {
-            var eventDto = syncEvent(ptEvent);
-            var locationLookuptable = syncRooms(ConvertUtil.idToLong(eventDto.getId()), ptEvent);
-            var activities = syncActivities(eventDao.getById(ConvertUtil.idToLong(eventDto.getId())), ptEvent.getSlug(), locationLookuptable);
+        for (var eventSlug : accessibleEvents) {
+            var ptEvent = dataGatherer.gatherEventDetails(eventSlug);
+            var event = syncEvent(ptEvent);
+            var locationLookuptable = syncRooms(event.getId(), ptEvent);
+            var activities = syncActivities(event, ptEvent.getSlug(), locationLookuptable);
 
             log.info("Synchronized event: {} (ID: {}) with {} locations and {} activities",
-                eventDto.getName(),
-                eventDto.getId(),
+                event.getName(),
+                event.getId(),
                 locationLookuptable.size(),
                 activities.size());
         }
-        log.info("Pretalx synchronization completed. Total events synchronized: {}", events.size());
+        var timeDiff = Instant.now().toEpochMilli() - now.toEpochMilli();
+        log.info("Pretalx synchronization completed in {}ms. Total events synchronized: {}", timeDiff, accessibleEvents.size());
     }
 
-    private EventDto syncEvent(EventList ptEvent) {
+    private Event syncEvent(at.shiftcontrol.pretalxclient.model.Event ptEvent) {
         if (ptEvent.getName().get(locale) == null) {
             throw new PretalxSyncException("Event name is missing for locale: " + locale + " in event: " + ptEvent.getSlug());
         }
@@ -78,27 +87,29 @@ public class PretalxSyncService {
         var startTime = ptEvent.getDateFrom().atStartOfDay(ZoneId.systemDefault()).toInstant();
         var endTime = ptEvent.getDateTo().atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-        var existingEvents = eventService.search(EventSearchDto.builder().name(eventName).build());
+        var existingEvents = eventDao.search(EventSearchDto.builder().name(eventName).build());
         if (existingEvents.isEmpty()) {
             log.info("Creating new event: {} (Slug: {})", eventName, ptEvent.getSlug());
             //Create new event
-            return eventService.createEvent(EventModificationDto.builder()
+            var event = Event.builder()
                 .name(eventName)
                 .startTime(startTime)
                 .endTime(endTime)
-                .build());
+                .build();
+            return eventDao.save(event);
         } else if (existingEvents.size() == 1) {
             //Update existing event
             var existingEvent = existingEvents.get(0);
-            if (existingEvent.getStartTime() != startTime
-                || existingEvent.getEndTime() != endTime) {
+            if (!existingEvent.getStartTime().equals(startTime)
+                || !existingEvent.getEndTime().equals(endTime)) {
                 log.info("Updating existing event: {} (ID: {})", eventName, existingEvent.getId());
-                return eventService.updateEvent(ConvertUtil.idToLong(existingEvent.getId()),
-                    EventModificationDto.builder()
-                        .name(eventName)
-                        .startTime(startTime)
-                        .endTime(endTime)
-                        .build());
+
+                existingEvent.setName(eventName);
+                existingEvent.setStartTime(startTime);
+                existingEvent.setEndTime(endTime);
+                existingEvent = eventDao.save(existingEvent);
+
+                return existingEvent;
             }
             return existingEvent;
         } else {
@@ -107,7 +118,7 @@ public class PretalxSyncService {
         }
     }
 
-    private Map<Integer, Location> syncRooms(long eventId, EventList ptEvent) {
+    private Map<Integer, Location> syncRooms(long eventId, at.shiftcontrol.pretalxclient.model.Event ptEvent) {
         var rooms = dataGatherer.gatherRooms(ptEvent.getSlug());
         var event = eventDao.getById(eventId);
 
@@ -161,13 +172,13 @@ public class PretalxSyncService {
                 .filter(sub -> sub.getCode().equals(slot.getSubmission()))
                 .findFirst().orElseThrow(() -> new PretalxSyncException("No submission found for slot with submission code: " + slot.getSubmission()));
 
-            var activity = syncActivity(event, submission, slot, locationLookupTable);
+            var activity = syncActivity(event, ptEventSlug, submission, slot, locationLookupTable);
             activities.add(activity);
         }
         return activities;
     }
 
-    private Activity syncActivity(Event event, Submission submission, TalkSlot slot, Map<Integer, Location> locationLookupTable) {
+    private Activity syncActivity(Event event, String ptEventSlug, Submission submission, TalkSlot slot, Map<Integer, Location> locationLookupTable) {
         var activityOpt = activityDao.findByEventAndName(event.getId(), submission.getTitle());
         var location = locationLookupTable.get(slot.getRoom());
         if (location == null) {
@@ -180,13 +191,19 @@ public class PretalxSyncService {
         var startTime = slot.getStart().toInstant();
         var endTime = slot.getEnd().toInstant();
 
+        var internalNote = dataGatherer.getInternalNoteForSubmission(ptEventSlug, submission.getCode());
+        var descriptionText = submission.getDescription();
+        if (internalNote != null && !internalNote.isEmpty()) {
+            descriptionText = (descriptionText != null ? descriptionText + "\n\n " : "") + "Internal Note: " + internalNote;
+        }
+
         Activity activity;
         if (activityOpt.isEmpty()) {
             //Create new activity
             activity = Activity.builder()
                 .event(event)
                 .name(submission.getTitle())
-                .description(submission.getDescription())
+                .description(descriptionText)
                 .startTime(startTime)
                 .endTime(endTime)
                 .location(location)
@@ -197,15 +214,16 @@ public class PretalxSyncService {
             activity = activityDao.save(activity);
         } else {
             activity = activityOpt.get();
-            if (activity.getStartTime() != startTime
-                || activity.getEndTime() != endTime
+
+            if (!activity.getStartTime().equals(startTime)
+                || !activity.getEndTime().equals(endTime)
                 || activity.getLocation().getId() != location.getId()
-                || (submission.getDescription() != null && !submission.getDescription().equals(activity.getDescription()))) {
+                || (submission.getDescription() != null && !submission.getDescription().equals(descriptionText))) {
                 //Update existing activity
                 activity.setStartTime(startTime);
                 activity.setEndTime(endTime);
                 activity.setLocation(location);
-                activity.setDescription(submission.getDescription());
+                activity.setDescription(descriptionText);
                 activity = activityDao.save(activity);
                 log.info("Updating existing activity: {} (ID: {}) for event: {} (ID: {})", activity.getName(), activity.getId(), event.getName(), event.getId());
             }
