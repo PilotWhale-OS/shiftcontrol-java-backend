@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +59,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
     private final TradeMapper tradeMapper;
+    private final ShiftDao shiftDao;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) {
@@ -152,8 +155,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                             return !existingTradeKeys.contains(key);
                         })
                         .toList();
+                var shift = shiftDao.getById(ConvertUtil.idToLong(candidate.getOwnPosition().getAssociatedShiftId()));
                 return new TradeCandidatesDto(
                     candidate.getOwnPosition(),
+                    shift.getName(),
+                    shift.getStartTime(),
                     filteredVolunteers
                 );
             })

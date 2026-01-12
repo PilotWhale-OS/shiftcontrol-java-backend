@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dto;
 
+import java.time.Instant;
 import java.util.Collection;
 
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
@@ -13,6 +14,8 @@ import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 
+import lombok.NonNull;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,6 +23,12 @@ import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 public class TradeCandidatesDto {
     @NotNull
     private PositionSlotDto ownPosition;
+
+    @NonNull
+    private String ownShiftName;
+
+    @NotNull
+    private Instant ownShiftStartTime;
 
     @NotNull
     @Valid

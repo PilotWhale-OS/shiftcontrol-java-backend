@@ -8,6 +8,8 @@ import at.shiftcontrol.lib.type.AssignmentStatus;
 
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
+
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -110,8 +112,11 @@ public class PositionSlotAssemblingMapper {
     }
 
     public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {
+        var shift = positionSlot.getShift();
         return new TradeCandidatesDto(
             assemble(positionSlot),
+            shift.getName(),
+            shift.getStartTime(),
             volunteerAssemblingMapper.toDto(volunteers)
         );
     }
