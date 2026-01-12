@@ -12,6 +12,7 @@ import at.shiftcontrol.lib.dto.TrustAlertDto;
 import at.shiftcontrol.lib.entity.TrustAlert;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.TrustAlertEvent;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.TrustAlertDao;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 import at.shiftcontrol.shiftservice.mapper.TrustAlertAssemblingMapper;
@@ -25,11 +26,13 @@ public class TrustAlertServiceImpl implements TrustAlertService {
     private final ApplicationEventPublisher publisher;
 
     @Override
+    @AdminOnly
     public Collection<TrustAlertDisplayDto> getAllPaginated(long page, long size) {
         return trustAlertAssemblingMapper.toDto(trustAlertDao.getAllPaginated(page, size));
     }
 
     @Override
+    @AdminOnly
     public TrustAlertDisplayDto save(TrustAlertDto alert) {
         TrustAlert entity = trustAlertAssemblingMapper.toEntity(alert);
         entity = trustAlertDao.save(entity);
@@ -41,5 +44,11 @@ public class TrustAlertServiceImpl implements TrustAlertService {
         ));
 
         return trustAlertAssemblingMapper.toDto(entity);
+    }
+
+    @Override
+    @AdminOnly
+    public void delete(long id) {
+        trustAlertDao.delete(id);
     }
 }

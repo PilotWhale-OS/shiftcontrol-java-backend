@@ -9,4 +9,6 @@ public interface TrustAlertService {
     Collection<TrustAlertDisplayDto> getAllPaginated(long  page, long size);
 
     TrustAlertDisplayDto save(TrustAlertDto alert);
+
+    void delete(long id);
 }

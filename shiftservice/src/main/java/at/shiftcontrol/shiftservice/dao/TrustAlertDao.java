@@ -8,4 +8,6 @@ public interface TrustAlertDao {
     Collection<TrustAlert> getAllPaginated(long page, long size);
 
     TrustAlert save(TrustAlert alert);
+
+    void delete(long id);
 }

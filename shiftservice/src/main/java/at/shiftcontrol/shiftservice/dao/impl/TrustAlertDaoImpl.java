@@ -25,4 +25,9 @@ public class TrustAlertDaoImpl implements TrustAlertDao {
     public TrustAlert save(TrustAlert alert) {
         return repository.save(alert);
     }
+
+    @Override
+    public void delete(long id) {
+        repository.deleteById(id);
+    }
 }
