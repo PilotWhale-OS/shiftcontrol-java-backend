@@ -43,7 +43,7 @@ public class TrustAlertEndpoint {
         return trustAlertService.save(trustAlert);
     }
 
-    @DeleteMapping("/id")
+    @DeleteMapping("/{id}")
     @Operation(
         operationId = "deleteTrustAlert",
         description = "Deletes the trust alert"

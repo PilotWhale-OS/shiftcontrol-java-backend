@@ -105,4 +105,12 @@ public class TrustAlertIT extends RestITBase {
             () -> assertEquals(trustAlertDto.getUserId(), result.getVolunteerDto().getId())
         );
     }
+
+    @Test
+    void deleteTrustAlertAsAdminSucceeds() {
+        deleteRequestAsAdmin(
+            TRUST_ALERT_PATH + "/" + trustAlertA.getId()
+        );
+        assertFalse(trustAlertRepository.findById(trustAlertA.getId()).isPresent());
+    }
 }
