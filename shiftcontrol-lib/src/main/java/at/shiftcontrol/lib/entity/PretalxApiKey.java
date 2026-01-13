@@ -4,6 +4,7 @@ import java.util.StringJoiner;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,9 @@ import lombok.Setter;
 public class PretalxApiKey {
     @Id
     private String apiKey;
+
+    @NotNull
+    private String pretalxHost;
 
     @Override
     public String toString() {
