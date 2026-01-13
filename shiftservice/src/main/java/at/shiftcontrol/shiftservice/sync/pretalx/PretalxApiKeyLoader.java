@@ -77,7 +77,9 @@ public class PretalxApiKeyLoader {
                     continue;
                 }
 
-                var keyData = new PretalxApiKeyData(apiKey.getApiKey(),
+                var keyData = new PretalxApiKeyData(
+                    apiKey.getApiKey(),
+                    apiKey.getPretalxHost(),
                     accessibleEvents.stream().map(EventList::getSlug).toList());
                 activeApiKeys.add(keyData);
                 //Update cache

@@ -66,13 +66,13 @@ public class PretalxSyncService {
         for (var eventSlug : accessibleEvents) {
             var ptEvent = dataGatherer.gatherEventDetails(eventSlug);
             var event = syncEvent(ptEvent);
-            var locationLookuptable = syncRooms(event.getId(), ptEvent);
-            var activities = syncActivities(event, ptEvent.getSlug(), locationLookuptable);
+            var locationLookupTable = syncRooms(event.getId(), ptEvent);
+            var activities = syncActivities(event, ptEvent.getSlug(), locationLookupTable);
 
             log.info("Synchronized event: {} (ID: {}) with {} locations and {} activities",
                 event.getName(),
                 event.getId(),
-                locationLookuptable.size(),
+                locationLookupTable.size(),
                 activities.size());
         }
         var timeDiff = Instant.now().toEpochMilli() - now.toEpochMilli();

@@ -7,5 +7,6 @@ import lombok.Value;
 @Value
 public class PretalxApiKeyData {
     String apiKey;
+    String pretalxHost;
     List<String> eventSlugs;
 }
