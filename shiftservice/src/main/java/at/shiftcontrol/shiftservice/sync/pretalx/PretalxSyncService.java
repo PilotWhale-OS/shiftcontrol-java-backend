@@ -47,13 +47,6 @@ public class PretalxSyncService {
         this.locale = locale;
     }
 
-
-    //Call on startup
-//     @EventListener
-//     public void onStartup(ApplicationStartedEvent event) {
-//         syncAll();
-//     }
-
     @Scheduled(cron = "${pretalx.sync.cron}")
     public void syncAll() {
         apiKeyLoader.refreshApiKeys();
