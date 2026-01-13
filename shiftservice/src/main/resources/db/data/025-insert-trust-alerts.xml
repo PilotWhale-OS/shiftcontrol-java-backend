@@ -5,7 +5,7 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="024-insert-trust-alerts" author="paul" context="dev">
+  <changeSet id="025-insert-trust-alerts" author="paul" context="dev">
 
     <insert tableName="trust_alert">
       <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>

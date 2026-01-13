@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="024-insert-reward-points-transaction" author="flo" context="dev">
+
+        <insert tableName="reward_points_transaction">
+            <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+            <column name="event_id" valueNumeric="1"/>
+            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="position_slot_id" valueNumeric="1"/>
+            <column name="points" valueNumeric="150"/>
+            <column name="type" value="EARN"/>
+            <column name="source_key" value="JOIN:1:28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+            <column name="created_at" value="2025-09-12T08:00:00Z"/>
+            <column name="metadata" value='{"note":"initial dev seed"}'/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>
+
