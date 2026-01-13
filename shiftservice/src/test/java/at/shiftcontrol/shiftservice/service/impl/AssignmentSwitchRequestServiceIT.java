@@ -135,7 +135,7 @@ public class AssignmentSwitchRequestServiceIT {
             new AssignmentId(requestedSlotId, currentUserId)
         );
 
-        TradeDto dto = assignmentSwitchRequestService.acceptTrade(id, currentUserId);
+        TradeDto dto = assignmentSwitchRequestService.acceptTrade(id);
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(TradeStatus.ACCEPTED, dto.getStatus());

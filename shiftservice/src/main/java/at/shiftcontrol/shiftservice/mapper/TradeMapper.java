@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.TradeAcceptDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
 import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
 
@@ -38,6 +40,12 @@ public class TradeMapper {
         return new AssignmentSwitchRequestId(offering, requested);
     }
 
+    public static AssignmentSwitchRequestId toEntityId(@NonNull TradeAcceptDto acceptDto, String currentUserId) {
+        AssignmentId offering = AssignmentId.of(ConvertUtil.idToLong(acceptDto.getOfferedSlot()), acceptDto.getOfferingVolunteer());
+        AssignmentId requested = AssignmentId.of(ConvertUtil.idToLong(acceptDto.getRequestedSlot()), currentUserId);
+        return new AssignmentSwitchRequestId(offering, requested);
+    }
+
     public TradeInfoDto toTradeInfoDto(@NonNull AssignmentSwitchRequest trade) {
         return new TradeInfoDto(
             String.valueOf(trade.getOfferingAssignment().getPositionSlot()),
@@ -51,5 +59,4 @@ public class TradeMapper {
     public Collection<TradeInfoDto> toTradeInfoDto(@NonNull Collection<AssignmentSwitchRequest> trades) {
         return trades.stream().map(this::toTradeInfoDto).toList();
     }
-
 }

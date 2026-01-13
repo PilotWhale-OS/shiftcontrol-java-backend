@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.TradeAcceptDto;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
@@ -68,10 +69,10 @@ public class PositionSlotTradeEndpoint {
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptTrade(@RequestBody @Valid TradeDto tradeDto) {
+    public TradeDto acceptTrade(@RequestBody @Valid TradeAcceptDto tradeDto) {
         return assignmentSwitchRequestService.acceptTrade(
-            TradeMapper.toEntityId(tradeDto),
-            userProvider.getCurrentUser().getUserId());
+            TradeMapper.toEntityId(tradeDto,
+            userProvider.getCurrentUser().getUserId()));
     }
 
     @PutMapping("/decline")

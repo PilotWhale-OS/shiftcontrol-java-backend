@@ -10,8 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import at.shiftcontrol.shiftservice.dao.ShiftDao;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +30,7 @@ import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
@@ -75,7 +74,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         securityHelper.assertUserIsVolunteer(requestedPositionSlot, false);
 
         // get volunteers assigned to PositionSlot
-        Collection<Volunteer> assignedVolunteers = assignmentDao.getActiveAssignmentsOfSlot(requestedPositionSlotId).stream().map(Assignment::getAssignedVolunteer).toList();
+        Collection<Volunteer> assignedVolunteers = assignmentDao
+            .getActiveAssignmentsOfSlot(requestedPositionSlotId).stream().map(Assignment::getAssignedVolunteer).toList();
         // return if no volunteers exist to trade with
         if (assignedVolunteers.isEmpty()) {
             return List.of();
@@ -213,7 +213,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         for (AssignmentSwitchRequest trade : trades) {
             Optional<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade);
             if (inverse.isPresent()) {
-                return List.of(acceptTrade(inverse.get().getId(), currentUserId));
+                return List.of(acceptTrade(inverse.get().getId()));
             }
         }
 
@@ -239,12 +239,12 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     @Transactional
     @IsNotAdmin
-    public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) {
+    public TradeDto acceptTrade(AssignmentSwitchRequestId id) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
         // check if volunteer is owner of requested slot
-        if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
+        if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(id.getRequested().getVolunteerId())) {
             throw new IllegalArgumentException("current user is not part of the trade");
         }
 
