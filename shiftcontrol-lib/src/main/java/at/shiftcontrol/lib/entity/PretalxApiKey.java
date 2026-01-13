@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.entity.pretalx;
+package at.shiftcontrol.lib.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

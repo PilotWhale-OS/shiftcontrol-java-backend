@@ -6,12 +6,12 @@ import org.springframework.web.client.RestClient;
 
 import org.jspecify.annotations.NonNull;
 
+import at.shiftcontrol.lib.entity.PretalxApiKey;
 import at.shiftcontrol.pretalxclient.api.EventsApi;
 import at.shiftcontrol.pretalxclient.api.RoomsApi;
 import at.shiftcontrol.pretalxclient.api.SlotsApi;
 import at.shiftcontrol.pretalxclient.api.SubmissionsApi;
 import at.shiftcontrol.pretalxclient.invoker.ApiClient;
-import at.shiftcontrol.shiftservice.entity.pretalx.PretalxApiKey;
 
 @Service
 public class PretalxApiSupplier {
