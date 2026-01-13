@@ -25,11 +25,20 @@ public class AssignedUser extends ShiftControlUser {
         return getRelevantPlannerPlans().contains(shiftPlanId);
     }
 
+    @Override
+    public boolean isLockedInPlan(long shiftPlanId) {
+        return getLockedPlannerPlans().contains(shiftPlanId);
+    }
+
     public Set<Long> getRelevantVolunteerPlans() {
         return attributeProvider.getPlansWhereUserIsVolunteer(getUserId());
     }
 
     public Set<Long> getRelevantPlannerPlans() {
         return attributeProvider.getPlansWhereUserIsPlanner(getUserId());
+    }
+
+    public Set<Long> getLockedPlannerPlans() {
+        return attributeProvider.getPlansWhereUserIsLocked(getUserId());
     }
 }

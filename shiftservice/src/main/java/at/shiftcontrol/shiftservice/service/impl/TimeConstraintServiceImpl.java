@@ -13,8 +13,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.TimeConstraint;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.TimeConstraintEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.type.TimeConstraintType;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -22,13 +27,8 @@ import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.TimeConstraintEvent;
 import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
-import at.shiftcontrol.shiftservice.type.TimeConstraintType;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
@@ -114,7 +114,10 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         for (var constraint : existingConstraints) {
             if (createDto.getFrom().isBefore(constraint.getEndTime())
                 && createDto.getTo().isAfter(constraint.getStartTime())) {
-                throw new ConflictException("New time constraint overlaps with existing time constraint id=%d".formatted(constraint.getId()));
+                log.error("New time constraint from {} to {} overlaps with existing time constraint id={} from {} to {}",
+                    createDto.getFrom(), createDto.getTo(),
+                    constraint.getId(), constraint.getStartTime(), constraint.getEndTime());
+                throw new ConflictException("New time constraint overlaps with existing time constraint.");
             }
         }
     }
@@ -122,8 +125,10 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private void checkForAssignmentOverlaps(@NonNull String userId, Instant from, Instant to) {
         var existingAssignments = assignmentDao.getConflictingAssignments(userId, from, to);
         if (!existingAssignments.isEmpty()) {
-            throw new ConflictException("New time constraint overlaps with existing assignments ids=%s"
-                .formatted(existingAssignments.stream().map(Assignment::getId).toList().toString()));
+            log.error("New time constraint from {} to {} overlaps with existing assignments ids={}",
+                from, to,
+                existingAssignments.stream().map(Assignment::getId).toList());
+            throw new ConflictException("New time constraint overlaps with existing assignments.");
         }
     }
 }

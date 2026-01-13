@@ -11,7 +11,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.AssignmentEvent;
+import at.shiftcontrol.lib.event.events.PositionSlotEvent;
+import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.event.events.PreferenceEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -24,23 +34,11 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.AssignmentEvent;
-import at.shiftcontrol.shiftservice.event.events.PositionSlotEvent;
-import at.shiftcontrol.shiftservice.event.events.PositionSlotVolunteerEvent;
-import at.shiftcontrol.shiftservice.event.events.PreferenceEvent;
-import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
+import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.type.LockStatus;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
@@ -56,10 +54,10 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     private final EligibilityService eligibilityService;
     private final AssignmentService assignmentService;
-    private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
+    private final AssignmentAssemblingMapper assignmentAssemblingMapper;
 
     @Override
     public PositionSlotDto findById(@NonNull Long positionSlotId) {
@@ -72,52 +70,21 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Transactional
     @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto) {
-        // get position slot
+        // get position slot and volunteer
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
-        // check access to position slot
-        securityHelper.assertUserIsVolunteer(positionSlot);
-
-
-        // check if plan is locked
-        if (LockStatusHelper.isLocked(positionSlot)) {
-            throw new IllegalStateException("join not possible, shift plan is locked");
-        }
-        // check if plan is supervised
-        if (LockStatusHelper.isSupervised(positionSlot)) {
-            throw new IllegalStateException("join not possible, shift plan is supervised");
-        }
-
-        // get volunteer
         Volunteer volunteer = volunteerDao.getById(currentUserId);
 
-        // check if already assigned, eligible and conflicts
-        eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
-        eligibilityService.validateHasConflictingAssignments(
-            currentUserId, positionSlot);
+        // check if plan is locked or supervised
+        LockStatusHelper.assertJoinPossible(positionSlot);
 
-        // create assignment
-        Assignment assignment = Assignment.builder()
-            .id(AssignmentId.of(positionSlotId, currentUserId))
-            .assignedVolunteer(volunteer)
-            .positionSlot(positionSlot)
-            .status(AssignmentStatus.ACCEPTED)
-            .build();
+        // check access, already assigned, eligible and conflicts
+        assertJoinPossible(positionSlot, volunteer);
 
-        rewardPointsService.onAssignmentCreated(
-            assignment,
-            requestDto.getAcceptedRewardPointsConfigHash());
-
-        // close trades where this slot was offered to current user
-        assignmentSwitchRequestDao.cancelTradesForOfferedPositionAndRequestedUser(positionSlotId, currentUserId);
-
-        // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", currentUserId)),
-            positionSlot, currentUserId));
+        // assign volunteer to slot
+        Assignment assignment = assignmentService.assign(positionSlot, volunteer, requestDto);
 
         // save and return
-        return AssignmentMapper.toDto(assignmentDao.save(assignment));
+        return assignmentAssemblingMapper.toDto(assignmentDao.save(assignment));
     }
 
     @Override
@@ -127,34 +94,72 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // get assignment
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
 
-        // check if plan is locked
-        if (LockStatusHelper.isLocked(assignment)) {
-            throw new IllegalStateException("leave not possible, shift plan is locked");
-        }
-        // check if plan is supervised
-        if (LockStatusHelper.isSupervised(assignment)) {
-            throw new IllegalStateException("leave not possible, shift plan is supervised");
-        }
-
-        rewardPointsService.onAssignmentRemoved(
-            assignment
-        );
+        // check if plan is locked or supervised
+        LockStatusHelper.assertLeavePossible(assignment);
 
         // leave
-        assignmentDao.delete(assignment);
+        assignmentService.unassign(assignment);
+    }
+
+    @Override
+    @IsNotAdmin
+    public AssignmentDto joinRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
+        // get position slot and volunteer
+        PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
+        Volunteer volunteer = volunteerDao.getById(currentUserId);
+
+        // check if plan is supervised
+        LockStatusHelper.assertJoinRequestPossible(positionSlot);
+
+        // check access, already assigned, eligible and conflicts
+        assertJoinPossible(positionSlot, volunteer);
+
+        // create assignment
+        Assignment joinRequest = Assignment.of(positionSlot, volunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
 
         // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", volunteerId)),
-            assignment.getPositionSlot(), volunteerId));
+                    "volunteerId", currentUserId)),
+            positionSlot, currentUserId));
+
+        return assignmentAssemblingMapper.toDto(assignmentDao.save(joinRequest));
+    }
+
+    @Override
+    @IsNotAdmin
+    public void leaveRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
+        // get assignment
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+
+        // check if plan is locked or supervised
+        LockStatusHelper.assertLeaveRequestPossible(assignment);
+
+        // update assignment
+        assignment.setStatus(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
+
+        // publish event
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
+            assignment.getPositionSlot(), currentUserId));
+    }
+
+    private void assertJoinPossible(PositionSlot positionSlot, Volunteer volunteer) {
+        // check access to position slot
+        securityHelper.assertUserIsVolunteer(positionSlot, true);
+
+        // check if already assigned, eligible and conflicts
+        eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
+        eligibilityService.validateHasConflictingAssignments(
+            volunteer.getId(), positionSlot);
     }
 
     @Override
     public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsInPlan(positionSlot);
-        return AssignmentMapper.toDto(positionSlot.getAssignments());
+        return assignmentAssemblingMapper.toDto(positionSlot.getAssignments());
     }
 
     @Override
@@ -183,7 +188,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 Map.of("positionSlotId", String.valueOf(positionSlotId))
             ), assignment
         ));
-        return AssignmentMapper.toDto(assignmentDao.save(assignment));
+        return assignmentAssemblingMapper.toDto(assignmentDao.save(assignment));
     }
 
     @Override
@@ -198,7 +203,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new BadRequestException("assignment not up for auction");
         }
         // check if current user is volunteer in plan
-        securityHelper.assertUserIsVolunteer(auction.getPositionSlot());
+        securityHelper.assertUserIsVolunteer(auction.getPositionSlot(), true);
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.getById(currentUserId);
         // check for trade not necessary
@@ -210,15 +215,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // cancel existing trades
         assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
         // execute claim
-        Assignment claimedAuction = assignmentService.reassign(auction, currentUser);
+        Assignment claimedAuction = assignmentService.claimAuction(auction, currentUser, requestDto);
 
-        rewardPointsService.onAssignmentReassignedAuction(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
-
-        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
-            "positionSlotId", String.valueOf(positionSlotId),
-            "volunteerId", currentUserId)), claimedAuction
-        ));
-        return AssignmentMapper.toDto(assignmentDao.save(claimedAuction));
+        return assignmentAssemblingMapper.toDto(claimedAuction);
     }
 
     @Override
@@ -227,7 +226,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         if (!assignment.getAssignedVolunteer().getId().equals(userId)) {
             securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
         } else {
-            securityHelper.assertUserIsVolunteer(assignment.getPositionSlot());
+            securityHelper.assertUserIsVolunteer(assignment.getPositionSlot(), true);
         }
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignment = assignmentDao.save(assignment);
@@ -237,14 +236,14 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 Map.of("positionSlotId", String.valueOf(positionSlotId))
             ), assignment
         ));
-        return AssignmentMapper.toDto(assignment);
+        return assignmentAssemblingMapper.toDto(assignment);
     }
 
     @Override
     @IsNotAdmin
     public void setPreference(@NonNull String currentUserId, long positionSlotId, int preference) {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
-        securityHelper.assertUserIsVolunteer(positionSlot);
+        securityHelper.assertUserIsVolunteer(positionSlot, true);
         if (preference < -10 || preference > 10) {
             throw new BadRequestException("preference must be between -10 and 10");
         }

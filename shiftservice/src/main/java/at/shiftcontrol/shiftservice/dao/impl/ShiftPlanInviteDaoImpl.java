@@ -5,13 +5,13 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.LoggerFactory;
 
+import at.shiftcontrol.lib.entity.ShiftPlanInvite;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
-import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanInviteRepository;
 
 @RequiredArgsConstructor

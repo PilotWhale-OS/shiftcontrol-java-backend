@@ -35,6 +35,7 @@
         <module>shiftservice</module>
         <module>shiftcontrol-lib</module>
         <module>pretalx-client</module>
+        <module>trustservice</module>
     </modules>
 
     <build>

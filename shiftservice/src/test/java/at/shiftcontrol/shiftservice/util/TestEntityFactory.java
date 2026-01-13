@@ -8,30 +8,36 @@ import org.springframework.stereotype.Component;
 
 import org.apache.commons.lang3.NotImplementedException;
 
-import at.shiftcontrol.shiftservice.entity.Activity;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.TimeConstraint;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.Location;
-import at.shiftcontrol.shiftservice.entity.PositionConstraint;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Shift;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.entity.role.Role;
+import at.shiftcontrol.lib.entity.Activity;
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.Location;
+import at.shiftcontrol.lib.entity.PositionConstraint;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.TimeConstraint;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.shiftservice.auth.UserType;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
+import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
-import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
 import at.shiftcontrol.shiftservice.repo.PositionConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
+import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 
 @Component
 public class TestEntityFactory {
@@ -59,6 +65,9 @@ public class TestEntityFactory {
     private AssignmentRepository assignmentRepository;
     @Autowired
     private AssignmentSwitchRequestRepository assignmentSwitchRequestRepository;
+
+    @Autowired
+    private RewardPointsCalculator rewardPointsCalculator;
 
     public Event createPersistedEvent() {
         Event event = Event.builder()
@@ -123,5 +132,28 @@ public class TestEntityFactory {
 
     public AssignmentSwitchRequest createPersistedAssignmentSwitchRequest() {
         throw new NotImplementedException();
+    }
+
+    public UserProfileDto getUserProfileDtoWithId(String userId) {
+        UserProfileDto profile = new UserProfileDto();
+        VolunteerDto volunteer = new VolunteerDto(
+            userId,
+            "first name",
+            "last name"
+        );
+        AccountInfoDto info = new AccountInfoDto(
+            volunteer,
+            "Test Username",
+            "mail@mail.com",
+            UserType.ASSIGNED
+        );
+        profile.setAccount(info);
+        return profile;
+    }
+
+    public PositionSlotRequestDto getPositionSlotRequestDto(long positionSlotId) {
+        PositionSlot positionSlot = positionSlotRepository.getReferenceById(positionSlotId);
+        String hash = rewardPointsCalculator.calculatePointsConfigHash(positionSlot);
+        return new PositionSlotRequestDto(hash);
     }
 }

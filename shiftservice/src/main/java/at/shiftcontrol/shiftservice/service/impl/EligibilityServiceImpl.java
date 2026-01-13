@@ -7,20 +7,20 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.PositionSignupState;
+import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -121,22 +121,27 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public boolean isTradePossible(PositionSlot positionSlot, Volunteer volunteer) {
+    public boolean isEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         return !PositionSignupState.SIGNED_UP.equals(signupState)
             && !PositionSignupState.NOT_ELIGIBLE.equals(signupState);
     }
 
     @Override
-    public void validateIsTradePossible(PositionSlot positionSlot, Volunteer volunteer) {
-        if (!isTradePossible(positionSlot, volunteer)) {
-            throw new ConflictException("position slot can not be traded with volunteer");
+    public void validateIsEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
+        if (!isEligibleAndNotSignedUp(positionSlot, volunteer)) {
+            throw new ConflictException("position slot can not be assigned to volunteer");
         }
     }
 
     @Override
     public Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
         return assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
+    }
+
+    @Override
+    public Collection<Assignment> getConflictingAssignments(String volunteerId, PositionSlot positionSlot) {
+        return getConflictingAssignments(volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
     }
 
     @Override
@@ -160,12 +165,24 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
+    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
+        return getConflictingAssignmentsExcludingSlot(
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
+    }
+
+    @Override
     public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
         var a = assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
         if (a.isEmpty()) {
             return;
         }
         throw new ConflictException("User has conflicting assignments");
+    }
+
+    @Override
+    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
+        validateHasConflictingAssignmentsExcludingSlot(
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
     }
 
     private boolean isSignedUp(PositionSlot positionSlot, Volunteer volunteer) {

@@ -1,0 +1,28 @@
+package at.shiftcontrol.lib.event.events;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class AssignmentEvent extends BaseEvent {
+    private final AssignmentPart assignment;
+
+    @JsonCreator
+    public AssignmentEvent(
+        @JsonProperty("routingKey") String routingKey,
+        @JsonProperty("assignment") AssignmentPart assignment) {
+        super(routingKey);
+        this.assignment = assignment;
+    }
+
+    public static AssignmentEvent of(String routingKey, Assignment assignment) {
+        return new AssignmentEvent(routingKey, AssignmentPart.of(assignment));
+    }
+}

@@ -1,7 +1,8 @@
 {
   "Logging": {
     "LogLevel": {
-      "Default": "Debug"
+      "Default": "Warning",
+      "NotificationService.Service.EventProcessorService": "Information"
     }
   },
   "SignalR": {
@@ -23,5 +24,18 @@
     "Port": 5672,
     "UserName": "shiftcontrol",
     "Password": "password"
+  },
+  "Db": {
+    "ConnectionString": "Server=postgres;Port=5432;Database=notificationservice;User Id=shiftcontrol;Password=password;",
+    "EnsureCreated": true
+  },
+  "Keycloak": {
+    "BaseUrl": "http://keycloak:8080/",
+    "ClientId": "internal",
+    "ClientSecret": "3mnwKdFacOw8DiTfcCHHSVVMiHjzIoms",
+    "Realm": "dev"
+  },
+  "Shiftservice": {
+    "BaseUrl": "http://shiftservice:8080/"
   }
 }

@@ -5,18 +5,19 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.mapper.AssignmentMapper;
+import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
@@ -34,8 +35,11 @@ public class DashboardServiceImpl implements DashboardService {
     private final EventDao eventDao;
     private final AssignmentDao assignmentDao;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
+    private final RewardPointsTransactionDao rewardPointsTransactionDao;
     private final ApplicationUserProvider userProvider;
     private final ShiftAssemblingMapper shiftMapper;
+    private final TradeMapper tradeMapper;
+    private final AssignmentAssemblingMapper assignmentAssemblingMapper;
 
     @Override
     public ShiftPlanDashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) {
@@ -49,10 +53,10 @@ public class DashboardServiceImpl implements DashboardService {
             .eventOverview(EventMapper.toEventDto(event))
             .ownShiftPlanStatistics(statisticService.getOwnStatisticsOfShifts(userShifts)) // directly pass user shifts here to avoid redundant filtering
             .overallShiftPlanStatistics(statisticService.getOverallShiftPlanStatistics(shiftPlan))
-            .rewardPoints(-1) // TODO
+            .rewardPoints((int) rewardPointsTransactionDao.sumPointsByVolunteerAndShiftPlan(userId, shiftPlanId))
             .shifts(shiftMapper.assemble(userShifts))
-            .trades(TradeMapper.toDto(assignmentSwitchRequestDao.findTradesForShiftPlanAndUser(shiftPlanId, userId)))
-            .auctions(AssignmentMapper.toDto(assignmentDao.findAuctionsByShiftPlanId(shiftPlanId)))
+            .trades(tradeMapper.toDto(assignmentSwitchRequestDao.findTradesForShiftPlanAndUser(shiftPlanId, userId)))
+            .auctions(assignmentAssemblingMapper.toDto(assignmentDao.findAuctionsByShiftPlanId(shiftPlanId)))
             .build();
     }
 

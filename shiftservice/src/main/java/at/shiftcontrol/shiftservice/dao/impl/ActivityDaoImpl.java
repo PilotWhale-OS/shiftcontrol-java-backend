@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 
+import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.impl.specification.ActivitySpecifications;
 import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
 
 @RequiredArgsConstructor

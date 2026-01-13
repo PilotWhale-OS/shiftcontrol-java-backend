@@ -8,20 +8,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import at.shiftcontrol.shiftservice.service.impl.event.EventServiceImpl;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,6 +47,9 @@ class EventServiceTest {
 
     @Mock
     private ApplicationUserProvider userProvider;
+
+    @Mock
+    private RewardPointsTransactionDao rewardPointsTransactionDao;
 
     @Mock
     private SecurityHelper securityHelper;
@@ -98,7 +103,8 @@ class EventServiceTest {
         long eventId = 999L;
         String userId = "420696742";
 
-        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);;
+        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);
+        ;
 
         assertThatThrownBy(() -> eventService.getUserRelatedShiftPlansOfEvent(eventId, userId))
             .isInstanceOf(NotFoundException.class);
@@ -116,7 +122,8 @@ class EventServiceTest {
         event.setShiftPlans(List.of());
 
         when(eventDao.getById(eventId)).thenReturn(event);
-        when(volunteerDao.getById(userId)).thenThrow(NotFoundException.class);;
+        when(volunteerDao.getById(userId)).thenThrow(NotFoundException.class);
+        ;
 
         assertThatThrownBy(() -> eventService.getUserRelatedShiftPlansOfEvent(eventId, userId))
             .isInstanceOf(NotFoundException.class);
@@ -152,6 +159,7 @@ class EventServiceTest {
 
         when(statisticService.getOwnStatisticsOfShiftPlans(List.of(spRelevant), userId)).thenReturn(ownStats);
         when(statisticService.getOverallEventStatistics(event)).thenReturn(overallStats);
+        when(rewardPointsTransactionDao.sumPointsByVolunteerAndEvent(userId, eventId)).thenReturn(10L);
 
         var result = eventService.getEventShiftPlansOverview(eventId, userId);
 
@@ -161,7 +169,7 @@ class EventServiceTest {
 
         assertThat(result.getEventOverview()).isEqualTo(expectedEventOverview);
         assertThat(result.getShiftPlans()).isEqualTo(expectedShiftPlans);
-        assertThat(result.getRewardPoints()).isEqualTo(-1);
+        assertThat(result.getRewardPoints()).isEqualTo(10L);
         assertThat(result.getOwnEventStatistics()).isEqualTo(ownStats);
         assertThat(result.getOverallEventStatistics()).isEqualTo(overallStats);
 
@@ -176,7 +184,8 @@ class EventServiceTest {
         long eventId = 999L;
         String userId = "420696742";
 
-        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);;
+        when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);
+        ;
 
         assertThatThrownBy(() -> eventService.getEventShiftPlansOverview(eventId, userId))
             .isInstanceOf(NotFoundException.class);

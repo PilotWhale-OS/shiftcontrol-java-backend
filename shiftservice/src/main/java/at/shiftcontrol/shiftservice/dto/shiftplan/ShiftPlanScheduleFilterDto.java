@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.shiftservice.type.ShiftRelevance;
+import at.shiftcontrol.lib.type.ShiftRelevance;
 
 @Data
 @RequiredArgsConstructor

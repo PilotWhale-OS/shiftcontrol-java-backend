@@ -16,7 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.TradeEvent;
+import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -24,24 +34,12 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.AssignmentSwitchEvent;
-import at.shiftcontrol.shiftservice.event.events.TradeEvent;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
@@ -55,15 +53,15 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     private final EligibilityService eligibilityService;
     private final AssignmentService assignmentService;
-    private final RewardPointsService rewardPointsService;
     private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
+    private final TradeMapper tradeMapper;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) {
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     @Override
@@ -71,7 +69,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.getById(requestedPositionSlotId);
 
-        securityHelper.assertUserIsVolunteer(requestedPositionSlot);
+        securityHelper.assertUserIsVolunteer(requestedPositionSlot, false);
 
         // get volunteers assigned to PositionSlot
         Collection<Volunteer> assignedVolunteers = requestedPositionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
@@ -111,11 +109,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private boolean isTradePossibleForUser(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot, Volunteer volunteer) {
-        // check if eligible
-        boolean eligible = eligibilityService.isTradePossible(offeredPositionSlot, volunteer);
+        // check if assignable
+        boolean eligible = eligibilityService.isEligibleAndNotSignedUp(offeredPositionSlot, volunteer);
         // check for conflicts
         Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), offeredPositionSlot.getShift().getStartTime(), offeredPositionSlot.getShift().getEndTime(), requestedPositionSlot.getId());
+            volunteer.getId(), offeredPositionSlot, requestedPositionSlot.getId());
 
         return eligible && conflicts.isEmpty();
     }
@@ -139,7 +137,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         //  this does not check for existing inverse trade requests
         return slotsToOffer.stream()
             .map(candidate -> {
-                List<AccountInfoDto> filteredVolunteers =
+                List<VolunteerDto> filteredVolunteers =
                     candidate.getAssignedVolunteers().stream()
                         .filter(volunteer -> {
                             AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
@@ -166,6 +164,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
+    @IsNotAdmin
     public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.getById(currentUserId);
@@ -206,7 +205,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // --> if exists, executing trade would result in same primary key
         //      therefore do not create second trade and accept first one
         for (AssignmentSwitchRequest trade : trades) {
-            Optional<AssignmentSwitchRequest> inverse = getInverseTrade(trade.getId());
+            Optional<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade);
             if (inverse.isPresent()) {
                 return List.of(acceptTrade(inverse.get().getId(), currentUserId));
             }
@@ -218,7 +217,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                    "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         )));
-        return TradeMapper.toDto(trades);
+        return tradeMapper.toDto(trades);
     }
 
     private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
@@ -233,6 +232,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
+    @IsNotAdmin
     public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -258,21 +258,14 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         validateTradePossible(trade.getOfferingAssignment().getPositionSlot(), trade.getRequestedAssignment().getPositionSlot(),
             trade.getOfferingAssignment().getAssignedVolunteer()); // other user
 
-        // delete inverse trade if exists, because accepting the other would result in the same primary key !
-        getInverseTrade(id).ifPresent(assignmentSwitchRequestDao::delete);
-
-        // cancel all trades for involved assignments
-        cancelOtherTrades(trade);
-
         // update assignments
-        AssignmentSwitchRequest executedTrade = executeTrade(trade);
+        AssignmentSwitchRequest executedTrade = assignmentService.executeTrade(trade);
 
-        rewardPointsService.onAssignmentReassignedTrade(executedTrade.getOfferingAssignment(), executedTrade.getRequestedAssignment());
-
-        return TradeMapper.toDto(executedTrade);
+        return tradeMapper.toDto(executedTrade);
     }
 
     @Override
+    @IsNotAdmin
     public TradeDto declineTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -291,10 +284,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         ));
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     @Override
+    @IsNotAdmin
     public TradeDto cancelTrade(AssignmentSwitchRequestId id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -313,7 +307,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         ));
-        return TradeMapper.toDto(trade);
+        return tradeMapper.toDto(trade);
     }
 
     private AssignmentSwitchRequest createAssignmentSwitchRequest(Assignment offering, Assignment requested) {
@@ -334,53 +328,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(slotToBeTaken);
+        securityHelper.assertUserIsVolunteer(slotToBeTaken, true);
 
         // check if user is eligible for the requested position slot
-        eligibilityService.validateIsTradePossible(slotToBeTaken, volunteer);
+        eligibilityService.validateIsEligibleAndNotSignedUp(slotToBeTaken, volunteer);
 
         // check if any current assignments overlap with requested position slot
         eligibilityService.validateHasConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), slotToBeTaken.getShift().getStartTime(), slotToBeTaken.getShift().getEndTime(), ownedSlot.getId());
-    }
-
-    private void cancelOtherTrades(AssignmentSwitchRequest trade) {
-        // this trade does not need to be excluded because it will be set to ACCEPTED in the next step
-        assignmentSwitchRequestDao.cancelTradesForAssignment(
-            trade.getRequestedAssignment().getPositionSlot().getId(), trade.getRequestedAssignment().getAssignedVolunteer().getId());
-        assignmentSwitchRequestDao.cancelTradesForAssignment(
-            trade.getOfferingAssignment().getPositionSlot().getId(), trade.getOfferingAssignment().getAssignedVolunteer().getId());
-    }
-
-    private AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest oldTrade) {
-        // update fields and id of assignments
-        Volunteer requestedAssignmentVolunteer = oldTrade.getRequestedAssignment().getAssignedVolunteer();
-        Volunteer offeringAssignmentVolunteer = oldTrade.getOfferingAssignment().getAssignedVolunteer();
-        Assignment newOffer = assignmentService.reassign(oldTrade.getOfferingAssignment(), requestedAssignmentVolunteer);
-        Assignment newRequested = assignmentService.reassign(oldTrade.getRequestedAssignment(), offeringAssignmentVolunteer);
-
-        // create new trade and delete old one
-        AssignmentSwitchRequestId newId = AssignmentSwitchRequestId.of(newOffer, newRequested);
-        AssignmentSwitchRequest newTrade = new AssignmentSwitchRequest(
-            newId, newOffer, newRequested, TradeStatus.ACCEPTED, oldTrade.getCreatedAt());
-        assignmentSwitchRequestDao.save(newTrade);
-        assignmentSwitchRequestDao.delete(oldTrade);
-
-        publisher.publishEvent(AssignmentSwitchEvent.of(oldTrade.getRequestedAssignment(), oldTrade.getOfferingAssignment()));
-        return newTrade;
-    }
-
-    private void updateVolunteer(Assignment assignment, Volunteer volunteer) {
-        assignment.setAssignedVolunteer(volunteer);
-        assignment.getId().setVolunteerId(volunteer.getId());
-    }
-
-    private Optional<AssignmentSwitchRequest> getInverseTrade(AssignmentSwitchRequestId id) {
-        return assignmentSwitchRequestDao.findById(
-            new AssignmentSwitchRequestId(
-                id.getRequested(),
-                id.getOffering()
-            )
-        );
+            volunteer.getId(), slotToBeTaken, ownedSlot.getId());
     }
 }

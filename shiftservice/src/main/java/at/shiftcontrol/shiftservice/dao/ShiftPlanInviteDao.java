@@ -2,7 +2,7 @@ package at.shiftcontrol.shiftservice.dao;
 
 import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
+import at.shiftcontrol.lib.entity.ShiftPlanInvite;
 
 public interface ShiftPlanInviteDao extends BasicDao<ShiftPlanInvite, Long> {
     ShiftPlanInvite getByCode(String code);

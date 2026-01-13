@@ -1,45 +1,58 @@
 package at.shiftcontrol.shiftservice.integration.config;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import config.TestSecurityConfig;
-
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import config.TestSecurityConfig;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
+import org.keycloak.representations.idm.UserRepresentation;
+import org.mockito.Mockito;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @Import(TestSecurityConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Tag("integration")
+@EntityScan(basePackages = {"at.shiftcontrol.lib.entity"})
 public abstract class RestITBase {
     @LocalServerPort
     protected int port;
 
     @MockitoBean
     RabbitTemplate rabbitTemplate;
+
+    @MockitoBean
+    protected KeycloakUserService keycloakUserService;
+
+    protected static ObjectMapper objectMapper = new ObjectMapper();
 
     protected RestAssuredConfig config;
 
@@ -48,6 +61,13 @@ public abstract class RestITBase {
     protected static final String HDR_TEST_USER_TYPE = "X-Test-UserType";
     protected static final String HDR_TEST_USER_ID = "X-Test-UserId";
     protected static final String HDR_TEST_USERNAME = "X-Test-Username";
+
+    @BeforeAll
+    static void init() {
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.enable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+    }
 
     protected Map<String, String> asAdminHeaders() {
         return Map.of(
@@ -111,6 +131,34 @@ public abstract class RestITBase {
         Thread var10000 = Thread.currentThread();
         long var10001 = Thread.currentThread().getId();
         var10000.setName(var10001 + "-" + this.getClass().getSimpleName());
+    }
+
+    @BeforeEach
+    public void setKcTestVariables() {
+        UserRepresentation userRep = new UserRepresentation();
+        userRep.setId("11111");
+        userRep.setFirstName("Kerbert");
+        userRep.setLastName("Huttelwascher");
+        Mockito.when(keycloakUserService.getUserById("11111"))
+            .thenReturn(userRep);
+
+        UserRepresentation userRep2 = new UserRepresentation();
+        userRep2.setId("22222");
+        userRep2.setFirstName("Kerbert");
+        userRep2.setLastName("Huttelwascher");
+        Mockito.when(keycloakUserService.getUserById("22222"))
+            .thenReturn(userRep2);
+
+        UserRepresentation userRep3 = new UserRepresentation();
+        userRep3.setId("33333");
+        userRep3.setFirstName("Kerbert");
+        userRep3.setLastName("Huttelwascher");
+        Mockito.when(keycloakUserService.getUserById("33333"))
+            .thenReturn(userRep3);
+
+
+        Mockito.when(keycloakUserService.getUserByIds(Collections.singleton(any())))
+            .thenReturn(List.of(userRep2));
     }
 
     public String getBasePath() {
@@ -282,18 +330,20 @@ public abstract class RestITBase {
             .statusCode(expectedStatusCode);
     }
 
-    public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode, final String message) {
-        doRequestAndAssertMessage(method, url, body, expectedStatusCode, message, true);
+    public void doRequestAsAssignedAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode,
+                                                    final String message, String userId) {
+        doRequestAsAssignedAndAssertMessage(method, url, body, expectedStatusCode, message, true, userId);
     }
 
-    public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode, final String message,
-                                          final boolean matchDetailExactly) {
-        doRequestAndAssertMessage(method, url, body, new HashMap<>(), expectedStatusCode, message, matchDetailExactly);
+    public void doRequestAsAssignedAndAssertMessage(final Method method, final String url, final Object body, final int expectedStatusCode,
+                                                    final String message,
+                                                    final boolean matchDetailExactly, String userId) {
+        doRequestAsAssignedAndAssertMessage(method, url, body, new HashMap<>(), expectedStatusCode, message, matchDetailExactly, userId);
     }
 
-    public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
-                                          final int expectedStatusCode, final String message) {
-        doRequestAndAssertMessage(method, url, body, params, expectedStatusCode, message, true);
+    public void doRequestAsAssignedAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
+                                                    final int expectedStatusCode, final String message, String userId) {
+        doRequestAsAssignedAndAssertMessage(method, url, body, params, expectedStatusCode, message, true, userId);
     }
 
     public void doRequestAsAdminAndAssertMessage(final Method method, final String url, final Object body,
@@ -320,9 +370,10 @@ public abstract class RestITBase {
         }
     }
 
-    public void doRequestAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
-                                          final int expectedStatusCode, final String message, final boolean matchDetailExactly) {
+    public void doRequestAsAssignedAndAssertMessage(final Method method, final String url, final Object body, final Map<String, String> params,
+                                                    final int expectedStatusCode, final String message, final boolean matchDetailExactly, String userId) {
         String actual = RestAssured.given()
+            .headers(asAssignedHeaders(userId))
             .body(body)
             .params(params)
             .request(method, url, new Object[0])

@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
+import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
-import at.shiftcontrol.shiftservice.type.TradeStatus;
 
 @RequiredArgsConstructor
 @Component
@@ -62,5 +62,15 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     @Override
     public void cancelTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId) {
         assignmentSwitchRequestRepository.cancelTradesForOfferedPositionAndRequestedUser(positionSlotId, userId, TradeStatus.CANCELED);
+    }
+
+    @Override
+    public Optional<AssignmentSwitchRequest> findInverseTrade(AssignmentSwitchRequest trade) {
+        return assignmentSwitchRequestRepository.findById(
+            new AssignmentSwitchRequestId(
+                trade.getId().getRequested(),
+                trade.getId().getOffering()
+            )
+        );
     }
 }

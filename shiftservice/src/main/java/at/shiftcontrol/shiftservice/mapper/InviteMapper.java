@@ -1,9 +1,10 @@
 package at.shiftcontrol.shiftservice.mapper;
 
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.ShiftPlanInvite;
 import lombok.NoArgsConstructor;
+
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.ShiftPlanInvite;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDto;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class InviteMapper {

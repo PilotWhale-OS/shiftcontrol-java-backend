@@ -10,9 +10,13 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.RoleEvent;
+import at.shiftcontrol.lib.event.events.RoleVolunteerEvent;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -20,13 +24,8 @@ import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.entity.role.Role;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
-import at.shiftcontrol.shiftservice.event.events.RoleEvent;
-import at.shiftcontrol.shiftservice.event.events.RoleVolunteerEvent;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
-import at.shiftcontrol.shiftservice.mapper.VolunteerMapper;
+import at.shiftcontrol.shiftservice.mapper.VolunteerAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
@@ -36,9 +35,9 @@ public class RoleServiceImpl implements RoleService {
     private final RoleDao roleDao;
     private final ShiftPlanDao shiftPlanDao;
     private final VolunteerDao volunteerDao;
-    private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
+    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
 
     @Override
     public Collection<RoleDto> getRoles(Long shiftPlanId) {
@@ -112,7 +111,7 @@ public class RoleServiceImpl implements RoleService {
 
         publisher.publishEvent(RoleVolunteerEvent.of(RoutingKeys.format(RoutingKeys.ROLE_ASSIGNED,
             Map.of("roleId", String.valueOf(role.getId()), "volunteerId", volunteer.getId())), role, volunteer.getId()));
-        return VolunteerMapper.toDto(volunteer);
+        return volunteerAssemblingMapper.toDto(volunteer);
     }
 
     @Override

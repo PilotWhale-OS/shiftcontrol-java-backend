@@ -3,12 +3,12 @@ package at.shiftcontrol.shiftservice.service;
 import java.time.Instant;
 import java.util.Collection;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
-import at.shiftcontrol.shiftservice.type.PositionSignupState;
+import at.shiftcontrol.lib.type.PositionSignupState;
 
 public interface EligibilityService {
     /**
@@ -49,7 +49,7 @@ public interface EligibilityService {
     PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId);
 
     /**
-     * Checks if the volunteer can join the position slot based on PositionSignUpState
+     * Checks if the volunteer can join the position slot based on PositionSignUpState.
      *
      * @param positionSlot The position slot to check
      * @param volunteer    The volunteer to check
@@ -58,7 +58,7 @@ public interface EligibilityService {
     void validateSignUpStateForJoin(PositionSlot positionSlot, Volunteer volunteer);
 
     /**
-     * Checks if the volunteer can claim an auction for the position slot based on PositionSignUpState
+     * Checks if the volunteer can claim an auction for the position slot based on PositionSignUpState.
      *
      * @param positionSlot The requested position slot to check
      * @param volunteer    The volunteer to check
@@ -67,25 +67,25 @@ public interface EligibilityService {
     void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer);
 
     /**
-     * Checks if the volunteer could accept a trade for the given position slot, based on PositionSignUpState
+     * Checks if the volunteer is eligible and not signed up to the given position slot.
      *
-     * @param positionSlot that would be offered to the volunteer
-     * @param volunteer    to whom a trade might be created
-     * @return true if the user could accept the trade
+     * @param positionSlot to check for
+     * @param volunteer    to assign
+     * @return true if the user is not signed up and eligible
      */
-    boolean isTradePossible(PositionSlot positionSlot, Volunteer volunteer);
+    boolean isEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer);
 
     /**
-     * Checks if the volunteer could accept a trade for the given position slot, based on PositionSignUpState
+     * Checks if the volunteer is eligible and not signed up to the given position slot.
      *
-     * @param positionSlot that would be offered to the volunteer
-     * @param volunteer    to whom a trade might be created
-     * @throws ConflictException if the user can not accept the trade
+     * @param positionSlot to check for
+     * @param volunteer    to assign
+     * @throws ConflictException if the user is not assignable to the slot
      */
-    void validateIsTradePossible(PositionSlot positionSlot, Volunteer volunteer);
+    void validateIsEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer);
 
     /**
-     * returns all conflicting assignments within a given time for a specific user
+     * returns all conflicting assignments within a given time for a specific user.
      *
      * @param volunteerId The volunteer to check
      * @param startTime   start of the timespan to check
@@ -95,7 +95,16 @@ public interface EligibilityService {
     Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
 
     /**
-     * checks if the user has any conflicting assignments within a given time
+     * returns all conflicting assignments within a given time for a specific user.
+     *
+     * @param volunteerId The volunteer to check
+     * @param positionSlot slot of which the time is to check
+     * @return the overlapping assignments
+     */
+    Collection<Assignment> getConflictingAssignments(String volunteerId, PositionSlot positionSlot);
+
+    /**
+     * checks if the user has any conflicting assignments within a given time.
      *
      * @param volunteerId The volunteer to check
      * @param startTime   start of the timespan to check
@@ -105,7 +114,7 @@ public interface EligibilityService {
     void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
 
     /**
-     * checks if the user has any conflicting assignments with a given positionSlot
+     * checks if the user has any conflicting assignments with a given positionSlot.
      *
      * @param volunteerId  The volunteer to check
      * @param positionSlot positionSlot to check
@@ -114,7 +123,7 @@ public interface EligibilityService {
     void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot);
 
     /**
-     * returns all conflicting assignments within a given time for a specific user, ignoring the provided position slot
+     * returns all conflicting assignments within a given time for a specific user, ignoring the provided position slot.
      *
      * @param volunteerId  The volunteer to check
      * @param startTime    start of the timespan to check
@@ -125,7 +134,17 @@ public interface EligibilityService {
     Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot);
 
     /**
-     * checks if the user has any conflicting assignments within a given time, ignoring the provided position slot
+     * returns all conflicting assignments with a given position slot for a specific user, ignoring  another position slot.
+     *
+     * @param volunteerId  The volunteer to check
+     * @param positionSlot positionSlot to check
+     * @param slotToExclude position slot that is ignored for the check
+     * @return the overlapping assignments
+     */
+    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude);
+
+    /**
+     * checks if the user has any conflicting assignments within a given time, ignoring the given position slot.
      *
      * @param volunteerId  The volunteer to check
      * @param startTime    start of the timespan to check
@@ -134,4 +153,14 @@ public interface EligibilityService {
      * @throws ConflictException if overlapping assignments exist
      */
     void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot);
+
+    /**
+     * checks if the user has any conflicting assignments with a given position slot, ignoring another position slot.
+     *
+     * @param volunteerId  The volunteer to check
+     * @param positionSlot positionSlot to check
+     * @param slotToExclude position slot that is ignored for the check
+     * @throws ConflictException if overlapping assignments exist
+     */
+    void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude);
 }

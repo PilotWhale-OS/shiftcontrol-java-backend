@@ -12,18 +12,19 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
-import at.shiftcontrol.shiftservice.entity.Assignment;
-import at.shiftcontrol.shiftservice.entity.AssignmentId;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.PositionSlot;
-import at.shiftcontrol.shiftservice.entity.Shift;
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
-import at.shiftcontrol.shiftservice.entity.Volunteer;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
@@ -31,8 +32,6 @@ import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import at.shiftcontrol.shiftservice.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.type.LockStatus;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -40,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class PositionSlotIT extends RestITBase {
     private static final String POSITIONSLOT_PATH = "/position-slots";
     private static final String SHIFT_POSITIONSLOT_PATH = "shifts/%d/position-slots";
-    private static final String REWARDPOINTS_PATH = "/me/reward-points";
+    private static final String REWARDPOINTS_PATH = "/reward-points";
 
     @Autowired
     PositionSlotRepository positionSlotRepository;
@@ -214,8 +213,8 @@ class PositionSlotIT extends RestITBase {
             () -> assertThat(volunteerB.getId()).isNotNull(),
             () -> assertThat(volunteerA.getVolunteeringPlans()).contains(shiftPlanA),
             () -> assertThat(volunteerB.getVolunteeringPlans()).contains(shiftPlanA),
-            () -> assertThat(volunteerRepository.existsById(ConvertUtil.idToLong(volunteerA.getId()))).isTrue(),
-            () -> assertThat(volunteerRepository.existsById(ConvertUtil.idToLong(volunteerB.getId()))).isTrue()
+            () -> assertThat(volunteerRepository.existsById(volunteerA.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.existsById(volunteerB.getId())).isTrue()
         );
     }
 
@@ -250,7 +249,8 @@ class PositionSlotIT extends RestITBase {
 
     @Test
     void findEventByNonExistingIdReturnsNotFound() {
-        doRequestAndAssertMessage(Method.GET, POSITIONSLOT_PATH + "/999", "", NOT_FOUND.getStatusCode(), "PositionSlot not found.", true);
+        doRequestAsAssignedAndAssertMessage(Method.GET, POSITIONSLOT_PATH + "/999", "", NOT_FOUND.getStatusCode(), "PositionSlot not found.", true,
+            volunteerA.getId());
     }
 
     @Test

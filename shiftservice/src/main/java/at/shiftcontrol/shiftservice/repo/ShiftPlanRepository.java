@@ -1,13 +1,14 @@
 package at.shiftcontrol.shiftservice.repo;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import at.shiftcontrol.shiftservice.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 
 @Repository
 public interface ShiftPlanRepository extends JpaRepository<ShiftPlan, Long>, JpaSpecificationExecutor<ShiftPlan> {
@@ -22,4 +23,11 @@ public interface ShiftPlanRepository extends JpaRepository<ShiftPlan, Long>, Jpa
         WHERE planner.id = :userId OR volunteer.id = :userId
         """)
     Collection<ShiftPlan> findAllUserRelatedShiftPlans(String userId);
+
+    @Query("""
+        SELECT DISTINCT sp
+        FROM ShiftPlan sp
+        WHERE sp.id in :shiftPlanIds
+        """)
+    Collection<ShiftPlan> getByIds(Set<Long> shiftPlanIds);
 }
