@@ -5,8 +5,8 @@ import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import at.shiftcontrol.shiftservice.event.BaseEvent;
-import at.shiftcontrol.shiftservice.event.RoutingKeys;
+import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.RoutingKeys;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.entity.Activity;
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.pretalxclient.model.Room;
 import at.shiftcontrol.pretalxclient.model.Submission;
 import at.shiftcontrol.pretalxclient.model.TalkSlot;
@@ -24,9 +27,6 @@ import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationSearchDto;
-import at.shiftcontrol.shiftservice.entity.Activity;
-import at.shiftcontrol.shiftservice.entity.Event;
-import at.shiftcontrol.shiftservice.entity.Location;
 
 @Slf4j
 @Service

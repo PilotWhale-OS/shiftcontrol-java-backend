@@ -29,7 +29,6 @@ management:
         enabled: false
 
 pretalx:
-  apiKeyRefreshIntervalMs: 60000 # 1 minute
   host: http://localhost:8088/
   locale: en
   sync:

@@ -10,16 +10,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.event.events.PretalxApiKeyInvalidEvent;
 import at.shiftcontrol.pretalxclient.model.EventList;
 import at.shiftcontrol.shiftservice.entity.pretalx.PretalxApiKey;
-import at.shiftcontrol.shiftservice.event.events.PretalxApiKeyInvalidEvent;
 import at.shiftcontrol.shiftservice.repo.pretalx.PretalxApiKeyRepository;
 
 @Slf4j
@@ -35,7 +34,6 @@ public class PretalxApiKeyLoader {
     private final Map<String, String> apiKeyCache = new HashMap<>();
     private final Set<PretalxApiKeyData> activeApiKeys = new HashSet<>();
 
-    @Scheduled(fixedDelayString = "${pretalx.apiKeyRefreshIntervalMs:600000}")
     public void refreshApiKeys() {
         lock.writeLock().lock();
         try {

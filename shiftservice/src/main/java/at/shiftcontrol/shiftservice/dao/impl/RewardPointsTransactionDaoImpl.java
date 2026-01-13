@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 
-import at.shiftcontrol.shiftservice.dao.RewardPointTransactionDao;
-import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.lib.entity.RewardPointsTransaction;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.repo.RewardPointTransactionRepository;
 
