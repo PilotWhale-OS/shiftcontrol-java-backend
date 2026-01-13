@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -51,7 +52,7 @@ public class LocationDaoImpl implements LocationDao {
     }
 
     @Override
-    public Collection<Location> search(LocationSearchDto searchDto) {
+    public List<Location> search(LocationSearchDto searchDto) {
         return locationRepository.findAll((Specification<Location>) (root, query, criteriaBuilder) -> {
             if (searchDto == null || StringUtils.isBlank(searchDto.getName())) {
                 return null; //Select all

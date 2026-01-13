@@ -71,9 +71,7 @@ public class PretalxApiKeyLoader {
                 }).toList();
 
                 if (accessibleEvents.isEmpty()) {
-                    pretalxApiKeyRepository.delete(apiKey);
-                    eventPublisher.publishEvent(new PretalxApiKeyInvalidEvent(apiKey.getApiKey()));
-                    log.info("Removed invalid Pretalx API key: {}", apiKey.getApiKey());
+                    removeInvalidApiKey(apiKey);
                     continue;
                 }
 
@@ -87,14 +85,18 @@ public class PretalxApiKeyLoader {
             } catch (RestClientResponseException e) {
                 //Remove invalid API key
                 if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED)) {
-                    pretalxApiKeyRepository.delete(apiKey);
-                    eventPublisher.publishEvent(new PretalxApiKeyInvalidEvent(apiKey.getApiKey()));
-                    log.info("Removed invalid Pretalx API key: {}", apiKey.getApiKey());
+                    removeInvalidApiKey(apiKey);
                 } else {
                     throw e;
                 }
             }
         }
+    }
+
+    private void removeInvalidApiKey(PretalxApiKey apiKey) {
+        pretalxApiKeyRepository.delete(apiKey);
+        eventPublisher.publishEvent(new PretalxApiKeyInvalidEvent(apiKey.getApiKey()));
+        log.info("Removed invalid Pretalx API key: {}", apiKey.getApiKey());
     }
 
     public Set<String> accessibleEventSlugs() {

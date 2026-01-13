@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -49,7 +48,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public Collection<LocationDto> searchLocations(LocationSearchDto searchDto) {
-        return List.of();
+        return LocationMapper.toLocationDto(locationDao.search(searchDto));
     }
 
     @Override
