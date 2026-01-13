@@ -31,7 +31,7 @@ public class PretalxApiKeyLoader {
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     // Event slug to API key cache
-    private final Map<String, String> apiKeyCache = new HashMap<>();
+    private final Map<String, PretalxApiKey> apiKeyCache = new HashMap<>();
     private final Set<PretalxApiKeyData> activeApiKeys = new HashSet<>();
 
     public void refreshApiKeys() {
@@ -81,7 +81,7 @@ public class PretalxApiKeyLoader {
                     accessibleEvents.stream().map(EventList::getSlug).toList());
                 activeApiKeys.add(keyData);
                 //Update cache
-                accessibleEvents.forEach(event -> apiKeyCache.put(event.getSlug(), apiKey.getApiKey()));
+                accessibleEvents.forEach(event -> apiKeyCache.put(event.getSlug(), apiKey));
             } catch (RestClientResponseException e) {
                 //Remove invalid API key
                 if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED)) {
@@ -119,7 +119,7 @@ public class PretalxApiKeyLoader {
         }
     }
 
-    public Optional<String> findApiKeyForEventSlug(String eventSlug) {
+    public Optional<PretalxApiKey> findApiKeyForEventSlug(String eventSlug) {
         lock.readLock().lock();
         try {
             return Optional.ofNullable(apiKeyCache.get(eventSlug));
@@ -128,7 +128,7 @@ public class PretalxApiKeyLoader {
         }
     }
 
-    public String getApiKeyForEventSlug(String eventSlug) {
+    public PretalxApiKey getApiKeyForEventSlug(String eventSlug) {
         return findApiKeyForEventSlug(eventSlug).orElseThrow(() ->
             PretalxMissingApiKeyException.forEventSlug(eventSlug));
     }

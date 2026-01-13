@@ -29,7 +29,6 @@ management:
         enabled: false
 
 pretalx:
-  host: http://localhost:8088/
   locale: en
   sync:
     cron: "0 0/5 * * * *" # every 5 minutes

@@ -1,9 +1,7 @@
 package at.shiftcontrol.shiftservice.sync.pretalx;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -12,7 +10,6 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import at.shiftcontrol.pretalxclient.model.Event;
-import at.shiftcontrol.pretalxclient.model.EventList;
 import at.shiftcontrol.pretalxclient.model.Room;
 import at.shiftcontrol.pretalxclient.model.Submission;
 import at.shiftcontrol.pretalxclient.model.TalkSlot;
@@ -27,17 +24,6 @@ public class PretalxDataGatherer {
 
     private final PretalxApiKeyLoader apiKeyLoader;
     private final PretalxApiSupplier apiSupplier;
-
-    public Set<EventList> gatherEvents() {
-        var eventLists = new HashSet<EventList>();
-        var apiKeys = apiKeyLoader.getActiveApiKeys();
-        for (var apiKeyData : apiKeys) {
-            var eventsApi = apiSupplier.eventsApi(apiKeyData.getApiKey());
-            eventLists.addAll(eventsApi.apiEventsList(null, null, null));
-        }
-
-        return eventLists;
-    }
 
     public List<Room> gatherRooms(String eventSlug) {
         var apiKey = apiKeyLoader.getApiKeyForEventSlug(eventSlug);
