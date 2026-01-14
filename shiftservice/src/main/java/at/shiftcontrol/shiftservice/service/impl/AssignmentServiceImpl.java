@@ -133,6 +133,8 @@ public class AssignmentServiceImpl implements AssignmentService {
         if (assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
             throw new IllegalArgumentException("Assignment must be a request for assignment");
         }
+        // TODO check if slot is full
+
         // update reward points
         rewardPointsService.onAssignmentAccepted(assignment);
 

@@ -145,6 +145,34 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             assignment.getPositionSlot(), currentUserId));
     }
 
+    @Override
+    @IsNotAdmin
+    public void joinRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId) {
+        // get assignment
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        // check status
+        if (assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
+            throw new IllegalArgumentException("Assignment not in request status");
+        }
+        // delete assignment
+        assignmentDao.delete(assignment);
+        // TODO publish event?
+    }
+
+    @Override
+    @IsNotAdmin
+    public void leaveRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId) {
+        // get assignment
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        // check status
+        if (assignment.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN) {
+            throw new IllegalArgumentException("Assignment not in request status");
+        }
+        // delete assignment
+        assignmentDao.delete(assignment);
+        // TODO publish event?
+    }
+
     private void assertJoinPossible(PositionSlot positionSlot, Volunteer volunteer) {
         // check access to position slot
         securityHelper.assertUserIsVolunteer(positionSlot, true);

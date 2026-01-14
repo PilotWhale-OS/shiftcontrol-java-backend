@@ -158,6 +158,48 @@ public class PositionSlotItemEndpoint {
             userProvider.getCurrentUser().getUserId());
     }
 
+
+    @PostMapping("/join-request-withdraw")
+    @Operation(
+        operationId = "joinRequestWithdrawPositionSlot",
+        description = "Withdraw a request to join a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully cancelled request to join the position slot",
+                content = @Content(
+                    schema = @Schema(implementation = AssignmentDto.class)
+                )
+            )
+        }
+    )
+    public void joinRequestWithdrawPositionSlot(@PathVariable String positionSlotId) {
+        positionSlotService.joinRequestWithdraw(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId()
+        );
+    }
+
+    @PutMapping("/leave-request-withdraw")
+    @Operation(
+        operationId = "leaveRequestWithdrawPositionSlot",
+        description = "Withdraw a request to leave a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully cancelled request to leave the position slot",
+                content = @Content(
+                    schema = @Schema(implementation = AssignmentDto.class)
+                )
+            )
+        }
+    )
+    public void leaveRequestWithdrawPositionSlot(@PathVariable String positionSlotId) {
+        positionSlotService.leaveRequestWithdraw(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId());
+    }
+
     @PutMapping("/preference")
     @Operation(
         operationId = "setPositionSlotPreference",
