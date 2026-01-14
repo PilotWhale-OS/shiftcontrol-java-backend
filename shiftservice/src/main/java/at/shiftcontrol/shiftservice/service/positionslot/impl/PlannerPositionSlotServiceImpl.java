@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -68,6 +69,9 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
                 routingKey = RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED;
             }
             case REQUEST_FOR_ASSIGNMENT -> {
+                if (!eligibilityService.hasCapacity(assignment.getPositionSlot())) {
+                    throw new IllegalStateException("Slot is already full");
+                }
                 assignmentService.accept(assignment);
                 routingKey = RoutingKeys.POSITIONSLOT_REQUEST_JOIN_ACCEPTED;
             }
@@ -154,10 +158,13 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
 
         // assign volunteers to slot
         Collection<Assignment> assignments = new ArrayList<>(volunteers.size());
-        volunteers.forEach(v -> assignments.add(
-            assignmentService.accept(
-                Assignment.of(positionSlot, v, AssignmentStatus.REQUEST_FOR_ASSIGNMENT))
-        ));
+        Iterator<Volunteer> iterator = volunteers.stream().iterator();
+        while (iterator.hasNext() && eligibilityService.hasCapacity(positionSlot)) {
+            assignments.add(
+                assignmentService.accept(
+                    Assignment.of(positionSlot, iterator.next(), AssignmentStatus.REQUEST_FOR_ASSIGNMENT))
+            );
+        }
 
         return assignmentAssemblingMapper.toDto(assignments);
     }

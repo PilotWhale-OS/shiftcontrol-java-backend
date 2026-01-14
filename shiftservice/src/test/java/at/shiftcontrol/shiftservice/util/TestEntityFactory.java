@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Assignment;
@@ -149,6 +150,14 @@ public class TestEntityFactory {
         );
         profile.setAccount(info);
         return profile;
+    }
+
+    public UserRepresentation getUserRepresentationWithId(String id) {
+        UserRepresentation userRep = new UserRepresentation();
+        userRep.setId(id);
+        userRep.setFirstName("Kerbert");
+        userRep.setLastName("Huttelwascher");
+        return userRep;
     }
 
     public PositionSlotRequestDto getPositionSlotRequestDto(long positionSlotId) {

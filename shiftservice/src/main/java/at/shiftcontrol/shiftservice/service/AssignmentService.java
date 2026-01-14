@@ -32,6 +32,7 @@ public interface AssignmentService {
 
     /**
      * accepts an already existing assignment.
+     * assumes that eligibility, conflicts, etc. have already been checked
      * updates reward points & publishes event
      *
      * @param assignment to accept
@@ -41,6 +42,7 @@ public interface AssignmentService {
 
     /**
      * assigns the volunteer to the position slot.
+     * assumes that eligibility, conflicts, etc. have already been checked
      * cancels trades where this slot was offered to the volunteer
      * updates reward points & publishes event
      *
