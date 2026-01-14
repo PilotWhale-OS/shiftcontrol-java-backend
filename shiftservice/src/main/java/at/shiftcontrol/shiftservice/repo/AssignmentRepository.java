@@ -59,6 +59,12 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Assignme
 
     @Query("""
         SELECT a FROM Assignment a
+        WHERE a.positionSlot.id = :positionSlotId AND a.assignedVolunteer.id IN :userIds
+        """)
+    Collection<Assignment> findAssignmentForPositionSlotAndUsers(long positionSlotId, Collection<String> userIds);
+
+    @Query("""
+        SELECT a FROM Assignment a
         WHERE a.positionSlot.shift.shiftPlan.id = :shiftPlanId AND a.assignedVolunteer.id = :userId
         """)
     Collection<Assignment> findAssignmentsForShiftPlanAndUser(long shiftPlanId, String userId);

@@ -10,13 +10,18 @@ import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsExportDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenCreateRequestDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsShareTokenDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsExportService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RewardPointsEndpoint {
     private final RewardPointsLedgerService rewardPointsLedgerService;
     private final RewardPointsService rewardPointsService;
+    private final RewardPointsExportService rewardPointsExportService;
     private final ApplicationUserProvider userProvider;
 
     @GetMapping()
@@ -64,8 +70,22 @@ public class RewardPointsEndpoint {
         return rewardPointsLedgerService.getPointsForEvent(currentUser.getUserId(), eventId);
     }
 
-    @GetMapping("/share")
+    @GetMapping("/export")
+    @Operation(
+        operationId = "exportRewardPoints",
+        description = "Export reward points for all users"
+    )
+    public ResponseEntity<Resource> exportRewardPoints() {
+        var export = rewardPointsExportService.exportRewardPoints();
 
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + export.getFileName())
+            // filename will be set in frontend regardless of this value because header value is not used, but it is good practice to set it here anyway
+            .contentType(export.getMediaType())
+            .body(new InputStreamResource(export.getExportStream()));
+    }
+
+    @GetMapping("/share")
     @Operation(
         operationId = "getAllRewardPointsShareTokens",
         description = "List all share tokens for reward points"

@@ -1,36 +1,31 @@
 package at.shiftcontrol.shiftservice.dto;
 
 import java.time.Instant;
-import java.util.Collection;
 
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
-
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import at.shiftcontrol.lib.type.TrustAlertType;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-
-import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TradeCandidatesDto {
+public class TrustAlertDisplayDto {
+    // this DTO is used to send persisted alerts to the frontend
     @NotNull
-    private PositionSlotDto ownPosition;
-
-    @NonNull
-    private String ownShiftName;
+    private String id;
 
     @NotNull
-    private Instant ownShiftStartTime;
+    private VolunteerDto volunteerDto;
 
     @NotNull
-    @Valid
-    private Collection<VolunteerDto> eligibleTradeRecipients;
+    private TrustAlertType alertType;
+
+    @NotNull
+    Instant createdAt;
 }

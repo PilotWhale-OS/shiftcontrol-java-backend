@@ -2,6 +2,22 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
@@ -168,5 +184,15 @@ public class EventEndpoint {
             // filename will be set in frontend regardless of this value because header value is not used, but it is good practice to set it here anyway
             .contentType(template.getMediaType())
             .body(new InputStreamResource(template.getExportStream()));
+    }
+
+    // TODO delete this test controller!!!
+    @GetMapping("/trust-alert")
+    @Operation(
+        operationId = "sendTestEvent",
+        description = "sends a test event to the event bus"
+    )
+    public boolean sendTestEvent(@RequestParam String event) {
+        return eventService.sendTestEvent(event);
     }
 }

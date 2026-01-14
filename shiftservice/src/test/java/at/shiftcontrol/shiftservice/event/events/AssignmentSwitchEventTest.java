@@ -40,7 +40,7 @@ class AssignmentSwitchEventTest {
         when(offeringAssignmentPart.getVolunteerId()).thenReturn("2");
         AssignmentSwitchEvent assignmentSwitchEvent = new AssignmentSwitchEvent(requestedAssignmentPart, offeringAssignmentPart);
 
-        assertEquals("assignment.switch.completed.1.2", assignmentSwitchEvent.getRoutingKey());
+        assertEquals("trade.request.completed.1.2", assignmentSwitchEvent.getRoutingKey());
     }
 }
 

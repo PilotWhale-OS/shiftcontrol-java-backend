@@ -1,5 +1,7 @@
 package at.shiftcontrol.lib.event.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +13,11 @@ import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
 public class PositionSlotVolunteerEvent extends PositionSlotEvent {
     private final String volunteerId;
 
-    public PositionSlotVolunteerEvent(String routingKey, PositionSlotPart positionSlot, String volunteerId) {
+    @JsonCreator
+    public PositionSlotVolunteerEvent(
+        @JsonProperty("routingKey") String routingKey,
+        @JsonProperty("positionSlot") PositionSlotPart positionSlot,
+        @JsonProperty("volunteerId") String volunteerId) {
         super(routingKey, positionSlot);
         this.volunteerId = volunteerId;
     }

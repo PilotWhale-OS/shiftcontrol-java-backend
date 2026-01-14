@@ -18,10 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.TradeAcceptDto;
-import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
-import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
-import at.shiftcontrol.shiftservice.dto.TradeDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeIdDto;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 
@@ -38,7 +38,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "getTradeById",
         description = "Get trade by id"
     )
-    public TradeDto getTradeById(TradeDto tradeDto) {
+    public TradeDto getTradeById(@RequestBody @Valid TradeIdDto tradeDto) {
         return assignmentSwitchRequestService.getTradeById(TradeMapper.toEntityId(tradeDto));
     }
 
@@ -69,10 +69,10 @@ public class PositionSlotTradeEndpoint {
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptTrade(@RequestBody @Valid TradeAcceptDto tradeDto) {
+    public TradeDto acceptTrade(@RequestBody @Valid TradeIdDto tradeDto) {
         return assignmentSwitchRequestService.acceptTrade(
-            TradeMapper.toEntityId(tradeDto,
-            userProvider.getCurrentUser().getUserId()));
+            TradeMapper.toEntityId(tradeDto),
+            userProvider.getCurrentUser().getUserId());
     }
 
     @PutMapping("/decline")
@@ -80,7 +80,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "declineTrade",
         description = "Decline a trade request for a specific position slot in a shift"
     )
-    public TradeDto declineTrade(@RequestBody @Valid TradeDto tradeDto) {
+    public TradeDto declineTrade(@RequestBody @Valid TradeIdDto tradeDto) {
         return assignmentSwitchRequestService.declineTrade(
             TradeMapper.toEntityId(tradeDto),
             userProvider.getCurrentUser().getUserId());
@@ -91,7 +91,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "cancelTrade",
         description = "Cancel a request for a specific position slot in a shift"
     )
-    public void cancelTrade(TradeDto tradeDto) {
+    public void cancelTrade(@RequestBody @Valid TradeIdDto tradeDto) {
         assignmentSwitchRequestService.cancelTrade(
             TradeMapper.toEntityId(tradeDto),
             userProvider.getCurrentUser().getUserId());

@@ -20,4 +20,6 @@ public interface PlannerPositionSlotService {
     Collection<VolunteerDto> getAssignableUsers(String positionSlotId);
 
     Collection<AssignmentDto> assignUsersToSlot(AssignmentAssignDto assignmentAssignDto);
+
+    void unAssignUsersFromSlot(AssignmentAssignDto assignmentAssignDto);
 }

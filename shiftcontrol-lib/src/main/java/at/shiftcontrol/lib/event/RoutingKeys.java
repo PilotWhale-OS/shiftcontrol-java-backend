@@ -13,10 +13,6 @@ public final class RoutingKeys {
     public static final String ACTIVITY_UPDATED = "activity.updated.{activityId}";
     public static final String ACTIVITY_DELETED = "activity.deleted.{activityId}";
 
-    public static final String TRADE_REQUEST_CREATED = "trade.request.created.{requestedVolunteerId}.{offeringVolunteerId}";
-    public static final String TRADE_REQUEST_DECLINED = "trade.request.declined.{requestedVolunteerId}.{offeringVolunteerId}";
-    public static final String TRADE_REQUEST_CANCELED = "trade.request.canceled.{requestedVolunteerId}.{offeringVolunteerId}";
-
     public static final String EVENT_CREATED = "event.created";
     public static final String EVENT_CLONED = "event.cloned.{sourceEventId}.{newEventId}";
     public static final String EVENT_UPDATED = "event.updated.{eventId}";
@@ -32,19 +28,37 @@ public final class RoutingKeys {
     public static final String POSITIONSLOT_UPDATED = "positionslot.updated.{positionSlotId}";
     public static final String POSITIONSLOT_DELETED = "positionslot.deleted.{positionSlotId}";
 
-    public static final String POSITIONSLOT_JOINED = "positionslot.joined.{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_LEFT = "positionslot.left.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_JOINED_PREFIX = "positionslot.joined.";
+    public static final String POSITIONSLOT_JOINED = POSITIONSLOT_JOINED_PREFIX + "{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_LEFT_PREFIX = "positionslot.left.";
+    public static final String POSITIONSLOT_LEFT = POSITIONSLOT_LEFT_PREFIX + "{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_JOIN = "positionslot.request.join.{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_LEAVE = "positionslot.request.leave.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_ACCEPTED = "positionslot.request.join.accepted.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_DECLINED = "positionslot.request.join.declined.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_PREFIX = "positionslot.request.leave.";
+    public static final String POSITIONSLOT_REQUEST_LEAVE = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX = "positionslot.request.leave.accepted.";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_ACCEPTED = POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX + "{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX = "positionslot.request.leave.declined.";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_DECLINED = POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX + "{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_PREFERENCE_UPDATED = "positionslot.preference.updated.{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_ACCEPTED = "positionslot.request.accepted.{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_DECLINED = "positionslot.request.declined.{volunteerId}.{positionSlotId}";
 
-    public static final String AUCTION_CREATED = "auction.created.{positionSlotId}";
-    public static final String AUCTION_CLAIMED = "auction.claimed.{positionSlotId}.{volunteerId}";
-    public static final String AUCTION_CANCELED = "auction.canceled.{positionSlotId}";
+    public static final String AUCTION_CREATED_PREFIX = "auction.created.";
+    public static final String AUCTION_CREATED = AUCTION_CREATED_PREFIX + "{positionSlotId}";
+    public static final String AUCTION_CLAIMED_PREFIX = "auction.claimed.";
+    public static final String AUCTION_CLAIMED = AUCTION_CLAIMED_PREFIX + "{positionSlotId}.{oldVolunteerId}";
+    public static final String AUCTION_CANCELED_PREFIX = "auction.canceled.";
+    public static final String AUCTION_CANCELED = AUCTION_CANCELED_PREFIX + "{positionSlotId}";
 
-    public static final String ASSIGNMENT_SWITCH_COMPLETED = "assignment.switch.completed.{requestedVolunteerId}.{offeringVolunteerId}";
+    public static final String TRADE_REQUEST_CREATED_PREFIX = "trade.request.created.";
+    public static final String TRADE_REQUEST_CREATED = TRADE_REQUEST_CREATED_PREFIX + "{requestedVolunteerId}.{offeringVolunteerId}";
+    public static final String TRADE_REQUEST_DECLINED_PREFIX = "trade.request.declined.";
+    public static final String TRADE_REQUEST_DECLINED = TRADE_REQUEST_DECLINED_PREFIX + "{requestedVolunteerId}.{offeringVolunteerId}";
+    public static final String TRADE_REQUEST_CANCELED_PREFIX = "trade.request.canceled.";
+    public static final String TRADE_REQUEST_CANCELED = TRADE_REQUEST_CANCELED_PREFIX + "{requestedVolunteerId}.{offeringVolunteerId}";
+    public static final String TRADE_REQUEST_COMPLETED_PREFIX = "trade.request.completed.";
+    public static final String TRADE_REQUEST_COMPLETED = TRADE_REQUEST_COMPLETED_PREFIX + "{requestedVolunteerId}.{offeringVolunteerId}";
+
 
     public static final String SHIFTPLAN_CREATED = "shiftplan.created";
     public static final String SHIFTPLAN_UPDATED = "shiftplan.updated.{shiftPlanId}";
@@ -74,6 +88,10 @@ public final class RoutingKeys {
     public static final String REWARDPOINTS_TRANSACTION_FAILED = "rewardpoints.transaction.failed.{volunteerId}";
     public static final String REWARDPOINTS_SHARETOKEN_CREATED = "rewardpoints.sharetoken.created.{shareTokenId}";
     public static final String REWARDPOINTS_SHARETOKEN_DELETED = "rewardpoints.sharetoken.deleted.{shareTokenId}";
+
+    public static final String TRUST_ALERT_RECEIVED = "trustalert.received.{alertId}";
+
+    public static final String PRETALX_API_KEY_INVALID = "pretalx.apikey.invalid.{apiKey}";
 
 
     public static @NonNull String format(@NonNull String template, @NonNull Map<String, ?> values) {

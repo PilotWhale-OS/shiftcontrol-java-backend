@@ -536,10 +536,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var currentUser = userProvider.getCurrentUser();
         var invite = shiftPlanInviteDao.getById(inviteId);
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
-        shiftPlanInviteDao.delete(invite);
-        publisher.publishEvent(ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
+        ShiftPlanInviteEvent inviteEvent = ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
             Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
-                "inviteId", String.valueOf(inviteId))), invite));
+                "inviteId", String.valueOf(inviteId))), invite);
+        shiftPlanInviteDao.delete(invite);
+        publisher.publishEvent(inviteEvent);
     }
 
     private void validatePermission(long shiftPlanId, ShiftPlanInviteType type, ShiftControlUser currentUser) {

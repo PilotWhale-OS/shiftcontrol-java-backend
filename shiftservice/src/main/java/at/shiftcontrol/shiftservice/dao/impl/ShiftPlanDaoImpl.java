@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -20,12 +21,12 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     private final ShiftPlanRepository shiftPlanRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "ShiftPlan";
     }
 
     @Override
-    public Optional<ShiftPlan> findById(Long id) {
+    public @NonNull Optional<ShiftPlan> findById(Long id) {
         return shiftPlanRepository.findById(id);
     }
 

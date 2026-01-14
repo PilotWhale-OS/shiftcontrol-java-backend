@@ -6,6 +6,7 @@ COPY pom.xml .
 COPY shiftcontrol-lib/pom.xml shiftcontrol-lib/
 COPY shiftservice/pom.xml shiftservice/
 COPY pretalx-client/pom.xml pretalx-client/
+COPY trustservice/pom.xml trustservice/
 
 RUN mvn -pl shiftservice -am dependency:go-offline
 
@@ -13,6 +14,7 @@ RUN mvn -pl shiftservice -am dependency:go-offline
 COPY shiftcontrol-lib shiftcontrol-lib
 COPY shiftservice shiftservice
 COPY pretalx-client pretalx-client
+COPY trustservice trustservice
 
 RUN mvn -pl shiftservice -am clean package -DskipTests
 

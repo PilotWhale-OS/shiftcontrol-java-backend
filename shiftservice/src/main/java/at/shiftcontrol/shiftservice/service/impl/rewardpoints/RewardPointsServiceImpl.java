@@ -35,12 +35,14 @@ import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Primary
 public class RewardPointsServiceImpl implements RewardPointsService {
     private final RewardPointsCalculator calculator;
     private final RewardPointsLedgerService ledgerService;
@@ -263,6 +265,10 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             throw new BadRequestException("Invalid reward points share token");
         }
 
+        return getRewardPointsForAllUsersOverAllEvents();
+    }
+
+    public @NonNull Collection<RewardPointsExportDto> getRewardPointsForAllUsersOverAllEvents() {
         var allEvents = eventDao.findAll();
 
         var exportDtos = new ArrayList<RewardPointsExportDto>();

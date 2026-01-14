@@ -3,31 +3,38 @@ package at.shiftcontrol.shiftservice.dao.impl;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+
 import at.shiftcontrol.lib.entity.RewardPointsTransaction;
 import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.repo.RewardPointTransactionRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
 public class RewardPointsTransactionDaoImpl implements RewardPointsTransactionDao {
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "RewardPointTransaction";
     }
 
     private final RewardPointTransactionRepository repo;
 
     @Override
-    public Optional<RewardPointsTransaction> findById(Long id) {
+    public @NonNull Optional<RewardPointsTransaction> findById(Long id) {
         return repo.findById(id);
     }
 
     @Override
     public RewardPointsTransaction save(RewardPointsTransaction entity) {
+        findById(entity.getId())
+            .ifPresent(e -> {
+                throw new IllegalStateException("RewardPointTransaction already exists and cannot be updated.");
+            });
         return repo.save(entity);
     }
 

@@ -15,6 +15,10 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import config.TestSecurityConfig;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -22,13 +26,12 @@ import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mockito;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +52,7 @@ public abstract class RestITBase {
     @MockitoBean
     protected KeycloakUserService keycloakUserService;
 
-    protected ObjectMapper objectMapper = new ObjectMapper();
+    protected static ObjectMapper objectMapper = new ObjectMapper();
 
     protected RestAssuredConfig config;
 
@@ -58,6 +61,13 @@ public abstract class RestITBase {
     protected static final String HDR_TEST_USER_TYPE = "X-Test-UserType";
     protected static final String HDR_TEST_USER_ID = "X-Test-UserId";
     protected static final String HDR_TEST_USERNAME = "X-Test-Username";
+
+    @BeforeAll
+    static void init() {
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.enable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+    }
 
     protected Map<String, String> asAdminHeaders() {
         return Map.of(

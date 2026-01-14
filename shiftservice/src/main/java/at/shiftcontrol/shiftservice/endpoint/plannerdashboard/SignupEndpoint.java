@@ -74,4 +74,13 @@ public class SignupEndpoint {
     public Collection<AssignmentDto> assignUsersToSlot(@PathVariable String shiftPlanId, @RequestBody AssignmentAssignDto assignmentAssignDto) {
         return positionSlotService.assignUsersToSlot(assignmentAssignDto);
     }
+
+    @PostMapping("/unassign")
+    @Operation(
+        operationId = "unAssignUsersFromSlot",
+        description = "Unassigns the given users from the given slot"
+    )
+    public void unAssignUsersFromSlot(@PathVariable String shiftPlanId, @RequestBody AssignmentAssignDto assignmentAssignDto) {
+        positionSlotService.unAssignUsersFromSlot(assignmentAssignDto);
+    }
 }

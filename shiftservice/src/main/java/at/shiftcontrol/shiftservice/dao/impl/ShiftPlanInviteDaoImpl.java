@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +20,12 @@ public class ShiftPlanInviteDaoImpl implements ShiftPlanInviteDao {
     private final ShiftPlanInviteRepository shiftPlanInviteRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "ShiftPlanInvite";
     }
 
     @Override
-    public Optional<ShiftPlanInvite> findById(Long id) {
+    public @NonNull Optional<ShiftPlanInvite> findById(Long id) {
         return shiftPlanInviteRepository.findById(id);
     }
 

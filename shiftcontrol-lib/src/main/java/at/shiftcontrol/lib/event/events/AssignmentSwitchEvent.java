@@ -2,6 +2,8 @@ package at.shiftcontrol.lib.event.events;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -19,8 +21,11 @@ public class AssignmentSwitchEvent extends BaseEvent {
     private final AssignmentPart requestedAssignment;
     private final AssignmentPart offeringAssignment;
 
-    public AssignmentSwitchEvent(AssignmentPart requestedAssignment, AssignmentPart offeringAssignment) {
-        super(RoutingKeys.format(RoutingKeys.ASSIGNMENT_SWITCH_COMPLETED,
+    @JsonCreator
+    public AssignmentSwitchEvent(
+        @JsonProperty("requestedAssignment") AssignmentPart requestedAssignment,
+        @JsonProperty("offeringAssignment") AssignmentPart offeringAssignment) {
+        super(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_COMPLETED,
             Map.of("requestedVolunteerId", requestedAssignment.getVolunteerId(),
                    "offeringVolunteerId", offeringAssignment.getVolunteerId())));
         this.requestedAssignment = requestedAssignment;

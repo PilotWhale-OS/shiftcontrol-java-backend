@@ -9,8 +9,8 @@ import lombok.NonNull;
 
 import at.shiftcontrol.lib.entity.Event;
 
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class EventPart {
     @NotNull
     private String id;

@@ -27,3 +27,8 @@ management:
     metrics:
       export:
         enabled: false
+
+pretalx:
+  locale: en
+  sync:
+    cron: "0 0/5 * * * *" # every 5 minutes

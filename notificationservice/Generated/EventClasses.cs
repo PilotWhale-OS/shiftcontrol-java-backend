@@ -39,6 +39,9 @@
 //    var timeConstraintPart = TimeConstraintPart.FromJson(jsonString);
 //    var tradeEvent = TradeEvent.FromJson(jsonString);
 //    var tradePart = TradePart.FromJson(jsonString);
+//    var trustAlertEvent = TrustAlertEvent.FromJson(jsonString);
+//    var trustAlertPart = TrustAlertPart.FromJson(jsonString);
+//    var trustAlertPartBuilder = TrustAlertPartBuilder.FromJson(jsonString);
 
 namespace ShiftControl.Events
 {
@@ -155,6 +158,9 @@ namespace ShiftControl.Events
 
         [JsonProperty("assignment", NullValueHandling = NullValueHandling.Ignore)]
         public Assignmentent Assignment { get; set; }
+
+        [JsonProperty("routingKey", NullValueHandling = NullValueHandling.Ignore)]
+        public string RoutingKey { get; set; }
 
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset? Timestamp { get; set; }
@@ -460,6 +466,9 @@ namespace ShiftControl.Events
         [JsonProperty("positionSlot", NullValueHandling = NullValueHandling.Ignore)]
         public PositionSlotEventPositionSlot PositionSlot { get; set; }
 
+        [JsonProperty("routingKey", NullValueHandling = NullValueHandling.Ignore)]
+        public string RoutingKey { get; set; }
+
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset? Timestamp { get; set; }
 
@@ -502,6 +511,9 @@ namespace ShiftControl.Events
 
         [JsonProperty("positionSlot", NullValueHandling = NullValueHandling.Ignore)]
         public PositionSlotVolunteerEventPositionSlot PositionSlot { get; set; }
+
+        [JsonProperty("routingKey", NullValueHandling = NullValueHandling.Ignore)]
+        public string RoutingKey { get; set; }
 
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset? Timestamp { get; set; }
@@ -1070,6 +1082,9 @@ namespace ShiftControl.Events
         [JsonProperty("actingUserId", NullValueHandling = NullValueHandling.Ignore)]
         public string ActingUserId { get; set; }
 
+        [JsonProperty("routingKey", NullValueHandling = NullValueHandling.Ignore)]
+        public string RoutingKey { get; set; }
+
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset? Timestamp { get; set; }
 
@@ -1158,6 +1173,55 @@ namespace ShiftControl.Events
         public string PositionSlotName { get; set; }
     }
 
+    public partial class TrustAlertEvent
+    {
+        [JsonProperty("actingUserId", NullValueHandling = NullValueHandling.Ignore)]
+        public string ActingUserId { get; set; }
+
+        [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset? Timestamp { get; set; }
+
+        [JsonProperty("traceId", NullValueHandling = NullValueHandling.Ignore)]
+        public string TraceId { get; set; }
+
+        [JsonProperty("trustAlertPart", NullValueHandling = NullValueHandling.Ignore)]
+        public TrustAlert TrustAlertPart { get; set; }
+    }
+
+    public partial class TrustAlert
+    {
+        [JsonProperty("alertType", NullValueHandling = NullValueHandling.Ignore)]
+        public AlertType? AlertType { get; set; }
+
+        [JsonProperty("createdAt", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset? CreatedAt { get; set; }
+
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [JsonProperty("volunteerId", NullValueHandling = NullValueHandling.Ignore)]
+        public string VolunteerId { get; set; }
+    }
+
+    public partial class TrustAlertPart
+    {
+        [JsonProperty("alertType", NullValueHandling = NullValueHandling.Ignore)]
+        public AlertType? AlertType { get; set; }
+
+        [JsonProperty("createdAt", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset? CreatedAt { get; set; }
+
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [JsonProperty("volunteerId", NullValueHandling = NullValueHandling.Ignore)]
+        public string VolunteerId { get; set; }
+    }
+
+    public partial class TrustAlertPartBuilder
+    {
+    }
+
     public enum AssignmentStatus { Accepted, Auction, AuctionRequestForUnassign, RequestForAssignment };
 
     public enum InvitePartType { PlannerJoin, VolunteerJoin };
@@ -1173,6 +1237,8 @@ namespace ShiftControl.Events
     public enum TimeConstraintType { Emergency, Unavailable };
 
     public enum TradeStatus { Accepted, Canceled, Open, Rejected };
+
+    public enum AlertType { Auction, Overload, Spam, Trade };
 
     public partial class ActivityEvent
     {
@@ -1349,6 +1415,21 @@ namespace ShiftControl.Events
         public static TradePart FromJson(string json) => JsonConvert.DeserializeObject<TradePart>(json, ShiftControl.Events.Converter.Settings);
     }
 
+    public partial class TrustAlertEvent
+    {
+        public static TrustAlertEvent FromJson(string json) => JsonConvert.DeserializeObject<TrustAlertEvent>(json, ShiftControl.Events.Converter.Settings);
+    }
+
+    public partial class TrustAlertPart
+    {
+        public static TrustAlertPart FromJson(string json) => JsonConvert.DeserializeObject<TrustAlertPart>(json, ShiftControl.Events.Converter.Settings);
+    }
+
+    public partial class TrustAlertPartBuilder
+    {
+        public static TrustAlertPartBuilder FromJson(string json) => JsonConvert.DeserializeObject<TrustAlertPartBuilder>(json, ShiftControl.Events.Converter.Settings);
+    }
+
     public static class Serialize
     {
         public static string ToJson(this ActivityEvent self) => JsonConvert.SerializeObject(self, ShiftControl.Events.Converter.Settings);
@@ -1386,6 +1467,9 @@ namespace ShiftControl.Events
         public static string ToJson(this TimeConstraintPart self) => JsonConvert.SerializeObject(self, ShiftControl.Events.Converter.Settings);
         public static string ToJson(this TradeEvent self) => JsonConvert.SerializeObject(self, ShiftControl.Events.Converter.Settings);
         public static string ToJson(this TradePart self) => JsonConvert.SerializeObject(self, ShiftControl.Events.Converter.Settings);
+        public static string ToJson(this TrustAlertEvent self) => JsonConvert.SerializeObject(self, ShiftControl.Events.Converter.Settings);
+        public static string ToJson(this TrustAlertPart self) => JsonConvert.SerializeObject(self, ShiftControl.Events.Converter.Settings);
+        public static string ToJson(this TrustAlertPartBuilder self) => JsonConvert.SerializeObject(self, ShiftControl.Events.Converter.Settings);
     }
 
     internal static class Converter
@@ -1404,6 +1488,7 @@ namespace ShiftControl.Events
                 LockStatusConverter.Singleton,
                 TimeConstraintTypeConverter.Singleton,
                 TradeStatusConverter.Singleton,
+                AlertTypeConverter.Singleton,
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
             },
         };
@@ -1800,5 +1885,56 @@ namespace ShiftControl.Events
         }
 
         public static readonly TradeStatusConverter Singleton = new TradeStatusConverter();
+    }
+
+    internal class AlertTypeConverter : JsonConverter
+    {
+        public override bool CanConvert(Type t) => t == typeof(AlertType) || t == typeof(AlertType?);
+
+        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return null;
+            var value = serializer.Deserialize<string>(reader);
+            switch (value)
+            {
+                case "AUCTION":
+                    return AlertType.Auction;
+                case "OVERLOAD":
+                    return AlertType.Overload;
+                case "SPAM":
+                    return AlertType.Spam;
+                case "TRADE":
+                    return AlertType.Trade;
+            }
+            throw new Exception("Cannot unmarshal type AlertType");
+        }
+
+        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
+        {
+            if (untypedValue == null)
+            {
+                serializer.Serialize(writer, null);
+                return;
+            }
+            var value = (AlertType)untypedValue;
+            switch (value)
+            {
+                case AlertType.Auction:
+                    serializer.Serialize(writer, "AUCTION");
+                    return;
+                case AlertType.Overload:
+                    serializer.Serialize(writer, "OVERLOAD");
+                    return;
+                case AlertType.Spam:
+                    serializer.Serialize(writer, "SPAM");
+                    return;
+                case AlertType.Trade:
+                    serializer.Serialize(writer, "TRADE");
+                    return;
+            }
+            throw new Exception("Cannot marshal type AlertType");
+        }
+
+        public static readonly AlertTypeConverter Singleton = new AlertTypeConverter();
     }
 }

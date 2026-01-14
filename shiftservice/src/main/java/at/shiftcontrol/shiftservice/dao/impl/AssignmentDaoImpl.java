@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentId;
@@ -20,12 +21,12 @@ public class AssignmentDaoImpl implements AssignmentDao {
     private final AssignmentRepository assignmentRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "Assignment";
     }
 
     @Override
-    public Optional<Assignment> findById(AssignmentId id) {
+    public @NonNull Optional<Assignment> findById(AssignmentId id) {
         return assignmentRepository.findById(id);
     }
 
@@ -73,6 +74,11 @@ public class AssignmentDaoImpl implements AssignmentDao {
     public Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId) {
         return assignmentRepository.findAssignmentForPositionSlotAndUser(positionSlotId, userId)
             .orElseThrow(() -> new NotFoundException("Not assigned to position slot."));
+    }
+
+    @Override
+    public Collection<Assignment> getAssignmentForPositionSlotAndUsers(long positionSlotId, Collection<String> userIds) {
+        return assignmentRepository.findAssignmentForPositionSlotAndUsers(positionSlotId, userIds);
     }
 
     @Override

@@ -60,14 +60,21 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
+        String routingKey;
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
-            case AUCTION_REQUEST_FOR_UNASSIGN -> assignmentService.unassign(assignment);
-            case REQUEST_FOR_ASSIGNMENT -> assignmentService.accept(assignment);
+            case AUCTION_REQUEST_FOR_UNASSIGN -> {
+                assignmentService.unassign(assignment);
+                routingKey = RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED;
+            }
+            case REQUEST_FOR_ASSIGNMENT -> {
+                assignmentService.accept(assignment);
+                routingKey = RoutingKeys.POSITIONSLOT_REQUEST_JOIN_ACCEPTED;
+            }
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
 
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_ACCEPTED,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(routingKey,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", userId)),
             assignment.getPositionSlot(), userId));
@@ -77,14 +84,21 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     public void declineRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
+        String routingKey;
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not declineable");
-            case AUCTION_REQUEST_FOR_UNASSIGN -> acceptAssignment(assignment);
-            case REQUEST_FOR_ASSIGNMENT -> assignmentDao.delete(assignment);
+            case AUCTION_REQUEST_FOR_UNASSIGN -> {
+                acceptAssignment(assignment);
+                routingKey = RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED;
+            }
+            case REQUEST_FOR_ASSIGNMENT -> {
+                assignmentDao.delete(assignment);
+                routingKey = RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED;
+            }
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
 
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_DECLINED,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(routingKey,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", userId)),
             assignment.getPositionSlot(), userId));
@@ -133,7 +147,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // get all requested volunteers with access to slot
         Collection<Volunteer> volunteers = volunteerDao.findAllByShiftPlanAndVolunteerIds(
             positionSlot.getShift().getShiftPlan().getId(),
-            assignmentAssignDto.getVolunteers().stream().map(VolunteerDto::getId).toList());
+            assignmentAssignDto.getVolunteerIds());
 
         // check if not already signed up, eligible and no conflicts
         volunteers = volunteers.stream().filter(v -> isAssignable(positionSlot, v)).toList();
@@ -146,6 +160,21 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         ));
 
         return assignmentAssemblingMapper.toDto(assignments);
+    }
+
+    @Override
+    public void unAssignUsersFromSlot(AssignmentAssignDto assignmentAssignDto) {
+        PositionSlot positionSlot = positionSlotDao.getById(
+            ConvertUtil.idToLong(assignmentAssignDto.getPositionSlotId()));
+
+        // check access to plan
+        securityHelper.assertUserIsPlanner(positionSlot);
+
+        // ignore lock status
+
+        Collection<Assignment> assignments =
+            assignmentDao.getAssignmentForPositionSlotAndUsers(positionSlot.getId(), assignmentAssignDto.getVolunteerIds());
+        assignments.forEach(assignmentService::unassign);
     }
 
     private void acceptAssignment(Assignment assignment) {

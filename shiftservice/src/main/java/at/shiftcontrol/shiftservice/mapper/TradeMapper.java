@@ -14,6 +14,8 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.TradeAcceptDto;
 import at.shiftcontrol.shiftservice.dto.TradeDto;
 import at.shiftcontrol.shiftservice.dto.TradeInfoDto;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.trade.TradeIdDto;
 
 @RequiredArgsConstructor
 @Service
@@ -34,9 +36,9 @@ public class TradeMapper {
         return trades.stream().map(this::toDto).toList();
     }
 
-    public static AssignmentSwitchRequestId toEntityId(@NonNull TradeDto tradeDto) {
-        AssignmentId offering = AssignmentAssemblingMapper.toEntityId(tradeDto.getOfferingAssignment());
-        AssignmentId requested = AssignmentAssemblingMapper.toEntityId(tradeDto.getRequestedAssignment());
+    public static AssignmentSwitchRequestId toEntityId(@NonNull TradeIdDto tradeDto) {
+        AssignmentId offering = AssignmentId.of(ConvertUtil.idToLong(tradeDto.getOfferedSlotId()), tradeDto.getOfferingVolunteerId());
+        AssignmentId requested = AssignmentId.of(ConvertUtil.idToLong(tradeDto.getRequestedSlotId()), tradeDto.getRequestingVolunteerId());
         return new AssignmentSwitchRequestId(offering, requested);
     }
 
