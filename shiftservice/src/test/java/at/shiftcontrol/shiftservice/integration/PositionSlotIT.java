@@ -272,7 +272,7 @@ class PositionSlotIT extends RestITBase {
 
     @Test
     void auctionAssignmentForPositionSlotInSupervisedShiftPlanWorks() {
-        var response = putRequestAsAssigned(
+        var response = patchRequestAsAssigned(
             POSITIONSLOT_PATH + "/" + positionSlotA.getId() + "/auction",
             "",
             AssignmentDto.class,
@@ -304,7 +304,7 @@ class PositionSlotIT extends RestITBase {
         );
 
         // First put assignment up for auction as volunteerA
-        putRequestAsAssigned(
+        patchRequestAsAssigned(
             POSITIONSLOT_PATH + "/" + positionSlotA.getId() + "/auction",
             "",
             AssignmentDto.class,

@@ -209,6 +209,10 @@ public abstract class RestITBase {
         return doRequest(Method.PUT, uri, body, new HashMap<>(), asAdminHeaders(), 200, expected);
     }
 
+    public <T> T patchRequestAsAssigned(final String uri, final Object body, final Class<T> expectedObject, String userId) {
+        return doRequest(Method.PATCH, uri, body, new HashMap<>(), asAssignedHeaders(userId), 200, expectedObject);
+    }
+
     public <T> T postRequestAsAssigned(final String uri, final Object body, final Class<T> expectedObject, String userId) {
         return doRequest(Method.POST, uri, body, new HashMap<>(), asAssignedHeaders(userId), 200, expectedObject);
     }
