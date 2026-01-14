@@ -48,9 +48,12 @@ public class TradeMapper {
 
     public TradeInfoDto toTradeInfoDto(@NonNull AssignmentSwitchRequest trade) {
         return new TradeInfoDto(
-            String.valueOf(trade.getOfferingAssignment().getPositionSlot()),
-            String.valueOf(trade.getRequestedAssignment().getPositionSlot()),
+            String.valueOf(trade.getOfferingAssignment().getPositionSlot().getId()),
+            String.valueOf(trade.getRequestedAssignment().getPositionSlot().getId()),
+            trade.getOfferingAssignment().getAcceptedRewardPoints(),
+            trade.getRequestedAssignment().getAcceptedRewardPoints(),
             volunteerAssemblingMapper.toDto(trade.getOfferingAssignment().getAssignedVolunteer()),
+            volunteerAssemblingMapper.toDto(trade.getRequestedAssignment().getAssignedVolunteer()),
             trade.getStatus(),
             trade.getCreatedAt()
         );
