@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.trade;
 
 import java.time.Instant;
 
@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.lib.type.TradeStatus;
+import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 
 @Data
 @NoArgsConstructor
