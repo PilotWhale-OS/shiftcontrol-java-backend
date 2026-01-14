@@ -2,13 +2,10 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
-
-import at.shiftcontrol.lib.type.AssignmentStatus;
 
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 
-import at.shiftcontrol.shiftservice.dao.ShiftDao;
+import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 
 import org.springframework.stereotype.Service;
 
@@ -43,6 +40,7 @@ public class PositionSlotAssemblingMapper {
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
     private final TradeMapper tradeMapper;
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
+    private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
@@ -56,11 +54,16 @@ public class PositionSlotAssemblingMapper {
             .rewardPointsConfigHash(rewardPointsConfigHash)
             .build();
 
+        var requestedTrades = assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(
+            positionSlot.getId(), volunteer.getId()
+        );
+
         // calculates SignupState for current user and
         // gets all trade offers for this slot for the current user
         return toDto(positionSlot,
             eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer),
-            filterTradesForUser(positionSlot.getAssignments(), volunteer.getId()),
+            filterOfferedTradesForUser(positionSlot.getAssignments(), volunteer.getId()),
+            requestedTrades,
             preferenceValue,
             rewardPointsDto);
     }
@@ -69,7 +72,7 @@ public class PositionSlotAssemblingMapper {
         return positionSlots.stream().map(this::assemble).toList();
     }
 
-    private Collection<AssignmentSwitchRequest> filterTradesForUser(Collection<Assignment> assignments, String userId) {
+    private Collection<AssignmentSwitchRequest> filterOfferedTradesForUser(Collection<Assignment> assignments, String userId) {
         if (assignments == null || assignments.isEmpty()) {
             return Collections.emptyList();
         }
@@ -80,7 +83,8 @@ public class PositionSlotAssemblingMapper {
     }
 
     public PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
-                                        Collection<AssignmentSwitchRequest> tradesForUser, int preferenceValue, RewardPointsDto rewardPointsDto) {
+                                        Collection<AssignmentSwitchRequest> offeredTradesForUser ,Collection<AssignmentSwitchRequest> requestedTradesForUser,
+                                 int preferenceValue, RewardPointsDto rewardPointsDto) {
         Collection<AssignmentDto> assignmentDtos;
         Collection<AssignmentDto> auctionDtos;
 
@@ -104,7 +108,8 @@ public class PositionSlotAssemblingMapper {
             assignmentDtos,
             positionSlot.getDesiredVolunteerCount(),
             positionSignupState,
-            tradeMapper.toTradeInfoDto(tradesForUser),
+            tradeMapper.toTradeInfoDto(offeredTradesForUser),
+            tradeMapper.toTradeInfoDto(requestedTradesForUser),
             auctionDtos,
             preferenceValue,
             positionSlot.getShift().getShiftPlan().getLockStatus(),
