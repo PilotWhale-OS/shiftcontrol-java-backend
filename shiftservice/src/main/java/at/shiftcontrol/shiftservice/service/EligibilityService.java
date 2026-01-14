@@ -163,4 +163,13 @@ public interface EligibilityService {
      * @throws ConflictException if overlapping assignments exist
      */
     void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude);
+
+    /**
+     * checks if a position slot is full.
+     * ignores signup-requests
+     *
+     * @param positionSlot to check
+     * @return true if slot has capacity left
+     */
+    boolean hasCapacity(PositionSlot positionSlot);
 }

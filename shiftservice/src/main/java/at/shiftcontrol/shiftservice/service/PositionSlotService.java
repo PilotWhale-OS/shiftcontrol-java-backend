@@ -20,6 +20,10 @@ public interface PositionSlotService {
 
     void leaveRequest(@NonNull Long positionSlotId, @NonNull String currentUserId);
 
+    void joinRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId);
+
+    void leaveRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId);
+
     Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId);
 
     void setPreference(@NonNull String currentUserId, long positionSlotId, int preference);
