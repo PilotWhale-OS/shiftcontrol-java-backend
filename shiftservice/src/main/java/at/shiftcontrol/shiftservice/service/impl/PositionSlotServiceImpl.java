@@ -157,7 +157,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw join request");
         // delete assignment
         assignmentDao.delete(assignment);
-        // TODO publish event?
+        // publish event
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
+            assignment.getPositionSlot(), currentUserId));
     }
 
     @Override
@@ -172,7 +176,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw leave request");
         // delete assignment
         assignmentDao.delete(assignment);
-        // TODO publish event?
+        // publish event
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
+            assignment.getPositionSlot(), currentUserId));
     }
 
     private void assertJoinPossible(PositionSlot positionSlot, Volunteer volunteer) {

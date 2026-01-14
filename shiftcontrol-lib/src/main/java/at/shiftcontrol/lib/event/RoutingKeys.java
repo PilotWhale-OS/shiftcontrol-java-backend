@@ -32,14 +32,17 @@ public final class RoutingKeys {
     public static final String POSITIONSLOT_JOINED = POSITIONSLOT_JOINED_PREFIX + "{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_LEFT_PREFIX = "positionslot.left.";
     public static final String POSITIONSLOT_LEFT = POSITIONSLOT_LEFT_PREFIX + "{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_JOIN = "positionslot.request.join.{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_JOIN_ACCEPTED = "positionslot.request.join.accepted.{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_JOIN_DECLINED = "positionslot.request.join.declined.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_PREFIX = "positionslot.request.join.";
+    public static final String POSITIONSLOT_REQUEST_JOIN =  POSITIONSLOT_REQUEST_JOIN_PREFIX + "{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_WITHDRAW = POSITIONSLOT_REQUEST_JOIN_PREFIX + "withdraw.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_ACCEPTED = POSITIONSLOT_REQUEST_JOIN_PREFIX + "accepted.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_DECLINED = POSITIONSLOT_REQUEST_JOIN_PREFIX + "declined.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_LEAVE_PREFIX = "positionslot.request.leave.";
     public static final String POSITIONSLOT_REQUEST_LEAVE = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX = "positionslot.request.leave.accepted.";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_WITHDRAW = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "withdraw.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "accepted.";
     public static final String POSITIONSLOT_REQUEST_LEAVE_ACCEPTED = POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX + "{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX = "positionslot.request.leave.declined.";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "declined.";
     public static final String POSITIONSLOT_REQUEST_LEAVE_DECLINED = POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX + "{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_PREFERENCE_UPDATED = "positionslot.preference.updated.{volunteerId}.{positionSlotId}";
 
