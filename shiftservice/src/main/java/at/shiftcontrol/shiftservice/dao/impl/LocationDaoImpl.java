@@ -1,14 +1,19 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
+import at.shiftcontrol.shiftservice.dto.location.LocationSearchDto;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
 
 @RequiredArgsConstructor
@@ -17,12 +22,12 @@ public class LocationDaoImpl implements LocationDao {
     private final LocationRepository locationRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "Location";
     }
 
     @Override
-    public Optional<Location> findById(Long id) {
+    public @NonNull Optional<Location> findById(Long id) {
         return locationRepository.findById(id);
     }
 
@@ -44,5 +49,23 @@ public class LocationDaoImpl implements LocationDao {
     @Override
     public Collection<Location> findAllByEventId(Long eventId) {
         return locationRepository.findAllByEventId(eventId);
+    }
+
+    @Override
+    public List<Location> search(LocationSearchDto searchDto) {
+        return locationRepository.findAll((Specification<Location>) (root, query, criteriaBuilder) -> {
+            if (searchDto == null || StringUtils.isBlank(searchDto.getName())) {
+                return null; //Select all
+            }
+            var predicates = criteriaBuilder.conjunction();
+
+            if (searchDto.getName() != null && !searchDto.getName().isEmpty()) {
+                var nameLower = searchDto.getName().toLowerCase().trim();
+                predicates = criteriaBuilder.and(predicates,
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + nameLower + "%"));
+            }
+
+            return predicates;
+        });
     }
 }

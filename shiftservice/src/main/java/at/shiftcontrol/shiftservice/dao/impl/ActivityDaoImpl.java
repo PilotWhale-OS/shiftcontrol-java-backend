@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
@@ -20,12 +21,12 @@ public class ActivityDaoImpl implements ActivityDao {
     private final ActivityRepository activityRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "Activity";
     }
 
     @Override
-    public Optional<Activity> findById(Long id) {
+    public @NonNull Optional<Activity> findById(Long id) {
         return activityRepository.findById(id);
     }
 
@@ -65,5 +66,10 @@ public class ActivityDaoImpl implements ActivityDao {
         Specification<Activity> spec = ActivitySpecifications.matchesSearchDto(searchDto);
 
         return activityRepository.findAll(spec);
+    }
+
+    @Override
+    public Optional<Activity> findByEventAndName(Long eventId, String name) {
+        return activityRepository.findByEventAndName(eventId, name);
     }
 }

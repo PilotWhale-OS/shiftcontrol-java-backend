@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.PositionConstraint;
 import at.shiftcontrol.lib.entity.PositionConstraintId;
@@ -18,12 +19,12 @@ public class PositionConstraintDaoImpl implements PositionConstraintDao {
     private final PositionConstraintRepository positionConstraintRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "PositionConstraint";
     }
 
     @Override
-    public Optional<PositionConstraint> findById(PositionConstraintId id) {
+    public @NonNull Optional<PositionConstraint> findById(PositionConstraintId id) {
         return positionConstraintRepository.findById(id);
     }
 

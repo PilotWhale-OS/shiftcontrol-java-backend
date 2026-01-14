@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
@@ -18,12 +19,12 @@ public class RoleDaoImpl implements RoleDao {
     private final RoleRepository roleRepository;
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "Role";
     }
 
     @Override
-    public Optional<Role> findById(Long id) {
+    public @NonNull Optional<Role> findById(Long id) {
         return roleRepository.findById(id);
     }
 

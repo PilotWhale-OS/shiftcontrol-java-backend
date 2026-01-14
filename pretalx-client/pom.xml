@@ -193,6 +193,9 @@
                 <dateLibrary>java8</dateLibrary>
                 <useJakartaEe>true</useJakartaEe>
                 <serializationLibrary>jackson</serializationLibrary>
+
+                <!-- IMPORTANT: do not generate JsonNullable<T> -->
+                <openApiNullable>false</openApiNullable>
               </configOptions>
             </configuration>
           </execution>
