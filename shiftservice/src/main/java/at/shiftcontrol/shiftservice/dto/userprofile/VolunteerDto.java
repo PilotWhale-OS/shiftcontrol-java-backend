@@ -15,7 +15,7 @@ public class VolunteerDto {
     private String id;
 
     @NotNull
-    private String fistName;
+    private String firstName;
 
     @NotNull
     private String lastName;

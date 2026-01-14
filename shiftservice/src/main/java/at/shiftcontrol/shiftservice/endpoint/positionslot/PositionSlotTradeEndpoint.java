@@ -2,6 +2,8 @@ package at.shiftcontrol.shiftservice.endpoint.positionslot;
 
 import java.util.Collection;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +44,17 @@ public class PositionSlotTradeEndpoint {
         return assignmentSwitchRequestService.getTradeById(TradeMapper.toEntityId(tradeDto));
     }
 
-    @GetMapping("/slots-to-offer/{positionSlotId}")
+
+    @GetMapping("/position-slot/{positionSlotId}")
+    @Operation(
+        operationId = "getUserTradesByPositionSlot",
+        description = "Get existing trades for the current user by position slot id"
+    )
+    public Collection<TradeDto> getUserTradesByPositionSlot(){
+        throw new NotImplementedException("hello paul");
+    }
+
+    @GetMapping("/position-slot/{positionSlotId}/candidates")
     @Operation(
         operationId = "getPositionSlotsToOffer",
         description = "Get position slots that can be offered in a trade for the given position slot, based on eligible volunteers"

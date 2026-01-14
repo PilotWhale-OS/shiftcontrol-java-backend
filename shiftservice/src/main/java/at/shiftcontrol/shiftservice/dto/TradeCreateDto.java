@@ -24,5 +24,5 @@ public class TradeCreateDto {
 
     @NotNull
     @Valid
-    private Collection<VolunteerDto> requestedVolunteers;
+    private Collection<String> requestedVolunteerIds;
 }

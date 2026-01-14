@@ -278,7 +278,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
                 var volunteerPointsDto = new VolunteerPointsDto();
                 volunteerPointsDto.setVolunteerId(volunteer.getId());
                 var keyCloakUser = keycloakService.getUserById(volunteer.getId());
-                volunteerPointsDto.setFistName(keyCloakUser.getFirstName());
+                volunteerPointsDto.setFirstName(keyCloakUser.getFirstName());
                 volunteerPointsDto.setLastName(keyCloakUser.getLastName());
                 volunteerPointsDto.setEmail(keyCloakUser.getEmail());
                 var pointsForEvent = rewardPointsTransactionDao.sumPointsByVolunteerAndEvent(volunteer.getId(), event.getId());

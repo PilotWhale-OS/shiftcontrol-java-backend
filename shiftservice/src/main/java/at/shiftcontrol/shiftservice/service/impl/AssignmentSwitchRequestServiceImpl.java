@@ -192,7 +192,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         validateTradePossible(offeredPositionSlot, requestedPositionSlot, currentUser);
 
         // get Volunteer entity for users to create trades with
-        Collection<Volunteer> requestedVolunteers = getVolunteersToTradeWith(requestedPositionSlot, tradeCreateDto.getRequestedVolunteers());
+        Collection<Volunteer> requestedVolunteers = getVolunteersToTradeWith(requestedPositionSlot, tradeCreateDto.getRequestedVolunteerIds());
         for (Volunteer v : requestedVolunteers) {
             // check if eligible and for conflicts
             validateTradePossible(requestedPositionSlot, offeredPositionSlot, v);
@@ -201,8 +201,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // create switch requests for each requested user
         Collection<AssignmentSwitchRequest> trades = requestedPositionSlot.getAssignments().stream()
             .filter(assignment ->
-                tradeCreateDto.getRequestedVolunteers().stream().anyMatch(
-                    volunteer -> Objects.equals(volunteer.getId(), String.valueOf(assignment.getAssignedVolunteer().getId()))))
+                tradeCreateDto.getRequestedVolunteerIds().stream().anyMatch(
+                    volunteerId -> Objects.equals(volunteerId, String.valueOf(assignment.getAssignedVolunteer().getId()))))
             .map(requestedAssignment -> createAssignmentSwitchRequest(offeredAssignment, requestedAssignment)).toList();
 
         // no need to check for existing trades, status will just be updated
@@ -226,13 +226,14 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return tradeMapper.toDto(trades);
     }
 
-    private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
-        Set<String> dtoUserIds = volunteerDtos.stream()
-            .map(VolunteerDto::getId)
+    private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<String> volunteerIds) {
+        var existingVolunteerIds = volunteerDao.findAllByVolunteerIds(volunteerIds)
+            .stream()
+            .map(Volunteer::getId)
             .collect(Collectors.toSet());
         return positionSlot.getAssignments().stream()
             .map(Assignment::getAssignedVolunteer)
-            .filter(v -> dtoUserIds.contains(v.getId()))
+            .filter(v -> existingVolunteerIds.contains(v.getId()))
             .toList();
     }
 

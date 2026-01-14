@@ -106,8 +106,7 @@ public class AssignmentSwitchRequestServiceIT {
         TradeCreateDto createDto = TradeCreateDto.builder()
             .offeredPositionSlotId(offeredPosition)
             .requestedPositionSlotId(requestedPosition)
-            .requestedVolunteers(List.of(
-                VolunteerDto.builder().id(otherUserId).build()))
+            .requestedVolunteerIds(List.of(otherUserId))
             .build();
 
         Collection<TradeDto> dtos = assignmentSwitchRequestService.createTrade(createDto, currentUserId);
