@@ -10,7 +10,6 @@ import at.shiftcontrol.lib.type.TrustAlertType;
 
 @Service
 public class TrustService {
-
     private final RedisService redisService;
     private final AlertService alertService;
 
@@ -24,7 +23,7 @@ public class TrustService {
         String slotId = String.valueOf(event.getPositionSlot().getPositionSlotId());
         redisService.addSignUp(userId, slotId);
         checkSpam(userId, slotId);
-        checkOverload(userId, slotId);
+        checkOverload(userId);
     }
 
     public void handlePositionSlotLeft(PositionSlotVolunteerEvent event) {
@@ -40,7 +39,7 @@ public class TrustService {
         String requestingUserId = event.getTrade().getRequestedAssignment().getVolunteerId();
         String requestingSlotId = String.valueOf(event.getTrade().getRequestedAssignment().getPositionSlot().getPositionSlotId());
         redisService.addTrade(offeringUserId, offeringSlotId, requestingUserId, requestingSlotId);
-        checkTrade(offeringUserId, offeringSlotId);
+        checkTrade(offeringUserId);
     }
 
     public void handleTradeRequestDeclined(TradeEvent event) {
@@ -71,7 +70,7 @@ public class TrustService {
         String userId = event.getAssignment().getVolunteerId();
         String slotId = String.valueOf(event.getAssignment().getPositionSlot().getPositionSlotId());
         redisService.addAuction(userId, slotId);
-        checkAuction(userId, slotId);
+        checkAuction(userId);
     }
 
     public void handleAuctionClaimed(AssignmentEvent event) {
@@ -90,8 +89,18 @@ public class TrustService {
     public void handlePositionSlotRequestLeave(PositionSlotVolunteerEvent event) {
         String userId = event.getVolunteerId();
         String slotId = String.valueOf(event.getPositionSlot().getPositionSlotId());
+        redisService.addSignUp(userId, slotId);
+        checkSpam(userId, slotId);
         redisService.addAuction(userId, slotId);
-        checkAuction(userId, slotId);
+        checkAuction(userId);
+    }
+
+    public void handlePositionSlotRequestLeaveWithdraw(PositionSlotVolunteerEvent event) {
+        String userId = event.getVolunteerId();
+        String slotId = String.valueOf(event.getPositionSlot().getPositionSlotId());
+        redisService.removeAuction(userId, slotId);
+        redisService.removeSignUp(userId, slotId);
+        checkSpam(userId, slotId);
     }
 
     public void handlePositionSlotRequestLeaveAccepted(PositionSlotVolunteerEvent event) {
@@ -117,21 +126,21 @@ public class TrustService {
         }
     }
 
-    private void checkOverload(String userId, String slot) {
+    private void checkOverload(String userId) {
         if (redisService.hasTooManySignups(userId)) {
             alertService.sendAlert(TrustAlertType.OVERLOAD, userId);
             redisService.resetOverload(userId);
         }
     }
 
-    private void checkTrade(String userId, String slot) {
+    private void checkTrade(String userId) {
         if (redisService.hasTooManyTrades(userId)) {
             alertService.sendAlert(TrustAlertType.TRADE, userId);
             redisService.resetTrades(userId);
         }
     }
 
-    private void checkAuction(String userId, String slot) {
+    private void checkAuction(String userId) {
         if (redisService.hasTooManyAuctions(userId)) {
             alertService.sendAlert(TrustAlertType.AUCTION, userId);
             redisService.resetAuctions(userId);

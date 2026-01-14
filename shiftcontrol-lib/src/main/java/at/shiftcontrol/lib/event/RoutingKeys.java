@@ -34,12 +34,14 @@ public final class RoutingKeys {
     public static final String POSITIONSLOT_LEFT = POSITIONSLOT_LEFT_PREFIX + "{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_JOIN_PREFIX = "positionslot.request.join.";
     public static final String POSITIONSLOT_REQUEST_JOIN =  POSITIONSLOT_REQUEST_JOIN_PREFIX + "{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_JOIN_WITHDRAW = POSITIONSLOT_REQUEST_JOIN_PREFIX + "withdraw.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_JOIN_WITHDRAW_PREFIX = POSITIONSLOT_REQUEST_JOIN_PREFIX + "withdraw.";
+    public static final String POSITIONSLOT_REQUEST_JOIN_WITHDRAW = POSITIONSLOT_REQUEST_JOIN_WITHDRAW_PREFIX + "{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_JOIN_ACCEPTED = POSITIONSLOT_REQUEST_JOIN_PREFIX + "accepted.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_JOIN_DECLINED = POSITIONSLOT_REQUEST_JOIN_PREFIX + "declined.{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_LEAVE_PREFIX = "positionslot.request.leave.";
     public static final String POSITIONSLOT_REQUEST_LEAVE = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "{volunteerId}.{positionSlotId}";
-    public static final String POSITIONSLOT_REQUEST_LEAVE_WITHDRAW = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "withdraw.{volunteerId}.{positionSlotId}";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_WITHDRAW_PREFIX = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "withdraw.";
+    public static final String POSITIONSLOT_REQUEST_LEAVE_WITHDRAW = POSITIONSLOT_REQUEST_LEAVE_WITHDRAW_PREFIX + "{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "accepted.";
     public static final String POSITIONSLOT_REQUEST_LEAVE_ACCEPTED = POSITIONSLOT_REQUEST_LEAVE_ACCEPTED_PREFIX + "{volunteerId}.{positionSlotId}";
     public static final String POSITIONSLOT_REQUEST_LEAVE_DECLINED_PREFIX = POSITIONSLOT_REQUEST_LEAVE_PREFIX + "declined.";
