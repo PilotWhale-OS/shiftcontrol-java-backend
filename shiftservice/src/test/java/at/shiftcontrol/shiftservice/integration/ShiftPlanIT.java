@@ -760,7 +760,7 @@ class ShiftPlanIT extends RestITBase {
     void assignUsersToSlotAsPlannerSucceeds() {
         var assignmentAssignDto = AssignmentAssignDto.builder()
             .positionSlotId(String.valueOf(positionSlotA.getId()))
-            .volunteers(List.of( VolunteerDto.builder().id(volunteerJoinedAsVolunteerOnly.getId()).build()))
+            .volunteerIds(List.of(volunteerJoinedAsVolunteerOnly.getId()))
             .build();
 
         var result = postRequestAsAssigned(

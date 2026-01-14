@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,5 +19,5 @@ public class AssignmentAssignDto {
 
     @NotNull
     @Valid
-    private Collection<VolunteerDto> volunteers;
+    private Collection<String> volunteerIds;
 }

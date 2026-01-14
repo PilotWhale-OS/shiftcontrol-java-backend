@@ -71,6 +71,11 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
+    public Collection<Assignment> getAssignmentForPositionSlotAndUsers(long positionSlotId, Collection<String> userIds) {
+        return assignmentRepository.findAssignmentForPositionSlotAndUsers(positionSlotId, userIds);
+    }
+
+    @Override
     public Collection<Assignment> findAssignmentsForShiftPlanAndUser(long shiftPlanId, String userId) {
         return assignmentRepository.findAssignmentsForShiftPlanAndUser(shiftPlanId, userId);
     }
