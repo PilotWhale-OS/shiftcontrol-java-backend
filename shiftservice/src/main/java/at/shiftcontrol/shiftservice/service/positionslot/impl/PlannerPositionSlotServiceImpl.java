@@ -147,7 +147,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // get all requested volunteers with access to slot
         Collection<Volunteer> volunteers = volunteerDao.findAllByShiftPlanAndVolunteerIds(
             positionSlot.getShift().getShiftPlan().getId(),
-            assignmentAssignDto.getVolunteers().stream().map(VolunteerDto::getId).toList());
+            assignmentAssignDto.getVolunteerIds());
 
         // check if not already signed up, eligible and no conflicts
         volunteers = volunteers.stream().filter(v -> isAssignable(positionSlot, v)).toList();
@@ -160,6 +160,21 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         ));
 
         return assignmentAssemblingMapper.toDto(assignments);
+    }
+
+    @Override
+    public void unAssignUsersFromSlot(AssignmentAssignDto assignmentAssignDto) {
+        PositionSlot positionSlot = positionSlotDao.getById(
+            ConvertUtil.idToLong(assignmentAssignDto.getPositionSlotId()));
+
+        // check access to plan
+        securityHelper.assertUserIsPlanner(positionSlot);
+
+        // ignore lock status
+
+        Collection<Assignment> assignments =
+            assignmentDao.getAssignmentForPositionSlotAndUsers(positionSlot.getId(), assignmentAssignDto.getVolunteerIds());
+        assignments.forEach(assignmentService::unassign);
     }
 
     private void acceptAssignment(Assignment assignment) {

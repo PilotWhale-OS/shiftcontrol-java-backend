@@ -11,9 +11,9 @@ import lombok.Data;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
-import at.shiftcontrol.shiftservice.dto.TradeDto;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
 
 @Data
 @Builder

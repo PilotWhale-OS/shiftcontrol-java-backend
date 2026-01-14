@@ -89,6 +89,17 @@ public class AssignmentRepositoryTest {
     }
 
     @Test
+    void testFindAssignmentForPositionSlotAndUsers() {
+        Collection<Assignment> assignments =
+            assignmentRepository.findAssignmentForPositionSlotAndUsers(1L, List.of("28c02050-4f90-4f3a-b1df-3c7d27a166e5"));
+
+        Assertions.assertFalse(assignments.isEmpty());
+        Assignment assignment = assignments.stream().findFirst().get();
+        Assertions.assertEquals("28c02050-4f90-4f3a-b1df-3c7d27a166e5", assignment.getAssignedVolunteer().getId());
+        Assertions.assertEquals(1L, assignment.getPositionSlot().getId());
+    }
+
+    @Test
     void testDeleteCascadeToTrades() {
         AssignmentId offeringId = AssignmentId.of(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5");
         AssignmentId requestedId = AssignmentId.of(2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6");

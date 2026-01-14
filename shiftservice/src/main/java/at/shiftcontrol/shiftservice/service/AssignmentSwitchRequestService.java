@@ -3,9 +3,9 @@ package at.shiftcontrol.shiftservice.service;
 import java.util.Collection;
 
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
-import at.shiftcontrol.shiftservice.dto.TradeCandidatesDto;
-import at.shiftcontrol.shiftservice.dto.TradeCreateDto;
-import at.shiftcontrol.shiftservice.dto.TradeDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
 
 public interface AssignmentSwitchRequestService {
     TradeDto getTradeById(AssignmentSwitchRequestId id);
