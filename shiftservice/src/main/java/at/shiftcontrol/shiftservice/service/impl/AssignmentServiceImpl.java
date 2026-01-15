@@ -11,9 +11,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -22,11 +20,11 @@ import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.type.AssignmentStatus;
-import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
+import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
 
@@ -41,47 +39,38 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public Assignment claimAuction(Assignment auction, Volunteer newVolunteer, PositionSlotRequestDto requestDto) {
         String oldVolunteerId = auction.getAssignedVolunteer().getId();
+        Assignment oldAuction = AssignmentAssemblingMapper.shallowCopy(auction);
         // execute auction
-        Assignment claimedAuction = reassign(auction, newVolunteer);
+        auction = reassign(auction, newVolunteer);
 
         // update reward points
-        rewardPointsService.onAssignmentReassignedAuction(auction, claimedAuction, requestDto.getAcceptedRewardPointsConfigHash());
-
-        claimedAuction = assignmentDao.save(claimedAuction);
+        rewardPointsService.onAssignmentReassignedAuction(oldAuction, auction, requestDto.getAcceptedRewardPointsConfigHash());
 
         publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
-            "positionSlotId", String.valueOf(auction.getPositionSlot().getId()),
-            "oldVolunteerId", oldVolunteerId)), claimedAuction
+            "positionSlotId", String.valueOf(oldAuction.getPositionSlot().getId()),
+            "oldVolunteerId", oldVolunteerId)), auction
         ));
 
-        return claimedAuction;
+        return auction;
     }
 
     @Override
-    public AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest oldTrade) {
-        // delete inverse trade if exists, because accepting the other would result in the same primary key !
-        assignmentSwitchRequestDao.findInverseTrade(oldTrade).ifPresent(assignmentSwitchRequestDao::delete);
-
+    public AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest trade) {
+        // delete inverse trade if exists
+        assignmentSwitchRequestDao.findInverseTrade(trade).ifPresent(assignmentSwitchRequestDao::delete);
         // cancel all trades for involved assignments
-        cancelOtherTrades(oldTrade);
+        cancelOtherTrades(trade);
 
         // update fields and id of assignments
-        Volunteer requestedAssignmentVolunteer = oldTrade.getRequestedAssignment().getAssignedVolunteer();
-        Volunteer offeringAssignmentVolunteer = oldTrade.getOfferingAssignment().getAssignedVolunteer();
-        Assignment newOffer = reassign(oldTrade.getOfferingAssignment(), requestedAssignmentVolunteer);
-        Assignment newRequested = reassign(oldTrade.getRequestedAssignment(), offeringAssignmentVolunteer);
-        // create new trade and delete old one
-        AssignmentSwitchRequestId newId = AssignmentSwitchRequestId.of(newOffer, newRequested);
-        AssignmentSwitchRequest newTrade = new AssignmentSwitchRequest(
-            newId, newOffer, newRequested, TradeStatus.ACCEPTED, oldTrade.getCreatedAt());
-        assignmentSwitchRequestDao.save(newTrade);
-        assignmentSwitchRequestDao.delete(oldTrade);
+        AssignmentSwitchRequest oldTrade = TradeMapper.shallowCopy(trade);
+        reassign(trade.getOfferingAssignment(), oldTrade.getRequestedAssignment().getAssignedVolunteer());
+        reassign(trade.getRequestedAssignment(), oldTrade.getOfferingAssignment().getAssignedVolunteer());
 
-        rewardPointsService.onAssignmentReassignedTrade(newTrade.getOfferingAssignment(), newTrade.getRequestedAssignment());
+        rewardPointsService.onAssignmentReassignedTrade(trade.getOfferingAssignment(), trade.getRequestedAssignment());
 
         publisher.publishEvent(AssignmentSwitchEvent.of(oldTrade.getRequestedAssignment(), oldTrade.getOfferingAssignment()));
 
-        return newTrade;
+        return trade;
     }
 
     private void cancelOtherTrades(AssignmentSwitchRequest trade) {
@@ -102,30 +91,10 @@ public class AssignmentServiceImpl implements AssignmentService {
      * @return new assignment where the given volunteer is assigned
      */
     private Assignment reassign(Assignment oldAssignment, Volunteer newVolunteer) {
-        // Create new assignment with new PK
-        Assignment newAssignment = AssignmentAssemblingMapper.shallowCopy(oldAssignment);
-        newAssignment.setId(new AssignmentId(oldAssignment.getPositionSlot().getId(), newVolunteer.getId()));
-        newAssignment.setStatus(AssignmentStatus.ACCEPTED);
-        newAssignment.setAssignedVolunteer(newVolunteer);
-
-        // Update PositionSlot assignments
-        PositionSlot slot = newAssignment.getPositionSlot();
-        if (slot.getAssignments() != null) {
-            slot.getAssignments().remove(oldAssignment);
-            slot.getAssignments().add(newAssignment);
-        }
-
-        assignmentDao.save(newAssignment);
-        // Reassign dependent switch requests
-        newAssignment.getIncomingSwitchRequests()
-            .forEach(req -> req.setRequestedAssignment(newAssignment));
-        newAssignment.getOutgoingSwitchRequests()
-            .forEach(req -> req.setOfferingAssignment(newAssignment));
-        assignmentSwitchRequestDao.saveAll(oldAssignment.getIncomingSwitchRequests());
-        assignmentSwitchRequestDao.saveAll(oldAssignment.getOutgoingSwitchRequests());
-        // Delete old assignment
-        assignmentDao.delete(oldAssignment);
-        return newAssignment;
+        oldAssignment.setAssignedVolunteer(newVolunteer);
+        oldAssignment.setStatus(AssignmentStatus.ACCEPTED);
+        oldAssignment = assignmentDao.save(oldAssignment);
+        return oldAssignment;
     }
 
     @Override

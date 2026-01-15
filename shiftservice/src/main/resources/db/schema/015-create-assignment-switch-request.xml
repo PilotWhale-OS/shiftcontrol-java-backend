@@ -9,19 +9,17 @@
 
     <createTable tableName="assignment_switch_request">
 
-      <!-- Requester Assignment -->
-      <column name="offering_position_slot_id" type="BIGINT">
-        <constraints nullable="false"/>
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="offering_volunteer_id" type="VARCHAR(255)">
+
+      <!-- Requester Assignment -->
+      <column name="offering_assignment_id" type="BIGINT">
         <constraints nullable="false"/>
       </column>
 
       <!-- Requested Assignment -->
-      <column name="requested_position_slot_id" type="BIGINT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="requested_volunteer_id" type="VARCHAR(255)">
+      <column name="requested_assignment_id" type="BIGINT">
         <constraints nullable="false"/>
       </column>
 
@@ -35,26 +33,29 @@
 
     </createTable>
 
-    <addPrimaryKey
-      tableName="assignment_switch_request"
-      columnNames="offering_position_slot_id, offering_volunteer_id, requested_position_slot_id, requested_volunteer_id"
-      constraintName="pk_assignment_switch_request"/>
-
+    <!-- Foreign key to offering assignment -->
     <addForeignKeyConstraint
       baseTableName="assignment_switch_request"
-      baseColumnNames="offering_position_slot_id, offering_volunteer_id"
+      baseColumnNames="offering_assignment_id"
       referencedTableName="assignment"
-      referencedColumnNames="position_slot_id, assigned_volunteer_id"
-      constraintName="fk_switch_request_requester_assignment"
+      referencedColumnNames="id"
+      constraintName="fk_switch_request_offering_assignment"
       onDelete="CASCADE"/>
 
+    <!-- Foreign key to requested assignment -->
     <addForeignKeyConstraint
       baseTableName="assignment_switch_request"
-      baseColumnNames="requested_position_slot_id, requested_volunteer_id"
+      baseColumnNames="requested_assignment_id"
       referencedTableName="assignment"
-      referencedColumnNames="position_slot_id, assigned_volunteer_id"
+      referencedColumnNames="id"
       constraintName="fk_switch_request_requested_assignment"
       onDelete="CASCADE"/>
+
+    <!-- Optional: unique constraint to prevent duplicate trades -->
+    <addUniqueConstraint
+      tableName="assignment_switch_request"
+      columnNames="offering_assignment_id, requested_assignment_id"
+      constraintName="uq_switch_request_pair"/>
 
   </changeSet>
 

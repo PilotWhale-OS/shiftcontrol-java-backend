@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
@@ -26,8 +25,12 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
-    public @NonNull Optional<Assignment> findById(AssignmentId id) {
+    public @lombok.NonNull Optional<Assignment> findById(Long id) {
         return assignmentRepository.findById(id);
+    }
+
+    public Optional<Assignment> findBySlotAndUser(long positionSlotId, String assignedUserId) {
+        return assignmentRepository.findBySlotAndUser(positionSlotId, assignedUserId);
     }
 
     @Override

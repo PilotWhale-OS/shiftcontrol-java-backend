@@ -8,6 +8,7 @@ import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
 import at.shiftcontrol.lib.event.events.parts.TradePart;
 import at.shiftcontrol.lib.type.AssignmentStatus;
@@ -21,6 +22,11 @@ class TradePartTest {
     @Test
     void of() {
         // Arrange
+        Volunteer volunteer1 = new Volunteer();
+        volunteer1.setId("volunteer-1");
+        Volunteer volunteer2 = new Volunteer();
+        volunteer2.setId("volunteer-2");
+
         PositionSlot offeringSlot = new PositionSlot();
         offeringSlot.setId(1L);
         offeringSlot.setName("Offering Slot");
@@ -28,9 +34,9 @@ class TradePartTest {
 
         AssignmentId offeringId = new AssignmentId(1L, "volunteer-1");
         Assignment offeringAssignment = new Assignment();
-        offeringAssignment.setId(offeringId);
         offeringAssignment.setStatus(AssignmentStatus.ACCEPTED);
         offeringAssignment.setPositionSlot(offeringSlot);
+        offeringAssignment.setAssignedVolunteer(volunteer1);
 
         PositionSlot requestedSlot = new PositionSlot();
         requestedSlot.setId(2L);
@@ -39,9 +45,9 @@ class TradePartTest {
 
         AssignmentId requestedId = new AssignmentId(2L, "volunteer-2");
         Assignment requestedAssignment = new Assignment();
-        requestedAssignment.setId(requestedId);
         requestedAssignment.setStatus(AssignmentStatus.ACCEPTED);
         requestedAssignment.setPositionSlot(requestedSlot);
+        requestedAssignment.setAssignedVolunteer(volunteer2);
 
         AssignmentSwitchRequest tradeRequest = new AssignmentSwitchRequest();
         tradeRequest.setOfferingAssignment(offeringAssignment);
@@ -59,13 +65,13 @@ class TradePartTest {
 
         assertNotNull(tradePart.getOfferingAssignment());
         AssignmentPart offeringPart = tradePart.getOfferingAssignment();
-        assertEquals("volunteer-1", offeringPart.getVolunteerId());
+        assertEquals(volunteer1.getId(), offeringPart.getVolunteerId());
         assertEquals(AssignmentStatus.ACCEPTED, offeringPart.getStatus());
         assertEquals(1L, offeringPart.getPositionSlot().getPositionSlotId());
 
         assertNotNull(tradePart.getRequestedAssignment());
         AssignmentPart requestedPart = tradePart.getRequestedAssignment();
-        assertEquals("volunteer-2", requestedPart.getVolunteerId());
+        assertEquals(volunteer2.getId(), requestedPart.getVolunteerId());
         assertEquals(AssignmentStatus.ACCEPTED, requestedPart.getStatus());
         assertEquals(2L, requestedPart.getPositionSlot().getPositionSlotId());
     }

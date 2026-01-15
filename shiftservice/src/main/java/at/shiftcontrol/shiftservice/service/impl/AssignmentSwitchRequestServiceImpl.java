@@ -59,7 +59,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final TradeMapper tradeMapper;
 
     @Override
-    public TradeDto getTradeById(AssignmentSwitchRequestId id) {
+    public TradeDto getTradeById(long id) {
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         return tradeMapper.toDto(trade);
     }
@@ -233,7 +233,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     @Transactional
     @IsNotAdmin
-    public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) {
+    public TradeDto acceptTrade(long id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
@@ -266,7 +266,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @IsNotAdmin
-    public TradeDto declineTrade(AssignmentSwitchRequestId id, String currentUserId) {
+    public TradeDto declineTrade(long id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         // check if user can decline
@@ -289,7 +289,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @IsNotAdmin
-    public TradeDto cancelTrade(AssignmentSwitchRequestId id, String currentUserId) {
+    public TradeDto cancelTrade(long id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         // check if user can cancel
@@ -311,14 +311,12 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private AssignmentSwitchRequest createAssignmentSwitchRequest(Assignment offering, Assignment requested) {
-        AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(offering.getId(), requested.getId());
-        return new AssignmentSwitchRequest(
-            id,
-            offering,
-            requested,
-            TradeStatus.OPEN,
-            Instant.now()
-        );
+        return AssignmentSwitchRequest.builder()
+            .offeringAssignment(offering)
+            .requestedAssignment(requested)
+            .status(TradeStatus.OPEN)
+            .createdAt(Instant.now())
+            .build();
     }
 
     private void validateTradePossible(PositionSlot ownedSlot, PositionSlot slotToBeTaken, Volunteer volunteer) {

@@ -18,6 +18,9 @@ import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 @Builder
 public class TradeInfoDto {
     @NotNull
+    private String id;
+
+    @NotNull
     private String offeredPositionSlotId;
 
     @NotNull

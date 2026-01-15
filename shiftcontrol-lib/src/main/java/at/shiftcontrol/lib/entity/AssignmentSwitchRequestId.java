@@ -1,11 +1,5 @@
 package at.shiftcontrol.lib.entity;
 
-import java.io.Serializable;
-
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,17 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Embeddable
-public class AssignmentSwitchRequestId implements Serializable {
-    @AttributeOverrides({
-        @AttributeOverride(name = "positionSlotId", column = @Column(name = "requester_position_slot_id")),
-        @AttributeOverride(name = "volunteerId", column = @Column(name = "requester_volunteer_id"))
-    })
+public class AssignmentSwitchRequestId {
+    // TODO NEEDED?
     private AssignmentId offering;
-    @AttributeOverrides({
-        @AttributeOverride(name = "positionSlotId", column = @Column(name = "requested_position_slot_id")),
-        @AttributeOverride(name = "volunteerId", column = @Column(name = "requested_volunteer_id"))
-    })
     private AssignmentId requested;
 
     public static AssignmentSwitchRequestId of(AssignmentId offering, AssignmentId requested) {

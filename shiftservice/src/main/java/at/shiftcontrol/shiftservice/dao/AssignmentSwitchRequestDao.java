@@ -4,9 +4,13 @@ import java.util.Collection;
 import java.util.Optional;
 
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 
-public interface AssignmentSwitchRequestDao extends  BasicDao<AssignmentSwitchRequest, AssignmentSwitchRequestId> {
+public interface AssignmentSwitchRequestDao extends  BasicDao<AssignmentSwitchRequest, Long> {
+    Optional<AssignmentSwitchRequest> findByAssignmentIds(long offeredAssignmentId, long requestedAssignmentId);
+
+    Optional<AssignmentSwitchRequest> findBySlotsAndUsers(long offeredSlotId, String offeringUserId,
+                                                          long requestedSlotId, String requestedUserId);
+
     void cancelTradesForAssignment(Long positionSlotId, String assignedUser);
 
     Collection<AssignmentSwitchRequest> findOpenTradesForRequestedPositionAndOfferingUser(long positionSlotId, String userId);

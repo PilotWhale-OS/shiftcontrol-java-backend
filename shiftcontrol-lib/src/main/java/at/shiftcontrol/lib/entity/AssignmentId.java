@@ -1,8 +1,5 @@
 package at.shiftcontrol.lib.entity;
 
-import java.io.Serializable;
-
-import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Embeddable
-public class AssignmentId implements Serializable {
+public class AssignmentId {
+    // TODO NEEDED?
     private long positionSlotId;
     private String volunteerId;
 

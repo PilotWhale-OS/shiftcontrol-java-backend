@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
@@ -109,7 +108,7 @@ public class PositionSlotServiceIT {
 
         positionSlotService.leave(positionSlotId, userId);
 
-        Assertions.assertFalse(assignmentRepository.findById(AssignmentId.of(positionSlotId, userId)).isPresent());
+        Assertions.assertFalse(assignmentRepository.findBySlotAndUser(positionSlotId, userId).isPresent());
     }
 
     @Test
@@ -154,7 +153,7 @@ public class PositionSlotServiceIT {
 
         positionSlotService.leaveRequest(positionSlotId, userId);
 
-        Optional<Assignment> optionalAssignment = assignmentRepository.findById(AssignmentId.of(positionSlotId, userId));
+        Optional<Assignment> optionalAssignment = assignmentRepository.findBySlotAndUser(positionSlotId, userId);
         Assertions.assertTrue(optionalAssignment.isPresent());
         Assignment assignment = optionalAssignment.get();
         Assertions.assertEquals(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN, assignment.getStatus());
