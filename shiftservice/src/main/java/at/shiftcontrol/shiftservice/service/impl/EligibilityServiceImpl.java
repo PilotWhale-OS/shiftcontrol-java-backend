@@ -211,7 +211,7 @@ public class EligibilityServiceImpl implements EligibilityService {
 
     private boolean hasAuction(PositionSlot slot) {
         return slot.getAssignments() != null && slot.getAssignments().stream()
-            .anyMatch(a -> a.getStatus() == AssignmentStatus.AUCTION);
+            .anyMatch(a -> a.getStatus() == AssignmentStatus.AUCTION || a.getStatus() == AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
     }
 
     // trade requests where the requested assignment is assigned to the user
