@@ -62,7 +62,7 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.SIGNUP_VIA_AUCTION;
         }
 
-        boolean hasCapacity = positionSlot.getAssignments() == null || assignmentDao.getActiveAssignmentsOfSlot(positionSlot.getId()).size() < positionSlot.getDesiredVolunteerCount();
+        boolean hasCapacity = hasCapacity(positionSlot);
         boolean isTradePossible = hasOpenTradeForUser(positionSlot, volunteer.getId());
 
         if (hasCapacity && isTradePossible) {
@@ -183,6 +183,16 @@ public class EligibilityServiceImpl implements EligibilityService {
     public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
         validateHasConflictingAssignmentsExcludingSlot(
             volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
+    }
+
+    @Override
+    public boolean hasCapacity(PositionSlot positionSlot) {
+        if (positionSlot.getAssignments() != null) {
+            return positionSlot.getAssignments().stream()
+                .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT).toList()
+                .size() < positionSlot.getDesiredVolunteerCount();
+        }
+        return true;
     }
 
     private boolean isSignedUp(PositionSlot positionSlot, Volunteer volunteer) {

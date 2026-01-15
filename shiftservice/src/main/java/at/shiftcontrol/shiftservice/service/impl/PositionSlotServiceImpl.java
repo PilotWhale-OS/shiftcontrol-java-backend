@@ -75,7 +75,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Volunteer volunteer = volunteerDao.getById(currentUserId);
 
         // check if plan is locked or supervised
-        LockStatusHelper.assertJoinPossible(positionSlot);
+        LockStatusHelper.assertIsSelfSignUpWithMessage(positionSlot, "join");
 
         // check access, already assigned, eligible and conflicts
         assertJoinPossible(positionSlot, volunteer);
@@ -95,7 +95,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
 
         // check if plan is locked or supervised
-        LockStatusHelper.assertLeavePossible(assignment);
+        LockStatusHelper.assertIsSelfSignUpWithMessage(assignment, "leave");
 
         // leave
         assignmentService.unassign(assignment);
@@ -109,7 +109,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Volunteer volunteer = volunteerDao.getById(currentUserId);
 
         // check if plan is supervised
-        LockStatusHelper.assertJoinRequestPossible(positionSlot);
+        LockStatusHelper.assertIsSupervisedWithMessage(positionSlot, "join request");
 
         // check access, already assigned, eligible and conflicts
         assertJoinPossible(positionSlot, volunteer);
@@ -133,7 +133,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
 
         // check if plan is locked or supervised
-        LockStatusHelper.assertLeaveRequestPossible(assignment);
+        LockStatusHelper.assertIsSupervisedWithMessage(assignment, "leave request");
 
         // update assignment
         assignment.setStatus(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
@@ -145,6 +145,44 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             assignment.getPositionSlot(), currentUserId));
 
         assignmentDao.save(assignment);
+    }
+
+    @Override
+    @IsNotAdmin
+    public void joinRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId) {
+        // get assignment
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        // check status
+        if (assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
+            throw new IllegalArgumentException("Assignment not in request status");
+        }
+        LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw join request");
+        // delete assignment
+        assignmentDao.delete(assignment);
+        // publish event
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
+            assignment.getPositionSlot(), currentUserId));
+    }
+
+    @Override
+    @IsNotAdmin
+    public void leaveRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId) {
+        // get assignment
+        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        // check status
+        if (assignment.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN) {
+            throw new IllegalArgumentException("Assignment not in request status");
+        }
+        LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw leave request");
+        // delete assignment
+        assignmentDao.delete(assignment);
+        // publish event
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
+                Map.of("positionSlotId", String.valueOf(positionSlotId),
+                    "volunteerId", currentUserId)),
+            assignment.getPositionSlot(), currentUserId));
     }
 
     private void assertJoinPossible(PositionSlot positionSlot, Volunteer volunteer) {

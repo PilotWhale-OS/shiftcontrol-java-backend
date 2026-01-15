@@ -97,13 +97,28 @@ public class EventListener {
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotRequestLeaveDeclined(event);
 
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW_PREFIX)) {
+                PositionSlotVolunteerEvent event =
+                    objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
+                trustService.handlePositionSlotLeft(event);
+
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW_PREFIX)) {
+                PositionSlotVolunteerEvent event =
+                    objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
+                trustService.handlePositionSlotRequestLeaveWithdraw(event);
+
             } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_PREFIX)) {
                 PositionSlotVolunteerEvent event =
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotRequestLeave(event);
 
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_JOIN_PREFIX)) {
+                PositionSlotVolunteerEvent event =
+                    objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
+                trustService.handlePositionSlotJoined(event);
+
             } else {
-                log.warn("Not processing routing key: {}", routingKey);
+                log.info("Not processing routing key: {}", routingKey);
             }
         } catch (JsonProcessingException e) {
             log.error(

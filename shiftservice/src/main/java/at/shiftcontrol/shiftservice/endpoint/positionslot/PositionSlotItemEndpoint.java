@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.endpoint.positionslot;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -59,7 +60,7 @@ public class PositionSlotItemEndpoint {
         return positionSlotService.getUserAssignment(ConvertUtil.idToLong(positionSlotId), userProvider.getCurrentUser().getUserId());
     }
 
-    @PutMapping()
+    @PutMapping
     @Operation(
         operationId = "updatePositionSlot",
         description = "Update a specific position slot in a shift"
@@ -68,7 +69,7 @@ public class PositionSlotItemEndpoint {
         return positionSlotService.updatePositionSlot(ConvertUtil.idToLong(positionSlotId), modificationDto);
     }
 
-    @DeleteMapping()
+    @DeleteMapping
     @Operation(
         operationId = "deletePositionSlot",
         description = "Delete a specific position slot in a shift"
@@ -106,17 +107,14 @@ public class PositionSlotItemEndpoint {
         );
     }
 
-    @PutMapping("/leave")
+    @DeleteMapping("/leave")
     @Operation(
         operationId = "leavePositionSlot",
         description = "Leave a specific position slot",
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                description = "Successfully left the position slot",
-                content = @Content(
-                    schema = @Schema(implementation = AssignmentDto.class)
-                )
+                description = "Successfully left the position slot"
             )
         }
     )
@@ -147,22 +145,55 @@ public class PositionSlotItemEndpoint {
         );
     }
 
-    @PutMapping("/leave-request")
+    @PatchMapping("/leave-request")
     @Operation(
         operationId = "leaveRequestPositionSlot",
         description = "Request to leave a specific position slot",
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                description = "Successfully requested to leave the position slot",
-                content = @Content(
-                    schema = @Schema(implementation = AssignmentDto.class)
-                )
+                description = "Successfully requested to leave the position slot"
             )
         }
     )
     public void leaveRequestPositionSlot(@PathVariable String positionSlotId) {
         positionSlotService.leaveRequest(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId());
+    }
+
+
+    @DeleteMapping("/join-request-withdraw")
+    @Operation(
+        operationId = "joinRequestWithdrawPositionSlot",
+        description = "Withdraw a request to join a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully cancelled request to join the position slot"
+            )
+        }
+    )
+    public void joinRequestWithdrawPositionSlot(@PathVariable String positionSlotId) {
+        positionSlotService.joinRequestWithdraw(
+            ConvertUtil.idToLong(positionSlotId),
+            userProvider.getCurrentUser().getUserId()
+        );
+    }
+
+    @PatchMapping("/leave-request-withdraw")
+    @Operation(
+        operationId = "leaveRequestWithdrawPositionSlot",
+        description = "Withdraw a request to leave a specific position slot",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully cancelled request to leave the position slot"
+            )
+        }
+    )
+    public void leaveRequestWithdrawPositionSlot(@PathVariable String positionSlotId) {
+        positionSlotService.leaveRequestWithdraw(
             ConvertUtil.idToLong(positionSlotId),
             userProvider.getCurrentUser().getUserId());
     }
@@ -184,7 +215,7 @@ public class PositionSlotItemEndpoint {
         return PositionSlotPreferenceDto.builder().preferenceValue(preferenceUpdateDto.getPreferenceValue()).build();
     }
 
-    @PostMapping("/auction")
+    @PatchMapping("/auction")
     @Operation(
         operationId = "auctionAssignment",
         description = "Put the logged in users assignment for the PositionSlot up for auction"
@@ -195,7 +226,7 @@ public class PositionSlotItemEndpoint {
             userProvider.getCurrentUser().getUserId());
     }
 
-    @PostMapping("/claim-auction/{offeringUserId}")
+    @PutMapping("/claim-auction/{offeringUserId}")
     @Operation(
         operationId = "claimAuction",
         description = "Assign the logged in user to the auctions PositionSlot"
@@ -211,7 +242,7 @@ public class PositionSlotItemEndpoint {
             requestDto);
     }
 
-    @PostMapping("/cancel-auction")
+    @PatchMapping("/cancel-auction")
     @Operation(
         operationId = "cancelAuction",
         description = "Cancel the logged in users auction for the PositionSlot"
