@@ -31,7 +31,7 @@ public class AdminUserAdministrationItemEndpoint {
         operationId = "getUser",
         description = "Get User"
     )
-    public UserEventDto getUserForEvent(@PathVariable String userId) {
+    public UserEventDto getUser(@PathVariable String userId) {
         return service.getUser(userId);
     }
 

@@ -11,11 +11,37 @@ import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
+import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 
 @RequiredArgsConstructor
 @Service
 public class UserAssemblingMapper {
     private final KeycloakUserService keycloakUserService;
+
+    public UserPlanDto toUserPlanDto(Volunteer volunteer, Long planId) {
+        var user = keycloakUserService.getUserById(volunteer.getId());
+        return UserAssemblingMapper.toUserPlanDto(volunteer, user, planId);
+    }
+
+    public static UserPlanDto toUserPlanDto(Volunteer volunteer, UserRepresentation user, Long planId) {
+        return UserPlanDto.builder()
+            .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
+            .email(user.getEmail())
+            .isLocked(volunteer.getLockedPlans().stream().anyMatch(x -> planId.equals(x.getId())))
+            .build();
+    }
+
+    public static Collection<UserPlanDto> toUserPlanDto(Collection<Volunteer> volunteers, Collection<UserRepresentation> users, Long planId) {
+        return volunteers.stream()
+            .map(v ->
+                toUserPlanDto(v, users.stream()
+                        .filter(u -> u.getId().equals(v.getId()))
+                        .findFirst()
+                        .orElseThrow(NotFoundException::new),
+                    planId)
+            )
+            .toList();
+    }
 
     public UserEventDto toUserEventDto(Volunteer volunteer) {
         var user = keycloakUserService.getUserById(volunteer.getId());
@@ -41,10 +67,10 @@ public class UserAssemblingMapper {
             .build();
     }
 
-    public static Collection<UserEventDto> toUserEventDto(Collection<Volunteer> volunteer, Collection<UserRepresentation> user) {
-        return volunteer.stream()
+    public static Collection<UserEventDto> toUserEventDto(Collection<Volunteer> volunteers, Collection<UserRepresentation> users) {
+        return volunteers.stream()
             .map(v ->
-                toUserEventDto(v, user.stream()
+                toUserEventDto(v, users.stream()
                     .filter(u -> u.getId().equals(v.getId()))
                     .findFirst()
                     .orElseThrow(NotFoundException::new)))
