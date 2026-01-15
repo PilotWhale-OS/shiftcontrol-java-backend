@@ -131,8 +131,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // check if assignable
         boolean eligible = eligibilityService.isEligibleAndNotSignedUp(positionSlot, volunteer);
         // check for conflicts
-        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignments(
-            volunteer.getId(), positionSlot);
+        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingSlot(
+            volunteer.getId(), positionSlot, positionSlot.getId());
 
         return eligible && conflicts.isEmpty();
     }
