@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
+import at.shiftcontrol.lib.type.AssignmentStatus;
+
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -62,7 +64,7 @@ public class AssignmentDaoImpl implements AssignmentDao {
 
     @Override
     public Collection<Assignment> getActiveAssignmentsOfSlot(long positionSlotId) {
-        return assignmentRepository.getActiveAssignmentsOfSlot(positionSlotId);
+        return assignmentRepository.getAssignmentsOfSlotNotInState(positionSlotId, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
     }
 
     @Override

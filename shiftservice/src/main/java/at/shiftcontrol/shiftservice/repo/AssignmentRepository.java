@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
+import at.shiftcontrol.lib.type.AssignmentStatus;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -47,9 +49,9 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Assignme
 
     @Query("""
         SELECT a FROM Assignment a
-        WHERE a.positionSlot.id = :positionSlotId AND a.status NOT IN ('REQUEST_FOR_ASSIGNMENT')
+        WHERE a.positionSlot.id = :positionSlotId AND a.status != :excludedStatus
         """)
-    Collection<Assignment> getActiveAssignmentsOfSlot(long positionSlotId);
+    Collection<Assignment> getAssignmentsOfSlotNotInState(long positionSlotId, AssignmentStatus excludedStatus);
 
     @Query("""
         SELECT a FROM Assignment a
