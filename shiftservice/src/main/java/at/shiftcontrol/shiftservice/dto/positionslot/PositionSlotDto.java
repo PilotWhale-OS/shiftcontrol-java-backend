@@ -63,7 +63,14 @@ public class PositionSlotDto {
      */
     @NotNull
     @Valid
-    private Collection<TradeInfoDto> tradeInfoDtos;
+    private Collection<TradeInfoDto> offeredTrades;
+
+    /**
+     * Specific for the current user's requested trades for this position slot.
+     */
+    @NotNull
+    @Valid
+    private Collection<TradeInfoDto> requestedTrades;
 
     /**
      * Specific for the current user's available auctions of this position slot.

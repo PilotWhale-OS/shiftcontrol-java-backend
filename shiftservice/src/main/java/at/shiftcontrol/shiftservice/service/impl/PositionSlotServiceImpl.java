@@ -143,6 +143,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", currentUserId)),
             assignment.getPositionSlot(), currentUserId));
+
+        assignmentDao.save(assignment);
     }
 
     @Override
@@ -174,8 +176,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new IllegalArgumentException("Assignment not in request status");
         }
         LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw leave request");
-        // delete assignment
-        assignmentDao.delete(assignment);
+        // change back to signed-up state
+        assignment.setStatus(AssignmentStatus.ACCEPTED);
+        assignmentDao.save(assignment);
         // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
@@ -198,6 +201,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsInPlan(positionSlot);
         return assignmentAssemblingMapper.toDto(positionSlot.getAssignments());
+    }
+
+    @Override
+    public AssignmentDto getUserAssignment(@NonNull Long positionSlotId, @NonNull String volunteerId) {
+        return assignmentAssemblingMapper.toDto(assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId));
     }
 
     @Override

@@ -29,7 +29,7 @@ public class VolunteerAssemblingMapper {
     public static VolunteerDto toDtoFromUser(UserRepresentation user) {
         return VolunteerDto.builder()
             .id(user.getId())
-            .fistName(user.getFirstName())
+            .firstName(user.getFirstName())
             .lastName(user.getLastName())
             .build();
     }
