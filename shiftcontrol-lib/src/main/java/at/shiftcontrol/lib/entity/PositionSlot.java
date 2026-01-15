@@ -2,6 +2,8 @@ package at.shiftcontrol.lib.entity;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.type.AssignmentStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

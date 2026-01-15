@@ -16,7 +16,7 @@ public class VolunteerPointsDto {
     private String volunteerId;
 
     @NotNull
-    private String fistName;
+    private String firstName;
 
     @NotNull
     private String lastName;

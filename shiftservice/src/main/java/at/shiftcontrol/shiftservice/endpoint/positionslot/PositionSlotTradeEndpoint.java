@@ -71,8 +71,7 @@ public class PositionSlotTradeEndpoint {
     )
     public TradeDto acceptTrade(@RequestBody @Valid TradeIdDto tradeDto) {
         return assignmentSwitchRequestService.acceptTrade(
-            TradeMapper.toEntityId(tradeDto),
-            userProvider.getCurrentUser().getUserId());
+            TradeMapper.toEntityId(tradeDto));
     }
 
     @PutMapping("/decline")

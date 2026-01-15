@@ -14,7 +14,7 @@ public interface AssignmentSwitchRequestService {
 
     Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId);
 
-    TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId);
+    TradeDto acceptTrade(AssignmentSwitchRequestId id);
 
     TradeDto declineTrade(AssignmentSwitchRequestId id, String currentUserId);
 
