@@ -20,9 +20,11 @@ import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.lib.type.ShiftRelevance;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
@@ -37,6 +39,8 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
+import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
+import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventScheduleService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -49,8 +53,12 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     private final EventDao eventDao;
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftDao shiftDao;
+    private final ActivityDao activityDao;
+    private final VolunteerDao volunteerDao;
+    private final ShiftAssemblingMapper shiftMapper;
     private final SecurityHelper securityHelper;
     private final StatisticService statisticService;
+    private final EligibilityService eligibilityService;
     private final ApplicationUserProvider userProvider;
 
     @Override
@@ -96,7 +104,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .build();
     }
 
-    public EventScheduleLayoutDto getEventScheduleLayoutForSingleShiftPlan(long shiftPlanId, EventScheduleFilterDto filterDto) {
+    private EventScheduleLayoutDto getEventScheduleLayoutForSingleShiftPlan(long shiftPlanId, EventScheduleFilterDto filterDto) {
         if (filterDto.getShiftPlanIds() != null && !filterDto.getShiftPlanIds().isEmpty()
             && !filterDto.getShiftPlanIds().contains(String.valueOf(shiftPlanId))) {
             // skip this shift plan
@@ -166,6 +174,39 @@ public class EventScheduleServiceImpl implements EventScheduleService {
 
     @Override
     public EventScheduleContentDto getEventScheduleContent(long eventId, EventScheduleDaySearchDto searchDto) {
+        var event = eventDao.getById(eventId);
+        var shiftPlans = event.getShiftPlans();
+
+        var contentDtosPerShiftPlan = shiftPlans.stream()
+            .map(shiftPlan -> getEventScheduleContentForSingleShiftPlan(shiftPlan.getId(), searchDto))
+            .toList();
+
+        // Combine content DTOs
+        var combinedScheduleContentDtos = contentDtosPerShiftPlan.stream()
+            .flatMap(dto -> dto.getScheduleContentDtos().stream())
+            .toList();
+
+        var scheduleContentNoLocationDtos = contentDtosPerShiftPlan.stream()
+            .map(EventScheduleContentDto::getScheduleContentNoLocationDto)
+            .toList();
+        var combinedScheduleContentNoLocationDto = ScheduleContentNoLocationDto.builder()
+            .activities(scheduleContentNoLocationDtos.stream()
+                .flatMap(dto -> dto.getActivities().stream())
+                .distinct()
+                .toList())
+            .shiftColumns(scheduleContentNoLocationDtos.stream()
+                .flatMap(dto -> dto.getShiftColumns().stream())
+                .toList())
+            .build();
+
+        return EventScheduleContentDto.builder()
+            .date(searchDto != null ? searchDto.getDate() : null)
+            .scheduleContentDtos(combinedScheduleContentDtos)
+            .scheduleContentNoLocationDto(combinedScheduleContentNoLocationDto)
+            .build();
+    }
+
+    private EventScheduleContentDto getEventScheduleContentForSingleShiftPlan(long shiftPlanId, EventScheduleDaySearchDto searchDto) {
         var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, searchDto);
         // Build location DTOs
         var scheduleContentDtos = shiftsByLocation.entrySet().stream()
