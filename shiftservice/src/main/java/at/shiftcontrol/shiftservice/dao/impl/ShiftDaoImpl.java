@@ -46,6 +46,14 @@ public class ShiftDaoImpl implements ShiftDao {
 
 
     @Override
+    public List<Shift> searchUserRelatedShiftsInShiftPlan(long shiftPlanId, String userId) {
+        var spec = ShiftSpecifications.inShiftPlan(shiftPlanId)
+            .and(ShiftSpecifications.assignedToUser(userId));
+
+        return shiftRepository.findAll(spec);
+    }
+
+    @Override
     public List<Shift> searchUserRelatedShiftsInEvent(long eventId, String userId) {
         var spec = ShiftSpecifications.inEvent(eventId)
             .and(ShiftSpecifications.assignedToUser(userId));

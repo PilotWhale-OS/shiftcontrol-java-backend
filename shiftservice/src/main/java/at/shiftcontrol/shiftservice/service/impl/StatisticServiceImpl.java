@@ -74,7 +74,7 @@ public class StatisticServiceImpl implements StatisticService {
     public OwnStatisticsDto getOwnStatisticsOfShiftPlans(List<ShiftPlan> shiftPlans, String userId) {
         var userShiftsSet = new HashSet<Shift>();
         for (var shiftPlan : shiftPlans) {
-            var relevantShiftsOfPlan = shiftDao.searchUserRelatedShiftsInEvent(shiftPlan.getId(), userId);
+            var relevantShiftsOfPlan = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlan.getId(), userId);
             userShiftsSet.addAll(relevantShiftsOfPlan);
         }
 

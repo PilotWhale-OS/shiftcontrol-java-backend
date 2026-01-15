@@ -62,7 +62,7 @@ public class DashboardServiceImpl implements DashboardService {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.getById(shiftPlan.getEvent().getId());
-        var userShifts = shiftDao.searchUserRelatedShiftsInEvent(shiftPlanId, userId);
+        var userShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
 
         return ShiftPlanDashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))

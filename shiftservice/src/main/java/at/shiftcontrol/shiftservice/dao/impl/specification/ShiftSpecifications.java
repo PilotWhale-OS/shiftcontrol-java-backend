@@ -14,6 +14,12 @@ public final class ShiftSpecifications {
     private ShiftSpecifications() {
     }
 
+    public static Specification<Shift> inShiftPlan(long shiftPlanId) {
+        // Shift -> shiftPlan -> id
+        return (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("shiftPlan").get("id"), shiftPlanId);
+    }
+
     public static Specification<Shift> inEvent(long eventId) {
         // Shift -> shiftPlan -> event -> id
         return (root, query, criteriaBuilder) ->
