@@ -3,6 +3,8 @@ services:
   redis:
     image: redis:7-alpine
     container_name: trustservice-redis
+    networks:
+      - shiftcontrol
 #    ports:
 #      - "6379:6379"
 
