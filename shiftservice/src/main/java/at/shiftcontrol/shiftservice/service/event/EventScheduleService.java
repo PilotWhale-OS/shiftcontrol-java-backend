@@ -1,10 +1,10 @@
 package at.shiftcontrol.shiftservice.service.event;
 
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleLayoutDto;
 
 public interface EventScheduleService {
     EventScheduleLayoutDto getEventScheduleLayout(long eventId, EventScheduleFilterDto filterDto);

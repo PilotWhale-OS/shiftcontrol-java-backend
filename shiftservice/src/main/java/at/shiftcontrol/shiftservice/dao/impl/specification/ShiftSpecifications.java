@@ -5,8 +5,8 @@ import java.time.ZoneOffset;
 
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.util.TimeUtil;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterDto;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -14,10 +14,10 @@ public final class ShiftSpecifications {
     private ShiftSpecifications() {
     }
 
-    public static Specification<Shift> inShiftPlan(long shiftPlanId) {
-        // shiftPlan-related restriction: Shift -> shiftPlan.id
+    public static Specification<Shift> inEvent(long eventId) {
+        // Shift -> shiftPlan -> event -> id
         return (root, query, criteriaBuilder) ->
-            criteriaBuilder.equal(root.get("shiftPlan").get("id"), shiftPlanId);
+            criteriaBuilder.equal(root.get("shiftPlan").get("event").get("id"), eventId);
     }
 
     public static Specification<Shift> assignedToUser(String userId) {
@@ -49,6 +49,17 @@ public final class ShiftSpecifications {
                 predicates = criteriaBuilder.and(predicates,
                     criteriaBuilder.lessThan(root.get("startTime"), nextDayStart),
                     criteriaBuilder.greaterThan(root.get("endTime"), dayStart)
+                );
+            }
+
+            if (filterDto.getShiftPlanIds() != null && !filterDto.getShiftPlanIds().isEmpty()) {
+                // shiftPlan IDs
+                predicates = criteriaBuilder.and(predicates,
+                    root.get("shiftPlan").get("id").in(
+                        filterDto.getShiftPlanIds().stream()
+                            .filter(s -> s != null && !s.isBlank())
+                            .toList()
+                    )
                 );
             }
 

@@ -7,7 +7,7 @@ import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleStatisticsDto;
 
 public interface StatisticService {
     OwnStatisticsDto getOwnStatisticsOfShifts(List<Shift> userShifts);

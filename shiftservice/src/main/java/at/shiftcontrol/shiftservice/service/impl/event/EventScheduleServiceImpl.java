@@ -23,19 +23,17 @@ import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
-import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleContentNoLocationDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleLayoutNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleLayoutDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentNoLocationDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutNoLocationDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
@@ -51,7 +49,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EventScheduleServiceImpl implements EventScheduleService {
     private final EventDao eventDao;
-    private final ShiftPlanDao shiftPlanDao;
     private final ShiftDao shiftDao;
     private final ActivityDao activityDao;
     private final VolunteerDao volunteerDao;
@@ -64,86 +61,13 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     @Override
     public EventScheduleLayoutDto getEventScheduleLayout(long eventId, EventScheduleFilterDto filterDto) {
         var event = eventDao.getById(eventId);
-        var shiftPlans = event.getShiftPlans();
-
-        var layoutDtosPerShiftPlan = shiftPlans.stream()
-            .map(shiftPlan -> getEventScheduleLayoutForSingleShiftPlan(shiftPlan.getId(), filterDto))
-            .toList();
-
-        // Combine layout DTOs
-        var combinedScheduleLayoutDtos = layoutDtosPerShiftPlan.stream()
-            .flatMap(dto -> dto.getScheduleLayoutDtos().stream())
-            .toList();
-
-        // remove duplicate locations and take max requiredShiftColumns per location
-        Map<String, ScheduleLayoutDto> layoutDtoByLocationId = new HashMap<>();
-        for (var layoutDto : combinedScheduleLayoutDtos) {
-            var locationId = layoutDto.getLocation().getId();
-            if (layoutDtoByLocationId.containsKey(locationId)) {
-                var existingDto = layoutDtoByLocationId.get(locationId);
-                if (layoutDto.getRequiredShiftColumns() > existingDto.getRequiredShiftColumns()) {
-                    layoutDtoByLocationId.put(locationId, layoutDto);
-                }
-            } else {
-                layoutDtoByLocationId.put(locationId, layoutDto);
-            }
-        }
-        var nonDuplicateCombinedScheduleLayoutDtos = layoutDtoByLocationId.values().stream().toList();
-
-        var combinedScheduleLayoutNoLocationDto = ScheduleLayoutNoLocationDto.builder()
-            .requiredShiftColumns(layoutDtosPerShiftPlan.stream()
-                .mapToInt(dto -> dto.getScheduleLayoutNoLocationDto().getRequiredShiftColumns())
-                .max()
-                .orElse(0))
-            .build();
-
-        var scheduleStatisticsDtos = layoutDtosPerShiftPlan.stream()
-            .map(EventScheduleLayoutDto::getScheduleStatistics)
-            .toList();
-        var combinedStatistics = ScheduleStatisticsDto.builder()
-            .totalShifts(scheduleStatisticsDtos.stream()
-                .mapToInt(ScheduleStatisticsDto::getTotalShifts)
-                .sum())
-            .totalHours(scheduleStatisticsDtos.stream()
-                .mapToDouble(ScheduleStatisticsDto::getTotalHours)
-                .sum())
-            .unassignedCount(scheduleStatisticsDtos.stream()
-                .mapToInt(ScheduleStatisticsDto::getUnassignedCount)
-                .sum())
-            .build();
-
-        return EventScheduleLayoutDto.builder()
-            .scheduleLayoutDtos(nonDuplicateCombinedScheduleLayoutDtos)
-            .scheduleLayoutNoLocationDto(combinedScheduleLayoutNoLocationDto)
-            .scheduleStatistics(combinedStatistics)
-            .build();
-    }
-
-    private EventScheduleLayoutDto getEventScheduleLayoutForSingleShiftPlan(long shiftPlanId, EventScheduleFilterDto filterDto) {
-        if (filterDto.getShiftPlanIds() != null && !filterDto.getShiftPlanIds().isEmpty()
-            && !filterDto.getShiftPlanIds().contains(String.valueOf(shiftPlanId))) {
-            // skip this shift plan
-            return EventScheduleLayoutDto.builder()
-                .scheduleLayoutDtos(List.of())
-                .scheduleLayoutNoLocationDto(ScheduleLayoutNoLocationDto.builder()
-                    .requiredShiftColumns(0)
-                    .build())
-                .scheduleStatistics(ScheduleStatisticsDto.builder()
-                    .totalShifts(0)
-                    .totalHours(0)
-                    .unassignedCount(0)
-                    .build())
-                .build();
-        }
-
-
-        var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, filterDto);
+        var shiftsByLocation = getScheduleShiftsByLocation(event, filterDto);
         // Build location DTOs
         var scheduleLayoutDtos = shiftsByLocation.entrySet().stream()
             .map(entry -> buildScheduleLayoutDto(entry.getKey(), entry.getValue()))
             .toList();
 
-        var shiftsWithoutLocation = shiftDao.searchShiftsInShiftPlan(shiftPlanId,
+        var shiftsWithoutLocation = shiftDao.searchShiftsInEvent(eventId,
                 userProvider.getCurrentUser().getUserId(),
                 filterDto).stream()
             .filter(shift -> shift.getLocation() == null)
@@ -190,77 +114,13 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     @Override
     public EventScheduleContentDto getEventScheduleContent(long eventId, EventScheduleDaySearchDto searchDto) {
         var event = eventDao.getById(eventId);
-        var shiftPlans = event.getShiftPlans();
-
-        var contentDtosPerShiftPlan = shiftPlans.stream()
-            .map(shiftPlan -> getEventScheduleContentForSingleShiftPlan(shiftPlan.getId(), searchDto))
-            .toList();
-
-        // Combine content DTOs
-        var combinedScheduleContentDtos = contentDtosPerShiftPlan.stream()
-            .flatMap(dto -> dto.getScheduleContentDtos().stream())
-            .toList();
-
-        // remove duplicate locations and combine their activities and shift columns
-        Map<String, ScheduleContentDto> contentDtoByLocationId = new HashMap<>();
-        for (var contentDto : combinedScheduleContentDtos) {
-            var locationId = contentDto.getLocation().getId();
-            if (contentDtoByLocationId.containsKey(locationId)) {
-                var existingDto = contentDtoByLocationId.get(locationId);
-                // combine activities
-                var combinedActivities = new ArrayList<>(existingDto.getActivities());
-                for (var activity : contentDto.getActivities()) {
-                    if (!combinedActivities.contains(activity)) {
-                        combinedActivities.add(activity);
-                    }
-                }
-                // combine shift columns
-                var combinedShiftColumns = new ArrayList<>(existingDto.getShiftColumns());
-                for (var shiftColumn : contentDto.getShiftColumns()) {
-                    if (!combinedShiftColumns.contains(shiftColumn)) {
-                        combinedShiftColumns.add(shiftColumn);
-                    }
-                }
-                contentDtoByLocationId.put(locationId, ScheduleContentDto.builder()
-                    .location(existingDto.getLocation())
-                    .activities(combinedActivities)
-                    .shiftColumns(combinedShiftColumns)
-                    .build());
-            } else {
-                contentDtoByLocationId.put(locationId, contentDto);
-            }
-        }
-        var nonDuplicateCombinedScheduleContentDtos = contentDtoByLocationId.values().stream().toList();
-
-
-        var scheduleContentNoLocationDtos = contentDtosPerShiftPlan.stream()
-            .map(EventScheduleContentDto::getScheduleContentNoLocationDto)
-            .toList();
-        var combinedScheduleContentNoLocationDto = ScheduleContentNoLocationDto.builder()
-            .activities(scheduleContentNoLocationDtos.stream()
-                .flatMap(dto -> dto.getActivities().stream())
-                .distinct()
-                .toList())
-            .shiftColumns(scheduleContentNoLocationDtos.stream()
-                .flatMap(dto -> dto.getShiftColumns().stream())
-                .toList())
-            .build();
-
-        return EventScheduleContentDto.builder()
-            .date(searchDto != null ? searchDto.getDate() : null)
-            .scheduleContentDtos(nonDuplicateCombinedScheduleContentDtos)
-            .scheduleContentNoLocationDto(combinedScheduleContentNoLocationDto)
-            .build();
-    }
-
-    private EventScheduleContentDto getEventScheduleContentForSingleShiftPlan(long shiftPlanId, EventScheduleDaySearchDto searchDto) {
-        var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, searchDto);
+        var shiftsByLocation = getScheduleShiftsByLocation(event, searchDto);
         // Build location DTOs
         var scheduleContentDtos = shiftsByLocation.entrySet().stream()
             .map(entry -> buildScheduleContentDto(entry.getKey(), entry.getValue()))
             .toList();
 
-        var scheduleContentNoLocationDto = buildScheduleContentNoLocationDto(shiftPlanId, searchDto);
+        var scheduleContentNoLocationDto = buildScheduleContentNoLocationDto(event.getId(), searchDto);
 
         return EventScheduleContentDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
@@ -269,11 +129,12 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .build();
     }
 
-    private Map<Location, List<Shift>> getScheduleShiftsByLocation(long shiftPlanId, EventScheduleFilterDto filterDto) {
-        var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
+    private Map<Location, List<Shift>> getScheduleShiftsByLocation(Event event, EventScheduleFilterDto filterDto) {
+        long eventId = event.getId();
+        var userId = validateEventAccessAndGetUserId(eventId);
         // if param is ShiftPlanScheduleFilterDto filtering is done without date; date filtering is only done if param is ShiftPlanScheduleDaySearchDto instance
-        var filteredShiftsWithoutViewMode = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
-        var queriedShifts = getShiftsBasedOnViewModes(shiftPlanId, userId, filterDto, filteredShiftsWithoutViewMode);
+        var filteredShiftsWithoutViewMode = shiftDao.searchShiftsInEvent(eventId, userId, filterDto);
+        var queriedShifts = getShiftsBasedOnViewModes(eventId, userId, filterDto, filteredShiftsWithoutViewMode);
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
         for (var shift : queriedShifts) {
             if (shift.getLocation() == null) {
@@ -282,7 +143,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             shiftsByLocation.computeIfAbsent(shift.getLocation(), k -> new ArrayList<>()).add(shift);
         }
         // add all other locations of the event without shifts
-        var locations = shiftPlanDao.getById(shiftPlanId).getEvent().getLocations();
+        var locations = event.getLocations();
         for (var location : locations) {
             shiftsByLocation.putIfAbsent(location, new ArrayList<>());
         }
@@ -290,8 +151,8 @@ public class EventScheduleServiceImpl implements EventScheduleService {
         return shiftsByLocation;
     }
 
-    private String validateShiftPlanAccessAndGetUserId(long shiftPlanId) {
-        securityHelper.assertUserIsInPlan(shiftPlanId);
+    private String validateEventAccessAndGetUserId(long eventId) {
+        securityHelper.assertUserIsPlannerInAnyPlanOfEvent(String.valueOf(eventId));
         return userProvider.getCurrentUser().getUserId();
     }
 
@@ -327,23 +188,23 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     }
 
     private ScheduleContentNoLocationDto buildScheduleContentNoLocationDto(
-        long shiftPlanId,
+        long eventId,
         EventScheduleDaySearchDto searchDto) {
 
         // get activities without location
-        var activitiesWithoutLocation = activityDao.findAllWithoutLocationByShiftPlanId(shiftPlanId).stream()
+        var activitiesWithoutLocation = activityDao.findAllWithoutLocationByEventId(eventId).stream()
             .distinct()
             .map(ActivityMapper::toActivityDto)
             .toList();
 
         // get shifts without location
-        var shiftsWithoutLocation = shiftDao.searchShiftsInShiftPlan(shiftPlanId,
+        var shiftsWithoutLocation = shiftDao.searchShiftsInEvent(eventId,
                 userProvider.getCurrentUser().getUserId(),
                 searchDto).stream()
             .filter(shift -> shift.getLocation() == null)
             .toList();
 
-        var filteredShiftsWithoutLocation = getShiftsBasedOnViewModes(shiftPlanId,
+        var filteredShiftsWithoutLocation = getShiftsBasedOnViewModes(eventId,
             userProvider.getCurrentUser().getUserId(),
             searchDto,
             shiftsWithoutLocation);
@@ -357,7 +218,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     }
 
     private List<Shift> getShiftsBasedOnViewModes(
-        long shiftPlanId,
+        long eventId,
         String userId,
         EventScheduleFilterDto filterDto,
         List<Shift> filteredShiftsWithoutViewMode) {
@@ -367,7 +228,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             List<Shift> ownShifts = new ArrayList<>();
             List<Shift> signUpPossibleShifts = new ArrayList<>();
             if (filterDto.getShiftRelevances().contains(ShiftRelevance.MY_SHIFTS)) {
-                ownShifts = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlanId, userId);
+                ownShifts = shiftDao.searchUserRelatedShiftsInEvent(eventId, userId);
             }
             if (filterDto.getShiftRelevances().contains(ShiftRelevance.SIGNUP_POSSIBLE)) {
                 signUpPossibleShifts = new ArrayList<>(filteredShiftsWithoutViewMode);

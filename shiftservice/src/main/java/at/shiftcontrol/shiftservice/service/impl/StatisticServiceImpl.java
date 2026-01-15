@@ -5,10 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -16,8 +12,10 @@ import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +74,7 @@ public class StatisticServiceImpl implements StatisticService {
     public OwnStatisticsDto getOwnStatisticsOfShiftPlans(List<ShiftPlan> shiftPlans, String userId) {
         var userShiftsSet = new HashSet<Shift>();
         for (var shiftPlan : shiftPlans) {
-            var relevantShiftsOfPlan = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlan.getId(), userId);
+            var relevantShiftsOfPlan = shiftDao.searchUserRelatedShiftsInEvent(shiftPlan.getId(), userId);
             userShiftsSet.addAll(relevantShiftsOfPlan);
         }
 

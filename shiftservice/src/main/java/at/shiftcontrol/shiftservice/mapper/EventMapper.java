@@ -2,13 +2,10 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.List;
 
-import lombok.NoArgsConstructor;
-
-import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EventMapper {
@@ -36,13 +33,6 @@ public class EventMapper {
             .longDescription(modificationDto.getLongDescription())
             .startTime(modificationDto.getStartTime())
             .endTime(modificationDto.getEndTime())
-            .build();
-    }
-
-    public static EventScheduleDto toEventScheduleDto(Event event, List<Activity> activities) {
-        return EventScheduleDto.builder()
-            .event(toEventDto(event))
-            .activities(ActivityMapper.toActivityDto(activities))
             .build();
     }
 

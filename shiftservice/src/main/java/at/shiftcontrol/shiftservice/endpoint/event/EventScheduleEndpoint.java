@@ -1,11 +1,11 @@
 package at.shiftcontrol.shiftservice.endpoint.event;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.service.event.EventScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
