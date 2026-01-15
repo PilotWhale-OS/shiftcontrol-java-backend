@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.impl.event;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.entity.Activity;
+import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
@@ -17,6 +19,7 @@ import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.lib.type.ShiftRelevance;
 import at.shiftcontrol.lib.util.TimeUtil;
+import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
@@ -31,8 +34,14 @@ import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.service.event.EventScheduleService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class EventScheduleServiceImpl implements EventScheduleService {
+    private final EventDao eventDao;
+
     @Override
     public EventScheduleLayoutDto getEventScheduleLayout(long eventId, EventScheduleFilterDto filterDto) {
         var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, filterDto);
@@ -258,14 +267,32 @@ public class EventScheduleServiceImpl implements EventScheduleService {
 
     @Override
     public EventScheduleFilterValuesDto getEventScheduleFilterValues(long eventId) {
-        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
-        var shifts = shiftPlan.getShifts();
-        if (shifts == null || shifts.isEmpty()) {
+        var event = eventDao.getById(eventId);
+        var shiftPlans = event.getShiftPlans();
+        if (shiftPlans == null || shiftPlans.isEmpty()) {
             return EventScheduleFilterValuesDto.builder()
                 .locations(List.of())
                 .roles(List.of())
-                .firstDate(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getStartTime()))
-                .lastDate(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getEndTime()))
+                .firstDate(TimeUtil.convertToUtcLocalDate(event.getStartTime()))
+                .lastDate(TimeUtil.convertToUtcLocalDate(event.getEndTime()))
+                .build();
+        }
+
+        var allShifts = shiftPlans.stream()
+            .flatMap(shiftPlan -> shiftPlan.getShifts().stream())
+            .filter(Objects::nonNull)
+            .toList();
+
+        return getFilterValuesFromAllShifts(allShifts, event);
+    }
+
+    private EventScheduleFilterValuesDto getFilterValuesFromAllShifts(Collection<Shift> shifts, Event event) {
+        if (shifts.isEmpty()) {
+            return EventScheduleFilterValuesDto.builder()
+                .locations(List.of())
+                .roles(List.of())
+                .firstDate(TimeUtil.convertToUtcLocalDate(event.getStartTime()))
+                .lastDate(TimeUtil.convertToUtcLocalDate(event.getEndTime()))
                 .build();
         }
         var locations = shifts.stream()
@@ -290,7 +317,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .filter(Objects::nonNull)
             .min(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
-            .orElse(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getStartTime()));
+            .orElse(TimeUtil.convertToUtcLocalDate(event.getStartTime()));
         var lastDate = Stream.concat(
                 shifts.stream().map(Shift::getEndTime),
                 shifts.stream()
@@ -301,7 +328,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .filter(Objects::nonNull)
             .max(Instant::compareTo)
             .map(TimeUtil::convertToUtcLocalDate)
-            .orElse(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getEndTime()));
+            .orElse(TimeUtil.convertToUtcLocalDate(event.getEndTime()));
 
         return EventScheduleFilterValuesDto.builder()
             .locations(locations.isEmpty() ? List.of() : LocationMapper.toLocationDto(locations))

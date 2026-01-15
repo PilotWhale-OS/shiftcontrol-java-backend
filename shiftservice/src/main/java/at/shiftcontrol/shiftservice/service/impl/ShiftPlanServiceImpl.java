@@ -24,9 +24,7 @@ import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
-import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
@@ -41,12 +39,9 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.InviteMapper;
-import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
-import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
-import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -57,19 +52,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ShiftPlanServiceImpl implements ShiftPlanService {
-    private final StatisticService statisticService;
-    private final EligibilityService eligibilityService;
     private final AssignmentService assignmentService;
 
     private final EventDao eventDao;
     private final ShiftPlanDao shiftPlanDao;
     private final ShiftPlanInviteDao shiftPlanInviteDao;
-    private final ShiftDao shiftDao;
-    private final ActivityDao activityDao;
     private final RoleDao roleDao;
     private final VolunteerDao volunteerDao;
 
-    private final ShiftAssemblingMapper shiftMapper;
     private final SecurityHelper securityHelper;
     private final ApplicationUserProvider userProvider;
     private final ApplicationEventPublisher publisher;
@@ -157,7 +147,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto) {
         var currentUser = userProvider.getCurrentUser();
         validatePermission(shiftPlanId, requestDto.getType(), currentUser);
-        final var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+        final var shiftPlan = shiftPlanDao.getById(shiftPlanId);
         if (requestDto.getExpiresAt() != null && requestDto.getExpiresAt().isBefore(Instant.now())) {
             throw new BadRequestException("expiresAt must be in the future");
         }
@@ -255,7 +245,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(String inviteCode) {
         var userId = userProvider.getCurrentUser().getUserId();
         var invite = shiftPlanInviteDao.getByCode(inviteCode);
-        var shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
+        var shiftPlan = shiftPlanDao.getById(invite.getShiftPlan().getId());
 
         // volunteer not necessary to get invite details
         Volunteer volunteer = volunteerDao.findById(userId).orElse(null);
@@ -298,15 +288,11 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     public Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) {
         // both planners and admins can list invites
         securityHelper.assertUserIsPlanner(shiftPlanId);
-        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+        var shiftPlan = shiftPlanDao.getById(shiftPlanId);
         var invites = shiftPlanInviteDao.findAllByShiftPlanId(shiftPlanId);
         return invites.stream()
             .map(invite -> InviteMapper.toInviteDto(invite, shiftPlan))
             .toList();
-    }
-
-    private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) {
-        return shiftPlanDao.getById(shiftPlanId);
     }
 
     @Override
@@ -319,7 +305,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         String inviteCode = requestDto.getInviteCode().trim();
         ShiftPlanInvite invite = shiftPlanInviteDao.getByCode(inviteCode);
         validateInvite(invite);
-        ShiftPlan shiftPlan = getShiftPlanOrThrow(invite.getShiftPlan().getId());
+        ShiftPlan shiftPlan = shiftPlanDao.getById(invite.getShiftPlan().getId());
 
         // volunteer data might not yet exist
         Volunteer volunteer = volunteerDao.findById(userId).orElseGet(() -> {
@@ -409,7 +395,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) {
-        var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
+        var shiftPlan = shiftPlanDao.getById(shiftPlanId);
         if (shiftPlan.getLockStatus().equals(lockStatus)) {
             throw new BadRequestException("Lock status already in requested state");
         }
