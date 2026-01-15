@@ -18,15 +18,15 @@ import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.lib.type.ShiftRelevance;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutNoLocationDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
@@ -34,7 +34,7 @@ import at.shiftcontrol.shiftservice.service.event.EventScheduleService;
 
 public class EventScheduleServiceImpl implements EventScheduleService {
     @Override
-    public ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto) {
+    public EventScheduleLayoutDto getEventScheduleLayout(long eventId, EventScheduleFilterDto filterDto) {
         var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, filterDto);
         // Build location DTOs
         var scheduleLayoutDtos = shiftsByLocation.entrySet().stream()
@@ -49,7 +49,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
         var scheduleLayoutNoLocationDto = buildScheduleLayoutNoLocationDto(shiftsWithoutLocation);
 
         var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
-        return ShiftPlanScheduleLayoutDto.builder()
+        return EventScheduleLayoutDto.builder()
             .scheduleLayoutDtos(scheduleLayoutDtos)
             .scheduleLayoutNoLocationDto(scheduleLayoutNoLocationDto)
             .scheduleStatistics(stats)
@@ -86,7 +86,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     }
 
     @Override
-    public ShiftPlanScheduleContentDto getShiftPlanScheduleContent(long shiftPlanId, ShiftPlanScheduleDaySearchDto searchDto) {
+    public EventScheduleContentDto getEventScheduleContent(long eventId, EventScheduleDaySearchDto searchDto) {
         var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, searchDto);
         // Build location DTOs
         var scheduleContentDtos = shiftsByLocation.entrySet().stream()
@@ -95,14 +95,14 @@ public class EventScheduleServiceImpl implements EventScheduleService {
 
         var scheduleContentNoLocationDto = buildScheduleContentNoLocationDto(shiftPlanId, searchDto);
 
-        return ShiftPlanScheduleContentDto.builder()
+        return EventScheduleContentDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
             .scheduleContentDtos(scheduleContentDtos)
             .scheduleContentNoLocationDto(scheduleContentNoLocationDto)
             .build();
     }
 
-    private Map<Location, List<Shift>> getScheduleShiftsByLocation(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto) {
+    private Map<Location, List<Shift>> getScheduleShiftsByLocation(long shiftPlanId, EventScheduleFilterDto filterDto) {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         // if param is ShiftPlanScheduleFilterDto filtering is done without date; date filtering is only done if param is ShiftPlanScheduleDaySearchDto instance
         var filteredShiftsWithoutViewMode = shiftDao.searchShiftsInShiftPlan(shiftPlanId, userId, filterDto);
@@ -161,7 +161,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
 
     private ScheduleContentNoLocationDto buildScheduleContentNoLocationDto(
         long shiftPlanId,
-        ShiftPlanScheduleDaySearchDto searchDto) {
+        EventScheduleDaySearchDto searchDto) {
 
         // get activities without location
         var activitiesWithoutLocation = activityDao.findAllWithoutLocationByShiftPlanId(shiftPlanId).stream()
@@ -192,7 +192,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     private List<Shift> getShiftsBasedOnViewModes(
         long shiftPlanId,
         String userId,
-        ShiftPlanScheduleFilterDto filterDto,
+        EventScheduleFilterDto filterDto,
         List<Shift> filteredShiftsWithoutViewMode) {
         if (filterDto != null
             && filterDto.getShiftRelevances() != null
@@ -257,11 +257,11 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     }
 
     @Override
-    public ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId) {
+    public EventScheduleFilterValuesDto getEventScheduleFilterValues(long eventId) {
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var shifts = shiftPlan.getShifts();
         if (shifts == null || shifts.isEmpty()) {
-            return ShiftPlanScheduleFilterValuesDto.builder()
+            return EventScheduleFilterValuesDto.builder()
                 .locations(List.of())
                 .roles(List.of())
                 .firstDate(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getStartTime()))
@@ -303,7 +303,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .map(TimeUtil::convertToUtcLocalDate)
             .orElse(TimeUtil.convertToUtcLocalDate(shiftPlan.getEvent().getEndTime()));
 
-        return ShiftPlanScheduleFilterValuesDto.builder()
+        return EventScheduleFilterValuesDto.builder()
             .locations(locations.isEmpty() ? List.of() : LocationMapper.toLocationDto(locations))
             .roles(roles.isEmpty() ? List.of() : RoleMapper.toRoleDto(roles))
             .firstDate(firstDate)

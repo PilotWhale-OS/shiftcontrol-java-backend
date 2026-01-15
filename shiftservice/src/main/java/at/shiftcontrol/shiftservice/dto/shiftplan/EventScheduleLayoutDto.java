@@ -1,6 +1,5 @@
 package at.shiftcontrol.shiftservice.dto.shiftplan;
 
-import java.time.LocalDate;
 import java.util.Collection;
 
 import jakarta.validation.Valid;
@@ -10,15 +9,16 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ShiftPlanScheduleContentDto {
+public class EventScheduleLayoutDto {
     @NotNull
-    private LocalDate date;
+    @Valid
+    private Collection<ScheduleLayoutDto> scheduleLayoutDtos;
 
     @NotNull
     @Valid
-    private Collection<ScheduleContentDto> scheduleContentDtos;
+    private ScheduleLayoutNoLocationDto scheduleLayoutNoLocationDto;
 
     @NotNull
     @Valid
-    private ScheduleContentNoLocationDto scheduleContentNoLocationDto;
+    private ScheduleStatisticsDto scheduleStatistics;
 }

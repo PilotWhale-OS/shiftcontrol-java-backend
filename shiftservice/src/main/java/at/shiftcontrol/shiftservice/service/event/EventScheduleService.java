@@ -1,16 +1,15 @@
 package at.shiftcontrol.shiftservice.service.event;
 
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleContentDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterValuesDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleLayoutDto;
 
 public interface EventScheduleService {
-    ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto);
+    EventScheduleLayoutDto getEventScheduleLayout(long eventId, EventScheduleFilterDto filterDto);
 
-    ShiftPlanScheduleContentDto getShiftPlanScheduleContent(long shiftPlanId, ShiftPlanScheduleDaySearchDto searchDto)
-        ;
+    EventScheduleContentDto getEventScheduleContent(long eventId, EventScheduleDaySearchDto searchDto);
 
-    ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId);
+    EventScheduleFilterValuesDto getEventScheduleFilterValues(long eventId);
 }

@@ -3,14 +3,12 @@ package at.shiftcontrol.shiftservice.dao.impl.specification;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
-import org.springframework.data.jpa.domain.Specification;
-
-import jakarta.persistence.criteria.JoinType;
-
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.util.TimeUtil;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleFilterDto;
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class ShiftSpecifications {
     private ShiftSpecifications() {
@@ -35,7 +33,7 @@ public final class ShiftSpecifications {
         };
     }
 
-    public static Specification<Shift> matchesSearchDto(ShiftPlanScheduleFilterDto filterDto) {
+    public static Specification<Shift> matchesSearchDto(EventScheduleFilterDto filterDto) {
         return (root, query, criteriaBuilder) -> {
             if (filterDto == null) {
                 return criteriaBuilder.conjunction();
@@ -44,7 +42,7 @@ public final class ShiftSpecifications {
             var predicates = criteriaBuilder.conjunction();
 
             // date filter (LocalDate -> Instant range)
-            if (filterDto instanceof ShiftPlanScheduleDaySearchDto daySearchDto && daySearchDto.getDate() != null) {
+            if (filterDto instanceof EventScheduleDaySearchDto daySearchDto && daySearchDto.getDate() != null) {
                 Instant dayStart = TimeUtil.convertToStartOfUtcDayInstant(daySearchDto.getDate());
                 Instant nextDayStart = daySearchDto.getDate().plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
 
