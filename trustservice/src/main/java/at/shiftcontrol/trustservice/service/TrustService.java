@@ -1,5 +1,7 @@
 package at.shiftcontrol.trustservice.service;
 
+import java.time.Instant;
+
 import org.springframework.stereotype.Service;
 
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
@@ -21,16 +23,18 @@ public class TrustService {
     public void handlePositionSlotJoined(PositionSlotVolunteerEvent event) {
         String userId = event.getVolunteerId();
         String slotId = String.valueOf(event.getPositionSlot().getPositionSlotId());
-        redisService.addSignUp(userId, slotId);
-        checkSpam(userId, slotId);
-        checkOverload(userId);
+        Instant timestamp = event.getTimestamp();
+        redisService.addSignUp(userId, slotId, timestamp);
+        checkSpam(userId, slotId, timestamp);
+        checkOverload(userId, timestamp);
     }
 
     public void handlePositionSlotLeft(PositionSlotVolunteerEvent event) {
         String userId = event.getVolunteerId();
         String slotId = String.valueOf(event.getPositionSlot().getPositionSlotId());
-        redisService.removeSignUp(userId, slotId);
-        checkSpam(userId, slotId);
+        Instant timestamp = event.getTimestamp();
+        redisService.removeSignUp(userId, slotId, timestamp);
+        checkSpam(userId, slotId, timestamp);
     }
 
     public void handleTradeRequestCreated(TradeEvent event) {
@@ -89,8 +93,9 @@ public class TrustService {
     public void handlePositionSlotRequestLeave(PositionSlotVolunteerEvent event) {
         String userId = event.getVolunteerId();
         String slotId = String.valueOf(event.getPositionSlot().getPositionSlotId());
-        redisService.addSignUp(userId, slotId);
-        checkSpam(userId, slotId);
+        Instant timestamp = event.getTimestamp();
+        redisService.addSignUp(userId, slotId, timestamp);
+        checkSpam(userId, slotId, timestamp);
         redisService.addAuction(userId, slotId);
         checkAuction(userId);
     }
@@ -98,9 +103,10 @@ public class TrustService {
     public void handlePositionSlotRequestLeaveWithdraw(PositionSlotVolunteerEvent event) {
         String userId = event.getVolunteerId();
         String slotId = String.valueOf(event.getPositionSlot().getPositionSlotId());
+        Instant timestamp = event.getTimestamp();
         redisService.removeAuction(userId, slotId);
-        redisService.removeSignUp(userId, slotId);
-        checkSpam(userId, slotId);
+        redisService.removeSignUp(userId, slotId, timestamp);
+        checkSpam(userId, slotId, timestamp);
     }
 
     public void handlePositionSlotRequestLeaveAccepted(PositionSlotVolunteerEvent event) {
@@ -119,15 +125,15 @@ public class TrustService {
     // CHECKS FOR ALERTS
     // ============================================
 
-    private void checkSpam(String userId, String slot) {
-        if (redisService.hasTooManySignupsAndOffs(userId, slot)) {
+    private void checkSpam(String userId, String slot, Instant timestamp) {
+        if (redisService.hasTooManySignupsAndOffs(userId, slot, timestamp)) {
             alertService.sendAlert(TrustAlertType.SPAM, userId);
             redisService.resetSpam(userId, slot);
         }
     }
 
-    private void checkOverload(String userId) {
-        if (redisService.hasTooManySignups(userId)) {
+    private void checkOverload(String userId, Instant timestamp) {
+        if (redisService.hasTooManySignups(userId, timestamp)) {
             alertService.sendAlert(TrustAlertType.OVERLOAD, userId);
             redisService.resetOverload(userId);
         }
