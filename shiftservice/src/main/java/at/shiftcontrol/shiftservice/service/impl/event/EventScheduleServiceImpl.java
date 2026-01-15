@@ -75,6 +75,21 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .flatMap(dto -> dto.getScheduleLayoutDtos().stream())
             .toList();
 
+        // remove duplicate locations and take max requiredShiftColumns per location
+        Map<String, ScheduleLayoutDto> layoutDtoByLocationId = new HashMap<>();
+        for (var layoutDto : combinedScheduleLayoutDtos) {
+            var locationId = layoutDto.getLocation().getId();
+            if (layoutDtoByLocationId.containsKey(locationId)) {
+                var existingDto = layoutDtoByLocationId.get(locationId);
+                if (layoutDto.getRequiredShiftColumns() > existingDto.getRequiredShiftColumns()) {
+                    layoutDtoByLocationId.put(locationId, layoutDto);
+                }
+            } else {
+                layoutDtoByLocationId.put(locationId, layoutDto);
+            }
+        }
+        var nonDuplicateCombinedScheduleLayoutDtos = layoutDtoByLocationId.values().stream().toList();
+
         var combinedScheduleLayoutNoLocationDto = ScheduleLayoutNoLocationDto.builder()
             .requiredShiftColumns(layoutDtosPerShiftPlan.stream()
                 .mapToInt(dto -> dto.getScheduleLayoutNoLocationDto().getRequiredShiftColumns())
@@ -98,7 +113,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .build();
 
         return EventScheduleLayoutDto.builder()
-            .scheduleLayoutDtos(combinedScheduleLayoutDtos)
+            .scheduleLayoutDtos(nonDuplicateCombinedScheduleLayoutDtos)
             .scheduleLayoutNoLocationDto(combinedScheduleLayoutNoLocationDto)
             .scheduleStatistics(combinedStatistics)
             .build();
@@ -186,6 +201,38 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .flatMap(dto -> dto.getScheduleContentDtos().stream())
             .toList();
 
+        // remove duplicate locations and combine their activities and shift columns
+        Map<String, ScheduleContentDto> contentDtoByLocationId = new HashMap<>();
+        for (var contentDto : combinedScheduleContentDtos) {
+            var locationId = contentDto.getLocation().getId();
+            if (contentDtoByLocationId.containsKey(locationId)) {
+                var existingDto = contentDtoByLocationId.get(locationId);
+                // combine activities
+                var combinedActivities = new ArrayList<>(existingDto.getActivities());
+                for (var activity : contentDto.getActivities()) {
+                    if (!combinedActivities.contains(activity)) {
+                        combinedActivities.add(activity);
+                    }
+                }
+                // combine shift columns
+                var combinedShiftColumns = new ArrayList<>(existingDto.getShiftColumns());
+                for (var shiftColumn : contentDto.getShiftColumns()) {
+                    if (!combinedShiftColumns.contains(shiftColumn)) {
+                        combinedShiftColumns.add(shiftColumn);
+                    }
+                }
+                contentDtoByLocationId.put(locationId, ScheduleContentDto.builder()
+                    .location(existingDto.getLocation())
+                    .activities(combinedActivities)
+                    .shiftColumns(combinedShiftColumns)
+                    .build());
+            } else {
+                contentDtoByLocationId.put(locationId, contentDto);
+            }
+        }
+        var nonDuplicateCombinedScheduleContentDtos = contentDtoByLocationId.values().stream().toList();
+
+
         var scheduleContentNoLocationDtos = contentDtosPerShiftPlan.stream()
             .map(EventScheduleContentDto::getScheduleContentNoLocationDto)
             .toList();
@@ -201,7 +248,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
 
         return EventScheduleContentDto.builder()
             .date(searchDto != null ? searchDto.getDate() : null)
-            .scheduleContentDtos(combinedScheduleContentDtos)
+            .scheduleContentDtos(nonDuplicateCombinedScheduleContentDtos)
             .scheduleContentNoLocationDto(combinedScheduleContentNoLocationDto)
             .build();
     }

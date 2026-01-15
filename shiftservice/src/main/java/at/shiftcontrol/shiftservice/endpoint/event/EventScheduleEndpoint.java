@@ -29,7 +29,7 @@ public class EventScheduleEndpoint {
         operationId = "getEventScheduleLayout",
         description = "Get (volunteer related) schedule layout data for a specific event"
     )
-    public EventScheduleLayoutDto getShiftPlanScheduleLayout(@PathVariable String eventId, @Valid EventScheduleFilterDto filterDto) {
+    public EventScheduleLayoutDto getEventScheduleLayout(@PathVariable String eventId, @Valid EventScheduleFilterDto filterDto) {
         return eventScheduleService.getEventScheduleLayout(ConvertUtil.idToLong(eventId), filterDto);
     }
 
@@ -38,8 +38,8 @@ public class EventScheduleEndpoint {
         operationId = "getEventScheduleContent",
         description = "Get (volunteer related) schedule content data for a specific day of a specific event"
     )
-    public EventScheduleContentDto getShiftPlanScheduleContent(@PathVariable String eventId,
-                                                               @Valid EventScheduleDaySearchDto eventScheduleDaySearchDto) {
+    public EventScheduleContentDto getEventScheduleContent(@PathVariable String eventId,
+                                                           @Valid EventScheduleDaySearchDto eventScheduleDaySearchDto) {
         return eventScheduleService.getEventScheduleContent(ConvertUtil.idToLong(eventId), eventScheduleDaySearchDto);
     }
 
@@ -48,7 +48,7 @@ public class EventScheduleEndpoint {
         operationId = "getEventScheduleFilterValues",
         description = "Get available filter values for the schedule of a specific event"
     )
-    public EventScheduleFilterValuesDto getShiftPlanScheduleFilterValues(@PathVariable String eventId) {
+    public EventScheduleFilterValuesDto getEventScheduleFilterValues(@PathVariable String eventId) {
         return eventScheduleService.getEventScheduleFilterValues(ConvertUtil.idToLong(eventId));
     }
 }
