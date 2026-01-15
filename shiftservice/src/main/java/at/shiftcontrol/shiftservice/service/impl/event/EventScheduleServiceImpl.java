@@ -19,7 +19,10 @@ import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.lib.type.ShiftRelevance;
 import at.shiftcontrol.lib.util.TimeUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
+import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.EventScheduleDaySearchDto;
@@ -30,10 +33,13 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleContentNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleLayoutNoLocationDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
+import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventScheduleService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +47,73 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EventScheduleServiceImpl implements EventScheduleService {
     private final EventDao eventDao;
+    private final ShiftPlanDao shiftPlanDao;
+    private final ShiftDao shiftDao;
+    private final SecurityHelper securityHelper;
+    private final StatisticService statisticService;
+    private final ApplicationUserProvider userProvider;
 
     @Override
     public EventScheduleLayoutDto getEventScheduleLayout(long eventId, EventScheduleFilterDto filterDto) {
+        var event = eventDao.getById(eventId);
+        var shiftPlans = event.getShiftPlans();
+
+        var layoutDtosPerShiftPlan = shiftPlans.stream()
+            .map(shiftPlan -> getEventScheduleLayoutForSingleShiftPlan(shiftPlan.getId(), filterDto))
+            .toList();
+
+        // Combine layout DTOs
+        var combinedScheduleLayoutDtos = layoutDtosPerShiftPlan.stream()
+            .flatMap(dto -> dto.getScheduleLayoutDtos().stream())
+            .toList();
+
+        var combinedScheduleLayoutNoLocationDto = ScheduleLayoutNoLocationDto.builder()
+            .requiredShiftColumns(layoutDtosPerShiftPlan.stream()
+                .mapToInt(dto -> dto.getScheduleLayoutNoLocationDto().getRequiredShiftColumns())
+                .max()
+                .orElse(0))
+            .build();
+
+        var scheduleStatisticsDtos = layoutDtosPerShiftPlan.stream()
+            .map(EventScheduleLayoutDto::getScheduleStatistics)
+            .toList();
+        var combinedStatistics = ScheduleStatisticsDto.builder()
+            .totalShifts(scheduleStatisticsDtos.stream()
+                .mapToInt(ScheduleStatisticsDto::getTotalShifts)
+                .sum())
+            .totalHours(scheduleStatisticsDtos.stream()
+                .mapToDouble(ScheduleStatisticsDto::getTotalHours)
+                .sum())
+            .unassignedCount(scheduleStatisticsDtos.stream()
+                .mapToInt(ScheduleStatisticsDto::getUnassignedCount)
+                .sum())
+            .build();
+
+        return EventScheduleLayoutDto.builder()
+            .scheduleLayoutDtos(combinedScheduleLayoutDtos)
+            .scheduleLayoutNoLocationDto(combinedScheduleLayoutNoLocationDto)
+            .scheduleStatistics(combinedStatistics)
+            .build();
+    }
+
+    public EventScheduleLayoutDto getEventScheduleLayoutForSingleShiftPlan(long shiftPlanId, EventScheduleFilterDto filterDto) {
+        if (filterDto.getShiftPlanIds() != null && !filterDto.getShiftPlanIds().isEmpty()
+            && !filterDto.getShiftPlanIds().contains(String.valueOf(shiftPlanId))) {
+            // skip this shift plan
+            return EventScheduleLayoutDto.builder()
+                .scheduleLayoutDtos(List.of())
+                .scheduleLayoutNoLocationDto(ScheduleLayoutNoLocationDto.builder()
+                    .requiredShiftColumns(0)
+                    .build())
+                .scheduleStatistics(ScheduleStatisticsDto.builder()
+                    .totalShifts(0)
+                    .totalHours(0)
+                    .unassignedCount(0)
+                    .build())
+                .build();
+        }
+
+
         var shiftsByLocation = getScheduleShiftsByLocation(shiftPlanId, filterDto);
         // Build location DTOs
         var scheduleLayoutDtos = shiftsByLocation.entrySet().stream()

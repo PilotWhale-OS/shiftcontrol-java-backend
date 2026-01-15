@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class EventScheduleFilterDto {
+    private Collection<String> shiftPlanIds;
     private String shiftName;
     private Collection<ShiftRelevance> shiftRelevances;
     private Collection<String> roleIds;
