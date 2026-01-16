@@ -138,9 +138,20 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @AdminOnly
     public void delete(long shiftPlanId) {
         var shiftPlan = shiftPlanDao.getById(shiftPlanId);
+
+        var invites = shiftPlanInviteDao.findAllByShiftPlanId(shiftPlanId);
+        for (var invite : invites) {
+            var inviteEvent = ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
+                Map.of("shiftPlanId", String.valueOf(shiftPlanId),
+                    "inviteId", String.valueOf(invite.getId()))), invite);
+            shiftPlanInviteDao.delete(invite);
+            publisher.publishEvent(inviteEvent);
+        }
+
+        var shiftPlanEvent = ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_DELETED,
+            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan);
         shiftPlanDao.delete(shiftPlan);
-        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_DELETED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
+        publisher.publishEvent(shiftPlanEvent);
     }
 
     @Override
