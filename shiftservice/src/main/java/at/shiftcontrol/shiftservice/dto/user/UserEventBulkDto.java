@@ -1,8 +1,7 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.shiftservice.dto.user;
 
 import java.util.Collection;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,17 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public  class PaginationDto<T> {
+public class UserEventBulkDto {
     @NotNull
-    private int pages;
+    private Collection<String> plans;
 
     @NotNull
-    private int page;
-
-    @NotNull
-    private int total;
-
-    @NotNull
-    @Valid
-    private Collection<T> items;
+    private Collection<String> volunteers;
 }

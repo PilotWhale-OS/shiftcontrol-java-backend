@@ -1,19 +1,29 @@
 package at.shiftcontrol.shiftservice.endpoint.user;
 
+import java.util.Collection;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.shiftservice.dto.PaginationDto;
+import at.shiftcontrol.shiftservice.dto.user.UserEventBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 
+@Tag(
+    name = "user-event-endpoint"
+)
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -26,9 +36,25 @@ public class AdminUserAdministrationCollectionEndpoint {
         operationId = "getAllUsers",
         description = "Find all users."
     )
-    public PaginationDto<UserEventDto> getAllUsers(@RequestParam long page, @RequestParam long size) {
+    public PaginationDto<UserEventDto> getAllUsers(@RequestParam int page, @RequestParam int size) {
         return service.getAllUsers(page, size);
     }
 
-    //todo add bulk endpoint
+    @PatchMapping("/bulk/add")
+    @Operation(
+        operationId = "lockUseeInPlan",
+        description = "Lock a user in a given plan"
+    )
+    public Collection<UserEventDto> bulkAddVolunteeringPlans(@RequestBody @Valid UserEventBulkDto updateDto) {
+        return service.bulkAddVolunteeringPlans(updateDto);
+    }
+
+    @PatchMapping("/bulk/remove")
+    @Operation(
+        operationId = "lockUseeInPlan",
+        description = "Lock a user in a given plan"
+    )
+    public Collection<UserEventDto> bulkRemoveVolunteeringPlans(@RequestBody @Valid UserEventBulkDto updateDto) {
+        return service.bulkRemoveVolunteeringPlans(updateDto);
+    }
 }

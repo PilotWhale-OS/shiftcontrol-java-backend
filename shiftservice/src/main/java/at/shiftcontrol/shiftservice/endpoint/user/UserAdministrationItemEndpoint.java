@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,9 @@ import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 
+@Tag(
+    name = "user-plan-endpoint"
+)
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/shift-plans/{shiftPlanId}/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -5,6 +5,7 @@ import java.util.Collection;
 import jakarta.validation.Valid;
 
 import at.shiftcontrol.shiftservice.dto.PaginationDto;
+import at.shiftcontrol.shiftservice.dto.user.UserEventBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
@@ -12,9 +13,9 @@ import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
 
 public interface UserAdministrationService {
-    PaginationDto<UserEventDto> getAllUsers(long page, long size);
+    PaginationDto<UserEventDto> getAllUsers(int page, int size);
 
-    PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, long page, long size);
+    PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size);
 
     UserEventDto getUser(String userId);
 
@@ -31,4 +32,8 @@ public interface UserAdministrationService {
     Collection<UserPlanDto> bulkAddRoles(long shiftPlanId, @Valid UserPlanBulkDto updateDto);
 
     Collection<UserPlanDto> bulkRemoveRoles(long shiftPlanId, @Valid UserPlanBulkDto updateDto);
+
+    Collection<UserEventDto> bulkAddVolunteeringPlans(@Valid UserEventBulkDto updateDto);
+
+    Collection<UserEventDto> bulkRemoveVolunteeringPlans(@Valid UserEventBulkDto updateDto);
 }

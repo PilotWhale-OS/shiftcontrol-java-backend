@@ -8,14 +8,14 @@ import at.shiftcontrol.shiftservice.dto.PaginationDto;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class PaginationMapper {
-    public static <T> PaginationDto<T> toPaginationDto(long pageSize, long page, long total, Collection<T> items) {
-        long pages = pageSize == 0
+    public static <T> PaginationDto<T> toPaginationDto(int pageSize, int page, long total, Collection<T> items) {
+        int pages = pageSize == 0
             ? 0
-            : (total + pageSize - 1) / pageSize;
+            : ((int) total + pageSize - 1) / pageSize;
         return PaginationDto.<T>builder()
             .pages(pages)
             .page(page)
-            .total(total)
+            .total((int) total)
             .items(items)
             .build();
     }

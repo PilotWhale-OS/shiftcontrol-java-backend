@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,9 @@ import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 
+@Tag(
+    name = "user-plan-endpoint"
+)
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/shift-plans/{shiftPlanId}/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -34,7 +38,7 @@ public class UserAdministrationCollectionEndpoint {
         operationId = "getAllUsers",
         description = "Find all users."
     )
-    public PaginationDto<UserPlanDto> getAllUsers(@PathVariable String shiftPlanId, @RequestParam long page, @RequestParam long size) {
+    public PaginationDto<UserPlanDto> getAllUsers(@PathVariable String shiftPlanId, @RequestParam int page, @RequestParam int size) {
         return service.getAllPlanUsers(ConvertUtil.idToLong(shiftPlanId), page, size);
     }
 
