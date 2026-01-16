@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint.user;
 
-import java.util.Collection;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 
@@ -27,7 +26,7 @@ public class AdminUserAdministrationCollectionEndpoint {
         operationId = "getAllUsers",
         description = "Find all users."
     )
-    public Collection<UserEventDto> getAllUsers(@RequestParam long page, @RequestParam long size) {
+    public PaginationDto<UserEventDto> getAllUsers(@RequestParam long page, @RequestParam long size) {
         return service.getAllUsers(page, size);
     }
 

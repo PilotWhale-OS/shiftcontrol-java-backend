@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -21,10 +23,13 @@ import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
+import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
+import at.shiftcontrol.shiftservice.mapper.PaginationMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -42,17 +47,18 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
     @Override
     @AdminOnly
-    public Collection<UserEventDto> getAllUsers(long page, long size) {
+    public PaginationDto<UserEventDto> getAllUsers(long page, long size) {
         var volunteers = volunteerDao.findAll(page, size);
         var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
-        return UserAssemblingMapper.toUserEventDto(volunteers, users);
+        var totalSize = volunteerDao.findAllSize();
+        return PaginationMapper.toPaginationDto(size, page, totalSize, UserAssemblingMapper.toUserEventDto(volunteers, users));
     }
 
     @Override
-    public Collection<UserPlanDto> getAllPlanUsers(Long shiftPlanId, long page, long size) {
+    public PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, long page, long size) {
         var volunteers = volunteerDao.findAll(page, size);
-        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
-        return UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId);
+        var totalSize = volunteerDao.findAllSize();
+        return PaginationMapper.toPaginationDto(size, page, totalSize, getUserPlanDtos(shiftPlanId, volunteers));
     }
 
     @Override
@@ -134,6 +140,37 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
         userAttributeProvider.invalidateUserCache(userId);
         return userAssemblingMapper.toUserEventDto(volunteer);
+    }
+
+    @Override
+    public Collection<UserPlanDto> bulkAddRoles(long shiftPlanId, UserPlanBulkDto updateDto) {
+        var volunteers = volunteerDao.findAllByVolunteerIds(updateDto.getVolunteers());
+        var roles = roleDao.findAllById(updateDto.getRoles().stream().map(ConvertUtil::idToLong).toList());
+        for (Volunteer v : volunteers) {
+            for (Role role : roles) {
+                if (!v.getRoles().contains(role)) {
+                    v.getRoles().add(role);
+                }
+            }
+        }
+        return getUserPlanDtos(shiftPlanId, volunteers);
+    }
+
+    @Override
+    public Collection<UserPlanDto> bulkRemoveRoles(long shiftPlanId, UserPlanBulkDto updateDto) {
+        var volunteers = volunteerDao.findAllByVolunteerIds(updateDto.getVolunteers());
+        var roles = roleDao.findAllById(updateDto.getRoles().stream().map(ConvertUtil::idToLong).toList());
+        for (Volunteer v : volunteers) {
+            v.getRoles().removeAll(roles);
+        }
+
+        return getUserPlanDtos(shiftPlanId, volunteers);
+    }
+
+    private @NonNull Collection<UserPlanDto> getUserPlanDtos(long shiftPlanId, Collection<Volunteer> volunteers) {
+        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
+        userAttributeProvider.invalidateUserCaches(users.stream().map(UserRepresentation::getId).toList());
+        return UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId);
     }
 
     private void addPlans(Volunteer volunteer, Set<Long> volunteerToAdd, Set<Long> planningToAdd) {

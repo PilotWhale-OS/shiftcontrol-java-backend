@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.auth;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +40,11 @@ public class UserAttributeProviderImpl implements UserAttributeProvider {
     @Override
     public void invalidateUserCache(String userId) {
         attributesCache.invalidate(userId);
+    }
+
+    @Override
+    public void invalidateUserCaches(Collection<String> userId) {
+        attributesCache.invalidateAll(userId);
     }
 
     @Override

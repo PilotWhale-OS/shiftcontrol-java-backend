@@ -4,16 +4,21 @@ import java.util.Collection;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.PaginationDto;
+import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 
@@ -29,9 +34,29 @@ public class UserAdministrationCollectionEndpoint {
         operationId = "getAllUsers",
         description = "Find all users."
     )
-    public Collection<UserPlanDto> getAllUsers(@PathVariable String shiftPlanId, @RequestParam long page, @RequestParam long size) {
+    public PaginationDto<UserPlanDto> getAllUsers(@PathVariable String shiftPlanId, @RequestParam long page, @RequestParam long size) {
         return service.getAllPlanUsers(ConvertUtil.idToLong(shiftPlanId), page, size);
     }
 
-    //todo add bulk endpoint
+    @PatchMapping("/bulk/add")
+    @Operation(
+        operationId = "lockUseeInPlan",
+        description = "Lock a user in a given plan"
+    )
+    public Collection<UserPlanDto> bulkAddRoles(
+        @PathVariable String shiftPlanId,
+        @RequestBody @Valid UserPlanBulkDto updateDto) {
+        return service.bulkAddRoles(ConvertUtil.idToLong(shiftPlanId), updateDto);
+    }
+
+    @PatchMapping("/bulk/remove")
+    @Operation(
+        operationId = "lockUseeInPlan",
+        description = "Lock a user in a given plan"
+    )
+    public Collection<UserPlanDto> bulkRemoveRoles(
+        @PathVariable String shiftPlanId,
+        @RequestBody @Valid UserPlanBulkDto updateDto) {
+        return service.bulkRemoveRoles(ConvertUtil.idToLong(shiftPlanId), updateDto);
+    }
 }
