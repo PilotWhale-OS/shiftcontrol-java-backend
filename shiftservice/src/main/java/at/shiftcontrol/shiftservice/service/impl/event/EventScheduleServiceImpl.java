@@ -131,7 +131,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
 
     private Map<Location, List<Shift>> getScheduleShiftsByLocation(Event event, EventScheduleFilterDto filterDto) {
         long eventId = event.getId();
-        var userId = validateEventAccessAndGetUserId(eventId);
+        var userId = validateEventAccessAndGetUserId(event);
         // if param is ShiftPlanScheduleFilterDto filtering is done without date; date filtering is only done if param is ShiftPlanScheduleDaySearchDto instance
         var filteredShiftsWithoutViewMode = shiftDao.searchShiftsInEvent(eventId, userId, filterDto);
         var queriedShifts = getShiftsBasedOnViewModes(eventId, userId, filterDto, filteredShiftsWithoutViewMode);
@@ -151,8 +151,8 @@ public class EventScheduleServiceImpl implements EventScheduleService {
         return shiftsByLocation;
     }
 
-    private String validateEventAccessAndGetUserId(long eventId) {
-        securityHelper.assertUserIsPlannerInAnyPlanOfEvent(String.valueOf(eventId));
+    private String validateEventAccessAndGetUserId(Event event) {
+        securityHelper.assertUserIsAllowedToAccessEvent(event);
         return userProvider.getCurrentUser().getUserId();
     }
 
