@@ -26,8 +26,9 @@ public class ShiftDetailsDto {
     @Valid
     private ShiftPlanDto shiftPlan;
 
-    @NotNull
-    @Valid
+    /* TODO NOT IN USE */
+    /*@NotNull
+    @Valid*/
     private PositionSlotPreferenceDto preference;
     // TODO additional info needed for trade/auction?
 }
