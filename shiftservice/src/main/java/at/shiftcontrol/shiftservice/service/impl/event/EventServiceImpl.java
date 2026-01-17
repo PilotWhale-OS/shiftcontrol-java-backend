@@ -1,13 +1,18 @@
 package at.shiftcontrol.shiftservice.service.impl.event;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
@@ -24,6 +29,7 @@ import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
@@ -36,7 +42,10 @@ import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
@@ -54,6 +63,7 @@ public class EventServiceImpl implements EventService {
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
+    private final KeycloakUserService keycloakUserService;
 
     // TODO delete unused fields
     private final AssignmentDao assignmentDao;
@@ -96,6 +106,67 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) {
         return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId));
+    }
+
+    @Override
+    public Collection<ShiftPlanContactInfoDto> getPlannerContactInfo(long eventId, String userId) {
+        // check access
+        var event = eventDao.getById(eventId);
+        securityHelper.assertUserIsAllowedToAccessEvent(event);
+
+        // get planner IDs of users plans
+        Collection<PlanVolunteerIdRow> rows = eventDao.getPlannersForEventAndUser(eventId, userId);
+
+        // get all planners from keycloak
+        Set<String> allPlannerIds =
+            rows.stream()
+                .map(PlanVolunteerIdRow::getVolunteerId)
+                .collect(Collectors.toSet());
+        Collection<UserRepresentation> planners = keycloakUserService.getUserByIds(allPlannerIds);
+
+        // create maps to lookup userIds per plan, planNames and planner-userRepresentations
+        Map<Long, List<String>> volunteerIdsByPlan =
+            rows.stream()
+                .collect(Collectors.groupingBy(
+                    PlanVolunteerIdRow::getPlanId,
+                    LinkedHashMap::new,
+                    Collectors.mapping(
+                        PlanVolunteerIdRow::getVolunteerId,
+                        Collectors.toList()
+                    )
+                ));
+        Map<Long, String> planNames =
+            rows.stream()
+                .collect(Collectors.toMap(
+                    PlanVolunteerIdRow::getPlanId,
+                    PlanVolunteerIdRow::getPlanName,
+                    (a, b) -> a
+                ));
+        Map<String, ContactInfoDto> contactInfoById =
+            planners.stream()
+                .collect(Collectors.toMap(
+                    UserRepresentation::getId,
+                    user -> new ContactInfoDto(
+                        user.getId(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getEmail()
+                    )
+                ));
+
+        // create result
+        return volunteerIdsByPlan.entrySet().stream()
+                .map(entry -> {
+                    Long planId = entry.getKey();
+                    String planName = planNames.get(planId);
+                    List<ContactInfoDto> contacts =
+                        entry.getValue().stream()
+                            .map(contactInfoById::get)
+                            .toList();
+
+                    return new ShiftPlanContactInfoDto(String.valueOf(planId), planName, contacts);
+                })
+                .toList();
     }
 
     @Override
