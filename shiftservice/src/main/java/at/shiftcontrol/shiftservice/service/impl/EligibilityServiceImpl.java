@@ -202,7 +202,8 @@ public class EligibilityServiceImpl implements EligibilityService {
 
         for (var assignment : positionSlot.getAssignments()) {
             if (assignment.getAssignedVolunteer() != null && assignment.getAssignedVolunteer().getId().equals(volunteer.getId())) {
-                return true;
+                var status = assignment.getStatus();
+                return status != AssignmentStatus.REQUEST_FOR_ASSIGNMENT; // pending requests do not count as signed up
             }
         }
         return false;
@@ -210,7 +211,7 @@ public class EligibilityServiceImpl implements EligibilityService {
 
     private boolean hasAuction(PositionSlot slot) {
         return slot.getAssignments() != null && slot.getAssignments().stream()
-            .anyMatch(a -> a.getStatus() == AssignmentStatus.AUCTION);
+            .anyMatch(a -> a.getStatus() == AssignmentStatus.AUCTION || a.getStatus() == AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
     }
 
     // trade requests where the requested assignment is assigned to the user

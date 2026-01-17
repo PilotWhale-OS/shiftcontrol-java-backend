@@ -51,6 +51,15 @@ public class PositionSlotItemEndpoint {
         return positionSlotService.findById(ConvertUtil.idToLong(positionSlotId));
     }
 
+    @GetMapping("/assignment")
+    @Operation(
+        operationId = "getPositionSlotUserAssignment",
+        description = "Get the assignment for a specific position slot in a shift for the current user"
+    )
+    public AssignmentDto getPositionSlotUserAssignment(@PathVariable String positionSlotId) {
+        return positionSlotService.getUserAssignment(ConvertUtil.idToLong(positionSlotId), userProvider.getCurrentUser().getUserId());
+    }
+
     @PutMapping
     @Operation(
         operationId = "updatePositionSlot",

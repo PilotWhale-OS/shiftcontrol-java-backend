@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class RedisService {
-
     @Getter
     private final StringRedisTemplate redis;
 
@@ -31,8 +30,8 @@ public class RedisService {
     // SLOT SIGNUP / LEAVE
     // ============================================
 
-    public void addSignUp(String userId, String slotId) {
-        long now = Instant.now().toEpochMilli();
+    public void addSignUp(String userId, String slotId, Instant timestamp) {
+        long now = timestamp.toEpochMilli();
 
         // OVERLOAD tracking: add to signups ZSET
         redis.opsForZSet().add(overloadKey(userId), slotId, now);
@@ -40,16 +39,16 @@ public class RedisService {
         // SPAM tracking: record JOIN
         redis.opsForZSet().add(spamKey(userId, slotId), "JOIN:" + now, now);
 
-        cleanupOld(overloadKey(userId), OVERLOAD_WINDOW_SECONDS);
-        cleanupOld(spamKey(userId, slotId), SPAM_WINDOW_SECONDS);
+        cleanupOld(overloadKey(userId), OVERLOAD_WINDOW_SECONDS, timestamp);
+        cleanupOld(spamKey(userId, slotId), SPAM_WINDOW_SECONDS, timestamp);
 
         // set TTLs
         redis.expire(overloadKey(userId), Duration.ofHours(1));
         redis.expire(spamKey(userId, slotId), Duration.ofHours(2));
     }
 
-    public void removeSignUp(String userId, String slotId) {
-        long now = Instant.now().toEpochMilli();
+    public void removeSignUp(String userId, String slotId, Instant timestamp) {
+        long now = timestamp.toEpochMilli();
 
         // OVERLOAD tracking: remove from signups ZSET
         redis.opsForZSet().remove(overloadKey(userId), slotId);
@@ -57,7 +56,7 @@ public class RedisService {
         // SPAM tracking: record LEAVE
         redis.opsForZSet().add(spamKey(userId, slotId), "LEAVE:" + now, now);
 
-        cleanupOld(spamKey(userId, slotId), SPAM_WINDOW_SECONDS);
+        cleanupOld(spamKey(userId, slotId), SPAM_WINDOW_SECONDS, timestamp);
 
         redis.expire(spamKey(userId, slotId), Duration.ofHours(2));
     }
@@ -94,14 +93,14 @@ public class RedisService {
     // QUERIES
     // ============================================
 
-    public boolean hasTooManySignups(String userId) {
-        cleanupOld(overloadKey(userId), OVERLOAD_WINDOW_SECONDS);
+    public boolean hasTooManySignups(String userId, Instant timestamp) {
+        cleanupOld(overloadKey(userId), OVERLOAD_WINDOW_SECONDS, timestamp);
         log.info("CHECK OVERLOAD: {}", redis.opsForZSet().zCard(overloadKey(userId)));
         return redis.opsForZSet().zCard(overloadKey(userId)) >= OVERLOAD_THRESHOLD;
     }
 
-    public boolean hasTooManySignupsAndOffs(String userId, String slotId) {
-        cleanupOld(spamKey(userId, slotId), SPAM_WINDOW_SECONDS);
+    public boolean hasTooManySignupsAndOffs(String userId, String slotId, Instant timestamp) {
+        cleanupOld(spamKey(userId, slotId), SPAM_WINDOW_SECONDS, timestamp);
         log.info("CHECK SPAM: {}", redis.opsForZSet().zCard(spamKey(userId, slotId)));
         return redis.opsForZSet().zCard(spamKey(userId, slotId)) >= SPAM_THRESHOLD;
     }
@@ -120,8 +119,8 @@ public class RedisService {
     // HELPERS
     // ============================================
 
-    private void cleanupOld(String key, long windowSeconds) {
-        long cutoff = Instant.now().minusSeconds(windowSeconds).getEpochSecond();
+    private void cleanupOld(String key, long windowSeconds, Instant timestamp) {
+        long cutoff = timestamp.minusSeconds(windowSeconds).getEpochSecond();
         redis.opsForZSet().removeRangeByScore(key, 0, cutoff);
     }
 

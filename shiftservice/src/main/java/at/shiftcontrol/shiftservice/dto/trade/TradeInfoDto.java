@@ -27,8 +27,18 @@ public class TradeInfoDto {
     private String requestedPositionSlotId;
 
     @NotNull
+    private int offeredPositionSlotRewardPoints;
+
+    @NotNull
+    private int requestedPositionSlotRewardPoints;
+
+    @NotNull
     @Valid
     private VolunteerDto offeringVolunteer;
+
+    @NotNull
+    @Valid
+    private VolunteerDto requestedVolunteer;
 
     @NotNull
     private TradeStatus status;

@@ -3,10 +3,10 @@ services:
   redis:
     image: redis:7-alpine
     container_name: trustservice-redis
-    ports:
-      - "6379:6379"
     networks:
       - shiftcontrol
+#    ports:
+#      - "6379:6379"
 
   trustservice:
     build:
@@ -20,11 +20,6 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       - redis
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.trustservice.entrypoints=web
-      - traefik.http.routers.trustservice.rule=Host(`trustservice.127.0.0.1.nip.io`)
-      - traefik.http.services.trustservice.loadbalancer.server.port=8080
     volumes:
       - ./config/application.yml:/app/application.yml
     networks:
