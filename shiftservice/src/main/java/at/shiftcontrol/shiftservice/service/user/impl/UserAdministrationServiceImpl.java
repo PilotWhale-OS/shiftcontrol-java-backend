@@ -77,9 +77,9 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
         var nameLower = searchDto.getName().toLowerCase().trim();
         return users.stream().filter(x ->
-                x.getUsername().contains(nameLower)
-                    || x.getFirstName().contains(nameLower)
-                    || x.getLastName().contains(nameLower)
+                x.getUsername().toLowerCase().contains(nameLower)
+                    || x.getFirstName().toLowerCase().contains(nameLower)
+                    || x.getLastName().toLowerCase().contains(nameLower)
             )
             .toList();
     }
