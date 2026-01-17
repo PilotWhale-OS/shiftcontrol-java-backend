@@ -37,6 +37,13 @@
           columnNames="position_slot_id, assigned_volunteer_id"
           constraintName="uq_assignment_slot_volunteer"/>
 
+        <createIndex
+          indexName="idx_assignment_slot_volunteer"
+          tableName="assignment">
+          <column name="position_slot_id"/>
+          <column name="assigned_volunteer_id"/>
+        </createIndex>
+
         <!-- Foreign key to PositionSlot -->
         <addForeignKeyConstraint
                 baseTableName="assignment"

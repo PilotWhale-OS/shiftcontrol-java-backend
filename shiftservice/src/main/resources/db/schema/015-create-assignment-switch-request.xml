@@ -57,6 +57,18 @@
       columnNames="offering_assignment_id, requested_assignment_id"
       constraintName="uq_switch_request_pair"/>
 
+    <createIndex
+      indexName="idx_switch_request_offering_assignment"
+      tableName="assignment_switch_request">
+      <column name="offering_assignment_id"/>
+    </createIndex>
+
+    <createIndex
+      indexName="idx_switch_request_requested_assignment"
+      tableName="assignment_switch_request">
+      <column name="requested_assignment_id"/>
+    </createIndex>
+
   </changeSet>
 
 </databaseChangeLog>
