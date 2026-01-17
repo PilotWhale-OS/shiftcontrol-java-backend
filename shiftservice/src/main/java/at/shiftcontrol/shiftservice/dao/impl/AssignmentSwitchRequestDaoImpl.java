@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.type.TradeStatus;
@@ -24,7 +24,7 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     }
 
     @Override
-    public @lombok.NonNull Optional<AssignmentSwitchRequest> findById(Long id) {
+    public @NonNull Optional<AssignmentSwitchRequest> findById(Long id) {
         return assignmentSwitchRequestRepository.findById(id);
     }
 

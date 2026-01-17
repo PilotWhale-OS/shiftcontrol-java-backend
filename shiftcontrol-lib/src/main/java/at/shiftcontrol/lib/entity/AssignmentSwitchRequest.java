@@ -55,12 +55,7 @@ public class AssignmentSwitchRequest {
 
     @Override
     public String toString() {
-        return "AssignmentSwitchRequest{"
-            + "id=" + id
-            + ", offeringAssignmentId=" + offeringAssignment.getId()
-            + ", requestedAssignmentId=" + requestedAssignment.getId()
-            + ", status=" + status
-            + ", createdAt=" + createdAt
-            + '}';
+        return "AssignmentSwitchRequest{id=%d, , offeringAssignmentId=%d, requestedAssignmentId=%d, status=%s, createdAt=%s}"
+            .formatted(id, offeringAssignment.getId(), requestedAssignment.getId(), status, createdAt);
     }
 }
