@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
+import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 
 @Tag(
@@ -34,10 +35,10 @@ public class AdminUserAdministrationCollectionEndpoint {
     @GetMapping()
     @Operation(
         operationId = "getAllUsers",
-        description = "Find all users."
+        description = "Find all users filtered by name. (The filter is searched for in first, last and username)"
     )
-    public PaginationDto<UserEventDto> getAllUsers(@RequestParam int page, @RequestParam int size) {
-        return service.getAllUsers(page, size);
+    public PaginationDto<UserEventDto> getAllUsers(@RequestParam int page, @RequestParam int size, UserSearchDto searchDto) {
+        return service.getAllUsers(page, size, searchDto);
     }
 
     @PatchMapping("/bulk/add")

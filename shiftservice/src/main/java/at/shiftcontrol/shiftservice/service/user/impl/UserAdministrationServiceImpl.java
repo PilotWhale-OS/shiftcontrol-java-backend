@@ -30,6 +30,7 @@ import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
+import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 import at.shiftcontrol.shiftservice.mapper.PaginationMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
@@ -48,10 +49,20 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
     @Override
     @AdminOnly
-    public PaginationDto<UserEventDto> getAllUsers(int page, int size) {
+    public PaginationDto<UserEventDto> getAllUsers(int page, int size, UserSearchDto searchDto) {
         var volunteers = volunteerDao.findAll(page, size);
-        var totalSize = volunteerDao.findAllSize();
-        return PaginationMapper.toPaginationDto(size, page, totalSize, getUserEventDtos(volunteers));
+
+        var users = keycloakUserService.getAllAssigned();
+        if (searchDto.getName() != null && !searchDto.getName().isEmpty()) {
+            var nameLower = searchDto.getName().toLowerCase().trim();
+            users = users.stream().filter(x ->
+                    x.getUsername().contains(nameLower)
+                        || x.getFirstName().contains(nameLower)
+                        || x.getLastName().contains(nameLower)
+                )
+                .toList();
+        }
+        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users));
     }
 
     @Override

@@ -11,9 +11,10 @@ import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
+import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 
 public interface UserAdministrationService {
-    PaginationDto<UserEventDto> getAllUsers(int page, int size);
+    PaginationDto<UserEventDto> getAllUsers(int page, int size, UserSearchDto searchDt);
 
     PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size);
 

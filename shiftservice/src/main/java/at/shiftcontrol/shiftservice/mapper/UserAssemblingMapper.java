@@ -49,6 +49,12 @@ public class UserAssemblingMapper {
     }
 
     public static UserEventDto toUserEventDto(Volunteer volunteer, UserRepresentation user) {
+        if (volunteer == null) {
+            UserEventDto.builder()
+                .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
+                .email(user.getEmail())
+                .build();
+        }
         return UserEventDto.builder()
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
             .email(user.getEmail())
@@ -74,6 +80,17 @@ public class UserAssemblingMapper {
                     .filter(u -> u.getId().equals(v.getId()))
                     .findFirst()
                     .orElseThrow(NotFoundException::new)))
+            .toList();
+    }
+
+    public static Collection<UserEventDto> toUserEventDtoForUsers(Collection<Volunteer> volunteers, Collection<UserRepresentation> users) {
+        return users.stream()
+            .map(u ->
+                toUserEventDto(volunteers.stream()
+                    .filter(v -> v.getId().equals(u.getId()))
+                    .findFirst()
+                    .orElse(null), u)
+            )
             .toList();
     }
 }
