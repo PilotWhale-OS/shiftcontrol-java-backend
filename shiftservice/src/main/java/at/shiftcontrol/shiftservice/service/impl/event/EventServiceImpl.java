@@ -48,6 +48,7 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
+import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -146,12 +147,7 @@ public class EventServiceImpl implements EventService {
             planners.stream()
                 .collect(Collectors.toMap(
                     UserRepresentation::getId,
-                    user -> new ContactInfoDto(
-                        user.getId(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getEmail()
-                    )
+                    UserAssemblingMapper::toContactInfoDto
                 ));
 
         // create result
