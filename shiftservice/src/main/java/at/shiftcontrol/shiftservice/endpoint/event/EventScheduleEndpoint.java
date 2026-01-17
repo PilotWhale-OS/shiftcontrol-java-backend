@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.endpoint.event;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterDto;
@@ -50,5 +52,14 @@ public class EventScheduleEndpoint {
     )
     public EventScheduleFilterValuesDto getEventScheduleFilterValues(@PathVariable String eventId) {
         return eventScheduleService.getEventScheduleFilterValues(ConvertUtil.idToLong(eventId));
+    }
+
+    @GetMapping("/activities")
+    @Operation(
+        operationId = "getActivitySchedule",
+        description = "Get the activity schedule of an event"
+    )
+    public ActivityScheduleDto getActivitySchedule(@PathVariable String eventId, @Valid ActivityScheduleDaySearchDto searchDto) {
+        return eventScheduleService.getActivityScheduleOfEvent(ConvertUtil.idToLong(eventId), searchDto);
     }
 }

@@ -6,7 +6,7 @@ import java.util.Optional;
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.impl.specification.ActivitySpecifications;
-import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.repo.ActivityRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -60,7 +60,7 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     @Override
-    public Collection<Activity> searchActivitiesInEvent(Long eventId, EventScheduleDaySearchDto searchDto) {
+    public Collection<Activity> searchActivitiesInEvent(Long eventId, ActivityScheduleDaySearchDto searchDto) {
         Specification<Activity> spec = ActivitySpecifications.matchesSearchDto(searchDto);
 
         return activityRepository.findAll(spec);

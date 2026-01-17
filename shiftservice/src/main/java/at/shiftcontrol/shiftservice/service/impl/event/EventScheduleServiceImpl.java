@@ -24,6 +24,8 @@ import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterDto;
@@ -35,6 +37,7 @@ import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleLayoutDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleLayoutNoLocationDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftColumnDto;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
+import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
@@ -355,5 +358,15 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .firstDate(firstDate)
             .lastDate(lastDate)
             .build();
+    }
+
+    @Override
+    public ActivityScheduleDto getActivityScheduleOfEvent(long eventId, ActivityScheduleDaySearchDto searchDto) {
+        var event = eventDao.getById(eventId);
+        securityHelper.assertUserIsAllowedToAccessEvent(event);
+
+        var activitiesOfEvent = activityDao.searchActivitiesInEvent(eventId, searchDto).stream().toList();
+
+        return EventMapper.toActivityScheduleDto(event, activitiesOfEvent);
     }
 }

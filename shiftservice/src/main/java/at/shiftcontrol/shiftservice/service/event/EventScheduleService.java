@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.service.event;
 
+import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleContentDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleDaySearchDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.EventScheduleFilterDto;
@@ -12,4 +14,6 @@ public interface EventScheduleService {
     EventScheduleContentDto getEventScheduleContent(long eventId, EventScheduleDaySearchDto searchDto);
 
     EventScheduleFilterValuesDto getEventScheduleFilterValues(long eventId);
+
+    ActivityScheduleDto getActivityScheduleOfEvent(long eventId, ActivityScheduleDaySearchDto searchDto);
 }
