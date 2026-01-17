@@ -10,4 +10,6 @@ public interface TrustAlertDao {
     TrustAlert save(TrustAlert alert);
 
     void delete(long id);
+
+    long findAllSize();
 }

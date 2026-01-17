@@ -1,12 +1,11 @@
 package at.shiftcontrol.shiftservice.service;
 
-import java.util.Collection;
-
 import at.shiftcontrol.lib.dto.TrustAlertDto;
+import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 
 public interface TrustAlertService {
-    Collection<TrustAlertDisplayDto> getAllPaginated(long  page, long size);
+    PaginationDto<TrustAlertDisplayDto> getAllPaginated(int  page, int size);
 
     TrustAlertDisplayDto save(TrustAlertDto alert);
 
