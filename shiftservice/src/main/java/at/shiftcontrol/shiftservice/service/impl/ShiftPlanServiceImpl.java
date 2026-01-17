@@ -11,6 +11,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Location;
@@ -73,11 +80,6 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -307,7 +309,6 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private ScheduleContentNoLocationDto buildScheduleContentNoLocationDto(
         long shiftPlanId,
         ShiftPlanScheduleDaySearchDto searchDto) {
-
         // get activities without location
         var activitiesWithoutLocation = activityDao.findAllWithoutLocationByShiftPlanId(shiftPlanId).stream()
             .distinct()
@@ -716,8 +717,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         if (shiftPlan.getLockStatus().equals(lockStatus)) {
             throw new BadRequestException("Lock status already in requested state");
         }
-        if (shiftPlan.getLockStatus().equals(LockStatus.SUPERVISED)
-            && lockStatus.equals(LockStatus.SELF_SIGNUP)) {
+        // automatically unassign all open auctions when switching back to SELF_SIGNUP
+        if (lockStatus.equals(LockStatus.SELF_SIGNUP)) {
             assignmentService.unassignAllAuctions(shiftPlan);
         }
         shiftPlan.setLockStatus(lockStatus);
