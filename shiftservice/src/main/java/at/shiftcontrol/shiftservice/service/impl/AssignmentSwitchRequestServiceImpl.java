@@ -213,7 +213,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         for (AssignmentSwitchRequest trade : trades) {
             Optional<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade);
             if (inverse.isPresent()) {
-                return List.of(acceptTrade(inverse.get().getId()));
+                return List.of(acceptTrade(inverse.get().getId(), currentUserId));
             }
         }
 
@@ -245,7 +245,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
         // check if volunteer is owner of requested slot
-        if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(id.getRequested().getVolunteerId())) {
+        if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("current user is not part of the trade");
         }
 
