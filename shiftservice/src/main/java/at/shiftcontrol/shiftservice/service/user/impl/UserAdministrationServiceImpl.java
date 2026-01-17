@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -15,6 +16,9 @@ import org.keycloak.representations.idm.UserRepresentation;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.event.events.UserEvent;
+import at.shiftcontrol.lib.event.events.UserEventBulkEvent;
+import at.shiftcontrol.lib.event.events.UserPlanBulkEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -46,6 +50,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     private final SecurityHelper securityHelper;
     private final UserAssemblingMapper userAssemblingMapper;
     private final RoleDao roleDao;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     @AdminOnly
@@ -88,7 +93,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @Transactional
     @AdminOnly
-    public UserEventDto updateUser(String userId, UserEventUpdateDto updateDto) {
+    public UserEventDto updateEventUser(String userId, UserEventUpdateDto updateDto) {
         var volunteer = volunteerDao.getById(userId);
         assertPlansChanged(volunteer, updateDto);
 
@@ -103,6 +108,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
         var user = keycloakUserService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
+        publisher.publishEvent(UserEvent.eventUpdate(volunteer));
         return UserAssemblingMapper.toUserEventDto(volunteer, user);
     }
 
@@ -121,6 +127,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
         var user = keycloakUserService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
+        publisher.publishEvent(UserEvent.planUpdate(volunteer, String.valueOf(shiftPlanId)));
         return UserAssemblingMapper.toUserPlanDto(volunteer, user, shiftPlanId);
     }
 
@@ -137,6 +144,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         volunteer.getLockedPlans().add(plan);
 
         userAttributeProvider.invalidateUserCache(userId);
+        publisher.publishEvent(UserEvent.lock(volunteer));
         return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
@@ -150,6 +158,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         volunteer.getLockedPlans().remove(plan);
 
         userAttributeProvider.invalidateUserCache(userId);
+        publisher.publishEvent(UserEvent.unlock(volunteer));
         return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
@@ -164,6 +173,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
                 }
             }
         }
+        publisher.publishEvent(UserPlanBulkEvent.add(volunteers, roles, String.valueOf(shiftPlanId)));
         return getUserPlanDtos(shiftPlanId, volunteers);
     }
 
@@ -174,7 +184,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         for (Volunteer v : volunteers) {
             v.getRoles().removeAll(roles);
         }
-
+        publisher.publishEvent(UserPlanBulkEvent.remove(volunteers, roles, String.valueOf(shiftPlanId)));
         return getUserPlanDtos(shiftPlanId, volunteers);
     }
 
@@ -189,6 +199,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
                 }
             }
         }
+        publisher.publishEvent(UserEventBulkEvent.add(volunteers, plans));
         return getUserEventDtos(volunteers);
     }
 
@@ -199,6 +210,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         for (Volunteer v : volunteers) {
             v.getVolunteeringPlans().removeAll(plans);
         }
+        publisher.publishEvent(UserEventBulkEvent.remove(volunteers, plans));
         return getUserEventDtos(volunteers);
     }
 

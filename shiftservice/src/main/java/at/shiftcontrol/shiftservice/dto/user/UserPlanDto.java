@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 
 @Data
@@ -28,5 +28,5 @@ public class UserPlanDto {
     private Boolean isLocked;
 
     @NotNull
-    private Collection<Role> roles;
+    private Collection<RoleDto> roles;
 }

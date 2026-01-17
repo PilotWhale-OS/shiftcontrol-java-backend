@@ -47,7 +47,7 @@ public class AdminUserAdministrationItemEndpoint {
     public UserEventDto updateUserPlans(
         @PathVariable String userId,
         @RequestBody @Valid UserEventUpdateDto updateDto) {
-        return service.updateUser(userId, updateDto);
+        return service.updateEventUser(userId, updateDto);
     }
 
     @PatchMapping("/lock")

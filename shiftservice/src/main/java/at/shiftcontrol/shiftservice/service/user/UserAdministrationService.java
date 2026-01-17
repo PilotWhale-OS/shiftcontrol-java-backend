@@ -22,7 +22,7 @@ public interface UserAdministrationService {
 
     UserPlanDto getPlanUser(Long shiftPlanId, String userId);
 
-    UserEventDto updateUser(String userId, UserEventUpdateDto updateDto);
+    UserEventDto updateEventUser(String userId, UserEventUpdateDto updateDto);
 
     UserPlanDto updatePlanUser(Long shiftPlanId, String userId, UserPlanUpdateDto updateDto);
 
