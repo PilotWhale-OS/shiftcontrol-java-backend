@@ -67,8 +67,8 @@ public class PositionSlotTradeEndpoint {
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptTrade(@PathVariable long tradeId) {
-        return assignmentSwitchRequestService.acceptTrade(tradeId, userProvider.getCurrentUser().getUserId());
+    public TradeDto acceptTrade(@PathVariable String tradeId) {
+        return assignmentSwitchRequestService.acceptTrade(ConvertUtil.idToLong(tradeId), userProvider.getCurrentUser().getUserId());
     }
 
     @PutMapping("/{tradeId}/decline")
@@ -76,8 +76,8 @@ public class PositionSlotTradeEndpoint {
         operationId = "declineTrade",
         description = "Decline a trade request for a specific position slot in a shift"
     )
-    public TradeDto declineTrade(@PathVariable long tradeId) {
-        return assignmentSwitchRequestService.declineTrade(tradeId, userProvider.getCurrentUser().getUserId());
+    public TradeDto declineTrade(@PathVariable String tradeId) {
+        return assignmentSwitchRequestService.declineTrade(ConvertUtil.idToLong(tradeId), userProvider.getCurrentUser().getUserId());
     }
 
     @PutMapping("/{tradeId}/cancel")
@@ -85,7 +85,7 @@ public class PositionSlotTradeEndpoint {
         operationId = "cancelTrade",
         description = "Cancel a request for a specific position slot in a shift"
     )
-    public void cancelTrade(@PathVariable long tradeId) {
-        assignmentSwitchRequestService.cancelTrade(tradeId, userProvider.getCurrentUser().getUserId());
+    public void cancelTrade(@PathVariable String tradeId) {
+        assignmentSwitchRequestService.cancelTrade(ConvertUtil.idToLong(tradeId), userProvider.getCurrentUser().getUserId());
     }
 }
