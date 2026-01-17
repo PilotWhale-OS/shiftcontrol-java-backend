@@ -50,7 +50,7 @@ public class UserAssemblingMapper {
 
     public static UserEventDto toUserEventDto(Volunteer volunteer, UserRepresentation user) {
         if (volunteer == null) {
-            UserEventDto.builder()
+            return UserEventDto.builder()
                 .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
                 .email(user.getEmail())
                 .build();
