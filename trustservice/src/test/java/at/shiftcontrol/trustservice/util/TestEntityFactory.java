@@ -3,9 +3,7 @@ package at.shiftcontrol.trustservice.util;
 import java.util.Map;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
@@ -38,7 +36,6 @@ public class TestEntityFactory {
         Assignment offering = getAssignment(offeringUserId, offeringSlotId);
         Assignment requesting = getAssignment(requestingUserId, requestingSlotId);
         return AssignmentSwitchRequest.builder()
-            .id(AssignmentSwitchRequestId.of(offering, requesting))
             .offeringAssignment(offering)
             .requestedAssignment(requesting)
             .build();
@@ -46,7 +43,6 @@ public class TestEntityFactory {
 
     private static Assignment getAssignment(String volunteerId, long slotId) {
         return Assignment.builder()
-            .id(AssignmentId.of(slotId, volunteerId))
             .assignedVolunteer(getVolunteer(volunteerId))
             .positionSlot(getPositionSlot(slotId))
             .build();

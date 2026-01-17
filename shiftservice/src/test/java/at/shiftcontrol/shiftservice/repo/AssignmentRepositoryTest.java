@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 
@@ -101,16 +99,13 @@ public class AssignmentRepositoryTest {
 
     @Test
     void testDeleteCascadeToTrades() {
-        AssignmentId offeringId = AssignmentId.of(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5");
-        AssignmentId requestedId = AssignmentId.of(2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6");
+        long assignmentId = 1L;
 
-        AssignmentSwitchRequestId trade = AssignmentSwitchRequestId.of(offeringId, requestedId);
-
-        assignmentRepository.deleteById(offeringId);
+        assignmentRepository.deleteById(assignmentId);
         assignmentRepository.flush();
 
-        Assertions.assertFalse(assignmentRepository.findById(offeringId).isPresent());
+        Assertions.assertFalse(assignmentRepository.findById(assignmentId).isPresent());
 
-        Assertions.assertFalse(assignmentSwitchRequestRepository.findById(trade).isPresent());
+        Assertions.assertFalse(assignmentSwitchRequestRepository.findById(1L).isPresent());
     }
 }

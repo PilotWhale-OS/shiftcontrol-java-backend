@@ -2,41 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.event.EventDto;
-import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
-import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
-import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
-import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.service.DashboardService;
-import at.shiftcontrol.shiftservice.service.event.EventCloneService;
-import at.shiftcontrol.shiftservice.service.event.EventExportService;
-import at.shiftcontrol.shiftservice.service.event.EventImportService;
-import at.shiftcontrol.shiftservice.service.event.EventService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -53,6 +18,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
+import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
+import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
+import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
+import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
+import at.shiftcontrol.shiftservice.service.event.EventCloneService;
+import at.shiftcontrol.shiftservice.service.event.EventExportService;
+import at.shiftcontrol.shiftservice.service.event.EventImportService;
+import at.shiftcontrol.shiftservice.service.event.EventService;
 
 @Slf4j
 @RestController
@@ -184,6 +171,17 @@ public class EventEndpoint {
             // filename will be set in frontend regardless of this value because header value is not used, but it is good practice to set it here anyway
             .contentType(template.getMediaType())
             .body(new InputStreamResource(template.getExportStream()));
+    }
+
+    @GetMapping("/{eventId}/contacts")
+    @Operation(
+        operationId = "getPlannerContacts",
+        description = "Get contact information for all planners"
+    )
+    public Collection<ShiftPlanContactInfoDto> getPlannerContacts(@PathVariable String eventId) {
+        return eventService.getPlannerContactInfo(
+            ConvertUtil.idToLong(eventId),
+            userProvider.getCurrentUser().getUserId());
     }
 
     // TODO delete this test controller!!!

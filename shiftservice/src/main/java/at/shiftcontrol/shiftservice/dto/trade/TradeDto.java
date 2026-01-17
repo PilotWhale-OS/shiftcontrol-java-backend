@@ -18,6 +18,9 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 @Builder
 public class TradeDto {
     @NotNull
+    private String id;
+
+    @NotNull
     @Valid
     private AssignmentDto offeringAssignment;
 

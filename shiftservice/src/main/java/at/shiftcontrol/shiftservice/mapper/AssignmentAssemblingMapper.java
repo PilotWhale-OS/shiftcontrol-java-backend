@@ -10,9 +10,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.type.AssignmentStatus;
-import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 
 @RequiredArgsConstructor
@@ -25,6 +23,7 @@ public class AssignmentAssemblingMapper {
 
     public AssignmentDto toDto(@NonNull Assignment assignment) {
         return new AssignmentDto(
+            String.valueOf(assignment.getId()),
             String.valueOf(assignment.getPositionSlot().getId()),
             volunteerAssemblingMapper.toDto(assignment.getAssignedVolunteer()),
             assignment.getStatus(),
@@ -38,23 +37,14 @@ public class AssignmentAssemblingMapper {
         return assignments.stream().map(this::toDto).toList();
     }
 
-    public static AssignmentId toEntityId(@NonNull AssignmentDto assignmentDto) {
-        return new AssignmentId(
-            ConvertUtil.idToLong(assignmentDto.getPositionSlotId()),
-            assignmentDto.getAssignedVolunteer().getId()
-        );
-    }
-
     public static Assignment shallowCopy(@NonNull Assignment oldAssignment) {
         return Assignment.builder()
-            .id(new AssignmentId(
-                oldAssignment.getPositionSlot().getId(),
-                oldAssignment.getAssignedVolunteer().getId()))
-            .status(oldAssignment.getStatus())
-            .assignedVolunteer(oldAssignment.getAssignedVolunteer())
             .positionSlot(oldAssignment.getPositionSlot())
-            .incomingSwitchRequests(oldAssignment.getIncomingSwitchRequests())
+            .assignedVolunteer(oldAssignment.getAssignedVolunteer())
+            .status(oldAssignment.getStatus())
             .outgoingSwitchRequests(oldAssignment.getOutgoingSwitchRequests())
+            .incomingSwitchRequests(oldAssignment.getIncomingSwitchRequests())
+            .acceptedRewardPoints(oldAssignment.getAcceptedRewardPoints())
             .build();
     }
 }

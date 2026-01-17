@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.trade;
+package at.shiftcontrol.shiftservice.dto.user;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,16 +10,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TradeIdDto {
+public class ContactInfoDto {
     @NotNull
-    private String offeredSlotId;
+    private String userId;
 
     @NotNull
-    private String offeringVolunteerId;
+    private String firstName;
 
     @NotNull
-    private String requestedSlotId;
+    private String lastName;
 
     @NotNull
-    private String requestingVolunteerId;
+    private String email;
 }

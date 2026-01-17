@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
@@ -216,7 +215,6 @@ class EventIT extends RestITBase {
 
     private void createAssignments() {
         assignmentA = Assignment.builder()
-            .id(new AssignmentId(positionSlotA.getId(), volunteerA.getId()))
             .positionSlot(positionSlotA)
             .assignedVolunteer(volunteerA)
             .status(AssignmentStatus.ACCEPTED)

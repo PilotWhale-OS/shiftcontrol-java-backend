@@ -17,6 +17,9 @@ import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 @Builder
 public class AssignmentDto {
     @NotNull
+    private String id;
+
+    @NotNull
     private String positionSlotId;
 
     @NotNull

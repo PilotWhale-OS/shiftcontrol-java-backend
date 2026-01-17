@@ -9,6 +9,10 @@
 
         <createTable tableName="assignment">
 
+            <column name="id" type="BIGINT" autoIncrement="true">
+              <constraints primaryKey="true" nullable="false"/>
+            </column>
+
             <column name="position_slot_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -27,11 +31,18 @@
 
         </createTable>
 
-        <!-- Composite primary key -->
-        <addPrimaryKey
-                tableName="assignment"
-                columnNames="position_slot_id, assigned_volunteer_id"
-                constraintName="pk_assignment"/>
+        <!-- slot-user must be unique -->
+        <addUniqueConstraint
+          tableName="assignment"
+          columnNames="position_slot_id, assigned_volunteer_id"
+          constraintName="uq_assignment_slot_volunteer"/>
+
+        <createIndex
+          indexName="idx_assignment_slot_volunteer"
+          tableName="assignment">
+          <column name="position_slot_id"/>
+          <column name="assigned_volunteer_id"/>
+        </createIndex>
 
         <!-- Foreign key to PositionSlot -->
         <addForeignKeyConstraint

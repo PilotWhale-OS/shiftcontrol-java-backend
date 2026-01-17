@@ -10,6 +10,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 
@@ -92,5 +93,14 @@ public class UserAssemblingMapper {
                     .orElse(null), u)
             )
             .toList();
+    }
+
+    public static ContactInfoDto toContactInfoDto(UserRepresentation user) {
+        return ContactInfoDto.builder()
+            .userId(user.getId())
+            .firstName(user.getFirstName())
+            .lastName(user.getLastName())
+            .email(user.getEmail())
+            .build();
     }
 }

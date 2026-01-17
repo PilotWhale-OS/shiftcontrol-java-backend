@@ -5,11 +5,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
@@ -25,8 +24,18 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     }
 
     @Override
-    public @NonNull Optional<AssignmentSwitchRequest> findById(AssignmentSwitchRequestId id) {
+    public @NonNull Optional<AssignmentSwitchRequest> findById(Long id) {
         return assignmentSwitchRequestRepository.findById(id);
+    }
+
+    @Override
+    public Optional<AssignmentSwitchRequest> findByAssignmentIds(long offeredAssignmentId, long requestedAssignmentId) {
+        return assignmentSwitchRequestRepository.findByAssignmentIds(offeredAssignmentId, requestedAssignmentId);
+    }
+
+    @Override
+    public Optional<AssignmentSwitchRequest> findBySlotsAndUsers(long offeredSlotId, String offeringUserId, long requestedSlotId, String requestedUserId) {
+        return assignmentSwitchRequestRepository.findBySlotsAndUsers(offeredSlotId, offeringUserId, requestedSlotId, requestedUserId);
     }
 
     @Override
@@ -66,11 +75,9 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
 
     @Override
     public Optional<AssignmentSwitchRequest> findInverseTrade(AssignmentSwitchRequest trade) {
-        return assignmentSwitchRequestRepository.findById(
-            new AssignmentSwitchRequestId(
-                trade.getId().getRequested(),
-                trade.getId().getOffering()
-            )
+        return assignmentSwitchRequestRepository.findByAssignmentIds(
+            trade.getRequestedAssignment().getId(),
+            trade.getOfferingAssignment().getId()
         );
     }
 }
