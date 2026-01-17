@@ -5,7 +5,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.AssignmentKey;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -32,7 +32,7 @@ class TradePartTest {
         offeringSlot.setName("Offering Slot");
         offeringSlot.setDescription("Offering Description");
 
-        AssignmentId offeringId = new AssignmentId(1L, "volunteer-1");
+        AssignmentKey offeringId = new AssignmentKey(1L, "volunteer-1");
         Assignment offeringAssignment = new Assignment();
         offeringAssignment.setStatus(AssignmentStatus.ACCEPTED);
         offeringAssignment.setPositionSlot(offeringSlot);
@@ -43,7 +43,7 @@ class TradePartTest {
         requestedSlot.setName("Requested Slot");
         requestedSlot.setDescription("Requested Description");
 
-        AssignmentId requestedId = new AssignmentId(2L, "volunteer-2");
+        AssignmentKey requestedId = new AssignmentKey(2L, "volunteer-2");
         Assignment requestedAssignment = new Assignment();
         requestedAssignment.setStatus(AssignmentStatus.ACCEPTED);
         requestedAssignment.setPositionSlot(requestedSlot);

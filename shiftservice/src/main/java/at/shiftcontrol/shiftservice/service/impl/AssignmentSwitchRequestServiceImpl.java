@@ -17,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.entity.AssignmentKey;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequestKey;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
@@ -125,9 +125,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(requestedPositionSlotId, currentUserId);
 
         // convert to set of keys for easier lookup
-        Set<AssignmentSwitchRequestId> existingTradeKeys =
+        Set<AssignmentSwitchRequestKey> existingTradeKeys =
             existingTrades.stream()
-                .map(tr -> AssignmentSwitchRequestId.of(
+                .map(tr -> AssignmentSwitchRequestKey.of(
                     tr.getOfferingAssignment(),
                     tr.getRequestedAssignment()
                 ))
@@ -140,11 +140,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                 List<VolunteerDto> filteredVolunteers =
                     candidate.getAssignedVolunteers().stream()
                         .filter(volunteer -> {
-                            AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
-                                AssignmentId.of(
+                            AssignmentSwitchRequestKey key = AssignmentSwitchRequestKey.of(
+                                AssignmentKey.of(
                                     ConvertUtil.idToLong(candidate.getPositionSlotId()),
                                     currentUserId),
-                                AssignmentId.of(
+                                AssignmentKey.of(
                                     requestedPositionSlotId,
                                     volunteer.getId())
                             );

@@ -10,9 +10,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.type.AssignmentStatus;
-import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 
 @RequiredArgsConstructor
@@ -37,13 +35,6 @@ public class AssignmentAssemblingMapper {
             return List.of();
         }
         return assignments.stream().map(this::toDto).toList();
-    }
-
-    public static AssignmentId toEntityId(@NonNull AssignmentDto assignmentDto) {
-        return new AssignmentId(
-            ConvertUtil.idToLong(assignmentDto.getPositionSlotId()),
-            assignmentDto.getAssignedVolunteer().getId()
-        );
     }
 
     public static Assignment shallowCopy(@NonNull Assignment oldAssignment) {

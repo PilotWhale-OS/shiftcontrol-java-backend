@@ -9,20 +9,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AssignmentId {
-    // TODO NEEDED?
+public class AssignmentKey {
     private long positionSlotId;
     private String volunteerId;
 
-    public static AssignmentId of(long positionSlotId, String volunteerId) {
-        return AssignmentId.builder()
+    public static AssignmentKey of(long positionSlotId, String volunteerId) {
+        return AssignmentKey.builder()
                 .positionSlotId(positionSlotId)
                 .volunteerId(volunteerId)
                 .build();
     }
 
-    public static AssignmentId of(Assignment assignment) {
-        return AssignmentId.builder()
+    public static AssignmentKey of(Assignment assignment) {
+        return AssignmentKey.builder()
                 .positionSlotId(assignment.getPositionSlot().getId())
                 .volunteerId(assignment.getAssignedVolunteer().getId())
                 .build();
