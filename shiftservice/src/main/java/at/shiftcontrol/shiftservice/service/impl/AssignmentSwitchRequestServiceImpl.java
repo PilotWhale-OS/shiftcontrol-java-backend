@@ -30,6 +30,7 @@ import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
+import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
@@ -57,6 +58,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
     private final TradeMapper tradeMapper;
+    private final ShiftDao shiftDao;
 
     @Override
     public TradeDto getTradeById(AssignmentSwitchRequestId id) {
@@ -72,7 +74,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         securityHelper.assertUserIsVolunteer(requestedPositionSlot, false);
 
         // get volunteers assigned to PositionSlot
-        Collection<Volunteer> assignedVolunteers = requestedPositionSlot.getAssignments().stream().map(Assignment::getAssignedVolunteer).toList();
+        Collection<Volunteer> assignedVolunteers = assignmentDao
+            .getActiveAssignmentsOfSlot(requestedPositionSlotId).stream().map(Assignment::getAssignedVolunteer).toList();
         // return if no volunteers exist to trade with
         if (assignedVolunteers.isEmpty()) {
             return List.of();
@@ -138,11 +141,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return slotsToOffer.stream()
             .map(candidate -> {
                 List<VolunteerDto> filteredVolunteers =
-                    candidate.getAssignedVolunteers().stream()
+                    candidate.getEligibleTradeRecipients().stream()
                         .filter(volunteer -> {
                             AssignmentSwitchRequestId key = AssignmentSwitchRequestId.of(
                                 AssignmentId.of(
-                                    ConvertUtil.idToLong(candidate.getPositionSlotId()),
+                                    ConvertUtil.idToLong(candidate.getOwnPosition().getId()),
                                     currentUserId),
                                 AssignmentId.of(
                                     requestedPositionSlotId,
@@ -152,13 +155,16 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                             return !existingTradeKeys.contains(key);
                         })
                         .toList();
+                var shift = shiftDao.getById(ConvertUtil.idToLong(candidate.getOwnPosition().getAssociatedShiftId()));
                 return new TradeCandidatesDto(
-                    candidate.getPositionSlotId(),
+                    candidate.getOwnPosition(),
+                    shift.getName(),
+                    shift.getStartTime(),
                     filteredVolunteers
                 );
             })
             // remove dto if no volunteers are left
-            .filter(c -> !c.getAssignedVolunteers().isEmpty())
+            .filter(c -> !c.getEligibleTradeRecipients().isEmpty())
             .toList();
     }
 
@@ -186,7 +192,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         validateTradePossible(offeredPositionSlot, requestedPositionSlot, currentUser);
 
         // get Volunteer entity for users to create trades with
-        Collection<Volunteer> requestedVolunteers = getVolunteersToTradeWith(requestedPositionSlot, tradeCreateDto.getRequestedVolunteers());
+        Collection<Volunteer> requestedVolunteers = getVolunteersToTradeWith(requestedPositionSlot, tradeCreateDto.getRequestedVolunteerIds());
         for (Volunteer v : requestedVolunteers) {
             // check if eligible and for conflicts
             validateTradePossible(requestedPositionSlot, offeredPositionSlot, v);
@@ -195,8 +201,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // create switch requests for each requested user
         Collection<AssignmentSwitchRequest> trades = requestedPositionSlot.getAssignments().stream()
             .filter(assignment ->
-                tradeCreateDto.getRequestedVolunteers().stream().anyMatch(
-                    volunteer -> Objects.equals(volunteer.getId(), String.valueOf(assignment.getAssignedVolunteer().getId()))))
+                tradeCreateDto.getRequestedVolunteerIds().stream().anyMatch(
+                    volunteerId -> Objects.equals(volunteerId, String.valueOf(assignment.getAssignedVolunteer().getId()))))
             .map(requestedAssignment -> createAssignmentSwitchRequest(offeredAssignment, requestedAssignment)).toList();
 
         // no need to check for existing trades, status will just be updated
@@ -207,7 +213,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         for (AssignmentSwitchRequest trade : trades) {
             Optional<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade);
             if (inverse.isPresent()) {
-                return List.of(acceptTrade(inverse.get().getId(), currentUserId));
+                return List.of(acceptTrade(inverse.get().getId()));
             }
         }
 
@@ -220,25 +226,26 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         return tradeMapper.toDto(trades);
     }
 
-    private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<VolunteerDto> volunteerDtos) {
-        Set<String> dtoUserIds = volunteerDtos.stream()
-            .map(VolunteerDto::getId)
+    private Collection<Volunteer> getVolunteersToTradeWith(PositionSlot positionSlot, Collection<String> volunteerIds) {
+        var existingVolunteerIds = volunteerDao.findAllByVolunteerIds(volunteerIds)
+            .stream()
+            .map(Volunteer::getId)
             .collect(Collectors.toSet());
         return positionSlot.getAssignments().stream()
             .map(Assignment::getAssignedVolunteer)
-            .filter(v -> dtoUserIds.contains(v.getId()))
+            .filter(v -> existingVolunteerIds.contains(v.getId()))
             .toList();
     }
 
     @Override
     @Transactional
     @IsNotAdmin
-    public TradeDto acceptTrade(AssignmentSwitchRequestId id, String currentUserId) {
+    public TradeDto acceptTrade(AssignmentSwitchRequestId id) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
         // check if volunteer is owner of requested slot
-        if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
+        if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(id.getRequested().getVolunteerId())) {
             throw new IllegalArgumentException("current user is not part of the trade");
         }
 

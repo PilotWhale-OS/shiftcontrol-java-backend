@@ -132,7 +132,7 @@ public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl imple
                 createDateCell(row, c++, event.getEndTime(), dateStyle);
 
                 createTextCell(row, c++, vp.getVolunteerId(), textStyle);
-                createTextCell(row, c++, vp.getFistName(), textStyle);
+                createTextCell(row, c++, vp.getFirstName(), textStyle);
                 createTextCell(row, c++, vp.getLastName(), textStyle);
                 createTextCell(row, c++, vp.getEmail(), textStyle);
 
@@ -180,7 +180,7 @@ public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl imple
                 VolRow vr = vols.computeIfAbsent(vp.getVolunteerId(), id -> {
                     VolRow x = new VolRow();
                     x.volunteerId = id;
-                    x.firstName = vp.getFistName();
+                    x.firstName = vp.getFirstName();
                     x.lastName = vp.getLastName();
                     x.email = vp.getEmail();
                     return x;

@@ -2,6 +2,10 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
+
+import at.shiftcontrol.shiftservice.dto.trade.TradeInfoDto;
+
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -11,9 +15,8 @@ import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
+import at.shiftcontrol.shiftservice.dto.TradeAcceptDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeIdDto;
-import at.shiftcontrol.shiftservice.dto.trade.TradeInfoDto;
 
 @RequiredArgsConstructor
 @Service
@@ -40,11 +43,20 @@ public class TradeMapper {
         return new AssignmentSwitchRequestId(offering, requested);
     }
 
+    public static AssignmentSwitchRequestId toEntityId(@NonNull TradeAcceptDto acceptDto, String currentUserId) {
+        AssignmentId offering = AssignmentId.of(ConvertUtil.idToLong(acceptDto.getOfferedSlot()), acceptDto.getOfferingVolunteer());
+        AssignmentId requested = AssignmentId.of(ConvertUtil.idToLong(acceptDto.getRequestedSlot()), currentUserId);
+        return new AssignmentSwitchRequestId(offering, requested);
+    }
+
     public TradeInfoDto toTradeInfoDto(@NonNull AssignmentSwitchRequest trade) {
         return new TradeInfoDto(
-            String.valueOf(trade.getOfferingAssignment().getPositionSlot()),
-            String.valueOf(trade.getRequestedAssignment().getPositionSlot()),
+            String.valueOf(trade.getOfferingAssignment().getPositionSlot().getId()),
+            String.valueOf(trade.getRequestedAssignment().getPositionSlot().getId()),
+            trade.getOfferingAssignment().getAcceptedRewardPoints(),
+            trade.getRequestedAssignment().getAcceptedRewardPoints(),
             volunteerAssemblingMapper.toDto(trade.getOfferingAssignment().getAssignedVolunteer()),
+            volunteerAssemblingMapper.toDto(trade.getRequestedAssignment().getAssignedVolunteer()),
             trade.getStatus(),
             trade.getCreatedAt()
         );

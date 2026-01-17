@@ -92,7 +92,7 @@ public class AssignmentSwitchRequestServiceIT {
         Collection<TradeCandidatesDto> result = assignmentSwitchRequestService.getPositionSlotsToOffer(positionSlotId, currentUserId);
 
         Assertions.assertFalse(result.isEmpty());
-        Assertions.assertNotEquals(String.valueOf(positionSlotId), result.stream().findFirst().get().getPositionSlotId());
+        Assertions.assertNotEquals(String.valueOf(positionSlotId), result.stream().findFirst().get().getOwnPosition().getId());
     }
 
     @Test
@@ -106,8 +106,7 @@ public class AssignmentSwitchRequestServiceIT {
         TradeCreateDto createDto = TradeCreateDto.builder()
             .offeredPositionSlotId(offeredPosition)
             .requestedPositionSlotId(requestedPosition)
-            .requestedVolunteers(List.of(
-                VolunteerDto.builder().id(otherUserId).build()))
+            .requestedVolunteerIds(List.of(otherUserId))
             .build();
 
         Collection<TradeDto> dtos = assignmentSwitchRequestService.createTrade(createDto, currentUserId);
@@ -135,7 +134,7 @@ public class AssignmentSwitchRequestServiceIT {
             new AssignmentId(requestedSlotId, currentUserId)
         );
 
-        TradeDto dto = assignmentSwitchRequestService.acceptTrade(id, currentUserId);
+        TradeDto dto = assignmentSwitchRequestService.acceptTrade(id);
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(TradeStatus.ACCEPTED, dto.getStatus());
