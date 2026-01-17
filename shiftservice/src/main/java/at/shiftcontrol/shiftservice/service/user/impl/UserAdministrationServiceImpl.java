@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.user.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,25 +57,31 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @AdminOnly
     public PaginationDto<UserEventDto> getAllUsers(int page, int size, UserSearchDto searchDto) {
         var volunteers = volunteerDao.findAll(page, size);
-
         var users = keycloakUserService.getAllAssigned();
-        if (searchDto.getName() != null && !searchDto.getName().isEmpty()) {
-            var nameLower = searchDto.getName().toLowerCase().trim();
-            users = users.stream().filter(x ->
-                    x.getUsername().contains(nameLower)
-                        || x.getFirstName().contains(nameLower)
-                        || x.getLastName().contains(nameLower)
-                )
-                .toList();
-        }
+        users = filterUsers(searchDto, users);
         return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users));
     }
 
     @Override
-    public PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size) {
+    public PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size, UserSearchDto searchDto) {
         var volunteers = volunteerDao.findAll(page, size);
         var totalSize = volunteerDao.findAllSize();
-        return PaginationMapper.toPaginationDto(size, page, totalSize, getUserPlanDtos(shiftPlanId, volunteers));
+        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList()).stream().toList();
+        users = filterUsers(searchDto, users);
+        return PaginationMapper.toPaginationDto(size, page, totalSize, UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId));
+    }
+
+    private static List<UserRepresentation> filterUsers(UserSearchDto searchDto, List<UserRepresentation> users) {
+        if (searchDto.getName() == null || searchDto.getName().isEmpty()) {
+            return users;
+        }
+        var nameLower = searchDto.getName().toLowerCase().trim();
+        return users.stream().filter(x ->
+                x.getUsername().contains(nameLower)
+                    || x.getFirstName().contains(nameLower)
+                    || x.getLastName().contains(nameLower)
+            )
+            .toList();
     }
 
     @Override

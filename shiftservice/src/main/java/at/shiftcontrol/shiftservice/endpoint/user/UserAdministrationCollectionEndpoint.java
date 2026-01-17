@@ -21,6 +21,7 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
+import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 
 @Tag(
@@ -38,14 +39,17 @@ public class UserAdministrationCollectionEndpoint {
         operationId = "getAllUsers",
         description = "Find all users."
     )
-    public PaginationDto<UserPlanDto> getAllUsers(@PathVariable String shiftPlanId, @RequestParam int page, @RequestParam int size) {
-        return service.getAllPlanUsers(ConvertUtil.idToLong(shiftPlanId), page, size);
+    public PaginationDto<UserPlanDto> getAllUsers(@PathVariable String shiftPlanId,
+                                                  @RequestParam int page,
+                                                  @RequestParam int size,
+                                                  @Valid UserSearchDto searchDto) {
+        return service.getAllPlanUsers(ConvertUtil.idToLong(shiftPlanId), page, size, searchDto);
     }
 
     @PatchMapping("/bulk/add")
     @Operation(
-        operationId = "lockUseeInPlan",
-        description = "Lock a user in a given plan"
+        operationId = "bulkAddRoles",
+        description = "Add a list of roles to a list of users"
     )
     public Collection<UserPlanDto> bulkAddRoles(
         @PathVariable String shiftPlanId,
@@ -55,8 +59,8 @@ public class UserAdministrationCollectionEndpoint {
 
     @PatchMapping("/bulk/remove")
     @Operation(
-        operationId = "lockUseeInPlan",
-        description = "Lock a user in a given plan"
+        operationId = "bulkRemoveRoles",
+        description = "Remove a list of plans from a list of users"
     )
     public Collection<UserPlanDto> bulkRemoveRoles(
         @PathVariable String shiftPlanId,

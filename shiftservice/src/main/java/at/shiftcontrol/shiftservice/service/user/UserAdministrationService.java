@@ -16,7 +16,7 @@ import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 public interface UserAdministrationService {
     PaginationDto<UserEventDto> getAllUsers(int page, int size, UserSearchDto searchDt);
 
-    PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size);
+    PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size, UserSearchDto searchDto);
 
     UserEventDto getUser(String userId);
 

@@ -37,14 +37,14 @@ public class AdminUserAdministrationCollectionEndpoint {
         operationId = "getAllUsers",
         description = "Find all users filtered by name. (The filter is searched for in first, last and username)"
     )
-    public PaginationDto<UserEventDto> getAllUsers(@RequestParam int page, @RequestParam int size, UserSearchDto searchDto) {
+    public PaginationDto<UserEventDto> getAllUsers(@RequestParam int page, @RequestParam int size, @Valid UserSearchDto searchDto) {
         return service.getAllUsers(page, size, searchDto);
     }
 
     @PatchMapping("/bulk/add")
     @Operation(
-        operationId = "lockUseeInPlan",
-        description = "Lock a user in a given plan"
+        operationId = "bulkAddVolunteeringPlans",
+        description = "Add a list of volunteering plans to a list of users"
     )
     public Collection<UserEventDto> bulkAddVolunteeringPlans(@RequestBody @Valid UserEventBulkDto updateDto) {
         return service.bulkAddVolunteeringPlans(updateDto);
@@ -52,8 +52,8 @@ public class AdminUserAdministrationCollectionEndpoint {
 
     @PatchMapping("/bulk/remove")
     @Operation(
-        operationId = "lockUseeInPlan",
-        description = "Lock a user in a given plan"
+        operationId = "bulkRemoveVolunteeringPlans",
+        description = "Remove a list of plans from a list of users"
     )
     public Collection<UserEventDto> bulkRemoveVolunteeringPlans(@RequestBody @Valid UserEventBulkDto updateDto) {
         return service.bulkRemoveVolunteeringPlans(updateDto);
