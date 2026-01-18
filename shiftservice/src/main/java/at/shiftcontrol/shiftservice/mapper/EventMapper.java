@@ -50,7 +50,6 @@ public class EventMapper {
         event.setLongDescription(eventModificationDto.getLongDescription());
         event.setStartTime(eventModificationDto.getStartTime());
         event.setEndTime(eventModificationDto.getEndTime());
-        event.setSocialMediaLinks(toSocialMediaLink(eventModificationDto.getSocialMediaLinks()));
     }
 
     public static ActivityScheduleDto toActivityScheduleDto(Event event, List<Activity> activities) {
@@ -74,17 +73,18 @@ public class EventMapper {
             .build();
     }
 
-    public static Collection<SocialMediaLink> toSocialMediaLink(Collection<SocialMediaLinkDto> links) {
+    public static Collection<SocialMediaLink> toSocialMediaLink(Collection<SocialMediaLinkDto> links, Event event) {
         if (links == null) {
             return Collections.emptyList();
         }
-        return links.stream().map(EventMapper::toSocialMediaLink).toList();
+        return links.stream().map(l -> toSocialMediaLink(l, event)).toList();
     }
 
-    public static SocialMediaLink toSocialMediaLink(SocialMediaLinkDto link) {
+    public static SocialMediaLink toSocialMediaLink(SocialMediaLinkDto link, Event event) {
         return SocialMediaLink.builder()
             .type(link.getType())
             .url(link.getUrl())
+            .event(event)
             .build();
     }
 }

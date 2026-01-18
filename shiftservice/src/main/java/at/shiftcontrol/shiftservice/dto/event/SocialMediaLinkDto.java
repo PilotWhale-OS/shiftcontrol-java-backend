@@ -22,4 +22,8 @@ public class SocialMediaLinkDto {
     @NotNull
     @Size(max = 1024)
     private String url;
+
+    public String createKey() {
+        return type.name() + "|" + url.trim();
+    }
 }

@@ -47,4 +47,8 @@ public class SocialMediaLink {
     @Size(max = 1024)
     @Column(nullable = false, length = 1024)
     private String url;
+
+    public String getKey() {
+        return type.name() + "|" + url.trim();
+    }
 }
