@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,5 +85,15 @@ public class ShiftPlanItemEndpoint {
     @ResponseStatus(NO_CONTENT)
     public void patchState(@PathVariable String shiftPlanId, @Valid @RequestBody ShiftPlanPatchStatusDto requestDto) {
         shiftPlanService.updateLockStatus(ConvertUtil.idToLong(shiftPlanId), requestDto.getLockStatus());
+    }
+
+    @PostMapping("/leave")
+    @Operation(
+        operationId = "leaveShiftPlan",
+        description = "Leave a shift plan and remove all existing assignments."
+    )
+    @ResponseStatus(NO_CONTENT)
+    public void leavePlan(@PathVariable String shiftPlanId) {
+        shiftPlanService.leavePlan(ConvertUtil.idToLong(shiftPlanId));
     }
 }

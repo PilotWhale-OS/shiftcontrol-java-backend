@@ -47,7 +47,7 @@ class AssignmentPartTest {
     @Test
     void of_throwsNullPointerException_forNullAssignment() {
         assertThrows(NullPointerException.class, () -> {
-            AssignmentPart.of(null);
+            AssignmentPart.of((Assignment) null);
         });
     }
 }
