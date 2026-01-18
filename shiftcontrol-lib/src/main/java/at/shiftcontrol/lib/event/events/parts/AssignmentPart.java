@@ -1,5 +1,7 @@
 package at.shiftcontrol.lib.event.events.parts;
 
+import java.util.Collection;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,5 +28,10 @@ public class AssignmentPart {
             .status(assignment.getStatus())
             .positionSlot(PositionSlotPart.of(assignment.getPositionSlot()))
             .build();
+    }
+
+    @NonNull
+    public static Collection<AssignmentPart> of(@NonNull Collection<Assignment> assignments) {
+        return assignments.stream().map(AssignmentPart::of).toList();
     }
 }

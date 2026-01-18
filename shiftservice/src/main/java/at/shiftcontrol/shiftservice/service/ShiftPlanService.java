@@ -37,4 +37,6 @@ public interface ShiftPlanService {
     void joinShiftPlan(ShiftPlanJoinRequestDto requestDto);
 
     void updateLockStatus(long shiftPlanId, LockStatus lockStatus);
+
+    void leavePlan(long shiftPlanId);
 }

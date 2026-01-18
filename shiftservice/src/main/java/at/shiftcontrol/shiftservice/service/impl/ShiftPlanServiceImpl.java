@@ -19,6 +19,7 @@ import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.ShiftPlanInvite;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.LeavePlanEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanInviteEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanVolunteerEvent;
@@ -32,6 +33,7 @@ import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanInviteDao;
@@ -51,6 +53,7 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import static at.shiftcontrol.lib.type.LockStatus.SELF_SIGNUP;
 
 @Service
 @RequiredArgsConstructor
@@ -74,6 +77,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private static final String INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private static final int INVITE_CODE_LENGTH = 8;
     private static final int MAX_INVITE_CODE_GENERATION_ATTEMPTS = 10;
+    private final AssignmentDao assignmentDao;
 
     @Override
     public Collection<ShiftPlanDto> getAll(long eventId) {
@@ -92,7 +96,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var event = eventDao.getById(eventId);
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
-        plan.setLockStatus(LockStatus.SELF_SIGNUP);
+        plan.setLockStatus(SELF_SIGNUP);
         plan = shiftPlanDao.save(plan);
 
         // create unspecific invites for volunteer and planner by default
@@ -429,5 +433,31 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
             Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
         shiftPlanDao.save(shiftPlan);
+    }
+
+    @Override
+    @Transactional
+    public void leavePlan(long shiftPlanId) {
+        var plan = shiftPlanDao.getById(shiftPlanId);
+        var user = userProvider.getCurrentUser();
+        if (!user.isVolunteerInPlan(shiftPlanId)) {
+            throw new BadRequestException("User is not volunteer of the provided shiftPlan.");
+        }
+
+        if (!plan.getLockStatus().equals(SELF_SIGNUP)) {
+            throw new BadRequestException("Plan is managed by supervisor, leave is currently not possible.");
+        }
+
+        var existingAssignments = assignmentDao.findAssignmentsForShiftPlanAndUser(shiftPlanId, user.getUserId());
+        if (!existingAssignments.isEmpty()) {
+            assignmentDao.deleteAll(existingAssignments);
+        }
+
+        var volunteer = volunteerDao.getById(user.getUserId());
+        volunteer.getVolunteeringPlans().remove(plan);
+
+        userAttributeProvider.invalidateUserCache(user.getUserId());
+
+        publisher.publishEvent(LeavePlanEvent.leavePlan(volunteer, String.valueOf(shiftPlanId), existingAssignments));
     }
 }
