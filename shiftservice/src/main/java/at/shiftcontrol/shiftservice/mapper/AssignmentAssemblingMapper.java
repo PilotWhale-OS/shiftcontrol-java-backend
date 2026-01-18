@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -10,15 +9,11 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 
 @RequiredArgsConstructor
 @Service
 public class AssignmentAssemblingMapper {
-    public static final EnumSet<AssignmentStatus> ACTIVE_AUCTION_STATES =
-        EnumSet.of(AssignmentStatus.AUCTION, AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
-
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
 
     public AssignmentDto toDto(@NonNull Assignment assignment) {

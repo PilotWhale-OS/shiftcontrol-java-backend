@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
-import java.util.Collection;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.dto.TrustAlertDto;
+import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 import at.shiftcontrol.shiftservice.service.TrustAlertService;
 
@@ -30,7 +29,7 @@ public class TrustAlertEndpoint {
         operationId = "getAllTrustAlerts",
         description = "Retrieves all trust alerts"
     )
-    public Collection<TrustAlertDisplayDto> getAllTrustAlerts(@RequestParam long page, @RequestParam long size) {
+    public PaginationDto<TrustAlertDisplayDto> getAllTrustAlerts(@RequestParam int page, @RequestParam int size) {
         return trustAlertService.getAllPaginated(page, size);
     }
 

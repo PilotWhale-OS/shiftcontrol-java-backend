@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +64,11 @@ public class EventDaoImpl implements EventDao {
 
             return predicates;
         });
+    }
+
+    @Override
+    public Collection<Event> getAllOngoingEventsForUser(String currentUser) {
+        return eventRepository.getAllOngoingEventsForUser(currentUser, Instant.now());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.repo;
 
+import java.time.Instant;
 import java.util.Collection;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,4 +32,19 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
               )
         """)
     Collection<PlanVolunteerIdRow> getPlannersForEventAndUser(long eventId, String userId);
+
+    @Query("""
+        SELECT DISTINCT e
+        FROM Event e
+        WHERE e.startTime <= :now
+          AND :now <= e.endTime
+          AND EXISTS (
+              SELECT 1
+              FROM Volunteer v
+              JOIN v.volunteeringPlans vp
+              WHERE v.id = :userId
+                AND vp.event = e
+          )
+        """)
+    Collection<Event> getAllOngoingEventsForUser(String userId, Instant now);
 }

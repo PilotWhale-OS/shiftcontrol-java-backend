@@ -1,13 +1,22 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.AssignmentPair;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
@@ -17,6 +26,8 @@ import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
 @Component
 public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDao {
     private final AssignmentSwitchRequestRepository assignmentSwitchRequestRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public @NonNull String getName() {
@@ -79,5 +90,30 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
             trade.getRequestedAssignment().getId(),
             trade.getOfferingAssignment().getId()
         );
+    }
+
+    public Collection<AssignmentSwitchRequest> findAllByAssignmentPairs(Collection<AssignmentPair> pairs) {
+        if (pairs.isEmpty()) {
+            return List.of();
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<AssignmentSwitchRequest> cq = cb.createQuery(AssignmentSwitchRequest.class);
+        Root<AssignmentSwitchRequest> root = cq.from(AssignmentSwitchRequest.class);
+
+        List<Predicate> orPredicates = new ArrayList<>();
+
+        for (AssignmentPair pair : pairs) {
+            orPredicates.add(
+                cb.and(
+                    cb.equal(root.get("offeringAssignment").get("id"), pair.getOfferingId()),
+                    cb.equal(root.get("requestedAssignment").get("id"), pair.getRequestedId())
+                )
+            );
+        }
+
+        cq.where(cb.or(orPredicates.toArray(new Predicate[0])));
+
+        return entityManager.createQuery(cq).getResultList();
     }
 }

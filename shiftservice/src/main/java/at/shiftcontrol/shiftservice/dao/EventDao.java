@@ -10,6 +10,8 @@ import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
 public interface EventDao extends BasicDao<Event, Long> {
     List<Event> search(EventSearchDto searchDto);
 
+    Collection<Event> getAllOngoingEventsForUser(String currentUser);
+
     Collection<Event> findAll();
 
     boolean existsByNameIgnoreCase(String name);

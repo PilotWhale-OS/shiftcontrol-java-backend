@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.integration;
 
 import java.time.Instant;
-import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,6 +12,7 @@ import at.shiftcontrol.lib.dto.TrustAlertDto;
 import at.shiftcontrol.lib.entity.TrustAlert;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.TrustAlertType;
+import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.TrustAlertRepository;
@@ -71,11 +71,11 @@ public class TrustAlertIT extends RestITBase {
         long size = 1;
         var result = getRequestAsAdmin(
             TRUST_ALERT_PATH + TRUST_ALERT_QUERY_PARAMS.formatted(page, size),
-            Collection.class
+            PaginationDto.class
         );
         assertThat(result).isNotNull();
-        assertFalse(result.isEmpty());
-        TrustAlertDisplayDto alert = objectMapper.convertValue(result.stream().findFirst().get(), TrustAlertDisplayDto.class);
+        assertFalse(result.getItems().isEmpty());
+        TrustAlertDisplayDto alert = objectMapper.convertValue(result.getItems().stream().findFirst().get(), TrustAlertDisplayDto.class);
         assertAll(
             () -> assertEquals(trustAlertB.getAlertType(), alert.getAlertType()),
             () -> assertTrue(Math.abs(

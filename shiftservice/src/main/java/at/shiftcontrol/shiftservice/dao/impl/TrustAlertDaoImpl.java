@@ -30,4 +30,9 @@ public class TrustAlertDaoImpl implements TrustAlertDao {
     public void delete(long id) {
         repository.deleteById(id);
     }
+
+    @Override
+    public long findAllSize() {
+        return repository.findAllSize();
+    }
 }

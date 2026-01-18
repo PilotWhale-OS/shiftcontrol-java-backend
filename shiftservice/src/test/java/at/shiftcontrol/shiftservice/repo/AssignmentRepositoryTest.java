@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.repo;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,17 +32,31 @@ public class AssignmentRepositoryTest {
     }
 
     @Test
-    void testFindAuctionsByShiftPlanId() {
-        long shiftPlanId = 3L;
+    void testFindSignupRequestsByShiftPlanId() {
+        long shiftPlanId = 1L;
 
-        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanId(shiftPlanId);
+        Collection<Assignment> assignments = assignmentRepository.findSignupRequestsByShiftPlanId(shiftPlanId, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
 
         Assertions.assertFalse(assignments.isEmpty());
         assignments.forEach(
             a -> Assertions.assertAll(
                 () -> Assertions.assertEquals(shiftPlanId, a.getPositionSlot().getShift().getShiftPlan().getId()),
-                () -> Assertions.assertTrue(
-                    EnumSet.of(AssignmentStatus.AUCTION, AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN).contains(a.getStatus())
+                () -> Assertions.assertEquals(AssignmentStatus.REQUEST_FOR_ASSIGNMENT, a.getStatus())
+            )
+        );
+    }
+
+    @Test
+    void testFindAuctionsByShiftPlanId() {
+        long shiftPlanId = 3L;
+
+        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanId(shiftPlanId, AssignmentStatus.ACTIVE_AUCTION_STATES);
+
+        Assertions.assertFalse(assignments.isEmpty());
+        assignments.forEach(
+            a -> Assertions.assertAll(
+                () -> Assertions.assertEquals(shiftPlanId, a.getPositionSlot().getShift().getShiftPlan().getId()),
+                () -> Assertions.assertTrue(AssignmentStatus.ACTIVE_AUCTION_STATES.contains(a.getStatus())
                 )
             )
         );
@@ -54,14 +67,13 @@ public class AssignmentRepositoryTest {
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long shiftPlanId = 3L;
 
-        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanIdExcludingUser(shiftPlanId, userId);
+        Collection<Assignment> assignments = assignmentRepository.findAuctionsByShiftPlanIdExcludingUser(shiftPlanId, userId, AssignmentStatus.ACTIVE_AUCTION_STATES);
 
         Assertions.assertFalse(assignments.isEmpty());
         assignments.forEach(
             a -> Assertions.assertAll(
                 () -> Assertions.assertEquals(shiftPlanId, a.getPositionSlot().getShift().getShiftPlan().getId()),
-                () -> Assertions.assertTrue(
-                    EnumSet.of(AssignmentStatus.AUCTION, AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN).contains(a.getStatus())),
+                () -> Assertions.assertTrue(AssignmentStatus.ACTIVE_AUCTION_STATES.contains(a.getStatus())),
                 () -> Assertions.assertNotEquals(userId, a.getAssignedVolunteer().getId())
             )
         );

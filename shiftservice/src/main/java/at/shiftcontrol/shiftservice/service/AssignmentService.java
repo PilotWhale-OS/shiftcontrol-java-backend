@@ -62,11 +62,18 @@ public interface AssignmentService {
     void unassign(Assignment assignment);
 
     /**
-     * unassign all volunteers from auctions for a given shift plan.
+     * unassign all volunteers from auctions and declines join requests for a given shift plan.
      * deletes all involved trades in the process
      * updates reward points & publishes event
      *
      * @param shiftPlan to unassign all auctions
      */
     void unassignAllAuctions(ShiftPlan shiftPlan);
+
+    /**
+     * declines all signuprequests for a given shiftplan.
+     *
+     * @param shiftPlan to decline all signup requests
+     */
+    void declineAllSignupRequests(ShiftPlan shiftPlan);
 }

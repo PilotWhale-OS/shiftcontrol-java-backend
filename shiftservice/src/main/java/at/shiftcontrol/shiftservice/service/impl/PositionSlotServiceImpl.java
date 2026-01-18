@@ -3,6 +3,14 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -33,12 +41,6 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -82,7 +84,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment assignment = assignmentService.assign(positionSlot, volunteer, requestDto);
 
         // save and return
-        return assignmentAssemblingMapper.toDto(assignmentDao.save(assignment));
+        return assignmentAssemblingMapper.toDto(assignment);
     }
 
     @Override
@@ -114,6 +116,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // create assignment
         Assignment joinRequest = Assignment.of(positionSlot, volunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
+        joinRequest = assignmentDao.save(joinRequest);
 
         // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
@@ -121,7 +124,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                     "volunteerId", currentUserId)),
             positionSlot, currentUserId));
 
-        return assignmentAssemblingMapper.toDto(assignmentDao.save(joinRequest));
+        return assignmentAssemblingMapper.toDto(joinRequest);
     }
 
     @Override
@@ -135,14 +138,13 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // update assignment
         assignment.setStatus(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
+        assignmentDao.save(assignment);
 
         // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", currentUserId)),
             assignment.getPositionSlot(), currentUserId));
-
-        assignmentDao.save(assignment);
     }
 
     @Override
@@ -155,13 +157,13 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new IllegalArgumentException("Assignment not in request status");
         }
         LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw join request");
-        // delete assignment
-        assignmentDao.delete(assignment);
         // publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", currentUserId)),
             assignment.getPositionSlot(), currentUserId));
+        // delete assignment
+        assignmentDao.delete(assignment);
     }
 
     @Override
@@ -226,13 +228,14 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             default:
                 throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
+        assignment = assignmentDao.save(assignment);
 
         publisher.publishEvent(AssignmentEvent.of(
             RoutingKeys.format(RoutingKeys.AUCTION_CREATED,
                 Map.of("positionSlotId", String.valueOf(positionSlotId))
             ), assignment
         ));
-        return assignmentAssemblingMapper.toDto(assignmentDao.save(assignment));
+        return assignmentAssemblingMapper.toDto(assignment);
     }
 
     @Override
