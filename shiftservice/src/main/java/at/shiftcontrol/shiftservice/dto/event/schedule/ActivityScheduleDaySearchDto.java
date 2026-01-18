@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.event;
+package at.shiftcontrol.shiftservice.dto.event.schedule;
 
 import java.time.LocalDate;
 
@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EventScheduleDaySearchDto {
+public class ActivityScheduleDaySearchDto {
     @NotNull
     private LocalDate date;
 }

@@ -1,19 +1,18 @@
-package at.shiftcontrol.shiftservice.dto.shiftplan;
+package at.shiftcontrol.shiftservice.dto.event.schedule;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import at.shiftcontrol.shiftservice.dto.location.LocationDto;
-import at.shiftcontrol.shiftservice.dto.role.RoleDto;
-
 @Data
 @Builder
-public class ShiftPlanScheduleFilterValuesDto {
+public class EventScheduleFilterValuesDto {
     @NotNull
     @Valid
     private Collection<LocationDto> locations;

@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.shiftplan;
+package at.shiftcontrol.shiftservice.dto.event.schedule;
 
 import java.util.Collection;
 
@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ShiftPlanScheduleLayoutDto {
+public class EventScheduleLayoutDto {
     @NotNull
     @Valid
     private Collection<ScheduleLayoutDto> scheduleLayoutDtos;

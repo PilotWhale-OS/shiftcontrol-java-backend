@@ -37,6 +37,7 @@ public class ShiftAssemblingMapper {
             shift.getStartTime(),
             shift.getEndTime(),
             relatedActivity == null ? null : ActivityMapper.toActivityDto(relatedActivity),
+            ShiftPlanMapper.toShiftPlanDto(shift.getShiftPlan()),
             positionSlots,
             location == null ? null : LocationMapper.toLocationDto(location),
             shift.getShiftPlan().getLockStatus(),

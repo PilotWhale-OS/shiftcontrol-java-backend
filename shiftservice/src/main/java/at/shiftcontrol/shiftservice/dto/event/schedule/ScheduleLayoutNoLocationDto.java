@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.shiftplan;
+package at.shiftcontrol.shiftservice.dto.event.schedule;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
