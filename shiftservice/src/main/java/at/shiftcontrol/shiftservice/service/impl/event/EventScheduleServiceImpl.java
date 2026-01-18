@@ -305,10 +305,27 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .filter(Objects::nonNull)
             .toList();
 
-        return getFilterValuesFromAllShifts(allShifts, event);
+        var incompleteDto = getDatesFromAllShifts(allShifts, event);
+
+        var locations = event.getLocations().stream()
+            .map(LocationMapper::toLocationDto)
+            .toList();
+
+        var roles = shiftPlans.stream()
+            .flatMap(shiftPlan -> shiftPlan.getRoles().stream())
+            .distinct()
+            .map(RoleMapper::toRoleDto)
+            .toList();
+
+        return EventScheduleFilterValuesDto.builder()
+            .locations(locations)
+            .roles(roles)
+            .firstDate(incompleteDto.getFirstDate())
+            .lastDate(incompleteDto.getLastDate())
+            .build();
     }
 
-    private EventScheduleFilterValuesDto getFilterValuesFromAllShifts(Collection<Shift> shifts, Event event) {
+    private EventScheduleFilterValuesDto getDatesFromAllShifts(Collection<Shift> shifts, Event event) {
         if (shifts.isEmpty()) {
             return EventScheduleFilterValuesDto.builder()
                 .locations(List.of())
@@ -317,17 +334,6 @@ public class EventScheduleServiceImpl implements EventScheduleService {
                 .lastDate(TimeUtil.convertToUtcLocalDate(event.getEndTime()))
                 .build();
         }
-        var locations = shifts.stream()
-            .map(Shift::getLocation)
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
-        var roles = shifts.stream()
-            .flatMap(shift -> shift.getSlots().stream())
-            .map(PositionSlot::getRole)
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
         // Determine first and last date from shifts and related activities
         var firstDate = Stream.concat(
                 shifts.stream().map(Shift::getStartTime),
@@ -353,8 +359,8 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .orElse(TimeUtil.convertToUtcLocalDate(event.getEndTime()));
 
         return EventScheduleFilterValuesDto.builder()
-            .locations(locations.isEmpty() ? List.of() : LocationMapper.toLocationDto(locations))
-            .roles(roles.isEmpty() ? List.of() : RoleMapper.toRoleDto(roles))
+            .locations(List.of())
+            .roles(List.of())
             .firstDate(firstDate)
             .lastDate(lastDate)
             .build();
