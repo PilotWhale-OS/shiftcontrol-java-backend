@@ -16,6 +16,7 @@ import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -70,7 +71,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
             }
             case REQUEST_FOR_ASSIGNMENT -> {
                 if (!eligibilityService.hasCapacity(assignment.getPositionSlot())) {
-                    throw new IllegalStateException("Slot is already full");
+                    throw new IllegalArgumentException("Slot is already full");
                 }
                 assignmentService.accept(assignment);
                 routingKey = RoutingKeys.POSITIONSLOT_REQUEST_JOIN_ACCEPTED;

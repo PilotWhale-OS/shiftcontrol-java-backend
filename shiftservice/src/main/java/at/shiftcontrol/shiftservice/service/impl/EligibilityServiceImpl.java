@@ -11,6 +11,7 @@ import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.lib.type.TradeStatus;

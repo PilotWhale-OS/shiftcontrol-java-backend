@@ -25,6 +25,7 @@ import at.shiftcontrol.lib.event.events.ShiftPlanInviteEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanVolunteerEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.exception.UnauthorizedException;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.ShiftPlanInviteType;
@@ -305,7 +306,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             case PLANNER_JOIN -> {
                 return shiftPlan.getPlanPlanners().contains(volunteer);
             }
-            default -> throw new BadRequestException("Unknown invite type");
+            default -> throw new IllegalStateException("Unknown invite type: " + type);
         }
     }
 
@@ -403,7 +404,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 }
                 return true;
             }
-            default -> throw new BadRequestException("Unknown invite type");
+            default -> throw new IllegalStateException("Unknown invite type: " + type);
         }
     }
 
