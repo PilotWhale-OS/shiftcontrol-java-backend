@@ -7,11 +7,11 @@ import jakarta.validation.Valid;
 import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
-import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
+import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentPlannerInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 
 public interface PlannerPositionSlotService {
-    Collection<AssignmentRequestDto> getSlots(long shiftPlanId, @Valid AssignmentFilterDto filterDto);
+    Collection<AssignmentPlannerInfoDto> getSlots(long shiftPlanId, @Valid AssignmentFilterDto filterDto);
 
     void acceptRequest(long shiftPlanId, long positionSlotId, String userId);
 
