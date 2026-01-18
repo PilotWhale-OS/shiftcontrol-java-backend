@@ -1,13 +1,18 @@
 package at.shiftcontrol.shiftservice.mapper;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.SocialMediaLink;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
+import at.shiftcontrol.shiftservice.dto.event.SocialMediaLinkDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDto;
-import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EventMapper {
@@ -19,6 +24,7 @@ public class EventMapper {
             .shortDescription(event.getShortDescription())
             .startTime(event.getStartTime())
             .endTime(event.getEndTime())
+            .socialMediaLinks(toSocialMediaLinkDto(event.getSocialMediaLinks()))
             .build();
     }
 
@@ -53,4 +59,32 @@ public class EventMapper {
             .build();
     }
 
+    public static Collection<SocialMediaLinkDto> toSocialMediaLinkDto(Collection<SocialMediaLink> links) {
+        if (links == null) {
+            return Collections.emptyList();
+        }
+        return links.stream().map(EventMapper::toSocialMediaLinkDto).toList();
+    }
+
+    public static SocialMediaLinkDto toSocialMediaLinkDto(SocialMediaLink link) {
+        return SocialMediaLinkDto.builder()
+            .type(link.getType())
+            .url(link.getUrl())
+            .build();
+    }
+
+    public static Collection<SocialMediaLink> toSocialMediaLink(Collection<SocialMediaLinkDto> links, Event event) {
+        if (links == null) {
+            return Collections.emptyList();
+        }
+        return links.stream().map(l -> toSocialMediaLink(l, event)).toList();
+    }
+
+    public static SocialMediaLink toSocialMediaLink(SocialMediaLinkDto link, Event event) {
+        return SocialMediaLink.builder()
+            .type(link.getType())
+            .url(link.getUrl())
+            .event(event)
+            .build();
+    }
 }

@@ -53,6 +53,9 @@ public class Event {
     private Instant endTime;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<SocialMediaLink> socialMediaLinks;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Location> locations;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -63,12 +66,13 @@ public class Event {
 
     @Override
     public String toString() {
-        return "Event{id=%d, name='%s', startTime=%s, endTime=%s, locations=%s, attendances=%s, shiftPlans=%s}"
+        return "Event{id=%d, name='%s', startTime=%s, endTime=%s, socialMediaLinks=%s locations=%s, shiftPlans=%s}"
             .formatted(
                 id,
                 name,
                 startTime,
                 endTime,
+                socialMediaLinks.stream().map(SocialMediaLink::getId).toList(),
                 locations.stream().map(Location::getId).toList(),
                 shiftPlans.stream().map(ShiftPlan::getId).toList()
             );
