@@ -11,6 +11,7 @@ import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
@@ -43,6 +44,9 @@ public class AssignmentSwitchRequestServiceTest {
     AssignmentDao assignmentDao;
     @Autowired
     TestEntityFactory testEntityFactory;
+
+    @Autowired
+    RewardPointsLedgerService rewardPointsLedgerService;
 
     @Autowired
     UserAttributeProvider attributeProvider;
@@ -126,9 +130,24 @@ public class AssignmentSwitchRequestServiceTest {
         Mockito.when(userProfileService.getUserProfile(any()))
             .thenReturn(testEntityFactory.getUserProfileDtoWithId(currentUserId));
 
+        var pointsOfferedBeforeTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
+        var pointsRequestedBeforeTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
         TradeDto dto = assignmentSwitchRequestService.acceptTrade(1, currentUserId);
+        var pointsOfferedAfterTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
+        var pointsRequestedAfterTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
+
 
         Assertions.assertNotNull(dto);
+        // check initial reward points before trade
+        Assertions.assertEquals(10, pointsOfferedBeforeTrade);
+        Assertions.assertEquals(30, pointsRequestedBeforeTrade);
+        // check reward points swapped after trade
+        Assertions.assertEquals(30, pointsOfferedAfterTrade);
+        Assertions.assertEquals(10, pointsRequestedAfterTrade);
+        // check reward points in dto
+        Assertions.assertEquals(30, dto.getOfferingAssignment().getAcceptedRewardPoints());
+        Assertions.assertEquals(10, dto.getRequestedAssignment().getAcceptedRewardPoints());
+
         Assertions.assertEquals(TradeStatus.ACCEPTED, dto.getStatus());
         Assertions.assertEquals(currentUserId, dto.getOfferingAssignment().getAssignedVolunteer().getId());
         Assertions.assertEquals(String.valueOf(offeredSlotId), dto.getOfferingAssignment().getPositionSlotId());
