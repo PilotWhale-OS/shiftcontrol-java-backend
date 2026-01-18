@@ -28,7 +28,7 @@ import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
-import at.shiftcontrol.shiftservice.mapper.AssignmentRequestMapper;
+import at.shiftcontrol.shiftservice.mapper.AssignmentRequestAssamblingMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
@@ -48,13 +48,13 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final EligibilityService eligibilityService;
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
-    private final AssignmentRequestMapper assignmentRequestMapper;
+    private final AssignmentRequestAssamblingMapper assignmentRequestAssamblingMapper;
 
     @Override
     public Collection<AssignmentRequestDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) {
         var plan = shiftPlanDao.getById(shiftPlanId);
         securityHelper.assertUserIsPlanner(plan);
-        return assignmentRequestMapper.toAssignmentRequestDto(plan.getShifts());
+        return assignmentRequestAssamblingMapper.toAssignmentRequestDto(plan.getShifts(), filterDto);
     }
 
     @Override

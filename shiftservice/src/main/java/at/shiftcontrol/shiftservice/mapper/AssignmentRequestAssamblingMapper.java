@@ -13,30 +13,33 @@ import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
 
 @RequiredArgsConstructor
 @Service
-public class AssignmentRequestMapper {
+public class AssignmentRequestAssamblingMapper {
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
 
-    public Collection<AssignmentRequestDto> toAssignmentRequestDto(Collection<Shift> shifts) {
+    public Collection<AssignmentRequestDto> toAssignmentRequestDto(Collection<Shift> shifts, AssignmentFilterDto filterDto) {
         if (shifts == null || shifts.isEmpty()) {
             return List.of();
         }
 
         return shifts.stream()
             .filter(Objects::nonNull)
-            .map(this::toAssignmentRequestDto)
+            .map(shift -> toAssignmentRequestDto(shift, filterDto))
             .collect(Collectors.toList());
     }
 
-    private AssignmentRequestDto toAssignmentRequestDto(Shift shift) {
+    private AssignmentRequestDto toAssignmentRequestDto(Shift shift, AssignmentFilterDto filterDto) {
         Collection<AssignmentDto> requests =
             safeSlots(shift.getSlots()).stream()
                 .flatMap(slot -> safeAssignments(slot.getAssignments()).stream()
-                    .map(assignment -> toAssignmentDto(slot, assignment))
-                )
+                    .map(assignment -> toAssignmentDto(slot, assignment)))
+                .filter(a -> filterDto == null
+                    || filterDto.getStatuses() == null
+                    || filterDto.getStatuses().contains(a.getStatus()))
                 .collect(Collectors.toList());
 
         return AssignmentRequestDto.builder()
