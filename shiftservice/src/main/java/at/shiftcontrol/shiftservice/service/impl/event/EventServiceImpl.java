@@ -97,6 +97,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Collection<EventDto> getAllOngoingEvents(String currentUser) {
+        return EventMapper.toEventDto(eventDao.getAllOngoingEventsForUser(currentUser));
+    }
+
+    @Override
     public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) {
         return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId));
     }

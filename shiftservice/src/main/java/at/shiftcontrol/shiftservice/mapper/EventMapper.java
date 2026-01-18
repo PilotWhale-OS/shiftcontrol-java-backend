@@ -31,7 +31,7 @@ public class EventMapper {
             .build();
     }
 
-    public static List<EventDto> toEventDto(List<Event> events) {
+    public static List<EventDto> toEventDto(Collection<Event> events) {
         return events.stream()
             .map(EventMapper::toEventDto)
             .toList();

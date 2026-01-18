@@ -15,12 +15,14 @@ public interface EventService {
 
     List<EventDto> search(EventSearchDto searchDto);
 
+    Collection<EventDto> getAllOngoingEvents(String currentUser);
+
     List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId);
 
     Collection<ShiftPlanContactInfoDto> getPlannerContactInfo(long eventId, String userId);
 
     EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId);
-    
+
     EventDto createEvent(EventModificationDto modificationDto);
 
     EventDto updateEvent(long eventId, EventModificationDto eventModificationDto);
