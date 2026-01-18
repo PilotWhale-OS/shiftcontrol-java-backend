@@ -717,9 +717,10 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         if (shiftPlan.getLockStatus().equals(lockStatus)) {
             throw new BadRequestException("Lock status already in requested state");
         }
-        // automatically unassign all open auctions when switching back to SELF_SIGNUP
+        // automatically unassign all open auctions and decline all signup requests when switching back to SELF_SIGNUP
         if (lockStatus.equals(LockStatus.SELF_SIGNUP)) {
             assignmentService.unassignAllAuctions(shiftPlan);
+            assignmentService.declineAllSignupRequests(shiftPlan);
         }
         shiftPlan.setLockStatus(lockStatus);
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,

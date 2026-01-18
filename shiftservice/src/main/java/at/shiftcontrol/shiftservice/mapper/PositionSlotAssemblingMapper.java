@@ -3,10 +3,6 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
-import at.shiftcontrol.shiftservice.dao.AssignmentDao;
-
-import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
-
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -16,8 +12,11 @@ import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
@@ -26,7 +25,6 @@ import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
-import static at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper.ACTIVE_AUCTION_STATES;
 
 @RequiredArgsConstructor
 @Service
@@ -83,7 +81,7 @@ public class PositionSlotAssemblingMapper {
     }
 
     public PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
-                                        Collection<AssignmentSwitchRequest> offeredTradesForUser ,Collection<AssignmentSwitchRequest> requestedTradesForUser,
+                                        Collection<AssignmentSwitchRequest> offeredTradesForUser, Collection<AssignmentSwitchRequest> requestedTradesForUser,
                                  int preferenceValue, RewardPointsDto rewardPointsDto) {
         Collection<AssignmentDto> assignmentDtos;
         Collection<AssignmentDto> auctionDtos;
@@ -95,7 +93,7 @@ public class PositionSlotAssemblingMapper {
         } else {
             assignmentDtos = assignmentAssemblingMapper.toDto(activeAssignments);
             auctionDtos = assignmentAssemblingMapper.toDto(activeAssignments.stream()
-                .filter(a -> ACTIVE_AUCTION_STATES.contains(a.getStatus()))
+                .filter(a -> AssignmentStatus.ACTIVE_AUCTION_STATES.contains(a.getStatus()))
                 .toList()); // get open auctions for this slot
         }
         return new PositionSlotDto(

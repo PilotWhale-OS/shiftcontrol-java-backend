@@ -173,4 +173,20 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         assignmentDao.deleteAll(auctions);
     }
+
+    @Override
+    @Transactional
+    public void declineAllSignupRequests(ShiftPlan shiftPlan) {
+        Collection<Assignment> requests = assignmentDao.findSignupRequestsByShiftPlanId(shiftPlan.getId());
+
+        requests.forEach(request -> {
+            // publish event
+            publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED,
+                    Map.of("positionSlotId", String.valueOf((request.getPositionSlot().getId())),
+                        "volunteerId", request.getAssignedVolunteer().getId())),
+                request.getPositionSlot(), request.getAssignedVolunteer().getId()));
+        });
+
+        assignmentDao.deleteAll(requests);
+    }
 }
