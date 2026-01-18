@@ -133,20 +133,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     @IsNotAdmin
     public void onAssignmentReassignedAuction(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment,
                                               @NonNull String acceptedRewardPointsHash) throws ConflictException {
-        // recalculate points for new assignment via auction
-        onAssignmentReassigned(oldAssignment, newAssignment, acceptedRewardPointsHash, true);
-    }
-
-    @Override
-    @Transactional
-    @IsNotAdmin
-    public void onAssignmentReassignedTrade(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment) throws ConflictException {
-        // simply reuse old points snapshot and do not recalculate
-        onAssignmentReassigned(oldAssignment, newAssignment, null, false);
-    }
-
-    private void onAssignmentReassigned(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment,
-                                        String acceptedRewardPointsHash, boolean recalculate) throws ConflictException {
         PositionSlot slot = oldAssignment.getPositionSlot();
         // reverse old assignment
         int oldPointsSnapshot = oldAssignment.getAcceptedRewardPoints();
@@ -169,26 +155,9 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             oldAssignment.setAcceptedRewardPoints(0);
         }
 
-
-        RewardPointsSnapshotDto newSnapshot;
-        if (recalculate) {
-            if (acceptedRewardPointsHash == null) {
-                throw new IllegalArgumentException("acceptedRewardPointsHash must not be null when recalculating");
-            }
-            // re-calculate + earn for new assignment
-            validateHash(slot, acceptedRewardPointsHash);
-            newSnapshot = calculator.calculateForAssignment(slot);
-        } else {
-            if (acceptedRewardPointsHash != null) {
-                throw new IllegalArgumentException("acceptedRewardPointsHash must be null when not recalculating");
-            }
-
-            // use old snapshot
-            newSnapshot = new RewardPointsSnapshotDto(
-                oldPointsSnapshot,
-                Map.of("note", "reused points from previous assignment because of trade")
-            );
-        }
+        // re-calculate + earn for new assignment
+        validateHash(slot, acceptedRewardPointsHash);
+        RewardPointsSnapshotDto newSnapshot = calculator.calculateForAssignment(slot);
 
         String earnKey = sourceKeyReassignEarn(
             slot.getId(),
@@ -207,6 +176,71 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             // only set if booking for new assigment was created
             newAssignment.setAcceptedRewardPoints(newSnapshot.rewardPoints());
         }
+    }
+
+    @Override
+    @Transactional
+    @IsNotAdmin
+    public void onAssignmentReassignedTrade(@NonNull Assignment offeringAssignment, @NonNull Assignment requestedAssignment) throws ConflictException {
+        int offeringPoints = offeringAssignment.getAcceptedRewardPoints();
+        int requestedPoints = requestedAssignment.getAcceptedRewardPoints();
+
+        // create ledger entries for both reversals and earnings for both assignments
+        String reversalKeyOffering = sourceKeyReassignReversal(
+            offeringAssignment.getPositionSlot().getId(),
+            requestedAssignment.getAssignedVolunteer().getId(),
+            offeringAssignment.getAssignedVolunteer().getId()
+        );
+
+        // take away old points
+        ledgerService.bookReversal(RewardPointsMapper.toRewardPointsTransactionDto(
+            offeringAssignment,
+            requestedPoints,
+            reversalKeyOffering,
+            Map.of("note", "reversal due to trade")
+        ));
+
+        String earnKeyOffering = sourceKeyReassignEarn(
+            offeringAssignment.getPositionSlot().getId(),
+            requestedAssignment.getAssignedVolunteer().getId(),
+            offeringAssignment.getAssignedVolunteer().getId()
+        );
+
+        // give new points
+        ledgerService.bookEarn(RewardPointsMapper.toRewardPointsTransactionDto(
+            offeringAssignment,
+            offeringPoints,
+            earnKeyOffering,
+            Map.of("note", "earn due to trade")
+        ));
+
+
+        String reversalKeyRequested = sourceKeyReassignReversal(
+            requestedAssignment.getPositionSlot().getId(),
+            offeringAssignment.getAssignedVolunteer().getId(),
+            requestedAssignment.getAssignedVolunteer().getId()
+        );
+
+        // take away old points
+        ledgerService.bookReversal(RewardPointsMapper.toRewardPointsTransactionDto(
+            requestedAssignment,
+            offeringPoints,
+            reversalKeyRequested,
+            Map.of("note", "reversal due to trade")
+        ));
+
+        String earnKeyRequested = sourceKeyReassignEarn(
+            requestedAssignment.getPositionSlot().getId(),
+            offeringAssignment.getAssignedVolunteer().getId(),
+            requestedAssignment.getAssignedVolunteer().getId()
+        );
+
+        ledgerService.bookEarn(RewardPointsMapper.toRewardPointsTransactionDto(
+            requestedAssignment,
+            requestedPoints,
+            earnKeyRequested,
+            Map.of("note", "earn due to trade")
+        ));
     }
 
     private void validateHash(@NonNull PositionSlot slot, @NonNull String acceptedRewardPointsHash) throws ConflictException {

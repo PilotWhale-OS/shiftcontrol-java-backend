@@ -148,25 +148,17 @@ public class AssignmentSwitchRequestServiceTest {
         Mockito.when(keycloakUserService.getUserById(any()))
             .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
 
-        var pointsOfferedBeforeTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
-        var pointsRequestedBeforeTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
+        var pointsOtherUserBeforeTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
+        var pointsCurrentUserBeforeTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
         TradeDto dto = assignmentSwitchRequestService.acceptTrade(1, currentUserId);
-        var pointsOfferedAfterTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
-        var pointsRequestedAfterTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
-
+        var pointsOtherUserAfterTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
+        var pointsCurrentUserAfterTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
 
         Assertions.assertNotNull(dto);
-        // check initial reward points before trade
-        Assertions.assertEquals(10, pointsOfferedBeforeTrade);
-        Assertions.assertEquals(30, pointsRequestedBeforeTrade);
-        // check reward points swapped after trade
-        Assertions.assertEquals(30, pointsOfferedAfterTrade);
-        Assertions.assertEquals(10, pointsRequestedAfterTrade);
-        // check reward points in dto
-        Assertions.assertEquals(30, dto.getOfferingAssignment().getAcceptedRewardPoints());
-        Assertions.assertEquals(10, dto.getRequestedAssignment().getAcceptedRewardPoints());
 
         Assertions.assertEquals(TradeStatus.ACCEPTED, dto.getStatus());
+
+        // check if volunteers swapped (current user had the requested assignment, now has the offered one, and vice versa)
         Assertions.assertEquals(currentUserId, dto.getOfferingAssignment().getAssignedVolunteer().getId());
         Assertions.assertEquals(String.valueOf(offeredSlotId), dto.getOfferingAssignment().getPositionSlotId());
         // check if new assignment exists
@@ -179,6 +171,16 @@ public class AssignmentSwitchRequestServiceTest {
         Assertions.assertFalse(deletedOffered.isPresent());
         var deletedRequested = assignmentDao.findBySlotAndUser(requestedSlotId, currentUserId);
         Assertions.assertFalse(deletedRequested.isPresent());
+
+        // check initial reward points before trade
+        Assertions.assertEquals(10, pointsOtherUserBeforeTrade);
+        Assertions.assertEquals(30, pointsCurrentUserBeforeTrade);
+        // check reward points swapped after trade
+        Assertions.assertEquals(30, pointsOtherUserAfterTrade);
+        Assertions.assertEquals(10, pointsCurrentUserAfterTrade);
+        // check reward points in dto stay the same for assignment (only volunteers swapped)
+        Assertions.assertEquals(10, dto.getOfferingAssignment().getAcceptedRewardPoints());
+        Assertions.assertEquals(30, dto.getRequestedAssignment().getAcceptedRewardPoints());
     }
 
     @Test
