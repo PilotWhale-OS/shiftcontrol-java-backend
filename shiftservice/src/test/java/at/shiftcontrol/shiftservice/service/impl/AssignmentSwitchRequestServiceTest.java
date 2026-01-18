@@ -35,7 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 @AutoConfigureTestDatabase
 @Transactional
 @WithMockUser(authorities = "USER")
-public class AssignmentSwitchRequestService {
+public class AssignmentSwitchRequestServiceTest {
 
     @Autowired
     AssignmentSwitchRequestServiceImpl assignmentSwitchRequestService;

@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @WithMockUser(authorities = "USER")
-public class PositionSlotService {
+public class PositionSlotServiceTest {
 
     @Autowired
     private PositionSlotServiceImpl positionSlotService;
