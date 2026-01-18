@@ -1,14 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint.shiftplan;
 
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
-import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
-import at.shiftcontrol.shiftservice.service.ShiftPlanService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +8,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanInviteDetailsDto;
+import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
+import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 
 @Tag(
     name = "shift-plan-invite-endpoint"
@@ -53,7 +55,8 @@ public class ShiftPlanInviteItemEndpoint {
         description = "Get details about a specific invite code for a shift plan"
     )
     public ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(@PathVariable String inviteCode) {
-        return shiftPlanService.getShiftPlanInviteDetails(inviteCode);
+        var temp = shiftPlanService.getShiftPlanInviteDetails(inviteCode);
+        return temp;
     }
 
     @PostMapping("/join")

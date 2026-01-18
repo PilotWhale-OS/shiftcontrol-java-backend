@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.mapper;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,7 @@ import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDto;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EventMapper {
     public static EventDto toEventDto(Event event) {
+        Instant now = Instant.now();
         return EventDto.builder()
             .id(String.valueOf(event.getId()))
             .name(event.getName())
@@ -24,6 +26,7 @@ public class EventMapper {
             .shortDescription(event.getShortDescription())
             .startTime(event.getStartTime())
             .endTime(event.getEndTime())
+            .active(isActive(now, event))
             .socialMediaLinks(toSocialMediaLinkDto(event.getSocialMediaLinks()))
             .build();
     }
@@ -86,5 +89,9 @@ public class EventMapper {
             .url(link.getUrl())
             .event(event)
             .build();
+    }
+
+    private static boolean isActive(Instant now, Event event) {
+        return event.getStartTime().isBefore(now) && now.isBefore(event.getEndTime());
     }
 }
