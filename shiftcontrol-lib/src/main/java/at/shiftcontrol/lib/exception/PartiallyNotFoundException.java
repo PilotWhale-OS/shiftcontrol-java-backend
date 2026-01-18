@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * }</pre>
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class PartiallyNotFoundException extends RuntimeException {
+public class PartiallyNotFoundException extends RuntimeException { // todo refactor in Exception ticket
     private final String context;
     private final Map<String, Collection<?>> missingEntities;
 

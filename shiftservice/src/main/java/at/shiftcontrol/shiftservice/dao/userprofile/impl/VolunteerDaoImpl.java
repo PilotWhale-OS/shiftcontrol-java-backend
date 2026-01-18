@@ -96,4 +96,9 @@ public class VolunteerDaoImpl implements VolunteerDao {
     public Collection<Volunteer> findAll(long page, long size) {
         return volunteerRepository.findAll(page * size, size);
     }
+
+    @Override
+    public long findAllSize() {
+        return volunteerRepository.findAllSize();
+    }
 }

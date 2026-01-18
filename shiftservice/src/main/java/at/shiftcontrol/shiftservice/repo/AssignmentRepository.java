@@ -11,10 +11,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 
 @Repository
-public interface AssignmentRepository extends JpaRepository<Assignment, AssignmentId> {
+public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
+    @Query("""
+            SELECT a FROM Assignment a
+            WHERE a.positionSlot.id = :positionSlotId
+            AND a.assignedVolunteer.id = :assignedUser
+        """)
+    Optional<Assignment> findBySlotAndUser(long positionSlotId, String assignedUser);
+
     @Query("""
         SELECT a FROM Assignment a
         WHERE a.positionSlot.shift.shiftPlan.id = :spId AND a.status IN ('AUCTION_REQUEST_FOR_UNASSIGN', 'AUCTION')

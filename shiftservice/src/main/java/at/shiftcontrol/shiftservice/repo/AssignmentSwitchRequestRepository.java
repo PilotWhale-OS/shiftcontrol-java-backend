@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.repo;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,11 +9,27 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.type.TradeStatus;
 
 @Repository
-public interface AssignmentSwitchRequestRepository extends JpaRepository<AssignmentSwitchRequest, AssignmentSwitchRequestId> {
+public interface AssignmentSwitchRequestRepository extends JpaRepository<AssignmentSwitchRequest, Long> {
+    @Query("""
+            SELECT a FROM AssignmentSwitchRequest a
+            WHERE a.offeringAssignment.id = :offeredAssignmentId
+            AND a.requestedAssignment.id = :requestedAssignmentId
+        """)
+    Optional<AssignmentSwitchRequest> findByAssignmentIds(long offeredAssignmentId, long requestedAssignmentId);
+
+    @Query("""
+            SELECT a FROM AssignmentSwitchRequest a
+            WHERE a.offeringAssignment.positionSlot.id = :offeredSlotId
+            AND a.offeringAssignment.assignedVolunteer.id = :offeringUserId
+            AND a.requestedAssignment.positionSlot.id = :requestedSlotId
+            AND a.requestedAssignment.assignedVolunteer.id = :requestedUserId
+        """)
+    Optional<AssignmentSwitchRequest> findBySlotsAndUsers(long offeredSlotId, String offeringUserId,
+                                                          long requestedSlotId, String requestedUserId);
+
     @Modifying
     @Query("""
             UPDATE AssignmentSwitchRequest a

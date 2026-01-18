@@ -19,8 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import at.shiftcontrol.lib.entity.AssignmentId;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
@@ -129,38 +127,30 @@ public class AssignmentSwitchRequestServiceIT {
         long requestedSlotId = 2L;
         Mockito.when(userProfileService.getUserProfile(any()))
             .thenReturn(testEntityFactory.getUserProfileDtoWithId(currentUserId));
-        AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(offeredSlotId, otherUserId),
-            new AssignmentId(requestedSlotId, currentUserId)
-        );
 
-        TradeDto dto = assignmentSwitchRequestService.acceptTrade(id);
+        TradeDto dto = assignmentSwitchRequestService.acceptTrade(1, currentUserId);
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(TradeStatus.ACCEPTED, dto.getStatus());
         Assertions.assertEquals(currentUserId, dto.getOfferingAssignment().getAssignedVolunteer().getId());
         Assertions.assertEquals(String.valueOf(offeredSlotId), dto.getOfferingAssignment().getPositionSlotId());
         // check if new assignment exists
-        var newOffered = assignmentDao.findById(AssignmentId.of(offeredSlotId, currentUserId));
+        var newOffered = assignmentDao.findBySlotAndUser(offeredSlotId, currentUserId);
         Assertions.assertTrue(newOffered.isPresent());
-        var newRequested = assignmentDao.findById(AssignmentId.of(requestedSlotId, otherUserId));
+        var newRequested = assignmentDao.findBySlotAndUser(requestedSlotId, otherUserId);
         Assertions.assertTrue(newRequested.isPresent());
         // old assignments should not exist anymore
-        var deletedOffered = assignmentDao.findById(AssignmentId.of(offeredSlotId, otherUserId));
+        var deletedOffered = assignmentDao.findBySlotAndUser(offeredSlotId, otherUserId);
         Assertions.assertFalse(deletedOffered.isPresent());
-        var deletedRequested = assignmentDao.findById(AssignmentId.of(requestedSlotId, currentUserId));
+        var deletedRequested = assignmentDao.findBySlotAndUser(requestedSlotId, currentUserId);
         Assertions.assertFalse(deletedRequested.isPresent());
     }
 
     @Test
     void testDeclineTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
-        AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5"),
-            new AssignmentId(2L, currentUserId)
-        );
 
-        TradeDto dto = assignmentSwitchRequestService.declineTrade(id, currentUserId);
+        TradeDto dto = assignmentSwitchRequestService.declineTrade(1, currentUserId);
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(TradeStatus.REJECTED, dto.getStatus());
@@ -171,12 +161,8 @@ public class AssignmentSwitchRequestServiceIT {
     @Test
     void testCancelTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
-        AssignmentSwitchRequestId id = new AssignmentSwitchRequestId(
-            new AssignmentId(1L, currentUserId),
-            new AssignmentId(2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6")
-        );
 
-        TradeDto dto = assignmentSwitchRequestService.cancelTrade(id, currentUserId);
+        TradeDto dto = assignmentSwitchRequestService.cancelTrade(1, currentUserId);
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(TradeStatus.CANCELED, dto.getStatus());

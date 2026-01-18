@@ -3,6 +3,8 @@ package at.shiftcontrol.shiftservice.dao.role.impl;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 
@@ -51,5 +54,18 @@ public class RoleDaoImpl implements RoleDao {
     @Override
     public List<Role> findAllByShiftPlanId(Long shiftPlanId) {
         return roleRepository.findAllByShiftPlanId(shiftPlanId);
+    }
+
+    @Override
+    public Collection<Role> getByIds(Set<Long> roleIds) {
+        var roles = roleRepository.getByIds(roleIds);
+        if (roles.size() != roleIds.size()) {
+            var foundId = roles.stream()
+                .map(Role::getId)
+                .collect(Collectors.toSet());
+            roleIds.removeAll(foundId);
+            throw PartiallyNotFoundException.of(getName(), roleIds);
+        }
+        return roles;
     }
 }

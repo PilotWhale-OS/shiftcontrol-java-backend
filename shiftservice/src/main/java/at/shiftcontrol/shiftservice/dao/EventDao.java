@@ -5,6 +5,7 @@ import java.util.List;
 
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
+import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
 
 public interface EventDao extends BasicDao<Event, Long> {
     List<Event> search(EventSearchDto searchDto);
@@ -12,4 +13,6 @@ public interface EventDao extends BasicDao<Event, Long> {
     Collection<Event> findAll();
 
     boolean existsByNameIgnoreCase(String name);
+
+    Collection<PlanVolunteerIdRow> getPlannersForEventAndUser(long eventId, String userId);
 }

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 
-import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 
@@ -65,6 +65,6 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
             shiftPlanIds.removeAll(foundId);
             throw PartiallyNotFoundException.of(getName(), shiftPlanIds);
         }
-        return shiftPlanRepository.getByIds(shiftPlanIds);
+        return plans;
     }
 }

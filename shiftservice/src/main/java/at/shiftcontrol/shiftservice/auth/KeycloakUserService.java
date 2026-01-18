@@ -43,10 +43,17 @@ public class KeycloakUserService {
             .list();
     }
 
-    public List<UserRepresentation> getAllAdmins(){
+    public List<UserRepresentation> getAllAdmins() {
         return keycloak
             .realm(realm)
             .users()
             .searchByAttributes("userType:ADMIN");
+    }
+
+    public List<UserRepresentation> getAllAssigned() {
+        return keycloak
+            .realm(realm)
+            .users()
+            .searchByAttributes("userType:ASSIGNED");
     }
 }
