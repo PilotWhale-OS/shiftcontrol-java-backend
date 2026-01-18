@@ -27,7 +27,6 @@ import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
-import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
@@ -37,7 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 @AutoConfigureTestDatabase
 @Transactional
 @WithMockUser(authorities = "USER")
-public class AssignmentSwitchRequestServiceIT {
+public class AssignmentSwitchRequestServiceTest {
 
     @Autowired
     AssignmentSwitchRequestServiceImpl assignmentSwitchRequestService;
