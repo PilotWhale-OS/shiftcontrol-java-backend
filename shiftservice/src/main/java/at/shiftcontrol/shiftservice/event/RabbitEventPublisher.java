@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.event;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -10,7 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.events.LocationEvent;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.config.RabbitMqConfig;
@@ -39,6 +43,12 @@ public class RabbitEventPublisher {
 
         log.trace("Publishing event to RabbitMQ with routing key {}: {}", ROUTING_KEY_PREFIX + routingKey, event);
         rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, ROUTING_KEY_PREFIX + routingKey, event);
+    }
+
+    @Scheduled(cron = "0/2 * * * * *")
+    public void sendTest() {
+        publishEvent(LocationEvent.of("shiftcontrol.test.locationevent",
+            Location.builder().id(1).name("Geilhaus").event(Event.builder().id(1).name("Geilhaus Festival").build()).build()));
     }
 
     private String getTraceId() {
