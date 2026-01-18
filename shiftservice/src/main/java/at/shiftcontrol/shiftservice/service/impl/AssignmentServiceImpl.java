@@ -107,13 +107,14 @@ public class AssignmentServiceImpl implements AssignmentService {
         rewardPointsService.onAssignmentAccepted(assignment);
 
         assignment.setStatus(AssignmentStatus.ACCEPTED);
+        assignment = assignmentDao.save(assignment);
 
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
                 Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
                     "volunteerId", assignment.getAssignedVolunteer().getId())),
             assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
 
-        return assignmentDao.save(assignment);
+        return assignment;
     }
 
     @Override
@@ -128,13 +129,14 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         // close trades where this slot was offered to current user
         assignmentSwitchRequestDao.cancelTradesForOfferedPositionAndRequestedUser(positionSlot.getId(), volunteer.getId());
+        assignment = assignmentDao.save(assignment);
 
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteer.getId())),
             positionSlot, volunteer.getId()));
 
-        return assignmentDao.save(assignment);
+        return assignment;
     }
 
     @Override
@@ -144,13 +146,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             assignment
         );
 
-        // leave
-        assignmentDao.delete(assignment);
-
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
                     "volunteerId", assignment.getAssignedVolunteer().getId())),
             assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
+
+        // leave
+        assignmentDao.delete(assignment);
     }
 
     @Override
