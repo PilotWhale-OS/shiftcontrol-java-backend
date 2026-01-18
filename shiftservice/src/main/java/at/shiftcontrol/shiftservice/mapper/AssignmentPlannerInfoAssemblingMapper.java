@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import at.shiftcontrol.shiftservice.dto.plannerdashboard.SlotAssignmentsDto;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -14,38 +16,49 @@ import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
-import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
+import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentPlannerInfoDto;
 
 @RequiredArgsConstructor
 @Service
-public class AssignmentRequestAssamblingMapper {
+public class AssignmentPlannerInfoAssemblingMapper {
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
 
-    public Collection<AssignmentRequestDto> toAssignmentRequestDto(Collection<Shift> shifts, AssignmentFilterDto filterDto) {
+    public Collection<AssignmentPlannerInfoDto> toAssignmentPlannerInfoDto(Collection<Shift> shifts, AssignmentFilterDto filterDto) {
         if (shifts == null || shifts.isEmpty()) {
             return List.of();
         }
 
         return shifts.stream()
             .filter(Objects::nonNull)
-            .map(shift -> toAssignmentRequestDto(shift, filterDto))
+            .map(shift -> toAssignmentPlannerInfoDto(shift, filterDto))
             .collect(Collectors.toList());
     }
 
-    private AssignmentRequestDto toAssignmentRequestDto(Shift shift, AssignmentFilterDto filterDto) {
-        Collection<AssignmentDto> requests =
+    private AssignmentPlannerInfoDto toAssignmentPlannerInfoDto(Shift shift, AssignmentFilterDto filterDto) {
+        Collection<SlotAssignmentsDto> requests =
             safeSlots(shift.getSlots()).stream()
-                .flatMap(slot -> safeAssignments(slot.getAssignments()).stream()
-                    .map(assignment -> toAssignmentDto(slot, assignment)))
-                .filter(a -> filterDto == null
-                    || filterDto.getStatuses() == null
-                    || filterDto.getStatuses().contains(a.getStatus()))
+                .map(slot -> toSlotAssignmentsDto(slot, filterDto))
+                .filter(slotAssignmentsDto -> !slotAssignmentsDto.getAssignments().isEmpty())
                 .collect(Collectors.toList());
 
-        return AssignmentRequestDto.builder()
+        return AssignmentPlannerInfoDto.builder()
             .shiftId(shift.getId())
             .shiftName(shift.getName())
-            .requests(requests)
+            .slots(requests)
+            .build();
+    }
+
+    private SlotAssignmentsDto toSlotAssignmentsDto(PositionSlot slot, AssignmentFilterDto filterDto) {
+        Collection<AssignmentDto> assignmentDtos = safeAssignments(slot.getAssignments()).stream()
+            .map(assignment -> toAssignmentDto(slot, assignment))
+            .filter(a -> filterDto == null
+                || filterDto.getStatuses() == null
+                || filterDto.getStatuses().contains(a.getStatus()))
+            .collect(Collectors.toList());
+
+        return SlotAssignmentsDto.builder()
+            .positionSlotName(String.valueOf(slot.getName()))
+            .assignments(assignmentDtos)
             .build();
     }
 

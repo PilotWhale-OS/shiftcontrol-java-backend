@@ -15,7 +15,7 @@ import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AssignmentRequestDto {
+public class AssignmentPlannerInfoDto {
     @NotNull
     private long shiftId;
 
@@ -24,5 +24,5 @@ public class AssignmentRequestDto {
 
     @NotNull
     @Valid
-    private Collection<AssignmentDto> requests;
+    private Collection<SlotAssignmentsDto> slots;
 }

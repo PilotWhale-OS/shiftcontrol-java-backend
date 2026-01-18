@@ -19,7 +19,7 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
-import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentRequestDto;
+import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentPlannerInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
 
@@ -35,7 +35,7 @@ public class SignupEndpoint {
         operationId = "getSlots",
         description = "Get assignments for an Event filtered by the AssignmentStatus"
     )
-    public Collection<AssignmentRequestDto> getSlots(@PathVariable String shiftPlanId, @Valid AssignmentFilterDto filterDto) {
+    public Collection<AssignmentPlannerInfoDto> getSlots(@PathVariable String shiftPlanId, @Valid AssignmentFilterDto filterDto) {
         return positionSlotService.getSlots(ConvertUtil.idToLong(shiftPlanId), filterDto);
     }
 
