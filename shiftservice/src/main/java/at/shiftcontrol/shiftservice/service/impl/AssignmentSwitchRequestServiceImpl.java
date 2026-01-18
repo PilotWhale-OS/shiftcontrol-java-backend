@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentKey;
+import at.shiftcontrol.lib.entity.AssignmentPair;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequestKey;
 import at.shiftcontrol.lib.entity.PositionSlot;
@@ -205,7 +206,25 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                     volunteerId -> Objects.equals(volunteerId, String.valueOf(assignment.getAssignedVolunteer().getId()))))
             .map(requestedAssignment -> createAssignmentSwitchRequest(offeredAssignment, requestedAssignment)).toList();
 
-        // no need to check for existing trades, status will just be updated
+        // check for existing trades
+        Collection<AssignmentPair> pairs = trades.stream().map(
+            t -> AssignmentPair.of(t.getOfferingAssignment().getId(), t.getRequestedAssignment().getId())).toList();
+        Collection<AssignmentSwitchRequest> existingTrades = assignmentSwitchRequestDao.findAllByAssignmentPairs(pairs);
+        Set<AssignmentPair> existingPairs =
+            existingTrades.stream()
+                .map(t -> new AssignmentPair(
+                    t.getOfferingAssignment().getId(),
+                    t.getRequestedAssignment().getId()
+                ))
+                .collect(Collectors.toSet());
+        trades = trades.stream()
+            .filter(t -> {
+                AssignmentPair pair = new AssignmentPair(
+                    t.getOfferingAssignment().getId(),
+                    t.getRequestedAssignment().getId()
+                );
+                return !existingPairs.contains(pair);
+            }).toList();
 
         // check if trade in other direction already exists
         // --> if exists, executing trade would result in same primary key

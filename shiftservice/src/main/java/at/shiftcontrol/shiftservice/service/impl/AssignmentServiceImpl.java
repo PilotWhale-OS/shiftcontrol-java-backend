@@ -20,6 +20,7 @@ import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
@@ -65,6 +66,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         AssignmentSwitchRequest oldTrade = TradeMapper.shallowCopy(trade);
         reassign(trade.getOfferingAssignment(), oldTrade.getRequestedAssignment().getAssignedVolunteer());
         reassign(trade.getRequestedAssignment(), oldTrade.getOfferingAssignment().getAssignedVolunteer());
+        trade.setStatus(TradeStatus.ACCEPTED);
+        assignmentSwitchRequestDao.save(trade);
+
 
         rewardPointsService.onAssignmentReassignedTrade(trade.getOfferingAssignment(), trade.getRequestedAssignment());
 
