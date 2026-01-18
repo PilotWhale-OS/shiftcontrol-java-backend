@@ -60,6 +60,8 @@ public class JwtSecurityConfig {
                 .permitAll()
                 .requestMatchers("/api/v1/reward-points/share/**") // permit access to reward points share endpoint via token
                 .permitAll()
+                .requestMatchers("/api/v1/invites/{inviteCode}")
+                .permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**")
                 .permitAll() // Permit all OPTIONS requests (preflight))
                 .anyRequest().authenticated())

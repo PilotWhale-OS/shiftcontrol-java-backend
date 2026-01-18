@@ -1,5 +1,16 @@
 package at.shiftcontrol.shiftservice.endpoint.shiftplan;
 
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanPatchStatusDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
+import at.shiftcontrol.shiftservice.service.ShiftPlanService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,19 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanPatchStatusDto;
-import at.shiftcontrol.shiftservice.service.DashboardService;
-import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @Tag(
@@ -66,15 +64,6 @@ public class ShiftPlanItemEndpoint {
     )
     public void deleteShiftPlan(@PathVariable String shiftPlanId) {
         shiftPlanService.delete(ConvertUtil.idToLong(shiftPlanId));
-    }
-
-    @GetMapping("/dashboard")
-    @Operation(
-        operationId = "getShiftPlanDashboard",
-        description = "Get (volunteer related) dashboard data for a specific shift plan of an event"
-    )
-    public ShiftPlanDashboardOverviewDto getShiftPlanDashboard(@PathVariable String shiftPlanId) {
-        return dashboardService.getDashboardOverviewOfShiftPlan(ConvertUtil.idToLong(shiftPlanId));
     }
 
     @PatchMapping("/status")

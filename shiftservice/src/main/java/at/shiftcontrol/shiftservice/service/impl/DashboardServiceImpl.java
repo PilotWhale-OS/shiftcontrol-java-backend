@@ -1,10 +1,5 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -24,6 +19,9 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +40,25 @@ public class DashboardServiceImpl implements DashboardService {
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
 
     @Override
-    public ShiftPlanDashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) {
+    public EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(String userId) {
+        var userShiftPlans = shiftPlanDao.findAllUserRelatedShiftPlans(userId);
+
+        var shiftPlanDashboards = userShiftPlans.stream().map(shiftPlan -> {
+            try {
+                return getDashboardOverviewOfShiftPlan(shiftPlan.getId());
+            } catch (NotFoundException | ForbiddenException e) {
+                // This should not happen as we already fetched user related shift plans
+                throw new RuntimeException(e);
+            }
+        }).toList();
+
+        return EventsDashboardOverviewDto.builder()
+            .shiftPlanDashboardOverviewDtos(shiftPlanDashboards)
+            .ownStatisticsDto(statisticService.getOwnStatisticsOfShiftPlans(userShiftPlans.stream().toList(), userId))
+            .build();
+    }
+
+    private ShiftPlanDashboardOverviewDto getDashboardOverviewOfShiftPlan(long shiftPlanId) {
         var userId = validateShiftPlanAccessAndGetUserId(shiftPlanId);
         var shiftPlan = getShiftPlanOrThrow(shiftPlanId);
         var event = eventDao.getById(shiftPlan.getEvent().getId());
@@ -72,24 +88,5 @@ public class DashboardServiceImpl implements DashboardService {
 
     private ShiftPlan getShiftPlanOrThrow(long shiftPlanId) {
         return shiftPlanDao.getById(shiftPlanId);
-    }
-
-    @Override
-    public EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(String userId) {
-        var userShiftPlans = shiftPlanDao.findAllUserRelatedShiftPlans(userId);
-
-        var shiftPlanDashboards = userShiftPlans.stream().map(shiftPlan -> {
-            try {
-                return getDashboardOverviewOfShiftPlan(shiftPlan.getId());
-            } catch (NotFoundException | ForbiddenException e) {
-                // This should not happen as we already fetched user related shift plans
-                throw new RuntimeException(e);
-            }
-        }).toList();
-
-        return EventsDashboardOverviewDto.builder()
-            .shiftPlanDashboardOverviewDtos(shiftPlanDashboards)
-            .ownStatisticsDto(statisticService.getOwnStatisticsOfShiftPlans(userShiftPlans.stream().toList(), userId))
-            .build();
     }
 }

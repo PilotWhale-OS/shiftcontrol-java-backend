@@ -3,6 +3,8 @@ package at.shiftcontrol.shiftservice.dto.shift;
 import java.time.Instant;
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -43,6 +45,10 @@ public class ShiftDto {
 
     @Valid
     private ActivityDto relatedActivity;
+
+    @NotNull
+    @Valid
+    private ShiftPlanDto shiftPlan;
 
     @NotNull
     @Valid

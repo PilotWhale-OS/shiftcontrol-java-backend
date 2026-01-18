@@ -3,12 +3,11 @@ package at.shiftcontrol.shiftservice.repo;
 import java.util.Collection;
 import java.util.Optional;
 
+import at.shiftcontrol.lib.entity.Activity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import at.shiftcontrol.lib.entity.Activity;
 
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Long>, JpaSpecificationExecutor<Activity> {
@@ -27,12 +26,11 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, JpaSp
 
     @Query("""
         SELECT a
-        FROM Activity a, ShiftPlan sp
+        FROM Activity a
         WHERE a.location IS NULL
-        AND sp.id = :shiftPlanId
-        AND a.event = sp.event
+        AND a.event.id = :eventId
         """)
-    Collection<Activity> findAllWithoutLocationByShiftPlanId(Long shiftPlanId);
+    Collection<Activity> findAllWithoutLocationByEventId(Long eventId);
 
     @Query("""
         SELECT a

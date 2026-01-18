@@ -348,11 +348,10 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         rewardPointsShareTokenDao.delete(token);
 
-
-        publisher.publishEvent(RewardPointsShareTokenEvent.of(
+        var rewardPointsShareTokenEvent = RewardPointsShareTokenEvent.of(
             RoutingKeys.REWARDPOINTS_SHARETOKEN_DELETED,
-            token
-        ));
+            token);
+        publisher.publishEvent(rewardPointsShareTokenEvent);
     }
 }
 

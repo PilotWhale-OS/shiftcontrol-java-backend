@@ -4,12 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
@@ -28,6 +22,10 @@ import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -88,8 +86,9 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
-        publisher.publishEvent(RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_DELETED,
-            Map.of("roleId", roleId.toString())), role));
+        var roleEvent = RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_DELETED,
+            Map.of("roleId", roleId.toString())), role);
+        publisher.publishEvent(roleEvent);
         roleDao.delete(role);
     }
 

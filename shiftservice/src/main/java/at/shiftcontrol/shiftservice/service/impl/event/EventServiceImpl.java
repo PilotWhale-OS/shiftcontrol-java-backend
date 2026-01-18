@@ -38,8 +38,6 @@ import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
@@ -52,6 +50,10 @@ import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -182,16 +184,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) {
-        var event = eventDao.getById(eventId);
-        securityHelper.assertUserIsAllowedToAccessEvent(event);
-
-        var activitiesOfEvent = activityDao.searchActivitiesInEvent(eventId, searchDto).stream().toList();
-
-        return EventMapper.toEventScheduleDto(event, activitiesOfEvent);
-    }
-
-    @Override
     @AdminOnly
     public EventDto createEvent(@NonNull EventModificationDto modificationDto) {
         validateEventModificationDto(modificationDto);
@@ -227,7 +219,8 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(long eventId) {
         var event = eventDao.getById(eventId);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(eventId))), event));
+        var eventEvent = EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(eventId))), event);
+        publisher.publishEvent(eventEvent);
         eventDao.delete(event);
     }
 

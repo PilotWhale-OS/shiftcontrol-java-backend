@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto.shiftplan;
+package at.shiftcontrol.shiftservice.dto.event.schedule;
 
 import java.time.LocalDate;
 
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ShiftPlanScheduleDaySearchDto extends ShiftPlanScheduleFilterDto {
+public class EventScheduleDaySearchDto extends EventScheduleFilterDto {
     @NotNull
     private LocalDate date;
 }

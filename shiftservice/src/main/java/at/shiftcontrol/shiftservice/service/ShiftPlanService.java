@@ -11,11 +11,6 @@ import at.shiftcontrol.shiftservice.dto.invite.ShiftPlanJoinRequestDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleContentDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleFilterValuesDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanScheduleLayoutDto;
 
 public interface ShiftPlanService {
     Collection<ShiftPlanDto> getAll(long eventId);
@@ -27,13 +22,6 @@ public interface ShiftPlanService {
     ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto);
 
     void delete(long shiftPlanId);
-
-    ShiftPlanScheduleLayoutDto getShiftPlanScheduleLayout(long shiftPlanId, ShiftPlanScheduleFilterDto filterDto);
-
-    ShiftPlanScheduleContentDto getShiftPlanScheduleContent(long shiftPlanId, ShiftPlanScheduleDaySearchDto searchDto)
-        ;
-
-    ShiftPlanScheduleFilterValuesDto getShiftPlanScheduleFilterValues(long shiftPlanId);
 
     ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
         ;

@@ -1,17 +1,17 @@
-package at.shiftcontrol.shiftservice.dto.shiftplan;
+package at.shiftcontrol.shiftservice.dto.event.schedule;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.type.ShiftRelevance;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import at.shiftcontrol.lib.type.ShiftRelevance;
-
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ShiftPlanScheduleFilterDto {
+public class EventScheduleFilterDto {
+    private Collection<String> shiftPlanIds;
     private String shiftName;
     private Collection<ShiftRelevance> shiftRelevances;
     private Collection<String> roleIds;

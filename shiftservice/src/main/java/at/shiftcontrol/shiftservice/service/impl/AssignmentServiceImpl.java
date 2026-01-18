@@ -20,6 +20,7 @@ import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
@@ -65,6 +66,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         AssignmentSwitchRequest oldTrade = TradeMapper.shallowCopy(trade);
         reassign(trade.getOfferingAssignment(), oldTrade.getRequestedAssignment().getAssignedVolunteer());
         reassign(trade.getRequestedAssignment(), oldTrade.getOfferingAssignment().getAssignedVolunteer());
+        trade.setStatus(TradeStatus.ACCEPTED);
+        assignmentSwitchRequestDao.save(trade);
+
 
         rewardPointsService.onAssignmentReassignedTrade(trade.getOfferingAssignment(), trade.getRequestedAssignment());
 
@@ -107,13 +111,14 @@ public class AssignmentServiceImpl implements AssignmentService {
         rewardPointsService.onAssignmentAccepted(assignment);
 
         assignment.setStatus(AssignmentStatus.ACCEPTED);
+        assignment = assignmentDao.save(assignment);
 
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
                 Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
                     "volunteerId", assignment.getAssignedVolunteer().getId())),
             assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
 
-        return assignmentDao.save(assignment);
+        return assignment;
     }
 
     @Override
@@ -128,13 +133,14 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         // close trades where this slot was offered to current user
         assignmentSwitchRequestDao.cancelTradesForOfferedPositionAndRequestedUser(positionSlot.getId(), volunteer.getId());
+        assignment = assignmentDao.save(assignment);
 
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteer.getId())),
             positionSlot, volunteer.getId()));
 
-        return assignmentDao.save(assignment);
+        return assignment;
     }
 
     @Override
@@ -144,13 +150,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             assignment
         );
 
-        // leave
-        assignmentDao.delete(assignment);
-
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
                     "volunteerId", assignment.getAssignedVolunteer().getId())),
             assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
+
+        // leave
+        assignmentDao.delete(assignment);
     }
 
     @Override
