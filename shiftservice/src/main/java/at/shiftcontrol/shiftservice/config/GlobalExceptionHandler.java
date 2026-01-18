@@ -3,17 +3,6 @@ package at.shiftcontrol.shiftservice.config;
 import java.lang.invoke.MethodHandles;
 import java.util.stream.Collectors;
 
-import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.FileExportException;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
-import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
-import at.shiftcontrol.lib.exception.UnauthorizedException;
-import at.shiftcontrol.lib.exception.ValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -25,6 +14,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.FileExportException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
+import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
+import at.shiftcontrol.lib.exception.UnauthorizedException;
+import at.shiftcontrol.lib.exception.ValidationException;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -68,7 +69,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleConflict(Exception ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
         var conflictException = (ConflictException) ex;
-        Object body = conflictException.hasDto() ? conflictException.getDto() : conflictException.getMessage();
+        Object body = conflictException.hasDto() ? conflictException.getDto() : new ApiErrorDto(conflictException.getMessage());
         return handleExceptionInternal(conflictException, body, new HttpHeaders(), CONFLICT, request);
     }
 
