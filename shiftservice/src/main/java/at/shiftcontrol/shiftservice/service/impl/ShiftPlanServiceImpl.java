@@ -17,6 +17,7 @@ import at.shiftcontrol.lib.event.events.ShiftPlanInviteEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanVolunteerEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.UnauthorizedException;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.ShiftPlanInviteType;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -254,7 +255,14 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     public ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(String inviteCode) {
-        var userId = userProvider.getCurrentUser().getUserId();
+        String userId;
+        try {
+            userId = userProvider.getCurrentUser().getUserId();
+        } catch (UnauthorizedException e) {
+            // user not logged in, proceed without user context
+            userId = "";
+        }
+
         var invite = shiftPlanInviteDao.getByCode(inviteCode);
         var shiftPlan = shiftPlanDao.getById(invite.getShiftPlan().getId());
 
