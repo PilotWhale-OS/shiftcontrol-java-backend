@@ -36,15 +36,22 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     @Query("""
         SELECT DISTINCT e
         FROM Event e
-        WHERE e.startTime <= :now
-          AND :now <= e.endTime
+        WHERE :now <= e.endTime
+        """)
+    Collection<Event> getAllOpenEvents(Instant now);
+
+    @Query("""
+        SELECT DISTINCT e
+        FROM Event e
+        WHERE :now <= e.endTime
           AND EXISTS (
               SELECT 1
               FROM Volunteer v
               JOIN v.volunteeringPlans vp
+              JOIN v.planningPlans pp
               WHERE v.id = :userId
-                AND vp.event = e
+                AND (vp.event = e OR pp.event = e)
           )
         """)
-    Collection<Event> getAllOngoingEventsForUser(String userId, Instant now);
+    Collection<Event> getAllOpenEventsForUser(String userId, Instant now);
 }

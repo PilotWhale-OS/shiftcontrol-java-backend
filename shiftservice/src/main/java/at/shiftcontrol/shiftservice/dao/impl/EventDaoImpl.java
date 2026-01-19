@@ -67,8 +67,13 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public Collection<Event> getAllOngoingEventsForUser(String currentUser) {
-        return eventRepository.getAllOngoingEventsForUser(currentUser, Instant.now());
+    public Collection<Event> getAllOpenEvents() {
+        return eventRepository.getAllOpenEvents(Instant.now());
+    }
+
+    @Override
+    public Collection<Event> getAllOpenEventsForUser(String userId) {
+        return eventRepository.getAllOpenEventsForUser(userId, Instant.now());
     }
 
     @Override

@@ -15,7 +15,7 @@ public interface EventService {
 
     List<EventDto> search(EventSearchDto searchDto);
 
-    Collection<EventDto> getAllOngoingEvents(String currentUser);
+    Collection<EventDto> getAllOpenEvents(String currentUser);
 
     List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId);
 

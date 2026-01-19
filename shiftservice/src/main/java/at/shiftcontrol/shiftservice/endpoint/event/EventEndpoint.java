@@ -70,13 +70,13 @@ public class EventEndpoint {
     }
     //Todo: Add search capability in future
 
-    @GetMapping("/ongoing")
+    @GetMapping("/open")
     @Operation(
-        operationId = "getAllOngoingEvents",
-        description = "Find all (volunteer related) events that are currently ongoing"
+        operationId = "getAllOpenEvents",
+        description = "Find all events that are currently ongoing or upcoming"
     )
-    public Collection<EventDto> getAllOngoingEvents() {
-        return eventService.getAllOngoingEvents(userProvider.getCurrentUser().getUserId());
+    public Collection<EventDto> getAllOpenEvents() {
+        return eventService.getAllOpenEvents(userProvider.getCurrentUser().getUserId());
     }
 
     @PostMapping

@@ -35,9 +35,9 @@ public class EventRepositoryTest {
     }
 
     @Test
-    void testGetAllOngoingEventsForUser() {
+    void testGetAllOpenEventsForUser() {
         Collection<Event> events = eventRepository
-            .getAllOngoingEventsForUser("28c02050-4f90-4f3a-b1df-3c7d27a166e5", Instant.parse("2025-09-13T09:00:00.000Z"));
+            .getAllOpenEventsForUser("28c02050-4f90-4f3a-b1df-3c7d27a166e5", Instant.parse("2025-09-13T09:00:00.000Z"));
         Assertions.assertFalse(events.isEmpty());
     }
 }

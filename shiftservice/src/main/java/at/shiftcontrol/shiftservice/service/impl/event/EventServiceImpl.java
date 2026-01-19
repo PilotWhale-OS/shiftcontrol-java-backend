@@ -97,8 +97,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Collection<EventDto> getAllOngoingEvents(String currentUser) {
-        return EventMapper.toEventDto(eventDao.getAllOngoingEventsForUser(currentUser));
+    public Collection<EventDto> getAllOpenEvents(String currentUser) {
+        if (securityHelper.isUserAdmin()) {
+            return EventMapper.toEventDto(eventDao.getAllOpenEvents());
+        }
+        return EventMapper.toEventDto(eventDao.getAllOpenEventsForUser(currentUser));
     }
 
     @Override
