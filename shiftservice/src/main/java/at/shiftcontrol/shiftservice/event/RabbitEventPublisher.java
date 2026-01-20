@@ -35,7 +35,9 @@ public class RabbitEventPublisher {
     )
     private void publishEvent(BaseEvent event) {
         event.setTraceId(getTraceId());
-        event.setActingUserId(getCurrentUserId());
+        if (event.getActingUserId() != null) {
+            event.setActingUserId(getCurrentUserId());
+        }
         var routingKey = event.getRoutingKey();
         if (routingKey == null || routingKey.isBlank()) {
             throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key");

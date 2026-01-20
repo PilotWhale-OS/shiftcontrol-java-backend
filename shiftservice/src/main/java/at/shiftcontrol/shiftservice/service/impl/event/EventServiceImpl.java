@@ -134,7 +134,7 @@ public class EventServiceImpl implements EventService {
         Event event = EventMapper.toEvent(modificationDto);
         event = eventDao.save(event);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.EVENT_CREATED, event));
+        publisher.publishEvent(EventEvent.forEventCreated(event));
         return EventMapper.toEventDto(event);
     }
 
@@ -147,7 +147,7 @@ public class EventServiceImpl implements EventService {
         EventMapper.updateEvent(event, modificationDto);
         eventDao.save(event);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_UPDATED, Map.of("eventId", String.valueOf(eventId))), event));
+        publisher.publishEvent(EventEvent.forEventUpdated(event));
         return EventMapper.toEventDto(event);
     }
 

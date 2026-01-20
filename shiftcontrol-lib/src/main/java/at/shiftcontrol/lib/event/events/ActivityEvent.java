@@ -1,5 +1,7 @@
 package at.shiftcontrol.lib.event.events;
 
+import at.shiftcontrol.lib.event.RoutingKeys;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -7,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.event.BaseEvent;
 import at.shiftcontrol.lib.event.events.parts.ActivityPart;
+
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -21,5 +25,14 @@ public class ActivityEvent extends BaseEvent {
 
     public static ActivityEvent of(String routingKey, Activity activity) {
         return new ActivityEvent(routingKey, ActivityPart.of(activity));
+    }
+
+    public static ActivityEvent forCreated(Activity activity) {
+        return of(RoutingKeys.ACTIVITY_CREATED, activity);
+    }
+
+    public static ActivityEvent forUpdated(Activity activity) {
+        return of(RoutingKeys.format(RoutingKeys.ACTIVITY_UPDATED,
+            Map.of("activityId", String.valueOf(activity.getId()))), activity);
     }
 }
