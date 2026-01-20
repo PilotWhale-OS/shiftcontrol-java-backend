@@ -19,7 +19,7 @@ import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
@@ -91,8 +91,8 @@ public class PositionSlotAssemblingMapper {
             assignmentDtos = null;
             auctionDtos = null;
         } else {
-            assignmentDtos = assignmentAssemblingMapper.toDto(activeAssignments);
-            auctionDtos = assignmentAssemblingMapper.toDto(activeAssignments.stream()
+            assignmentDtos = assignmentAssemblingMapper.assemble(activeAssignments);
+            auctionDtos = assignmentAssemblingMapper.assemble(activeAssignments.stream()
                 .filter(a -> AssignmentStatus.ACTIVE_AUCTION_STATES.contains(a.getStatus()))
                 .toList()); // get open auctions for this slot
         }

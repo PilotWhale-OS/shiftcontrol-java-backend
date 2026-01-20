@@ -12,22 +12,19 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
-import at.shiftcontrol.shiftservice.dto.trade.TradeInfoDto;
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.TradeAcceptDto;
 
 @RequiredArgsConstructor
 @Service
 public class TradeMapper {
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
+    private final AssignmentContextAssemblingMapper assignmentContextAssemblingMapper;
 
     public TradeDto toDto(@NonNull AssignmentSwitchRequest trade) {
         return new TradeDto(
             String.valueOf(trade.getId()),
-            assignmentAssemblingMapper.toDto(trade.getOfferingAssignment()),
-            assignmentAssemblingMapper.toDto(trade.getRequestedAssignment()),
+            assignmentAssemblingMapper.assemble(trade.getOfferingAssignment()),
+            assignmentAssemblingMapper.assemble(trade.getRequestedAssignment()),
             trade.getStatus(),
             trade.getCreatedAt()
         );
@@ -40,12 +37,10 @@ public class TradeMapper {
     public TradeInfoDto toTradeInfoDto(@NonNull AssignmentSwitchRequest trade) {
         return new TradeInfoDto(
             String.valueOf(trade.getId()),
-            String.valueOf(trade.getOfferingAssignment().getPositionSlot().getId()),
-            String.valueOf(trade.getRequestedAssignment().getPositionSlot().getId()),
             trade.getOfferingAssignment().getAcceptedRewardPoints(),
             trade.getRequestedAssignment().getAcceptedRewardPoints(),
-            volunteerAssemblingMapper.toDto(trade.getOfferingAssignment().getAssignedVolunteer()),
-            volunteerAssemblingMapper.toDto(trade.getRequestedAssignment().getAssignedVolunteer()),
+            assignmentContextAssemblingMapper.toDto(trade.getOfferingAssignment()),
+            assignmentContextAssemblingMapper.toDto(trade.getRequestedAssignment()),
             trade.getStatus(),
             trade.getCreatedAt()
         );

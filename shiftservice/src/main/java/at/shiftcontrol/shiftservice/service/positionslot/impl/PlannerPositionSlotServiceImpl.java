@@ -22,8 +22,8 @@ import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentAssignDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentPlannerInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
@@ -169,7 +169,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
             );
         }
 
-        return assignmentAssemblingMapper.toDto(assignments);
+        return assignmentAssemblingMapper.assemble(assignments);
     }
 
     @Override

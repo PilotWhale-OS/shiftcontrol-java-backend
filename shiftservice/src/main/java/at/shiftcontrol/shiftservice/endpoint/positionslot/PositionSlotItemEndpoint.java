@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
