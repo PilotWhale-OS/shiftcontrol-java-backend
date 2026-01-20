@@ -17,7 +17,6 @@ public class AssignmentContextAssemblingMapper {
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
 
     public AssignmentContextDto toDto(@NonNull Assignment assignment) {
-        RewardPointsMapper.
         return new AssignmentContextDto(
             assignmentAssemblingMapper.assemble(assignment),
             ShiftContextMapper.toDto(assignment.getPositionSlot().getShift()),
