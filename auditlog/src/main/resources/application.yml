@@ -12,6 +12,13 @@ spring:
         hibernate:
           type:
             json_format_mapper: jsonb
+keycloak:
+  auth-server-url: http://keycloak.127.0.0.1.nip.io/
+  auth-realm: dev
+  allowed-issuers:
+    - http://keycloak.127.0.0.1.nip.io/realms/dev
+    - http://keycloak:8080/realms/dev
+
 logging:
   level:
     'org.hibernate.orm.connections.pooling': WARN

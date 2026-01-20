@@ -2,7 +2,10 @@ package at.shiftcontrol.auditlog.endpoint;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +27,12 @@ public class LogEndpoint {
     private final AuditLogService auditLogService;
 
     @GetMapping
+    @Secured("ADMIN")
+    @Operation(
+        operationId = "getLogs",
+        description = "Search for auditlog entries"
+    )
     public List<LogEntryDto> getLogs(@RequestBody LogSearchDto searchDto) {
-        var entries = LogEntryDto.of(auditLogService.search(searchDto));
-
-        var res = new ObjectMapper().writeValueAsString(entries);
-
-        return entries;
+        return LogEntryDto.of(auditLogService.search(searchDto));
     }
 }
