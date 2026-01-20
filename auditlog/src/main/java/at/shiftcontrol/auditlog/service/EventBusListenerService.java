@@ -49,8 +49,8 @@ public class EventBusListenerService {
         }
 
         ObjectNode payload = null;
-        if (root instanceof ObjectNode) {
-            payload = (ObjectNode) root;
+        if (root instanceof ObjectNode objectnode) {
+            payload = objectnode;
         }
 
         var createDto = LogEntryCreateDto.builder()
