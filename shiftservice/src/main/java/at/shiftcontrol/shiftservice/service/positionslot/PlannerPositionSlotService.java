@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import jakarta.validation.Valid;
 
-import at.shiftcontrol.shiftservice.dto.AssignmentAssignDto;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentAssignDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentFilterDto;
 import at.shiftcontrol.shiftservice.dto.plannerdashboard.AssignmentPlannerInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;

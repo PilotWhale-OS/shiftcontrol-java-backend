@@ -8,7 +8,7 @@ import at.shiftcontrol.lib.entity.ShiftPlan;
 public interface ShiftPlanDao extends BasicDao<ShiftPlan, Long> {
     Collection<ShiftPlan> findByEventId(Long eventId);
 
-    Collection<ShiftPlan> findAllUserRelatedShiftPlans(String userId);
+    Collection<ShiftPlan> findAllUserRelatedShiftPlansInEvent(String userId, String eventId);
 
     Collection<ShiftPlan> getByIds(Set<Long> shiftPlanIds);
 }
