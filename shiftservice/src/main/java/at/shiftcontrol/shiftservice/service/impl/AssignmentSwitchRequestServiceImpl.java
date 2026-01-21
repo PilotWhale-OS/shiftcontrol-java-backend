@@ -25,6 +25,7 @@ import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.TradeEvent;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -89,7 +90,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // only check for locked, eligibility and conflict of current user when creating actual trade
 
         // get all assignments in this shift-plan the current user can offer
-        Collection<Assignment> assignments = assignmentDao.findAssignmentsForShiftPlanAndUser(
+        Collection<Assignment> assignments = assignmentDao.findActiveAssignmentsForShiftPlanAndUser(
             requestedPositionSlot.getShift().getShiftPlan().getId(), currentUserId);
 
         // for each assignment, check to which volunteers (of the requested slot) it can be offered
@@ -186,7 +187,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         Assignment offeredAssignment = offeredPositionSlot.getAssignments().stream()
-            .filter(assignment -> assignment.getAssignedVolunteer().getId().equals(currentUser.getId())).findFirst()
+            .filter(assignment -> assignment.getAssignedVolunteer().getId().equals(currentUser.getId())
+                && assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT).findFirst()
             .orElseThrow(() -> new IllegalArgumentException("not assigned to offered Position"));
 
         // check if eligible and for conflicts
@@ -227,8 +229,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             }).toList();
 
         // check if trade in other direction already exists
-        // --> if exists, executing trade would result in same primary key
-        //      therefore do not create second trade and accept first one
+        //      accept if exists
         for (AssignmentSwitchRequest trade : trades) {
             Optional<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade);
             if (inverse.isPresent()) {
@@ -251,6 +252,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             .map(Volunteer::getId)
             .collect(Collectors.toSet());
         return positionSlot.getAssignments().stream()
+            .filter(assignment -> assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
             .map(Assignment::getAssignedVolunteer)
             .filter(v -> existingVolunteerIds.contains(v.getId()))
             .toList();
@@ -276,6 +278,12 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check if trade is open
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
             throw new IllegalArgumentException("trade not open");
+        }
+
+        // check if none of assignment is in request signup status
+        if (trade.getRequestedAssignment().getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT
+            || trade.getOfferingAssignment().getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
+            throw new IllegalStateException("trade not possible, one volunteer is not assigned anymore");
         }
 
         // check for access, eligibility and conflicts for both users

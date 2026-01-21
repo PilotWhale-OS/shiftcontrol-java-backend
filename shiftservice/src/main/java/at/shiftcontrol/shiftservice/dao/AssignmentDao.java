@@ -27,5 +27,7 @@ public interface AssignmentDao extends BasicDao<Assignment, Long> {
 
     Collection<Assignment> findAssignmentsForShiftPlanAndUser(long shiftPlanId, String userId);
 
+    Collection<Assignment> findActiveAssignmentsForShiftPlanAndUser(long shiftPlanId, String userId);
+
     void deleteAll(Collection<Assignment> ids);
 }
