@@ -2,23 +2,17 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
-
 import at.shiftcontrol.shiftservice.dto.trade.TradeInfoDto;
-
-import org.springframework.stereotype.Service;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class TradeMapper {
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
-    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
-    private final AssignmentContextAssemblingMapper assignmentContextAssemblingMapper;
 
     public TradeDto toDto(@NonNull AssignmentSwitchRequest trade) {
         return new TradeDto(
@@ -39,8 +33,8 @@ public class TradeMapper {
             String.valueOf(trade.getId()),
             trade.getOfferingAssignment().getAcceptedRewardPoints(),
             trade.getRequestedAssignment().getAcceptedRewardPoints(),
-            assignmentContextAssemblingMapper.toDto(trade.getOfferingAssignment()),
-            assignmentContextAssemblingMapper.toDto(trade.getRequestedAssignment()),
+            assignmentAssemblingMapper.toContextDto(trade.getOfferingAssignment()),
+            assignmentAssemblingMapper.toContextDto(trade.getRequestedAssignment()),
             trade.getStatus(),
             trade.getCreatedAt()
         );

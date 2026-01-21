@@ -13,7 +13,6 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDashboardOverviewDto;
 import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
-import at.shiftcontrol.shiftservice.mapper.AssignmentContextAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
@@ -39,7 +38,6 @@ public class DashboardServiceImpl implements DashboardService {
     private final ShiftAssemblingMapper shiftMapper;
     private final TradeMapper tradeMapper;
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
-    private final AssignmentContextAssemblingMapper assignmentContextAssemblingMapper;
 
     @Override
     public EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(String userId) {
@@ -74,7 +72,7 @@ public class DashboardServiceImpl implements DashboardService {
             .rewardPoints((int) rewardPointsTransactionDao.sumPointsByVolunteerAndShiftPlan(userId, shiftPlanId))
             .shifts(shiftMapper.assemble(userShifts))
             .trades(tradeMapper.toTradeInfoDto(assignmentSwitchRequestDao.findTradesForShiftPlanAndUser(shiftPlanId, userId)))
-            .auctions(assignmentContextAssemblingMapper.toDto(assignmentDao.findAuctionsByShiftPlanId(shiftPlanId)))
+            .auctions(assignmentAssemblingMapper.toContextDto(assignmentDao.findAuctionsByShiftPlanId(shiftPlanId)))
             .build();
     }
 

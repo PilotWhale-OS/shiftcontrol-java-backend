@@ -2,14 +2,13 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftContextDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -41,6 +40,19 @@ public class ShiftAssemblingMapper {
             positionSlots,
             location == null ? null : LocationMapper.toLocationDto(location),
             shift.getShiftPlan().getLockStatus(),
+            shift.getBonusRewardPoints()
+        );
+    }
+
+    public static ShiftContextDto toContextDto(Shift shift) {
+        return new ShiftContextDto(
+            String.valueOf(shift.getId()),
+            shift.getName(),
+            shift.getShortDescription(),
+            shift.getLongDescription(),
+            shift.getStartTime(),
+            shift.getEndTime(),
+            LocationMapper.toLocationDto(shift.getLocation()),
             shift.getBonusRewardPoints()
         );
     }

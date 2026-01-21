@@ -1,10 +1,7 @@
 package at.shiftcontrol.shiftservice.dto.assignment;
 
-import at.shiftcontrol.lib.entity.ShiftPlan;
-
-import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
-
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotContextDto;
+import at.shiftcontrol.shiftservice.dto.shift.ShiftContextDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,7 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AssignmentContextDto {
-
     @Valid
     @NotNull
     AssignmentDto assignment;

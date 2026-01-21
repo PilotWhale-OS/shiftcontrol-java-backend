@@ -1,7 +1,8 @@
-package at.shiftcontrol.shiftservice.dto.assignment;
+package at.shiftcontrol.shiftservice.dto.shift;
 
-import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import java.time.Instant;
 
+import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PositionSlotContextDto {
+public class ShiftContextDto {
     @NotNull
     private String id;
 
@@ -24,15 +25,21 @@ public class PositionSlotContextDto {
     private String name;
 
     @Size(max = 255)
-    private String description;
+    private String shortDescription;
+
+    @Size(max = 1024)
+    private String longDescription;
 
     @NotNull
-    private boolean skipAutoAssignment;
+    private Instant startTime;
+
+    @NotNull
+    private Instant endTime;
+
+    @Valid
+    private LocationDto location;
 
     @NotNull
     @Min(0)
-    private int desiredVolunteerCount;
-
-    @Valid
-    private RoleDto role;
+    private int bonusRewardPoints;
 }
