@@ -1,13 +1,13 @@
 package at.shiftcontrol.shiftservice.service.event;
 
+import java.util.Collection;
 import java.util.List;
 
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 
 public interface EventService {
@@ -15,11 +15,13 @@ public interface EventService {
 
     List<EventDto> search(EventSearchDto searchDto);
 
+    Collection<EventDto> getAllOpenEvents(String currentUser);
+
     List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId);
 
-    EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId);
+    Collection<ShiftPlanContactInfoDto> getPlannerContactInfo(long eventId, String userId);
 
-    EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto);
+    EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId);
 
     EventDto createEvent(EventModificationDto modificationDto);
 

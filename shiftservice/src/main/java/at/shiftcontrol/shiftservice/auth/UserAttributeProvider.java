@@ -1,11 +1,14 @@
 package at.shiftcontrol.shiftservice.auth;
 
+import java.util.Collection;
 import java.util.Set;
 
 import lombok.NonNull;
 
 public interface UserAttributeProvider {
     void invalidateUserCache(String userId);
+
+    void invalidateUserCaches(Collection<String> userId);
 
     Set<Long> getPlansWhereUserIsVolunteer(@NonNull String userId);
 

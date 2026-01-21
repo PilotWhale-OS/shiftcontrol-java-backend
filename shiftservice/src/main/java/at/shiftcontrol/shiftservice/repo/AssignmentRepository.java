@@ -3,32 +3,44 @@ package at.shiftcontrol.shiftservice.repo;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
-
-import at.shiftcontrol.lib.type.AssignmentStatus;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 
 @Repository
-public interface AssignmentRepository extends JpaRepository<Assignment, AssignmentId> {
+public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
+    @Query("""
+            SELECT a FROM Assignment a
+            WHERE a.positionSlot.id = :positionSlotId
+            AND a.assignedVolunteer.id = :assignedUser
+        """)
+    Optional<Assignment> findBySlotAndUser(long positionSlotId, String assignedUser);
+
     @Query("""
         SELECT a FROM Assignment a
-        WHERE a.positionSlot.shift.shiftPlan.id = :spId AND a.status IN ('AUCTION_REQUEST_FOR_UNASSIGN', 'AUCTION')
+        WHERE a.positionSlot.shift.shiftPlan.id = :spId AND a.status = :requestUnassign
         """)
-    Collection<Assignment> findAuctionsByShiftPlanId(long spId);
+    Collection<Assignment> findSignupRequestsByShiftPlanId(long spId, AssignmentStatus requestUnassign);
+
+    @Query("""
+        SELECT a FROM Assignment a
+        WHERE a.positionSlot.shift.shiftPlan.id = :spId AND a.status IN :auctionStates
+        """)
+    Collection<Assignment> findAuctionsByShiftPlanId(long spId, Set<AssignmentStatus> auctionStates);
 
     // TODO delete after trade and auction are fully implemented and method is still not used
     @Query("""
         SELECT a FROM Assignment a
         WHERE a.positionSlot.shift.shiftPlan.id = :spId
-        AND a.status IN ('AUCTION_REQUEST_FOR_UNASSIGN', 'AUCTION')
+        AND a.status IN :auctionStates
         AND a.assignedVolunteer.id != :userId
         """)
-    Collection<Assignment> findAuctionsByShiftPlanIdExcludingUser(long spId, String userId);
+    Collection<Assignment> findAuctionsByShiftPlanIdExcludingUser(long spId, String userId, Set<AssignmentStatus> auctionStates);
 
     @Query("""
         SELECT a FROM Assignment a

@@ -13,9 +13,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.type.TradeStatus;
 
 @DataJpaTest
@@ -35,10 +33,10 @@ public class AssignmentSwitchRequestRepositoryTest {
 
     @Test
     void testCancelTradesForAssignment() {
-        AssignmentSwitchRequest trade = assignmentSwitchRequestRepository.findById(new AssignmentSwitchRequestId(
-            new AssignmentId(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5"),
-            new AssignmentId(2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6")
-        )).orElseThrow(() -> new RuntimeException("trade not found"));
+        AssignmentSwitchRequest trade = assignmentSwitchRequestRepository.findBySlotsAndUsers(
+            1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5",
+            2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6"
+        ).orElseThrow(() -> new RuntimeException("trade not found"));
 
         Assertions.assertNotEquals(TradeStatus.CANCELED, trade.getStatus());
         assignmentSwitchRequestRepository.cancelTradesForAssignment(
@@ -47,10 +45,10 @@ public class AssignmentSwitchRequestRepositoryTest {
         em.flush();
         em.clear();
 
-        trade = assignmentSwitchRequestRepository.findById(new AssignmentSwitchRequestId(
-            new AssignmentId(1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5"),
-            new AssignmentId(2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6")
-        )).orElseThrow(() -> new RuntimeException("trade not found"));
+        trade = assignmentSwitchRequestRepository.findBySlotsAndUsers(
+            1L, "28c02050-4f90-4f3a-b1df-3c7d27a166e5",
+            2L, "28c02050-4f90-4f3a-b1df-3c7d27a166e6"
+        ).orElseThrow(() -> new RuntimeException("trade not found"));
 
         Assertions.assertEquals(TradeStatus.CANCELED, trade.getStatus());
     }
@@ -89,19 +87,14 @@ public class AssignmentSwitchRequestRepositoryTest {
 
     @Test
     void testCancelTradesForOfferedPositionAndRequestedUser() {
-        AssignmentId offer = AssignmentId.of(
-            3L,
-            "28c02050-4f90-4f3a-b1df-3c7d27a166e7"
-        );
-        AssignmentId request = AssignmentId.of(
-            4L,
-            "28c02050-4f90-4f3a-b1df-3c7d27a166e8"
-        );
-        AssignmentSwitchRequestId tradeId = AssignmentSwitchRequestId.of(offer, request);
+        long offeredSlotId = 3L;
+        String offeringUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
+        long requestedSlotId = 4L;
+        String requestingUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
 
-        assignmentSwitchRequestRepository.cancelTradesForOfferedPositionAndRequestedUser(offer.getPositionSlotId(), request.getVolunteerId(), TradeStatus.CANCELED);
+        assignmentSwitchRequestRepository.cancelTradesForOfferedPositionAndRequestedUser(offeredSlotId, requestingUserId, TradeStatus.CANCELED);
 
-        Optional<AssignmentSwitchRequest> trade = assignmentSwitchRequestRepository.findById(tradeId);
+        Optional<AssignmentSwitchRequest> trade = assignmentSwitchRequestRepository.findBySlotsAndUsers(offeredSlotId, offeringUserId, requestedSlotId, requestingUserId);
         Assertions.assertTrue(trade.isPresent());
         Assertions.assertEquals(TradeStatus.CANCELED, trade.get().getStatus());
     }

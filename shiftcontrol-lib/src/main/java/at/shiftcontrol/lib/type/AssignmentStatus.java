@@ -1,5 +1,7 @@
 package at.shiftcontrol.lib.type;
 
+import java.util.EnumSet;
+
 public enum AssignmentStatus {
     /**
      * The assignment has been accepted by the user, or he has assigned themselves to it.
@@ -16,5 +18,8 @@ public enum AssignmentStatus {
     /**
      * The volunteer wants to join an assignment when planning phase is over.
      */
-    REQUEST_FOR_ASSIGNMENT
+    REQUEST_FOR_ASSIGNMENT;
+
+    public static final EnumSet<AssignmentStatus> ACTIVE_AUCTION_STATES =
+        EnumSet.of(AUCTION, AUCTION_REQUEST_FOR_UNASSIGN);
 }

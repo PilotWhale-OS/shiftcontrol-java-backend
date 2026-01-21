@@ -3,13 +3,14 @@ package at.shiftcontrol.lib.entity;
 import java.util.Collection;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -30,17 +31,16 @@ import at.shiftcontrol.lib.type.AssignmentStatus;
 @Entity
 @Table(name = "assignment")
 public class Assignment {
-    @EmbeddedId
-    private AssignmentId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @NotNull
-    @MapsId("positionSlotId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "position_slot_id", nullable = false)
     private PositionSlot positionSlot;
 
     @NotNull
-    @MapsId("volunteerId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "assigned_volunteer_id", nullable = false)
     private Volunteer assignedVolunteer;
@@ -61,13 +61,12 @@ public class Assignment {
 
     @Override
     public String toString() {
-        return "Assignment{id=%s, status=%s, outgoingSwitchRequests=%s, incomingSwitchRequests=%s}"
-            .formatted(id, status, outgoingSwitchRequests, incomingSwitchRequests);
+        return "Assignment{id=%s, slotId=%s, volunteerId=%s, status=%s, outgoingSwitchRequests=%s, incomingSwitchRequests=%s}"
+            .formatted(id, positionSlot.getId(), assignedVolunteer.getId(), status, outgoingSwitchRequests, incomingSwitchRequests);
     }
 
     public static Assignment of(PositionSlot positionSlot, Volunteer volunteer, AssignmentStatus status) {
         return Assignment.builder()
-            .id(AssignmentId.of(positionSlot.getId(), volunteer.getId()))
             .assignedVolunteer(volunteer)
             .positionSlot(positionSlot)
             .status(status)

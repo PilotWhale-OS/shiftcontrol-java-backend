@@ -23,6 +23,12 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
     Collection<Volunteer> findAll(long offset, long size);
 
     @Query("""
+            SELECT count(v)
+            FROM Volunteer v
+        """)
+    long findAllSize();
+
+    @Query("""
             select (count(sp) > 0)
             from Volunteer v
             join v.volunteeringPlans sp

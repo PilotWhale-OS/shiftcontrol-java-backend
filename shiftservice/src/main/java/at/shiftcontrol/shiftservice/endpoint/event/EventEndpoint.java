@@ -2,31 +2,14 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
 import at.shiftcontrol.shiftservice.service.DashboardService;
 import at.shiftcontrol.shiftservice.service.event.EventCloneService;
 import at.shiftcontrol.shiftservice.service.event.EventExportService;
@@ -75,7 +58,7 @@ public class EventEndpoint {
         return eventService.getEvent(ConvertUtil.idToLong(eventId));
     }
 
-    @GetMapping()
+    @GetMapping
     @Operation(
         operationId = "getAllEvents",
         description = "Find all (volunteer related) events"
@@ -85,16 +68,16 @@ public class EventEndpoint {
     }
     //Todo: Add search capability in future
 
-    @GetMapping("/{eventId}/schedule")
+    @GetMapping("/open")
     @Operation(
-        operationId = "getEventSchedule",
-        description = "Get the schedule of an event"
+        operationId = "getAllOpenEvents",
+        description = "Find all events that are currently ongoing or upcoming"
     )
-    public EventScheduleDto getEventSchedule(@PathVariable String eventId, @Valid EventScheduleDaySearchDto searchDto) {
-        return eventService.getEventSchedule(ConvertUtil.idToLong(eventId), searchDto);
+    public Collection<EventDto> getAllOpenEvents() {
+        return eventService.getAllOpenEvents(userProvider.getCurrentUser().getUserId());
     }
 
-    @PostMapping()
+    @PostMapping
     @Operation(
         operationId = "createEvent",
         description = "Create a new event"
@@ -139,16 +122,16 @@ public class EventEndpoint {
         return eventService.getEventShiftPlansOverview(ConvertUtil.idToLong(eventId), userProvider.getCurrentUser().getUserId());
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping("/{eventId}/dashboard")
     @Operation(
         operationId = "getEventsDashboard",
         description = "Get (volunteer related) dashboard data for all events"
     )
-    public EventsDashboardOverviewDto getEventsDashboard() {
-        return dashboardService.getDashboardOverviewsOfAllShiftPlans(userProvider.getCurrentUser().getUserId());
+    public EventsDashboardOverviewDto getEventsDashboard(@PathVariable String eventId) {
+        return dashboardService.getDashboardOverviewsOfAllShiftPlans(eventId, userProvider.getCurrentUser().getUserId());
     }
 
-    @GetMapping("{eventId}/export")
+    @GetMapping("/{eventId}/export")
     @Operation(
         operationId = "exportEventData",
         description = "Export event data for external use"
@@ -172,7 +155,7 @@ public class EventEndpoint {
         return eventImportService.importEvent(file);
     }
 
-    @GetMapping("import/template")
+    @GetMapping("/import/template")
     @Operation(
         operationId = "downloadEventImportTemplate",
         description = "Download event import template file"
@@ -184,6 +167,17 @@ public class EventEndpoint {
             // filename will be set in frontend regardless of this value because header value is not used, but it is good practice to set it here anyway
             .contentType(template.getMediaType())
             .body(new InputStreamResource(template.getExportStream()));
+    }
+
+    @GetMapping("/{eventId}/contacts")
+    @Operation(
+        operationId = "getPlannerContacts",
+        description = "Get contact information for all planners"
+    )
+    public Collection<ShiftPlanContactInfoDto> getPlannerContacts(@PathVariable String eventId) {
+        return eventService.getPlannerContactInfo(
+            ConvertUtil.idToLong(eventId),
+            userProvider.getCurrentUser().getUserId());
     }
 
     // TODO delete this test controller!!!

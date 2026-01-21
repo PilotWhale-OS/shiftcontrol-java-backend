@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,8 @@ class EventServiceTest {
         // Arrange: event that matches (contains spRelevant)
         Event relevantEvent = new Event();
         relevantEvent.setShiftPlans(List.of(spRelevant));
+        relevantEvent.setStartTime(Instant.MIN);
+        relevantEvent.setEndTime(Instant.MAX);
 
         // Arrange: event that does NOT match (contains spIrrelevant)
         Event nonRelevantEvent = new Event();
@@ -146,6 +149,8 @@ class EventServiceTest {
 
         Event event = new Event();
         event.setShiftPlans(List.of(spRelevant, spIrrelevant));
+        event.setStartTime(Instant.MIN);
+        event.setEndTime(Instant.MIN);
 
         Volunteer volunteer = mock(Volunteer.class);
         when(volunteer.getVolunteeringPlans()).thenReturn(List.of(spRelevant));

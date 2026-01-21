@@ -2,6 +2,8 @@ package at.shiftcontrol.shiftservice.dto.trade;
 
 import java.time.Instant;
 
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentContextDto;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,10 +20,7 @@ import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 @Builder
 public class TradeInfoDto {
     @NotNull
-    private String offeredPositionSlotId;
-
-    @NotNull
-    private String requestedPositionSlotId;
+    private String id;
 
     @NotNull
     private int offeredPositionSlotRewardPoints;
@@ -31,11 +30,11 @@ public class TradeInfoDto {
 
     @NotNull
     @Valid
-    private VolunteerDto offeringVolunteer;
+    private AssignmentContextDto offeringAssignment;
 
     @NotNull
     @Valid
-    private VolunteerDto requestedVolunteer;
+    private AssignmentContextDto requestedAssignment;
 
     @NotNull
     private TradeStatus status;

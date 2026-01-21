@@ -18,7 +18,7 @@ public interface RewardPointsService {
     void onAssignmentReassignedAuction(Assignment oldAssignment, Assignment newAssignment, String acceptedRewardPointsHash)
         throws ConflictException;
 
-    void onAssignmentReassignedTrade(Assignment oldAssignment, Assignment newAssignment)
+    void onAssignmentReassignedTrade(Assignment offeringAssignment, Assignment requestedAssignment)
         throws ConflictException;
 
     void manualAdjust(String volunteerId, long eventId, int points, String reason);

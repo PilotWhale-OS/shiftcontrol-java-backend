@@ -45,6 +45,10 @@
 
         <insert tableName="shift_plan_volunteer_volunteering">
             <column name="shift_plan_id" valueNumeric="7"/>
+            <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+        </insert>
+        <insert tableName="shift_plan_volunteer_volunteering">
+            <column name="shift_plan_id" valueNumeric="7"/>
             <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
         </insert>
         <insert tableName="shift_plan_volunteer_volunteering">

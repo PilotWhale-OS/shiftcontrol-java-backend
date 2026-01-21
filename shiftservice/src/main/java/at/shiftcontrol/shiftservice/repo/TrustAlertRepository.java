@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import at.shiftcontrol.lib.entity.TrustAlert;
 
 public interface TrustAlertRepository extends JpaRepository<TrustAlert, Long> {
-
     @Query("""
             SELECT a
             FROM TrustAlert a
@@ -16,4 +15,10 @@ public interface TrustAlertRepository extends JpaRepository<TrustAlert, Long> {
             LIMIT :size OFFSET :offset
         """)
     Collection<TrustAlert> getAllPaginated(long offset, long size);
+
+    @Query("""
+            SELECT count(a)
+            FROM TrustAlert a
+        """)
+    long findAllSize();
 }

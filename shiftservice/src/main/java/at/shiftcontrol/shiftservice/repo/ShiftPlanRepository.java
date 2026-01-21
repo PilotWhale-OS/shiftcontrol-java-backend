@@ -3,12 +3,11 @@ package at.shiftcontrol.shiftservice.repo;
 import java.util.Collection;
 import java.util.Set;
 
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import at.shiftcontrol.lib.entity.ShiftPlan;
 
 @Repository
 public interface ShiftPlanRepository extends JpaRepository<ShiftPlan, Long>, JpaSpecificationExecutor<ShiftPlan> {
@@ -20,9 +19,10 @@ public interface ShiftPlanRepository extends JpaRepository<ShiftPlan, Long>, Jpa
         FROM ShiftPlan sp
         LEFT JOIN sp.planPlanners planner
         LEFT JOIN sp.planVolunteers volunteer
-        WHERE planner.id = :userId OR volunteer.id = :userId
+        WHERE (planner.id = :userId OR volunteer.id = :userId)
+          AND sp.event.id = :eventId
         """)
-    Collection<ShiftPlan> findAllUserRelatedShiftPlans(String userId);
+    Collection<ShiftPlan> findAllUserRelatedShiftPlansInEvent(String userId, String eventId);
 
     @Query("""
         SELECT DISTINCT sp

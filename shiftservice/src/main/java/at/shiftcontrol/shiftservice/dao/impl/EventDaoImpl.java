@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -14,11 +15,8 @@ import org.jspecify.annotations.NonNull;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
+import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -69,6 +67,16 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
+    public Collection<Event> getAllOpenEvents() {
+        return eventRepository.getAllOpenEvents(Instant.now());
+    }
+
+    @Override
+    public Collection<Event> getAllOpenEventsForUser(String userId) {
+        return eventRepository.getAllOpenEventsForUser(userId, Instant.now());
+    }
+
+    @Override
     public Collection<Event> findAll() {
         return eventRepository.findAll();
     }
@@ -76,5 +84,10 @@ public class EventDaoImpl implements EventDao {
     @Override
     public boolean existsByNameIgnoreCase(String name) {
         return eventRepository.existsByNameIgnoreCase(name);
+    }
+
+    @Override
+    public Collection<PlanVolunteerIdRow> getPlannersForEventAndUser(long eventId, String userId) {
+        return eventRepository.getPlannersForEventAndUser(eventId, userId);
     }
 }

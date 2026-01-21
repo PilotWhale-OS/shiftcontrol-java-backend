@@ -29,4 +29,7 @@ public class EventModificationDto {
 
     @NotNull
     private Instant endTime;
+
+    @Size(max = 4096)
+    private String socialLinks;
 }

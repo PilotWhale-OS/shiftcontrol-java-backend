@@ -34,7 +34,7 @@ class ShiftPlanPartTest {
     @Test
     void of_throwsNullPointerException_forNullShiftPlan() {
         assertThrows(NullPointerException.class, () -> {
-            ShiftPlanPart.of(null);
+            ShiftPlanPart.of((ShiftPlan) null);
         });
     }
 }

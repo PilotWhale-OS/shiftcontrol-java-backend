@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
@@ -21,7 +21,9 @@ import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.LockStatus;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
@@ -40,6 +42,8 @@ class PositionSlotIT extends RestITBase {
     private static final String POSITIONSLOT_PATH = "/position-slots";
     private static final String SHIFT_POSITIONSLOT_PATH = "shifts/%d/position-slots";
     private static final String REWARDPOINTS_PATH = "/reward-points";
+    private static final String LEAVE_POSITIONSLOT_PATH = "/position-slots/%s/leave";
+    private static final String JOIN_POSITIONSLOT_PATH = "/position-slots/%s/join";
 
     @Autowired
     PositionSlotRepository positionSlotRepository;
@@ -59,13 +63,16 @@ class PositionSlotIT extends RestITBase {
     @Autowired
     AssignmentRepository assignmentRepository;
 
+    @Autowired
+    UserAttributeProvider userAttributeProvider;
+
     private Event eventA;
-    private ShiftPlan shiftPlanA;
-    private Shift shiftA, shiftB;
+    private ShiftPlan shiftPlanA, shiftPlanB;
+    private Shift shiftA, shiftB, shiftC;
 
     private Volunteer volunteerA, volunteerB;
 
-    private PositionSlot positionSlotA, positionSlotB;
+    private PositionSlot positionSlotA, positionSlotB, positionSlotC;
 
     private Assignment assignmentA;
 
@@ -105,18 +112,31 @@ class PositionSlotIT extends RestITBase {
     }
 
     private void createShiftPlans() {
+        var shiftPlans = new ArrayList<ShiftPlan>();
+
         shiftPlanA = ShiftPlan.builder()
             .name("ShiftPlanA")
             .event(eventA)
             .lockStatus(LockStatus.SUPERVISED)
             .defaultNoRolePointsPerMinute(1)
             .build();
+        shiftPlans.add(shiftPlanA);
 
-        shiftPlanRepository.save(shiftPlanA);
+        shiftPlanB = ShiftPlan.builder()
+            .name("ShiftPlanB")
+            .event(eventA)
+            .lockStatus(LockStatus.SELF_SIGNUP)
+            .defaultNoRolePointsPerMinute(1)
+            .build();
+        shiftPlans.add(shiftPlanB);
+
+        shiftPlanRepository.saveAll(shiftPlans);
 
         assertAll(
             () -> assertThat(shiftPlanA.getId()).isGreaterThan(0),
-            () -> assertThat(shiftPlanRepository.existsById(shiftPlanA.getId())).isTrue()
+            () -> assertThat(shiftPlanB.getId()).isGreaterThan(0),
+            () -> assertThat(shiftPlanRepository.existsById(shiftPlanA.getId())).isTrue(),
+            () -> assertThat(shiftPlanRepository.existsById(shiftPlanB.getId())).isTrue()
         );
     }
 
@@ -151,13 +171,30 @@ class PositionSlotIT extends RestITBase {
             .build();
         shifts.add(shiftB);
 
+
+        var startTimeC = LocalDateTime.of(2024, 3, 1, 11, 0).toInstant(ZoneOffset.UTC);
+        var endTimeC = LocalDateTime.of(2024, 3, 3, 18, 0).toInstant(ZoneOffset.UTC);
+
+        shiftC = Shift.builder()
+            .name("ShiftB")
+            .shiftPlan(shiftPlanB)
+            .shortDescription("ShortDescC")
+            .longDescription("This is a description for ShiftC")
+            .startTime(startTimeC)
+            .endTime(endTimeC)
+            .bonusRewardPoints(20)
+            .build();
+        shifts.add(shiftC);
+
         shiftRepository.saveAll(shifts);
 
         assertAll(
             () -> assertThat(shiftA.getId()).isGreaterThan(0),
             () -> assertThat(shiftB.getId()).isGreaterThan(0),
+            () -> assertThat(shiftC.getId()).isGreaterThan(0),
             () -> assertThat(shiftRepository.existsById(shiftA.getId())).isTrue(),
-            () -> assertThat(shiftRepository.existsById(shiftB.getId())).isTrue()
+            () -> assertThat(shiftRepository.existsById(shiftB.getId())).isTrue(),
+            () -> assertThat(shiftRepository.existsById(shiftC.getId())).isTrue()
         );
     }
 
@@ -183,13 +220,25 @@ class PositionSlotIT extends RestITBase {
             .build();
         slots.add(positionSlotB);
 
+        positionSlotC = PositionSlot.builder()
+            .name("positionSlotC")
+            .skipAutoAssignment(true)
+            .shift(shiftC)
+            .description("DescriptionC")
+            .desiredVolunteerCount(5)
+            .overrideRewardPoints(70)
+            .build();
+        slots.add(positionSlotC);
+
         positionSlotRepository.saveAll(slots);
 
         assertAll(
             () -> assertThat(positionSlotA.getId()).isGreaterThan(0),
             () -> assertThat(positionSlotB.getId()).isGreaterThan(0),
+            () -> assertThat(positionSlotC.getId()).isGreaterThan(0),
             () -> assertThat(positionSlotRepository.existsById(positionSlotA.getId())).isTrue(),
-            () -> assertThat(positionSlotRepository.existsById(positionSlotB.getId())).isTrue()
+            () -> assertThat(positionSlotRepository.existsById(positionSlotB.getId())).isTrue(),
+            () -> assertThat(positionSlotRepository.existsById(positionSlotC.getId())).isTrue()
         );
     }
 
@@ -197,13 +246,13 @@ class PositionSlotIT extends RestITBase {
         var volunteers = new ArrayList<Volunteer>();
         volunteerA = Volunteer.builder()
             .id("11111")
-            .volunteeringPlans(Set.of(shiftPlanA))
+            .volunteeringPlans(Set.of(shiftPlanA, shiftPlanB))
             .build();
         volunteers.add(volunteerA);
 
         volunteerB = Volunteer.builder()
             .id("22222")
-            .volunteeringPlans(Set.of(shiftPlanA))
+            .volunteeringPlans(Set.of(shiftPlanA, shiftPlanB))
             .build();
         volunteers.add(volunteerB);
 
@@ -220,7 +269,6 @@ class PositionSlotIT extends RestITBase {
 
     private void createAssignments() {
         assignmentA = Assignment.builder()
-            .id(new AssignmentId(positionSlotA.getId(), volunteerA.getId()))
             .positionSlot(positionSlotA)
             .assignedVolunteer(volunteerA)
             .status(AssignmentStatus.ACCEPTED)
@@ -239,6 +287,7 @@ class PositionSlotIT extends RestITBase {
 
     @AfterEach
     void tearDown() {
+        userAttributeProvider.invalidateUserCaches(Set.of(volunteerA.getId(), volunteerB.getId()));
         assignmentRepository.deleteAll();
         positionSlotRepository.deleteAll();
         eventRepository.deleteAll();
@@ -353,4 +402,55 @@ class PositionSlotIT extends RestITBase {
         );
     }
 
+    @Test
+    void joinAndLeaveMultipleTimesWorks() {
+        var positionSlotBeforeJoin = getRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotC.getId(),
+            PositionSlotDto.class,
+            volunteerB.getId()
+        );
+        var requestDto = new PositionSlotRequestDto(positionSlotBeforeJoin.getRewardPointsDto().getRewardPointsConfigHash());
+
+        var resultJoin1 = postRequestAsAssigned(
+            JOIN_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
+            requestDto,
+            AssignmentDto.class,
+            volunteerB.getId()
+        );
+
+        Assertions.assertNotNull(resultJoin1);
+        Assertions.assertEquals(AssignmentStatus.ACCEPTED, resultJoin1.getStatus());
+        Assertions.assertEquals(String.valueOf(positionSlotC.getId()), resultJoin1.getPositionSlotId());
+        Assertions.assertEquals(volunteerB.getId(), resultJoin1.getAssignedVolunteer().getId());
+
+        deleteRequestAsAssigned(
+            LEAVE_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
+            "",
+            null,
+            volunteerB.getId()
+        );
+
+        Assertions.assertFalse(assignmentRepository.findById(ConvertUtil.idToLong(resultJoin1.getId())).isPresent());
+
+        var resultJoin2 = postRequestAsAssigned(
+            JOIN_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
+            requestDto,
+            AssignmentDto.class,
+            volunteerB.getId()
+        );
+
+        Assertions.assertNotNull(resultJoin2);
+        Assertions.assertEquals(AssignmentStatus.ACCEPTED, resultJoin2.getStatus());
+        Assertions.assertEquals(String.valueOf(positionSlotC.getId()), resultJoin2.getPositionSlotId());
+        Assertions.assertEquals(volunteerB.getId(), resultJoin2.getAssignedVolunteer().getId());
+
+        deleteRequestAsAssigned(
+            LEAVE_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
+            "",
+            null,
+            volunteerB.getId()
+        );
+
+        Assertions.assertFalse(assignmentRepository.findById(ConvertUtil.idToLong(resultJoin2.getId())).isPresent());
+    }
 }

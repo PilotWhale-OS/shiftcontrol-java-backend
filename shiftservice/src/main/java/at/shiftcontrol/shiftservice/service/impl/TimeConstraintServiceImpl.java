@@ -6,13 +6,6 @@ import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Map;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.lib.event.RoutingKeys;
@@ -30,6 +23,11 @@ import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -104,9 +102,11 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     @IsNotAdmin
     public void delete(long timeConstraintId) {
         var timeConstraint = timeConstraintDao.getById(timeConstraintId);
+
+        var timeConstraintEvent = TimeConstraintEvent.of(RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
+            Map.of("timeConstraintId", String.valueOf(timeConstraintId), "volunteerId", timeConstraint.getVolunteer().getId())), timeConstraint);
         timeConstraintDao.delete(timeConstraint);
-        publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
-            Map.of("timeConstraintId", String.valueOf(timeConstraintId), "volunteerId", timeConstraint.getVolunteer().getId())), timeConstraint));
+        publisher.publishEvent(timeConstraintEvent);
     }
 
     static void checkForConstraintOverlaps(@NonNull TimeConstraintCreateDto createDto,

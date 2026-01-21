@@ -1,21 +1,19 @@
 package at.shiftcontrol.shiftservice.service.impl.event;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.SocialMediaLink;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
@@ -26,41 +24,43 @@ import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dao.ActivityDao;
-import at.shiftcontrol.shiftservice.dao.AssignmentDao;
-import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
+import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDaySearchDto;
-import at.shiftcontrol.shiftservice.dto.event.EventScheduleDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.event.SocialMediaLinkDto;
+import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
+import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
+import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import at.shiftcontrol.shiftservice.util.SocialLinksParser;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
-    private final ActivityDao activityDao;
     private final VolunteerDao volunteerDao;
     private final RewardPointsTransactionDao rewardPointsTransactionDao;
     private final StatisticService statisticService;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
-
-    // TODO delete unused fields
-    private final AssignmentDao assignmentDao;
-    private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
-
+    private final KeycloakUserService keycloakUserService;
 
     @Override
     public EventDto getEvent(long eventId) {
@@ -96,8 +96,72 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Collection<EventDto> getAllOpenEvents(String currentUser) {
+        if (securityHelper.isUserAdmin()) {
+            return EventMapper.toEventDto(eventDao.getAllOpenEvents());
+        }
+        return EventMapper.toEventDto(eventDao.getAllOpenEventsForUser(currentUser));
+    }
+
+    @Override
     public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) {
         return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId));
+    }
+
+    @Override
+    public Collection<ShiftPlanContactInfoDto> getPlannerContactInfo(long eventId, String userId) {
+        // check access
+        var event = eventDao.getById(eventId);
+        securityHelper.assertUserIsAllowedToAccessEvent(event);
+
+        // get planner IDs of users plans
+        Collection<PlanVolunteerIdRow> rows = eventDao.getPlannersForEventAndUser(eventId, userId);
+
+        // get all planners from keycloak
+        Set<String> allPlannerIds =
+            rows.stream()
+                .map(PlanVolunteerIdRow::getVolunteerId)
+                .collect(Collectors.toSet());
+        Collection<UserRepresentation> planners = keycloakUserService.getUserByIds(allPlannerIds);
+
+        // create maps to lookup userIds per plan, planNames and planner-userRepresentations
+        Map<Long, List<String>> volunteerIdsByPlan =
+            rows.stream()
+                .collect(Collectors.groupingBy(
+                    PlanVolunteerIdRow::getPlanId,
+                    LinkedHashMap::new,
+                    Collectors.mapping(
+                        PlanVolunteerIdRow::getVolunteerId,
+                        Collectors.toList()
+                    )
+                ));
+        Map<Long, String> planNames =
+            rows.stream()
+                .collect(Collectors.toMap(
+                    PlanVolunteerIdRow::getPlanId,
+                    PlanVolunteerIdRow::getPlanName,
+                    (a, b) -> a
+                ));
+        Map<String, ContactInfoDto> contactInfoById =
+            planners.stream()
+                .collect(Collectors.toMap(
+                    UserRepresentation::getId,
+                    UserAssemblingMapper::toContactInfoDto
+                ));
+
+        // create result
+        return volunteerIdsByPlan.entrySet().stream()
+            .map(entry -> {
+                Long planId = entry.getKey();
+                String planName = planNames.get(planId);
+                List<ContactInfoDto> contacts =
+                    entry.getValue().stream()
+                        .map(contactInfoById::get)
+                        .toList();
+
+                return new ShiftPlanContactInfoDto(String.valueOf(planId), planName, contacts);
+            })
+            .toList();
     }
 
     @Override
@@ -117,22 +181,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventScheduleDto getEventSchedule(long eventId, EventScheduleDaySearchDto searchDto) {
-        var event = eventDao.getById(eventId);
-        securityHelper.assertUserIsAllowedToAccessEvent(event);
-
-        var activitiesOfEvent = activityDao.searchActivitiesInEvent(eventId, searchDto).stream().toList();
-
-        return EventMapper.toEventScheduleDto(event, activitiesOfEvent);
-    }
-
-    @Override
     @AdminOnly
     public EventDto createEvent(@NonNull EventModificationDto modificationDto) {
         validateEventModificationDto(modificationDto);
 
         Event event = EventMapper.toEvent(modificationDto);
         event = eventDao.save(event);
+
+        syncSocialMediaLinks(event, modificationDto);
 
         publisher.publishEvent(EventEvent.forEventCreated(event));
         return EventMapper.toEventDto(event);
@@ -145,6 +201,7 @@ public class EventServiceImpl implements EventService {
 
         Event event = eventDao.getById(eventId);
         EventMapper.updateEvent(event, modificationDto);
+        syncSocialMediaLinks(event, modificationDto);
         eventDao.save(event);
 
         publisher.publishEvent(EventEvent.forEventUpdated(event));
@@ -162,7 +219,8 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(long eventId) {
         var event = eventDao.getById(eventId);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(eventId))), event));
+        var eventEvent = EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(eventId))), event);
+        publisher.publishEvent(eventEvent);
         eventDao.delete(event);
     }
 
@@ -343,7 +401,6 @@ public class EventServiceImpl implements EventService {
         Assignment offering = getAssignment(offeringUserId, offeringSlotId);
         Assignment requesting = getAssignment(requestingUserId, requestingSlotId);
         return AssignmentSwitchRequest.builder()
-            .id(AssignmentSwitchRequestId.of(offering, requesting))
             .offeringAssignment(offering)
             .requestedAssignment(requesting)
             .build();
@@ -351,7 +408,6 @@ public class EventServiceImpl implements EventService {
 
     private static Assignment getAssignment(String volunteerId, long slotId) {
         return Assignment.builder()
-            .id(AssignmentId.of(slotId, volunteerId))
             .assignedVolunteer(getVolunteer(volunteerId))
             .positionSlot(getPositionSlot(slotId))
             .build();
@@ -389,5 +445,31 @@ public class EventServiceImpl implements EventService {
         return shiftPlans.stream()
             .filter(shiftPlan -> volunteerShiftPlans.contains(shiftPlan) || planningShiftPlans.contains(shiftPlan))
             .toList();
+    }
+
+    private void syncSocialMediaLinks(Event event, EventModificationDto modificationDto) {
+        var incoming = SocialLinksParser.parseToDtos(modificationDto.getSocialLinks());
+
+        // IMPORTANT: do not replace managed collection
+        var links = event.getSocialMediaLinks();
+        if (links == null) {
+            links = new ArrayList<>();
+            event.setSocialMediaLinks(links);
+        }
+
+        var incomingKeys = incoming.stream()
+            .map(SocialMediaLinkDto::createKey)
+            .collect(Collectors.toSet());
+
+        links.removeIf(l -> !incomingKeys.contains(l.getKey()));
+
+        var existingKeys = links.stream()
+            .map(SocialMediaLink::getKey)
+            .collect(Collectors.toSet());
+
+        incoming.stream()
+            .filter(dto -> existingKeys.add(dto.createKey()))
+            .map(dto -> EventMapper.toSocialMediaLink(dto, event))
+            .forEach(links::add);
     }
 }

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.PositionSignupState;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeInfoDto;

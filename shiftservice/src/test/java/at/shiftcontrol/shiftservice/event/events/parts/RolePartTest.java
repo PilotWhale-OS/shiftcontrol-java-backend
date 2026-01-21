@@ -37,7 +37,7 @@ class RolePartTest {
     @Test
     void of_throwsNullPointerException_forNullRole() {
         assertThrows(NullPointerException.class, () -> {
-            RolePart.of(null);
+            RolePart.of((Role) null);
         });
     }
 }

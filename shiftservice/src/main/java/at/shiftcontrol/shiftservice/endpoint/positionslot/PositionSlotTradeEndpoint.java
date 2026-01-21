@@ -21,8 +21,6 @@ import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
-import at.shiftcontrol.shiftservice.dto.trade.TradeIdDto;
-import at.shiftcontrol.shiftservice.mapper.TradeMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 
 @Slf4j
@@ -33,13 +31,13 @@ public class PositionSlotTradeEndpoint {
     private final AssignmentSwitchRequestService assignmentSwitchRequestService;
     private final ApplicationUserProvider userProvider;
 
-    @GetMapping()
+    @GetMapping("/{tradeId}")
     @Operation(
         operationId = "getTradeById",
         description = "Get trade by id"
     )
-    public TradeDto getTradeById(@RequestBody @Valid TradeIdDto tradeDto) {
-        return assignmentSwitchRequestService.getTradeById(TradeMapper.toEntityId(tradeDto));
+    public TradeDto getTradeById(@PathVariable long tradeId) {
+        return assignmentSwitchRequestService.getTradeById(tradeId);
     }
 
     @GetMapping("/slots-to-offer/{positionSlotId}")
@@ -53,7 +51,7 @@ public class PositionSlotTradeEndpoint {
             userProvider.getCurrentUser().getUserId());
     }
 
-    @PostMapping()
+    @PostMapping
     @Operation(
         operationId = "createTrade",
         description = "Create trade request for a specific position slot in a shift"
@@ -64,35 +62,30 @@ public class PositionSlotTradeEndpoint {
             userProvider.getCurrentUser().getUserId());
     }
 
-    @PutMapping("/accept")
+    @PutMapping("/{tradeId}/accept")
     @Operation(
         operationId = "acceptTrade",
         description = "Accept a trade request for a specific position slot in a shift"
     )
-    public TradeDto acceptTrade(@RequestBody @Valid TradeIdDto tradeDto) {
-        return assignmentSwitchRequestService.acceptTrade(
-            TradeMapper.toEntityId(tradeDto));
+    public TradeDto acceptTrade(@PathVariable String tradeId) {
+        return assignmentSwitchRequestService.acceptTrade(ConvertUtil.idToLong(tradeId), userProvider.getCurrentUser().getUserId());
     }
 
-    @PutMapping("/decline")
+    @PutMapping("/{tradeId}/decline")
     @Operation(
         operationId = "declineTrade",
         description = "Decline a trade request for a specific position slot in a shift"
     )
-    public TradeDto declineTrade(@RequestBody @Valid TradeIdDto tradeDto) {
-        return assignmentSwitchRequestService.declineTrade(
-            TradeMapper.toEntityId(tradeDto),
-            userProvider.getCurrentUser().getUserId());
+    public TradeDto declineTrade(@PathVariable String tradeId) {
+        return assignmentSwitchRequestService.declineTrade(ConvertUtil.idToLong(tradeId), userProvider.getCurrentUser().getUserId());
     }
 
-    @PutMapping("/cancel")
+    @PutMapping("/{tradeId}/cancel")
     @Operation(
         operationId = "cancelTrade",
         description = "Cancel a request for a specific position slot in a shift"
     )
-    public void cancelTrade(@RequestBody @Valid TradeIdDto tradeDto) {
-        assignmentSwitchRequestService.cancelTrade(
-            TradeMapper.toEntityId(tradeDto),
-            userProvider.getCurrentUser().getUserId());
+    public void cancelTrade(@PathVariable String tradeId) {
+        assignmentSwitchRequestService.cancelTrade(ConvertUtil.idToLong(tradeId), userProvider.getCurrentUser().getUserId());
     }
 }

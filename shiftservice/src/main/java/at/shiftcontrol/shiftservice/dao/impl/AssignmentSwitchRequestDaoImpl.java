@@ -1,15 +1,23 @@
 package at.shiftcontrol.shiftservice.dao.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 
+import at.shiftcontrol.lib.entity.AssignmentPair;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequestId;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
@@ -18,6 +26,8 @@ import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
 @Component
 public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDao {
     private final AssignmentSwitchRequestRepository assignmentSwitchRequestRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public @NonNull String getName() {
@@ -25,8 +35,18 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     }
 
     @Override
-    public @NonNull Optional<AssignmentSwitchRequest> findById(AssignmentSwitchRequestId id) {
+    public @NonNull Optional<AssignmentSwitchRequest> findById(Long id) {
         return assignmentSwitchRequestRepository.findById(id);
+    }
+
+    @Override
+    public Optional<AssignmentSwitchRequest> findByAssignmentIds(long offeredAssignmentId, long requestedAssignmentId) {
+        return assignmentSwitchRequestRepository.findByAssignmentIds(offeredAssignmentId, requestedAssignmentId);
+    }
+
+    @Override
+    public Optional<AssignmentSwitchRequest> findBySlotsAndUsers(long offeredSlotId, String offeringUserId, long requestedSlotId, String requestedUserId) {
+        return assignmentSwitchRequestRepository.findBySlotsAndUsers(offeredSlotId, offeringUserId, requestedSlotId, requestedUserId);
     }
 
     @Override
@@ -66,11 +86,34 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
 
     @Override
     public Optional<AssignmentSwitchRequest> findInverseTrade(AssignmentSwitchRequest trade) {
-        return assignmentSwitchRequestRepository.findById(
-            new AssignmentSwitchRequestId(
-                trade.getId().getRequested(),
-                trade.getId().getOffering()
-            )
+        return assignmentSwitchRequestRepository.findByAssignmentIds(
+            trade.getRequestedAssignment().getId(),
+            trade.getOfferingAssignment().getId()
         );
+    }
+
+    public Collection<AssignmentSwitchRequest> findAllByAssignmentPairs(Collection<AssignmentPair> pairs) {
+        if (pairs.isEmpty()) {
+            return List.of();
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<AssignmentSwitchRequest> cq = cb.createQuery(AssignmentSwitchRequest.class);
+        Root<AssignmentSwitchRequest> root = cq.from(AssignmentSwitchRequest.class);
+
+        List<Predicate> orPredicates = new ArrayList<>();
+
+        for (AssignmentPair pair : pairs) {
+            orPredicates.add(
+                cb.and(
+                    cb.equal(root.get("offeringAssignment").get("id"), pair.getOfferingId()),
+                    cb.equal(root.get("requestedAssignment").get("id"), pair.getRequestedId())
+                )
+            );
+        }
+
+        cq.where(cb.or(orPredicates.toArray(new Predicate[0])));
+
+        return entityManager.createQuery(cq).getResultList();
     }
 }

@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.TimeConstraint;
@@ -140,7 +139,6 @@ class TimeConstraintServiceImplTest {
         when(timeConstraintDao.searchByVolunteerAndEvent(USER_ID, EVENT_ID)).thenReturn(List.of());
 
         Assignment a = new Assignment();
-        a.setId(AssignmentId.of(1L, USER_ID));
         when(assignmentDao.getConflictingAssignments(eq(USER_ID), any(), any()))
             .thenReturn(List.of(a));
 

@@ -7,7 +7,9 @@
 
     <changeSet id="014-insert-assignments" author="paul" context="dev">
 
+
         <insert tableName="assignment">
+            <column name="id" valueNumeric="1"/>
             <column name="position_slot_id" valueNumeric="1"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
             <column name="accepted_reward_points" value="10"/>
@@ -15,20 +17,23 @@
         </insert>
 
         <insert tableName="assignment">
+            <column name="id" valueNumeric="2"/>
             <column name="position_slot_id" valueNumeric="2"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
             <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
-            <column name="accepted_reward_points" value="10"/>
+            <column name="accepted_reward_points" value="30"/>
         </insert>
 
-        <insert tableName="assignment">
-            <column name="position_slot_id" valueNumeric="3"/>
-            <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e7"/>
-            <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
-            <column name="accepted_reward_points" value="10"/>
-        </insert>
+      <insert tableName="assignment">
+        <column name="id" valueNumeric="3"/>
+        <column name="position_slot_id" valueNumeric="3"/>
+        <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e7"/>
+        <column name="status" value="ACCEPTED"/>
+        <column name="accepted_reward_points" value="10"/>
+      </insert>
 
         <insert tableName="assignment">
+            <column name="id" valueNumeric="4"/>
             <column name="position_slot_id" valueNumeric="4"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
             <column name="status" value="ACCEPTED"/>
@@ -36,20 +41,23 @@
         </insert>
 
         <insert tableName="assignment">
+            <column name="id" valueNumeric="5"/>
             <column name="position_slot_id" valueNumeric="5"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
             <column name="status" value="AUCTION"/>
             <column name="accepted_reward_points" value="10"/>
         </insert>
 
-      <insert tableName="assignment">
-        <column name="position_slot_id" valueNumeric="9"/>
-        <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
-        <column name="status" value="ACCEPTED"/>
-        <column name="accepted_reward_points" value="10"/>
-      </insert>
+        <insert tableName="assignment">
+            <column name="id" valueNumeric="6"/>
+            <column name="position_slot_id" valueNumeric="9"/>
+            <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
+            <column name="status" value="ACCEPTED"/>
+            <column name="accepted_reward_points" value="10"/>
+        </insert>
 
         <insert tableName="assignment">
+            <column name="id" valueNumeric="7"/>
             <column name="position_slot_id" valueNumeric="11"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
             <column name="status" value="AUCTION"/>
@@ -57,6 +65,7 @@
         </insert>
 
         <insert tableName="assignment">
+            <column name="id" valueNumeric="8"/>
             <column name="position_slot_id" valueNumeric="12"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
             <column name="status" value="AUCTION_REQUEST_FOR_UNASSIGN"/>
@@ -64,6 +73,7 @@
         </insert>
 
         <insert tableName="assignment">
+            <column name="id" valueNumeric="9"/>
             <column name="position_slot_id" valueNumeric="13"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e7"/>
             <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
@@ -71,6 +81,7 @@
         </insert>
 
         <insert tableName="assignment">
+            <column name="id" valueNumeric="10"/>
             <column name="position_slot_id" valueNumeric="14"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
             <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
@@ -84,6 +95,7 @@
           -->
 
         <insert tableName="assignment">
+            <column name="id" valueNumeric="11"/>
             <column name="position_slot_id" valueNumeric="23"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
             <column name="status" value="ACCEPTED"/>

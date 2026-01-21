@@ -68,6 +68,7 @@ public final class RoutingKeys {
     public static final String SHIFTPLAN_CREATED = "shiftplan.created";
     public static final String SHIFTPLAN_UPDATED = "shiftplan.updated.{shiftPlanId}";
     public static final String SHIFTPLAN_DELETED = "shiftplan.deleted.{shiftPlanId}";
+    public static final String SHIFTPLAN_LEAVE = "shiftplan.leave.{shiftPlanId}";
     public static final String SHIFTPLAN_INVITE_CREATED = "shiftplan.invite.created.{shiftPlanId}.{inviteId}";
     public static final String SHIFTPLAN_INVITE_REVOKED = "shiftplan.invite.revoked.{shiftPlanId}.{inviteId}";
     public static final String SHIFTPLAN_INVITE_DELETED = "shiftplan.invite.deleted.{shiftPlanId}.{inviteId}";
@@ -93,6 +94,18 @@ public final class RoutingKeys {
     public static final String REWARDPOINTS_TRANSACTION_FAILED = "rewardpoints.transaction.failed.{volunteerId}";
     public static final String REWARDPOINTS_SHARETOKEN_CREATED = "rewardpoints.sharetoken.created.{shareTokenId}";
     public static final String REWARDPOINTS_SHARETOKEN_DELETED = "rewardpoints.sharetoken.deleted.{shareTokenId}";
+
+    public static final String USERS_EVENT_BULK_ADD = "users.bulk.add";
+    public static final String USERS_EVENT_BULK_REMOVE = "users.bulk.remove";
+
+    public static final String USERS_EVENT_UPDATE = "users.{userId}";
+    public static final String USERS_EVENT_LOCK = "users.{userId}.lock";
+    public static final String USERS_EVENT_UNLOCK = "users.{userId}.lock";
+
+    public static final String USERS_PLAN_BULK_ADD = "shift-plans.{shiftPlanId}.users.bulk.add";
+    public static final String USERS_PLAN_BULK_REMOVE = "shift-plans.{shiftPlanId}.users.bulk.remove";
+
+    public static final String USERS_PLAN_UPDATE = "shift-plans.{shiftPlanId}.users.{userId}";
 
     public static final String TRUST_ALERT_RECEIVED = "trustalert.received.{alertId}";
 

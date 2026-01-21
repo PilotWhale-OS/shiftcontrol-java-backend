@@ -4,16 +4,14 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
-import at.shiftcontrol.lib.type.AssignmentStatus;
-
 import org.springframework.stereotype.Component;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentId;
 import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 
@@ -28,8 +26,17 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
-    public @NonNull Optional<Assignment> findById(AssignmentId id) {
+    public @NonNull Optional<Assignment> findById(Long id) {
         return assignmentRepository.findById(id);
+    }
+
+    public Optional<Assignment> findBySlotAndUser(long positionSlotId, String assignedUserId) {
+        return assignmentRepository.findBySlotAndUser(positionSlotId, assignedUserId);
+    }
+
+    @Override
+    public Collection<Assignment> findSignupRequestsByShiftPlanId(long shiftPlanId) {
+        return assignmentRepository.findSignupRequestsByShiftPlanId(shiftPlanId, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
     }
 
     @Override
@@ -49,12 +56,12 @@ public class AssignmentDaoImpl implements AssignmentDao {
 
     @Override
     public Collection<Assignment> findAuctionsByShiftPlanId(long shiftPlanId) {
-        return assignmentRepository.findAuctionsByShiftPlanId(shiftPlanId);
+        return assignmentRepository.findAuctionsByShiftPlanId(shiftPlanId, AssignmentStatus.ACTIVE_AUCTION_STATES);
     }
 
     @Override
     public Collection<Assignment> findAuctionsByShiftPlanIdExcludingUser(long shiftPlanId, String userId) {
-        return assignmentRepository.findAuctionsByShiftPlanIdExcludingUser(shiftPlanId, userId);
+        return assignmentRepository.findAuctionsByShiftPlanIdExcludingUser(shiftPlanId, userId, AssignmentStatus.ACTIVE_AUCTION_STATES);
     }
 
     @Override
