@@ -3,22 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
-
-import config.TestSecurityConfig;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
@@ -29,9 +13,25 @@ import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
+import config.TestSecurityConfig;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,6 +48,9 @@ public class AssignmentSwitchRequestServiceTest {
     AssignmentDao assignmentDao;
     @Autowired
     TestEntityFactory testEntityFactory;
+
+    @Autowired
+    RewardPointsLedgerService rewardPointsLedgerService;
 
     @Autowired
     UserAttributeProvider attributeProvider;
@@ -145,10 +148,17 @@ public class AssignmentSwitchRequestServiceTest {
         Mockito.when(keycloakUserService.getUserById(any()))
             .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
 
+        var pointsOtherUserBeforeTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
+        var pointsCurrentUserBeforeTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
         TradeDto dto = assignmentSwitchRequestService.acceptTrade(1, currentUserId);
+        var pointsOtherUserAfterTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
+        var pointsCurrentUserAfterTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
 
         Assertions.assertNotNull(dto);
+
         Assertions.assertEquals(TradeStatus.ACCEPTED, dto.getStatus());
+
+        // check if volunteers swapped (current user had the requested assignment, now has the offered one, and vice versa)
         Assertions.assertEquals(currentUserId, dto.getOfferingAssignment().getAssignedVolunteer().getId());
         Assertions.assertEquals(String.valueOf(offeredSlotId), dto.getOfferingAssignment().getPositionSlotId());
         // check if new assignment exists
@@ -161,6 +171,16 @@ public class AssignmentSwitchRequestServiceTest {
         Assertions.assertFalse(deletedOffered.isPresent());
         var deletedRequested = assignmentDao.findBySlotAndUser(requestedSlotId, currentUserId);
         Assertions.assertFalse(deletedRequested.isPresent());
+
+        // check initial reward points before trade
+        Assertions.assertEquals(10, pointsOtherUserBeforeTrade);
+        Assertions.assertEquals(30, pointsCurrentUserBeforeTrade);
+        // check reward points swapped after trade
+        Assertions.assertEquals(30, pointsOtherUserAfterTrade);
+        Assertions.assertEquals(10, pointsCurrentUserAfterTrade);
+        // check reward points in dto stay the same for assignment (only volunteers swapped)
+        Assertions.assertEquals(10, dto.getOfferingAssignment().getAcceptedRewardPoints());
+        Assertions.assertEquals(30, dto.getRequestedAssignment().getAcceptedRewardPoints());
     }
 
     @Test
