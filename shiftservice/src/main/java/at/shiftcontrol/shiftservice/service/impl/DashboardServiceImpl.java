@@ -1,5 +1,8 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.util.ArrayList;
+
+import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -70,12 +73,23 @@ public class DashboardServiceImpl implements DashboardService {
         var auctions = assignmentDao.findAuctionsByShiftPlanId(shiftPlanId);
         var volunteer = volunteerDao.getById(userId);
 
-        // only show auctions where user is eligible to participate
+        // only show auctions where user is eligible to participate or own auctions
         var eligibleAuctions = auctions.stream().filter(
             assignment -> eligibilityService.isEligibleAndNotSignedUp(
                 assignment.getPositionSlot(),
                 volunteer
             )).toList();
+        var ownAuctions = auctions.stream().filter(
+            assignment -> assignment.getAssignedVolunteer() != null &&
+                assignment.getAssignedVolunteer().getId().equals(userId)
+        ).toList();
+
+        // add both eligible and own auctions, avoiding duplicates
+        var combinedAuctions = new ArrayList<Assignment>();
+        combinedAuctions.addAll(eligibleAuctions);
+        combinedAuctions.addAll(ownAuctions.stream()
+            .filter(ownAuction -> !eligibleAuctions.contains(ownAuction))
+            .toList());
 
         return ShiftPlanDashboardOverviewDto.builder()
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(shiftPlan))
@@ -85,7 +99,7 @@ public class DashboardServiceImpl implements DashboardService {
             .rewardPoints((int) rewardPointsTransactionDao.sumPointsByVolunteerAndShiftPlan(userId, shiftPlanId))
             .shifts(shiftMapper.assemble(userShifts))
             .trades(tradeMapper.toTradeInfoDto(assignmentSwitchRequestDao.findTradesForShiftPlanAndUser(shiftPlanId, userId)))
-            .auctions(assignmentAssemblingMapper.toContextDto(eligibleAuctions))
+            .auctions(assignmentAssemblingMapper.toContextDto(combinedAuctions))
             .build();
     }
 
