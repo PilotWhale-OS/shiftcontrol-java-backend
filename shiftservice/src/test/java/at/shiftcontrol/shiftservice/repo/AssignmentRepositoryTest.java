@@ -33,7 +33,7 @@ public class AssignmentRepositoryTest {
 
     @Test
     void testFindSignupRequestsByShiftPlanId() {
-        long shiftPlanId = 1L;
+        long shiftPlanId = 4L;
 
         Collection<Assignment> assignments = assignmentRepository.findSignupRequestsByShiftPlanId(shiftPlanId, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
 
