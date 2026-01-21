@@ -15,12 +15,10 @@ import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotContextDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,12 +27,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class PositionSlotAssemblingMapper {
     private final EligibilityService eligibilityService;
-    private final RewardPointsCalculator rewardPointsCalculator;
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
     private final AssignmentDao assignmentDao;
     private final PositionSlotDao positionSlotDao;
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
+    private final RewardPointsAssemblingMapper rewardPointsAssemblingMapper;
     private final TradeMapper tradeMapper;
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
@@ -42,7 +40,7 @@ public class PositionSlotAssemblingMapper {
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
         var preferenceValue = positionSlotDao.getPreference(volunteer.getId(), positionSlot.getId());
-        var rewardPointsDto = buildRewardPointsDto(positionSlot);
+        var rewardPointsDto = rewardPointsAssemblingMapper.toDto(positionSlot);
 
         var requestedTrades = assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(
             positionSlot.getId(), volunteer.getId()
@@ -114,28 +112,5 @@ public class PositionSlotAssemblingMapper {
             shift.getStartTime(),
             volunteerAssemblingMapper.toDto(volunteers)
         );
-    }
-
-    public PositionSlotContextDto toContextDto(@NonNull PositionSlot positionSlot) {
-        return new PositionSlotContextDto(
-            String.valueOf(positionSlot.getId()),
-            positionSlot.getName(),
-            positionSlot.getDescription(),
-            positionSlot.isSkipAutoAssignment(),
-            positionSlot.getDesiredVolunteerCount(),
-            positionSlot.getRole() == null ? null : RoleMapper.toRoleDto(positionSlot.getRole()),
-            buildRewardPointsDto(positionSlot)
-        );
-    }
-
-    private RewardPointsDto buildRewardPointsDto(@NonNull PositionSlot positionSlot) {
-        var currentRewardPoints = rewardPointsCalculator.calculateForAssignment(positionSlot).rewardPoints();
-        var rewardPointsConfigHash = rewardPointsCalculator.calculatePointsConfigHash(positionSlot);
-
-        return RewardPointsDto.builder()
-            .currentRewardPoints(currentRewardPoints)
-            .overrideRewardPoints(positionSlot.getOverrideRewardPoints())
-            .rewardPointsConfigHash(rewardPointsConfigHash)
-            .build();
     }
 }

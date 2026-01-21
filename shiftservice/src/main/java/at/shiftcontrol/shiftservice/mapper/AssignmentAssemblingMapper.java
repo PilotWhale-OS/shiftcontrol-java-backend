@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AssignmentAssemblingMapper {
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
-    private final PositionSlotAssemblingMapper positionSlotAssemblingMapper;
+    private final PositionSlotContextAssemblingMapper positionSlotContextAssemblingMapper;
 
     public AssignmentDto assemble(@NonNull Assignment assignment) {
         return new AssignmentDto(
@@ -47,7 +47,7 @@ public class AssignmentAssemblingMapper {
         return new AssignmentContextDto(
             assemble(assignment),
             ShiftAssemblingMapper.toContextDto(assignment.getPositionSlot().getShift()),
-            positionSlotAssemblingMapper.toContextDto(assignment.getPositionSlot())
+            positionSlotContextAssemblingMapper.toContextDto(assignment.getPositionSlot())
         );
     }
 
