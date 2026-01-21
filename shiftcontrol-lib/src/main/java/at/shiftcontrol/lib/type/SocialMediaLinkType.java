@@ -8,5 +8,9 @@ public enum SocialMediaLinkType {
     LINKEDIN,
     YOUTUBE,
     TIKTOK,
+    DISCORD,
+    REDDIT,
+    X,
+    TWITCH,
     OTHER
 }

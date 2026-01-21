@@ -1,9 +1,7 @@
 package at.shiftcontrol.shiftservice.dto.event;
 
 import java.time.Instant;
-import java.util.Collection;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,6 +30,6 @@ public class EventModificationDto {
     @NotNull
     private Instant endTime;
 
-    @Valid
-    private Collection<SocialMediaLinkDto> socialMediaLinks;
+    @Size(max = 4096)
+    private String socialLinks;
 }

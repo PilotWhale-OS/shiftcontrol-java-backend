@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import lombok.NoArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.SocialMediaLink;
@@ -14,6 +12,7 @@ import at.shiftcontrol.shiftservice.dto.event.EventDto;
 import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.SocialMediaLinkDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.ActivityScheduleDto;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EventMapper {
