@@ -8,13 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.Event;
@@ -50,6 +43,12 @@ import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import at.shiftcontrol.shiftservice.util.SocialLinksParser;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -152,17 +151,17 @@ public class EventServiceImpl implements EventService {
 
         // create result
         return volunteerIdsByPlan.entrySet().stream()
-                .map(entry -> {
-                    Long planId = entry.getKey();
-                    String planName = planNames.get(planId);
-                    List<ContactInfoDto> contacts =
-                        entry.getValue().stream()
-                            .map(contactInfoById::get)
-                            .toList();
+            .map(entry -> {
+                Long planId = entry.getKey();
+                String planName = planNames.get(planId);
+                List<ContactInfoDto> contacts =
+                    entry.getValue().stream()
+                        .map(contactInfoById::get)
+                        .toList();
 
-                    return new ShiftPlanContactInfoDto(String.valueOf(planId), planName, contacts);
-                })
-                .toList();
+                return new ShiftPlanContactInfoDto(String.valueOf(planId), planName, contacts);
+            })
+            .toList();
     }
 
     @Override
@@ -449,14 +448,11 @@ public class EventServiceImpl implements EventService {
     }
 
     private void syncSocialMediaLinks(Event event, EventModificationDto modificationDto) {
-        var incoming = modificationDto.getSocialMediaLinks() == null
-            ? List.<SocialMediaLinkDto>of()
-            : modificationDto.getSocialMediaLinks().stream().toList();
+        var incoming = SocialLinksParser.parseToDtos(modificationDto.getSocialLinks());
 
         // IMPORTANT: do not replace managed collection
         var links = event.getSocialMediaLinks();
         if (links == null) {
-            // ok for brand new events; for managed events it should normally not be null
             links = new ArrayList<>();
             event.setSocialMediaLinks(links);
         }
@@ -465,16 +461,14 @@ public class EventServiceImpl implements EventService {
             .map(SocialMediaLinkDto::createKey)
             .collect(Collectors.toSet());
 
-        // remove missing -> orphanRemoval deletes rows
         links.removeIf(l -> !incomingKeys.contains(l.getKey()));
 
         var existingKeys = links.stream()
             .map(SocialMediaLink::getKey)
             .collect(Collectors.toSet());
 
-        // add missing (stream-based)
         incoming.stream()
-            .filter(dto -> existingKeys.add(dto.createKey())) // add() returns false if already present
+            .filter(dto -> existingKeys.add(dto.createKey()))
             .map(dto -> EventMapper.toSocialMediaLink(dto, event))
             .forEach(links::add);
     }
