@@ -47,12 +47,6 @@ public class RabbitEventPublisher {
         rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, ROUTING_KEY_PREFIX + routingKey, event);
     }
 
-    @Scheduled(cron = "0/2 * * * * *")
-    public void sendTest() {
-        publishEvent(LocationEvent.of("shiftcontrol.test.locationevent",
-            Location.builder().id(1).name("Geilhaus").event(Event.builder().id(1).name("Geilhaus Festival").build()).build()));
-    }
-
     private String getTraceId() {
         var context = this.tracer.currentTraceContext().context();
         return context != null ? context.traceId() : null;
