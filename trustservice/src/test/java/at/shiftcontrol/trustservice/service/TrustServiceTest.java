@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
     EmbeddedRedisConfig.class,
     TrustServiceTestConfig.class
 })
-public class TrustServiceIT {
+public class TrustServiceTest {
 
     @Autowired
     private RedisService redisService;
@@ -45,6 +45,10 @@ public class TrustServiceIT {
         String userId = "42";
         long positionSlotId = 1L;
 
+        trustService.handlePositionSlotJoined(
+            TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, positionSlotId));
+        trustService.handlePositionSlotLeft(
+            TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_LEFT, userId, positionSlotId));
         trustService.handlePositionSlotJoined(
             TestEntityFactory.getPositionSlotVolunteerEvent(RoutingKeys.POSITIONSLOT_JOINED, userId, positionSlotId));
         trustService.handlePositionSlotLeft(
@@ -115,7 +119,7 @@ public class TrustServiceIT {
     void testAuctionAlert() {
         String userId = "42";
         int i = 0;
-        for (; i < 2; i++) {
+        for (; i < 4; i++) {
             trustService.handleAuctionCreated(
                 TestEntityFactory.getAssignmentEvent(RoutingKeys.AUCTION_CREATED, userId, i));
         }

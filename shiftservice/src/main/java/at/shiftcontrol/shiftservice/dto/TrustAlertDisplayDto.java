@@ -27,5 +27,8 @@ public class TrustAlertDisplayDto {
     private TrustAlertType alertType;
 
     @NotNull
+    private String alertTypeDescription;
+
+    @NotNull
     Instant createdAt;
 }
