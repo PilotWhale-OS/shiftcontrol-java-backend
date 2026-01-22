@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
+import at.shiftcontrol.lib.dto.PaginationDto;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class PaginationMapper {

@@ -1,9 +1,11 @@
 package at.shiftcontrol.auditlog.dto;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,7 +41,7 @@ public class LogEntryDto {
         return dto;
     }
 
-    public static List<LogEntryDto> of(List<LogEntry> entities) {
+    public static @NotNull @Valid Collection<LogEntryDto> of(List<LogEntry> entities) {
         return entities.stream()
             .map(LogEntryDto::of)
             .toList();

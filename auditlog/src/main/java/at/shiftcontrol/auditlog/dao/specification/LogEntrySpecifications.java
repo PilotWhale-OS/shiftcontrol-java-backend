@@ -40,6 +40,7 @@ public final class LogEntrySpecifications {
                         pattern
                     ));
             }
+            query.orderBy(criteriaBuilder.desc(root.get("timestamp")));
 
             return predicates;
         };

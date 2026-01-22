@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.dto;
+package at.shiftcontrol.lib.dto;
 
 import java.util.Collection;
 
