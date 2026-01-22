@@ -13,4 +13,9 @@ public abstract class BaseEvent {
     private String actingUserId;
     private String traceId;
     private Instant timestamp = Instant.now();
+
+    public BaseEvent withActingUserId(String actingUserId) {
+        this.actingUserId = actingUserId;
+        return this;
+    }
 }

@@ -1,7 +1,7 @@
 package at.shiftcontrol.shiftservice.service;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.dto.TrustAlertDto;
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 
 public interface TrustAlertService {

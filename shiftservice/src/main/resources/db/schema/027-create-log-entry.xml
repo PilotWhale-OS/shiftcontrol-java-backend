@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="027-create-log-entry-postgres" author="patrick" dbms="postgresql">
+    <createTable tableName="log_entry">
+      <column name="id" type="uuid">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="routing_key" type="VARCHAR(128)"/>
+      <column name="acting_user_id" type="VARCHAR(128)"/>
+      <column name="trace_id" type="VARCHAR(64)"/>
+      <column name="timestamp" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="payload" type="jsonb">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="027-create-log-entry-h2" author="patrick" dbms="h2">
+    <createTable tableName="log_entry">
+      <column name="id" type="uuid">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="routing_key" type="VARCHAR(128)"/>
+      <column name="acting_user_id" type="VARCHAR(128)"/>
+      <column name="trace_id" type="VARCHAR(64)"/>
+      <column name="timestamp" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="payload" type="CLOB">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

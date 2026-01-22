@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.dto.TrustAlertDto;
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 import at.shiftcontrol.shiftservice.service.TrustAlertService;
 

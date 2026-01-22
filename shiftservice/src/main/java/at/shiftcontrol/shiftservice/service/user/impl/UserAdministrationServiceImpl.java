@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.keycloak.representations.idm.UserRepresentation;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -28,7 +29,6 @@ import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
