@@ -32,4 +32,11 @@ public class AssignmentDto {
     @NotNull
     @Min(0)
     private int acceptedRewardPoints;
+
+    /**
+     * Indicates whether the assigned volunteer is unable to attend the assigned shift.
+     * This is set based on the emergency TimeConstraints of the volunteer.
+     */
+    @NotNull
+    private boolean unableToAttend;
 }
