@@ -297,6 +297,10 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             && new HashSet<>(currentPlaningPlans).equals(new HashSet<>(updateDto.getPlanningPlans()))) {
             throw new BadRequestException("Update does not change anything");
         }
+
+        if(!new HashSet<>(currentVolunteeringPlans).containsAll(currentPlaningPlans)){
+            throw new BadRequestException();
+        }
     }
 
     private void assertRolesChanged(Volunteer volunteer, UserPlanUpdateDto updateDto) {

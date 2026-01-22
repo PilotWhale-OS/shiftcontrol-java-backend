@@ -13,7 +13,9 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 
 public interface ShiftPlanService {
-    Collection<ShiftPlanDto> getAll(long eventId);
+    Collection<ShiftPlanDto> getAllOfEvent(long eventId);
+
+    Collection<ShiftPlanDto> getAll();
 
     ShiftPlanDto get(long shiftPlanId);
 

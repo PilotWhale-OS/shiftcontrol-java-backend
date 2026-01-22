@@ -80,9 +80,15 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final AssignmentDao assignmentDao;
 
     @Override
-    public Collection<ShiftPlanDto> getAll(long eventId) {
+    public Collection<ShiftPlanDto> getAllOfEvent(long eventId) {
         eventDao.getById(eventId);
         return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findByEventId(eventId));
+    }
+
+    @Override
+    @AdminOnly
+    public Collection<ShiftPlanDto> getAll() {
+        return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findAll());
     }
 
     @Override
