@@ -13,6 +13,7 @@ import static at.shiftcontrol.lib.event.RoutingKeys.USERS_EVENT_LOCK;
 import static at.shiftcontrol.lib.event.RoutingKeys.USERS_EVENT_UNLOCK;
 import static at.shiftcontrol.lib.event.RoutingKeys.USERS_EVENT_UPDATE;
 import static at.shiftcontrol.lib.event.RoutingKeys.USERS_PLAN_UPDATE;
+import static at.shiftcontrol.lib.event.RoutingKeys.USERS_RESET;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,5 +41,9 @@ public class UserEvent extends BaseEvent {
 
     public static UserEvent unlock(Volunteer volunteer) {
         return new UserEvent(RoutingKeys.format(USERS_EVENT_UNLOCK, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
+    }
+
+    public static UserEvent reset(Volunteer volunteer) {
+        return new UserEvent(RoutingKeys.format(USERS_RESET, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
     }
 }

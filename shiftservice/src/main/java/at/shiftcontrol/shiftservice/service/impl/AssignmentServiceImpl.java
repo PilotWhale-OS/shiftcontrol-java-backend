@@ -77,7 +77,8 @@ public class AssignmentServiceImpl implements AssignmentService {
         return trade;
     }
 
-    private void cancelOtherTrades(AssignmentSwitchRequest trade) {
+    @Override
+    public void cancelOtherTrades(AssignmentSwitchRequest trade) {
         // this trade does not need to be excluded because it will be set to ACCEPTED in the next step
         assignmentSwitchRequestDao.cancelTradesForAssignment(
             trade.getRequestedAssignment().getPositionSlot().getId(), trade.getRequestedAssignment().getAssignedVolunteer().getId());
@@ -194,5 +195,10 @@ public class AssignmentServiceImpl implements AssignmentService {
         });
 
         assignmentDao.deleteAll(requests);
+    }
+
+    @Override
+    public Collection<Assignment> getAllAssignmentsForUser(ShiftPlan plan, Volunteer volunteer) {
+        return assignmentDao.findAssignmentsForShiftPlanAndUser(plan.getId(), volunteer.getId());
     }
 }
