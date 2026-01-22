@@ -52,7 +52,7 @@ public class AdminUserAdministrationItemEndpoint {
 
     @PatchMapping("/lock")
     @Operation(
-        operationId = "lockUseeInPlan",
+        operationId = "lockUserInPlan",
         description = "Lock a user in a given plan"
     )
     public UserEventDto lockUserForPlan(
