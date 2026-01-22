@@ -29,6 +29,7 @@ import at.shiftcontrol.lib.exception.ValidationException;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
@@ -47,7 +48,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ex,
             new ApiErrorDto("An unexpected error occurred"),
             new HttpHeaders(),
-            HttpStatus.INTERNAL_SERVER_ERROR,
+            INTERNAL_SERVER_ERROR,
             request
         );
     }
@@ -95,7 +96,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {FileExportException.class})
     protected ResponseEntity<Object> handleFileExport(Exception ex, WebRequest request) {
-        return handleInternal(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
+        return handleInternal(ex, request, INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(value = {UnsupportedOperationException.class})
+    protected ResponseEntity<Object> handleUnsupportedOperationException(Exception ex, WebRequest request) {
+        return handleInternal(ex, request, BAD_REQUEST);
     }
 
     private ResponseEntity<Object> handleInternal(Exception ex, WebRequest request, HttpStatus status) {

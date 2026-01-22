@@ -3,7 +3,7 @@ package at.shiftcontrol.lib.exception;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class UnsupportedOperationException extends RuntimeException { // todo add to handler
+public class UnsupportedOperationException extends RuntimeException {
     public UnsupportedOperationException(String message) {
         super(message);
     }
