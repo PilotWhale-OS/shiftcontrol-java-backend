@@ -110,7 +110,7 @@ public class EligibilityServiceImpl implements EligibilityService {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION:
                 // simply joining is not possible
                 throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
-            case NOT_ELIGIBLE:
+            case NOT_ELIGIBLE, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
                     throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
                 }
