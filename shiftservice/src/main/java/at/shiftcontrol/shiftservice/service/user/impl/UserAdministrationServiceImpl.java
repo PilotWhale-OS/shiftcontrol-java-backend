@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.service.user.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +64,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @AdminOnly
     public PaginationDto<UserEventDto> getAllUsers(int page, int size, UserSearchDto searchDto) {
-        var volunteers = volunteerDao.findAll(page, size);
+        var volunteers = volunteerDao.findAllPaginated(page, size);
         var users = keycloakUserService.getAllAssigned();
         users = filterUsers(searchDto, users);
         return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users));
@@ -70,8 +72,8 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
     @Override
     public PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size, UserSearchDto searchDto) {
-        var volunteers = volunteerDao.findAll(page, size);
-        var totalSize = volunteerDao.findAllSize();
+        var volunteers = volunteerDao.findAllByShiftPlanPaginated(page, size, shiftPlanId);
+        var totalSize = volunteerDao.findAllByShiftPlanSize(shiftPlanId);
         var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList()).stream().toList();
         users = filterUsers(searchDto, users);
 
@@ -131,7 +133,6 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var volunteerToRemove = toRemovePlans(updateDto.getVolunteeringPlans(), volunteer.getVolunteeringPlans());
         var planningToRemove = toRemovePlans(updateDto.getPlanningPlans(), volunteer.getPlanningPlans());
         removePlans(volunteer, volunteerToRemove, planningToRemove);
-
 
         var user = keycloakUserService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
@@ -263,11 +264,15 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     }
 
     @Override
+    @Transactional
     public Collection<UserEventDto> bulkRemoveVolunteeringPlans(UserEventBulkDto updateDto) {
         var volunteers = volunteerDao.findAllByVolunteerIds(updateDto.getVolunteers());
         var plans = shiftPlanDao.getByIds(updateDto.getPlans().stream().map(ConvertUtil::idToLong).collect(Collectors.toSet()));
         for (Volunteer v : volunteers) {
-            v.getVolunteeringPlans().removeAll(plans);
+            removePlans(v,
+                plans.stream().map(ShiftPlan::getId).collect(Collectors.toSet()),
+                Collections.emptySet()
+            );
         }
         publisher.publishEvent(UserEventBulkEvent.remove(volunteers, plans));
         return getUserEventDtos(volunteers);
@@ -305,10 +310,19 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         /* only allow complete removal from plan if no assignments left */
         if (volunteer.getVolunteeringPlans() != null) {
             volunteer.getVolunteeringPlans().removeIf(plan -> {
-                if (volunteerToRemove.contains(plan.getId()) && !assignmentService.getAllAssignmentsForUser(plan, volunteer).isEmpty()) {
+                var removeMatch = volunteerToRemove.contains(plan.getId());
+                if (removeMatch && !assignmentService.getAllAssignmentsForUser(plan, volunteer).isEmpty()) {
                     throw new BadRequestException("Cannot remove a plan in which the user still has assignments.");
                 }
-                return volunteerToRemove.contains(plan.getId());
+
+                /* if plan is to be removed, check additionally if user is still planner */
+                if(
+                    removeMatch && volunteer.getPlanningPlans() != null &&
+                        volunteer.getPlanningPlans().stream().map(ShiftPlan::getId).anyMatch(planning -> planning.equals(plan.getId()))
+                ) {
+                    throw new BadRequestException("Cannot remove volunteer access from planner user.");
+                }
+                return removeMatch;
             });
         }
 
