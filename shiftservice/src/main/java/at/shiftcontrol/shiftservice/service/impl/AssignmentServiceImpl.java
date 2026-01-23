@@ -150,9 +150,8 @@ public class AssignmentServiceImpl implements AssignmentService {
         );
 
         //ACT: cancel trades & remove assignment
-        assignmentSwitchRequestDao.cancelTradesForAssignment(assignment.getPositionSlot().getId(), assignment.getAssignedVolunteer().getId());
+        assignmentSwitchRequestDao.cancelTradesForAssignment(assignment);
         assignmentDao.delete(assignment);
-
 
         //NOTIFY: publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
