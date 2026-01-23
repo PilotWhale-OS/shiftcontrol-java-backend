@@ -56,7 +56,7 @@ public class LocationServiceImpl implements LocationService {
     public LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
 
-        validateNameUniquenessInEvent(eventId, modificationDto.getName());
+        validateNameUniquenessInEvent(eventId, modificationDto.getName(), null);
 
         var newLocation = Location.builder()
             .event(event)
@@ -82,7 +82,7 @@ public class LocationServiceImpl implements LocationService {
             throw new BadRequestException("Cannot modify read-only location");
         }
 
-        validateNameUniquenessInEvent(location.getEvent().getId(), modificationDto.getName());
+        validateNameUniquenessInEvent(location.getEvent().getId(), modificationDto.getName(), locationId);
 
         location.setName(modificationDto.getName());
         location.setDescription(modificationDto.getDescription());
@@ -94,8 +94,9 @@ public class LocationServiceImpl implements LocationService {
         return LocationMapper.toLocationDto(location);
     }
 
-    void validateNameUniquenessInEvent(long eventId, String name) {
-        if (locationDao.findByEventAndName(eventId, name).isPresent()) {
+    void validateNameUniquenessInEvent(long eventId, String name, Long excludeLocationId) {
+        var locationOpt = locationDao.findByEventAndName(eventId, name);
+        if (locationOpt.isPresent() && locationOpt.get().getId() != excludeLocationId) {
             throw new BadRequestException("Location name must be unique within an event");
         }
     }
