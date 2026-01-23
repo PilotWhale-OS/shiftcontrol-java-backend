@@ -3,8 +3,11 @@ package at.shiftcontrol.lib.common;
 import java.security.SecureRandom;
 import java.util.function.Predicate;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.exception.IllegalStateException;
 
 @Component
 @Slf4j

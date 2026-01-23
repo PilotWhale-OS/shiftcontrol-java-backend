@@ -20,4 +20,15 @@ public class ExceptionUsageTest {
             )
             .should()
             .callConstructor(java.lang.IllegalArgumentException.class);
+
+    @ArchTest
+    static final ArchRule no_jdk_illegal_state_exception =
+        noClasses()
+            .that()
+            .resideOutsideOfPackages(
+                "at.shiftcontrol.pretalxclient..",
+                "at.shiftcontrol.shiftservice.dao.impl.specification.."
+            )
+            .should()
+            .callConstructor(java.lang.IllegalStateException.class);
 }
