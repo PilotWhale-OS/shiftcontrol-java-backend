@@ -68,4 +68,9 @@ public class LocationDaoImpl implements LocationDao {
             return predicates;
         });
     }
+
+    @Override
+    public Optional<Location> findByEventAndName(long eventId, String name) {
+        return locationRepository.findByEventAndName(eventId, name);
+    }
 }
