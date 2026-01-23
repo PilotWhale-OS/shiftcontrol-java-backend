@@ -96,7 +96,7 @@ public class LocationServiceImpl implements LocationService {
 
     void validateNameUniquenessInEvent(long eventId, String name, Long excludeLocationId) {
         var locationOpt = locationDao.findByEventAndName(eventId, name);
-        if (locationOpt.isPresent() && locationOpt.get().getId() != excludeLocationId) {
+        if (locationOpt.isPresent() && (excludeLocationId == null || locationOpt.get().getId() != excludeLocationId)) {
             throw new BadRequestException("Location name must be unique within an event");
         }
     }

@@ -119,7 +119,7 @@ public class ActivityServiceImpl implements ActivityService {
         boolean nameExists = activitiesInEvent.stream()
             .anyMatch(activity -> activity.getName() != null
                 && activity.getName().equalsIgnoreCase(name)
-                && activity.getId() != excludeActivityId);
+                && (excludeActivityId == null || activity.getId() != excludeActivityId));
         if (nameExists) {
             throw new BadRequestException("An activity with the given name already exists in the event");
         }

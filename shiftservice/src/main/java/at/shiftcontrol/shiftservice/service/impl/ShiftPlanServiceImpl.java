@@ -150,7 +150,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         boolean nameExists = shiftPlansInEvent.stream()
             .anyMatch(shiftPlan -> shiftPlan.getName() != null
                 && shiftPlan.getName().equalsIgnoreCase(name)
-                && shiftPlan.getId() != excludeShiftPlanId);
+                && (excludeShiftPlanId == null || shiftPlan.getId() != excludeShiftPlanId));
         if (nameExists) {
             throw new BadRequestException("A shift plan with the given name already exists in the event");
         }
