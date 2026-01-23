@@ -18,6 +18,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
         SELECT DISTINCT r
         FROM Role r
         WHERE r.id in :roleIds
+                AND r.shiftPlan.id = :shiftPlanId
         """)
-    Collection<Role> getByIds(Set<Long> roleIds);
+    Collection<Role> getRolesByIdsAndShiftPlanId(Set<Long> roleIds, Long shiftPlanId);
 }

@@ -6,6 +6,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.keycloak.representations.idm.UserRepresentation;
+
 import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -35,12 +43,6 @@ import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -111,6 +113,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     public UserPlanDto getPlanUser(Long shiftPlanId, String userId) {
         var volunteer = volunteerDao.getById(userId);
+        securityHelper.assertVolunteerIsVolunteer(shiftPlanDao.getById(shiftPlanId), volunteer);
         return userAssemblingMapper.toUserPlanDto(volunteer, shiftPlanId);
     }
 
@@ -137,14 +140,25 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     }
 
     @Override
+    @Transactional
     public UserPlanDto updatePlanUser(Long shiftPlanId, String userId, UserPlanUpdateDto updateDto) {
         var volunteer = volunteerDao.getById(userId);
-        assertRolesChanged(volunteer, updateDto);
+        securityHelper.assertVolunteerIsVolunteer(shiftPlanDao.getById(shiftPlanId), volunteer);
 
-        Set<Long> currentRoles = volunteer.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
+        Collection<Role> requestedRoles = roleDao.getRolesByIdsAndShiftPlanId(updateDto.getRoles()
+            .stream()
+            .map(ConvertUtil::idToLong)
+            .collect(Collectors.toSet()), shiftPlanId);
+
+        Set<Long> currentRoles = volunteer.getRoles().stream()
+            .filter(role -> role.getShiftPlan().getId() == shiftPlanId)
+            .map(Role::getId)
+            .collect(Collectors.toSet());
+
+        assertRolesChanged(currentRoles, requestedRoles);
 
         var rolesToAdd = toAdd(updateDto.getRoles(), currentRoles);
-        addRoles(volunteer, rolesToAdd);
+        addRoles(volunteer, rolesToAdd, requestedRoles);
 
         var rolesToRemove = toRemove(updateDto.getRoles(), currentRoles);
         removeRoles(volunteer, rolesToRemove);
@@ -304,10 +318,10 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
     }
 
-    private void addRoles(Volunteer vol, Set<Long> rolesToAdd) {
+    private void addRoles(Volunteer vol, Set<Long> rolesToAdd, Collection<Role> roles) {
         if (rolesToAdd != null && !rolesToAdd.isEmpty()) {
             vol.setRoles(initIfNull(vol.getRoles()));
-            vol.getRoles().addAll(roleDao.getByIds(rolesToAdd));
+            vol.getRoles().addAll(roles.stream().filter(x -> rolesToAdd.contains(x.getId())).toList());
         }
     }
 
@@ -352,9 +366,14 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
     }
 
-    private void assertRolesChanged(Volunteer volunteer, UserPlanUpdateDto updateDto) {
-        var currentRoles = volunteer.getRoles().stream().map(x -> String.valueOf(x.getId())).toList();
-        if (new HashSet<>(currentRoles).equals(new HashSet<>(updateDto.getRoles()))) {
+    private void assertRolesChanged(Collection<Long> currentRoles, Collection<Role> requestedRoles) {
+        Set<Long> requested = new HashSet<>(currentRoles);
+
+        Set<Long> current = requestedRoles.stream()
+            .map(Role::getId)
+            .collect(Collectors.toSet());
+
+        if (requested.equals(current)) {
             throw new BadRequestException("Update does not change anything");
         }
     }
