@@ -3,6 +3,11 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
@@ -19,9 +24,6 @@ import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -38,7 +40,8 @@ public class PositionSlotAssemblingMapper {
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
-        var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
+        var currentUser = applicationUserProvider.getCurrentUser();
+        var volunteer = volunteerDao.getById(currentUser.getUserId());
         var preferenceValue = positionSlotDao.getPreference(volunteer.getId(), positionSlot.getId());
         var rewardPointsDto = rewardPointsAssemblingMapper.toDto(positionSlot);
 
@@ -46,10 +49,16 @@ public class PositionSlotAssemblingMapper {
             positionSlot.getId(), volunteer.getId()
         );
 
+        var signupState = eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer);
+        // re-check signup state to see if user has volunteer privileges
+        if (signupState != PositionSignupState.NOT_ELIGIBLE && !currentUser.isVolunteerInPlan(positionSlot.getShift().getShiftPlan().getId())) {
+            signupState = PositionSignupState.NOT_ELIGIBLE;
+        }
+
         // calculates SignupState for current user and
         // gets all trade offers for this slot for the current user
         return toDto(positionSlot,
-            eligibilityService.getSignupStateForPositionSlot(positionSlot, volunteer),
+            signupState,
             filterOfferedTradesForUser(positionSlot.getAssignments(), volunteer.getId()),
             requestedTrades,
             preferenceValue,
@@ -70,7 +79,7 @@ public class PositionSlotAssemblingMapper {
             .toList();
     }
 
-    public PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
+    private PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
                                  Collection<AssignmentSwitchRequest> offeredTradesForUser, Collection<AssignmentSwitchRequest> requestedTradesForUser,
                                  int preferenceValue, RewardPointsDto rewardPointsDto) {
         Collection<AssignmentDto> assignmentDtos;
