@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 class ShiftEventTest {
 
     @Test
-    void of() {
+    void ofInternal() {
         Shift shift = mock(Shift.class);
         String routingKey = "routingKey";
 
@@ -19,7 +19,7 @@ class ShiftEventTest {
         try (var shiftPartMock = org.mockito.Mockito.mockStatic(ShiftPart.class)) {
             shiftPartMock.when(() -> ShiftPart.of(shift)).thenReturn(shiftPart);
 
-            ShiftEvent shiftEvent = ShiftEvent.of(routingKey, shift);
+            ShiftEvent shiftEvent = ShiftEvent.ofInternal(routingKey, shift);
 
             assertEquals(shiftPart, shiftEvent.getShift());
             assertEquals(routingKey, shiftEvent.getRoutingKey());

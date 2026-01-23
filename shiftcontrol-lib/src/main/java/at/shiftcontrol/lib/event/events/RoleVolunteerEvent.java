@@ -1,9 +1,12 @@
 package at.shiftcontrol.lib.event.events;
 
+import java.util.Map;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.RolePart;
 
 @Data
@@ -16,7 +19,21 @@ public class RoleVolunteerEvent extends RoleEvent {
         this.volunteerId = volunteerId;
     }
 
-    public static RoleVolunteerEvent of(String routingKey, Role role, String volunteerId) {
+    public static RoleVolunteerEvent ofInternal(String routingKey, Role role, String volunteerId) {
         return new RoleVolunteerEvent(routingKey, RolePart.of(role), volunteerId);
+    }
+
+    public static RoleVolunteerEvent roleAssigned(Role role, String volunteerId) {
+        return ofInternal(RoutingKeys.format(RoutingKeys.ROLE_ASSIGNED, Map.of(
+                "roleId", String.valueOf(role.getId()),
+                "volunteerId", volunteerId)),
+            role, volunteerId);
+    }
+
+    public static RoleVolunteerEvent roleUnassigned(Role role, String volunteerId) {
+        return ofInternal(RoutingKeys.format(RoutingKeys.ROLE_UNASSIGNED, Map.of(
+                "roleId", String.valueOf(role.getId()),
+                "volunteerId", volunteerId)),
+            role, volunteerId);
     }
 }

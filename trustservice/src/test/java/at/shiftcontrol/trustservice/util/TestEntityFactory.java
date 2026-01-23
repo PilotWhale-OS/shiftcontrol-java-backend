@@ -15,7 +15,7 @@ public class TestEntityFactory {
 
     public static PositionSlotVolunteerEvent getPositionSlotVolunteerEvent(String routingKey, String userId, long slotId) {
         PositionSlot positionSlot = getPositionSlot(slotId);
-        return PositionSlotVolunteerEvent.of(RoutingKeys.format(routingKey,
+        return PositionSlotVolunteerEvent.ofInternal(RoutingKeys.format(routingKey,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", userId)),
             positionSlot, userId);
@@ -28,7 +28,7 @@ public class TestEntityFactory {
 
     public  static TradeEvent getTradeEvent(String routingKey, String offeringUserId, long offeringSlotId,
                                      String requestingUserId, long requestingSlotId) {
-        return TradeEvent.of(routingKey, getAssignmentSwitchRequest(offeringUserId, offeringSlotId, requestingUserId, requestingSlotId));
+        return TradeEvent.ofInternal(routingKey, getAssignmentSwitchRequest(offeringUserId, offeringSlotId, requestingUserId, requestingSlotId));
     }
 
     private static AssignmentSwitchRequest getAssignmentSwitchRequest(String offeringUserId, long offeringSlotId,

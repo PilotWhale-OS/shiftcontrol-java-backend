@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 class EventEventTest {
 
     @Test
-    void of() {
+    void ofInternal() {
         Event event = mock(Event.class);
         String routingKey = "routingKey";
 
@@ -19,7 +19,7 @@ class EventEventTest {
         try (var eventPartMock = org.mockito.Mockito.mockStatic(EventPart.class)) {
             eventPartMock.when(() -> EventPart.of(event)).thenReturn(eventPart);
 
-            EventEvent eventEvent = EventEvent.of(routingKey, event);
+            EventEvent eventEvent = EventEvent.ofInternal(routingKey, event);
 
             assertEquals(eventPart, eventEvent.getEvent());
             assertEquals(routingKey, eventEvent.getRoutingKey());

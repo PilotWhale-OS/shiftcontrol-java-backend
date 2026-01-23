@@ -3,7 +3,6 @@ package at.shiftcontrol.shiftservice.service.positionslot.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
@@ -66,51 +64,42 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
-        String routingKey;
+
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
             case AUCTION_REQUEST_FOR_UNASSIGN -> {
                 assignmentService.unassignInternal(assignment);
-                routingKey = RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED;
+                publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotLeaveRequestAccepted(assignment.getPositionSlot(), userId));
             }
             case REQUEST_FOR_ASSIGNMENT -> {
                 if (!eligibilityService.hasCapacity(assignment.getPositionSlot())) {
                     throw new IllegalArgumentException("Slot is already full");
                 }
                 assignmentService.accept(assignment);
-                routingKey = RoutingKeys.POSITIONSLOT_REQUEST_JOIN_ACCEPTED;
+                publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotJoinRequestAccepted(assignment.getPositionSlot(), userId));
+
             }
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
-
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(routingKey,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", userId)),
-            assignment.getPositionSlot(), userId));
     }
 
     @Override
     public void declineRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
-        String routingKey;
+
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not declineable");
             case AUCTION_REQUEST_FOR_UNASSIGN -> {
                 acceptAssignment(assignment);
-                routingKey = RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED;
+                publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotLeaveRequestDeclined(assignment.getPositionSlot(), userId));
             }
             case REQUEST_FOR_ASSIGNMENT -> {
                 assignmentDao.delete(assignment);
-                routingKey = RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED;
+                publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotJoinRequestDeclined(assignment.getPositionSlot(), userId));
             }
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }
-
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(routingKey,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", userId)),
-            assignment.getPositionSlot(), userId));
     }
 
     @Override

@@ -1,10 +1,14 @@
 package at.shiftcontrol.lib.event.events;
 
-import at.shiftcontrol.lib.entity.RewardPointsTransaction;
-import at.shiftcontrol.lib.event.BaseEvent;
-import at.shiftcontrol.lib.event.events.parts.RewardPointsTransactionPart;
+import java.util.Map;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import at.shiftcontrol.lib.entity.RewardPointsTransaction;
+import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.parts.RewardPointsTransactionPart;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -16,7 +20,19 @@ public class RewardPointTransactionEvent extends BaseEvent {
         this.rewardPointsTransactionPart = rewardPointsTransactionPart;
     }
 
-    public static RewardPointTransactionEvent of(String routingKey, RewardPointsTransaction transaction) {
+    public static RewardPointTransactionEvent ofInternal(String routingKey, RewardPointsTransaction transaction) {
         return new RewardPointTransactionEvent(routingKey, RewardPointsTransactionPart.of(transaction));
+    }
+
+    public static RewardPointTransactionEvent transactionCreated(RewardPointsTransaction transaction) {
+        return ofInternal(RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_CREATED, Map.of(
+            "volunteerId", transaction.getVolunteerId(),
+            "transactionId", transaction.getId())), transaction);
+    }
+
+    public static RewardPointTransactionEvent transactionFailed(RewardPointsTransaction transaction) {
+        return ofInternal(RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_FAILED, Map.of(
+            "volunteerId", transaction.getVolunteerId())), transaction
+        );
     }
 }

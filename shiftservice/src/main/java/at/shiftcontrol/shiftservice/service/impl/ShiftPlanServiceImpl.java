@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,7 +17,6 @@ import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.ShiftPlanInvite;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.LeavePlanEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanInviteEvent;
@@ -123,7 +121,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             .build();
         plannerInvite = shiftPlanInviteDao.save(plannerInvite);
 
-        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.SHIFTPLAN_CREATED, plan));
+        publisher.publishEvent(ShiftPlanEvent.planCreated(plan));
         var shiftPlanDto = ShiftPlanMapper.toShiftPlanDto(plan);
 
         return ShiftPlanCreateDto.builder()
@@ -141,8 +139,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
         shiftPlanDao.save(plan);
-        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_UPDATED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), plan));
+        publisher.publishEvent(ShiftPlanEvent.planUpdated(plan));
         return ShiftPlanMapper.toShiftPlanDto(plan);
     }
 
@@ -164,15 +161,12 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
         var invites = shiftPlanInviteDao.findAllByShiftPlanId(shiftPlanId);
         for (var invite : invites) {
-            var inviteEvent = ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
-                Map.of("shiftPlanId", String.valueOf(shiftPlanId),
-                    "inviteId", String.valueOf(invite.getId()))), invite);
+            var inviteEvent = ShiftPlanInviteEvent.inviteDeleted(invite);
             shiftPlanInviteDao.delete(invite);
             publisher.publishEvent(inviteEvent);
         }
 
-        var shiftPlanEvent = ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_DELETED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan);
+        var shiftPlanEvent = ShiftPlanEvent.planDeleted(shiftPlan);
         shiftPlanDao.delete(shiftPlan);
         publisher.publishEvent(shiftPlanEvent);
     }
@@ -219,9 +213,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             invite.setCode(callGenerateUniqueCode());
             shiftPlanInviteDao.save(invite);
         }
-        publisher.publishEvent(ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_CREATED,
-            Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
-                "inviteId", String.valueOf(invite.getId()))), invite));
+        publisher.publishEvent(ShiftPlanInviteEvent.inviteCreated(invite));
         return ShiftPlanInviteCreateResponseDto.builder()
             .code(invite.getCode())
             .type(invite.getType())
@@ -246,9 +238,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
         invite.setActive(false);
         invite.setRevokedAt(Instant.now());
-        publisher.publishEvent(ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_REVOKED,
-            Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
-                "inviteId", String.valueOf(inviteId))), invite));
+        publisher.publishEvent(ShiftPlanInviteEvent.inviteRevoked(invite));
         shiftPlanInviteDao.save(invite);
     }
 
@@ -257,9 +247,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         var currentUser = userProvider.getCurrentUser();
         var invite = shiftPlanInviteDao.getById(inviteId);
         validatePermission(invite.getShiftPlan().getId(), invite.getType(), currentUser);
-        ShiftPlanInviteEvent inviteEvent = ShiftPlanInviteEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
-            Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
-                "inviteId", String.valueOf(inviteId))), invite);
+        ShiftPlanInviteEvent inviteEvent = ShiftPlanInviteEvent.inviteDeleted(invite);
         shiftPlanInviteDao.delete(invite);
         publisher.publishEvent(inviteEvent);
     }
@@ -379,12 +367,14 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         shiftPlanInviteDao.save(invite);
         shiftPlanDao.save(shiftPlan);
 
-        var key = invite.getType() == ShiftPlanInviteType.VOLUNTEER_JOIN
-            ? RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER
-            : RoutingKeys.SHIFTPLAN_JOINED_PLANNER;
-        publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(key,
-            Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
-                "volunteerId", userId)), shiftPlan, userId));
+        //NOTIFY: publish events
+        if (invite.getType() == ShiftPlanInviteType.VOLUNTEER_JOIN) {
+            publisher.publishEvent(ShiftPlanVolunteerEvent.joinedAsVolunteer(shiftPlan, userId));
+        } else if (invite.getType() == ShiftPlanInviteType.PLANNER_JOIN) {
+            publisher.publishEvent(ShiftPlanVolunteerEvent.joinedAsPlanner(shiftPlan, userId));
+        } else {
+            throw new IllegalStateException("Unknown invite type: " + invite.getType());
+        }
     }
 
     private void validateInvite(ShiftPlanInvite invite) {
@@ -446,9 +436,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             assignmentService.declineAllSignupRequests(shiftPlan);
         }
         shiftPlan.setLockStatus(lockStatus);
-        publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlanId))), shiftPlan));
         shiftPlanDao.save(shiftPlan);
+        publisher.publishEvent(ShiftPlanEvent.planLockStatusChanged(shiftPlan));
     }
 
     @Override

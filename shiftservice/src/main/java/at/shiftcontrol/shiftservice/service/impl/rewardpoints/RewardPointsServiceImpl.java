@@ -359,11 +359,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             rewardPointsShareTokenDao.save(token);
         }
 
-        publisher.publishEvent(RewardPointsShareTokenEvent.of(
-            RoutingKeys.REWARDPOINTS_SHARETOKEN_CREATED,
-            token
-        ));
-
+        publisher.publishEvent(RewardPointsShareTokenEvent.shareTokenCreated(token));
         return RewardPointsMapper.toRewardPointsShareTokenDto(token);
     }
 
@@ -383,7 +379,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
         rewardPointsShareTokenDao.delete(token);
 
-        var rewardPointsShareTokenEvent = RewardPointsShareTokenEvent.of(
+        var rewardPointsShareTokenEvent = RewardPointsShareTokenEvent.ofInternal(
             RoutingKeys.REWARDPOINTS_SHARETOKEN_DELETED,
             token);
         publisher.publishEvent(rewardPointsShareTokenEvent);

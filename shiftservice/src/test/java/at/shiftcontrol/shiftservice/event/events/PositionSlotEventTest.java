@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 class PositionSlotEventTest {
 
     @Test
-    void of() {
+    void ofInternal() {
         PositionSlot positionSlot = mock(PositionSlot.class);
         String routingKey = "routingKey";
 
@@ -19,7 +19,7 @@ class PositionSlotEventTest {
         try (var positionSlotPartMock = org.mockito.Mockito.mockStatic(PositionSlotPart.class)) {
             positionSlotPartMock.when(() -> PositionSlotPart.of(positionSlot)).thenReturn(positionSlotPart);
 
-            PositionSlotEvent positionSlotEvent = PositionSlotEvent.of(routingKey, positionSlot);
+            PositionSlotEvent positionSlotEvent = PositionSlotEvent.ofInternal(routingKey, positionSlot);
 
             assertEquals(routingKey, positionSlotEvent.getRoutingKey());
             assertEquals(positionSlotPart, positionSlotEvent.getPositionSlot());

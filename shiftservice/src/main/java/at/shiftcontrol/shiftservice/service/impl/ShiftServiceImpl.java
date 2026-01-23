@@ -1,9 +1,13 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
-import java.util.Map;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import io.micrometer.common.util.StringUtils;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Shift;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.ShiftEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -20,11 +24,6 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import io.micrometer.common.util.StringUtils;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +65,7 @@ public class ShiftServiceImpl implements ShiftService {
         validateModificationDtoAndSetShiftFields(modificationDto, newShift);
         newShift = shiftDao.save(newShift);
 
-        publisher.publishEvent(ShiftEvent.of(RoutingKeys.SHIFT_CREATED, newShift));
+        publisher.publishEvent(ShiftEvent.shiftCreated(newShift));
         return shiftAssemblingMapper.assemble(newShift);
     }
 
@@ -79,7 +78,7 @@ public class ShiftServiceImpl implements ShiftService {
 
         shift = shiftDao.save(shift);
 
-        publisher.publishEvent(ShiftEvent.of(RoutingKeys.format(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shiftId))), shift));
+        publisher.publishEvent(ShiftEvent.shiftUpdated(shift));
         return shiftAssemblingMapper.assemble(shift);
     }
 
@@ -134,7 +133,7 @@ public class ShiftServiceImpl implements ShiftService {
         var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
 
-        var shiftEvent = ShiftEvent.of(RoutingKeys.format(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shiftId))), shift);
+        var shiftEvent = ShiftEvent.shiftDeleted(shift);
         shiftDao.delete(shift);
         publisher.publishEvent(shiftEvent);
     }

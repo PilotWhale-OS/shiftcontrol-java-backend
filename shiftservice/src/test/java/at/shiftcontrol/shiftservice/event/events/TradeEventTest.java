@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 class TradeEventTest {
 
     @Test
-    void of() {
+    void ofInternal() {
         AssignmentSwitchRequest trade = mock(AssignmentSwitchRequest.class);
         String routingKey = "routingKey";
 
@@ -19,7 +19,7 @@ class TradeEventTest {
         try (var tradePartMock = org.mockito.Mockito.mockStatic(TradePart.class)) {
             tradePartMock.when(() -> TradePart.of(trade)).thenReturn(tradePart);
 
-            TradeEvent tradeEvent = TradeEvent.of(routingKey, trade);
+            TradeEvent tradeEvent = TradeEvent.ofInternal(routingKey, trade);
 
             assertEquals(routingKey, tradeEvent.getRoutingKey());
             assertEquals(tradePart, tradeEvent.getTrade());
