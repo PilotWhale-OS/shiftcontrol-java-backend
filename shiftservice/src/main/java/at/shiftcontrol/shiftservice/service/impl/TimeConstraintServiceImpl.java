@@ -130,7 +130,6 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
                 publisher.publishEvent(PositionSlotVolunteerEvent.ofPositionSlotRequestLeave(
                     assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
             }
-            // todo publish assignment deleted event?
         }
     }
 
