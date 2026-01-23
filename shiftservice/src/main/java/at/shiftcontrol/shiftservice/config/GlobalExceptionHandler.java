@@ -24,6 +24,7 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
 import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
+import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.exception.UnauthorizedException;
 import at.shiftcontrol.lib.exception.ValidationException;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -89,7 +90,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleInternal(ex, request, UNAUTHORIZED);
     }
 
-    @ExceptionHandler(value = {BadRequestException.class})
+    @ExceptionHandler(value = {BadRequestException.class, StateViolationException.class})
     protected ResponseEntity<Object> handleBadRequest(Exception ex, WebRequest request) {
         return handleInternal(ex, request, BAD_REQUEST);
     }

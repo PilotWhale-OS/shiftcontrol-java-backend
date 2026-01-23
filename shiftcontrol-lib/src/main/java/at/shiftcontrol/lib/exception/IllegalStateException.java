@@ -8,9 +8,4 @@ public class IllegalStateException extends RuntimeException {
         super();
         log.error(logMessage);
     }
-
-    public IllegalStateException(String logMessage, String message) {
-        super(message);
-        log.error(logMessage);
-    }
 }

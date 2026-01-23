@@ -37,7 +37,7 @@ public class RewardPointsTransactionDaoImpl implements RewardPointsTransactionDa
     public RewardPointsTransaction save(RewardPointsTransaction entity) {
         findById(entity.getId())
             .ifPresent(e -> {
-                throw new IllegalStateException("RewardPointTransaction already exists and cannot be updated.", null);
+                throw new IllegalStateException("RewardPointTransaction already exists and cannot be updated.");
             });
         return repo.save(entity);
     }

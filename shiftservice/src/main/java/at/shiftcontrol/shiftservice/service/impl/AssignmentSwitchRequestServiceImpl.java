@@ -26,7 +26,7 @@ import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
-import at.shiftcontrol.lib.exception.IllegalStateException;
+import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -184,7 +184,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         PositionSlot offeredPositionSlot = positionSlotDao.getById(ConvertUtil.idToLong(tradeCreateDto.getOfferedPositionSlotId()));
         // check if shifts are locked
         if (LockStatusHelper.isLocked(requestedPositionSlot) || LockStatusHelper.isLocked(offeredPositionSlot)) {
-            throw new IllegalStateException("trade not possible, shift plan is locked");
+            throw new StateViolationException("trade not possible, shift plan is locked");
         }
 
         Assignment offeredAssignment = offeredPositionSlot.getAssignments().stream()
@@ -267,17 +267,17 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         // check if volunteer is owner of requested slot
         if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
-            throw new IllegalArgumentException("current user is not part of the trade");
+            throw new StateViolationException("current user is not part of the trade");
         }
 
         // check if shift is locked
         if (LockStatusHelper.isLocked(trade)) {
-            throw new IllegalStateException("trade not possible, shift is locked");
+            throw new StateViolationException("trade not possible, shift is locked");
         }
 
         // check if trade is open
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
-            throw new IllegalArgumentException("trade not open");
+            throw new StateViolationException("trade not open");
         }
 
         // check for access, eligibility and conflicts for both users
@@ -302,7 +302,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             throw new IllegalArgumentException("not involved in trade");
         }
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
-            throw new IllegalStateException("trade not open");
+            throw new StateViolationException("trade not open");
         }
 
         trade.setStatus(TradeStatus.REJECTED);
@@ -325,7 +325,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             throw new IllegalArgumentException("not involved in trade");
         }
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
-            throw new IllegalStateException("trade not open");
+            throw new StateViolationException("trade not open");
         }
 
         trade.setStatus(TradeStatus.CANCELED);

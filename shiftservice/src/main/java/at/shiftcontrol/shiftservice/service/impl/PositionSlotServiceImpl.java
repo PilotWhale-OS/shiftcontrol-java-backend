@@ -22,6 +22,7 @@ import at.shiftcontrol.lib.event.events.PreferenceEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
+import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -220,13 +221,13 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         LockStatus lockStatus = assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus();
         switch (lockStatus) {
             case SELF_SIGNUP:
-                throw new IllegalStateException("Auction not possible, unassign instead");
+                throw new StateViolationException("Auction not possible, unassign instead");
             case SUPERVISED:
                 // proceed with auction
                 assignment.setStatus(AssignmentStatus.AUCTION);
                 break;
             case LOCKED:
-                throw new IllegalStateException("Auction not possible, shift is locked");
+                throw new StateViolationException("Auction not possible, shift is locked");
             default:
                 throw new IllegalStateException("Unexpected value: " + lockStatus);
         }
