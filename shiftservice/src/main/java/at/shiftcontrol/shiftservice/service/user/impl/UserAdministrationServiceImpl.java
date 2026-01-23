@@ -6,14 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
-import org.keycloak.representations.idm.UserRepresentation;
-
 import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -40,6 +32,12 @@ import at.shiftcontrol.shiftservice.mapper.PaginationMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +66,19 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var totalSize = volunteerDao.findAllSize();
         var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList()).stream().toList();
         users = filterUsers(searchDto, users);
+
+        if (volunteers.size() > users.size()) {
+            totalSize = users.size();
+            int fromIndex = page * size;
+            int toIndex = Math.min(fromIndex + size, users.size());
+            if (fromIndex > toIndex) {
+                volunteers = List.of();
+            } else {
+                var userIdsPage = users.subList(fromIndex, toIndex).stream().map(UserRepresentation::getId).toList();
+                volunteers = volunteers.stream().filter(v -> userIdsPage.contains(v.getId())).toList();
+            }
+        }
+
         return PaginationMapper.toPaginationDto(size, page, totalSize, UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId));
     }
 
@@ -298,7 +309,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             throw new BadRequestException("Update does not change anything");
         }
 
-        if(!new HashSet<>(currentVolunteeringPlans).containsAll(currentPlaningPlans)){
+        if (!new HashSet<>(currentVolunteeringPlans).containsAll(currentPlaningPlans)) {
             throw new BadRequestException();
         }
     }
