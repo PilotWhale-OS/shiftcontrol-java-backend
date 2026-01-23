@@ -69,7 +69,7 @@ public class ActivityServiceImpl implements ActivityService {
             .build();
 
         //VALIDATION
-        validateNameUniquenessInEvent(eventId, modificationDto.getName());
+        validateNameUniquenessInEvent(eventId, modificationDto.getName(), null);
         var activity = validateModificationDtoAndSetActivityFields(modificationDto, newActivity);
 
         //ACT
@@ -85,7 +85,7 @@ public class ActivityServiceImpl implements ActivityService {
         var activity = activityDao.getById(activityId);
 
         //VALIDATION
-        validateNameUniquenessInEvent(activity.getEvent().getId(), modificationDto.getName());
+        validateNameUniquenessInEvent(activity.getEvent().getId(), modificationDto.getName(), activityId);
         activity = validateModificationDtoAndSetActivityFields(modificationDto, activity);
 
         activity = activityDao.save(activity);
@@ -114,10 +114,12 @@ public class ActivityServiceImpl implements ActivityService {
         return ActivityMapper.updateActivity(modificationDto, location, activity);
     }
 
-    void validateNameUniquenessInEvent(long eventId, String name) {
+    void validateNameUniquenessInEvent(long eventId, String name, Long excludeActivityId) {
         var activitiesInEvent = activityDao.findAllByEventId(eventId);
         boolean nameExists = activitiesInEvent.stream()
-            .anyMatch(activity -> activity.getName() != null && activity.getName().equalsIgnoreCase(name));
+            .anyMatch(activity -> activity.getName() != null
+                && activity.getName().equalsIgnoreCase(name)
+                && activity.getId() != excludeActivityId);
         if (nameExists) {
             throw new BadRequestException("An activity with the given name already exists in the event");
         }
