@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.service;
 
+import java.util.Collection;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
@@ -30,6 +32,8 @@ public interface AssignmentService {
      */
     AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest oldTrade);
 
+    void cancelOtherTrades(AssignmentSwitchRequest trade);
+
     /**
      * accepts an already existing assignment.
      * assumes that eligibility, conflicts, etc. have already been checked
@@ -53,13 +57,14 @@ public interface AssignmentService {
     Assignment assign(PositionSlot positionSlot, Volunteer volunteer, PositionSlotRequestDto requestDto);
 
     /**
+     * <b>NO VALIDATION!</b><br/>
      * unassigns the volunteer from the position slot.
      * deletes dependent trades and the assignment itself in the process
      * updates reward points & publishes event
      *
      * @param assignment to dissolve
      */
-    void unassign(Assignment assignment);
+    void unassignInternal(Assignment assignment);
 
     /**
      * unassign all volunteers from auctions and declines join requests for a given shift plan.
@@ -76,4 +81,13 @@ public interface AssignmentService {
      * @param shiftPlan to decline all signup requests
      */
     void declineAllSignupRequests(ShiftPlan shiftPlan);
+
+    /**
+     * get all assignments for a user
+     *
+     * @param plan to fetch the assignments from
+     * @param volunteer to assignments belong to
+     * @return
+     */
+    Collection<Assignment> getAllAssignmentsForUser(ShiftPlan plan, Volunteer volunteer);
 }

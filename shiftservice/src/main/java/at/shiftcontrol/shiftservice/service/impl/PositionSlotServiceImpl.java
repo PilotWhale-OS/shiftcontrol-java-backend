@@ -98,7 +98,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         LockStatusHelper.assertIsSelfSignUpWithMessage(assignment, "leave");
 
         // leave
-        assignmentService.unassign(assignment);
+        assignmentService.unassignInternal(assignment);
     }
 
     @Override
@@ -141,10 +141,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignmentDao.save(assignment);
 
         // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", currentUserId)),
-            assignment.getPositionSlot(), currentUserId));
+        publisher.publishEvent(PositionSlotVolunteerEvent.ofPositionSlotRequestLeave(assignment.getPositionSlot(), currentUserId));
     }
 
     @Override
@@ -260,7 +257,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         eligibilityService.validateHasConflictingAssignments(
             currentUser.getId(), auction.getPositionSlot());
         // cancel existing trades
-        assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
+        assignmentSwitchRequestDao.cancelTradesForPositionSlot(positionSlotId, offeringUserId);
         // execute claim
         Assignment claimedAuction = assignmentService.claimAuction(auction, currentUser, requestDto);
 

@@ -6,12 +6,23 @@ import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.lib.event.RoutingKeys;
+import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.event.events.TimeConstraintEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.TimeConstraintType;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -21,13 +32,9 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
+import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +46,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final VolunteerDao volunteerDao;
     private final ApplicationEventPublisher publisher;
     private final SecurityHelper securityHelper;
+    private final AssignmentService assignmentService;
 
     @Override
     public Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId) {
@@ -47,28 +55,26 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
     @Override
     @IsNotAdmin
+    @Transactional
     public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId) {
-        // todo add security
-        // Validate date range
+        //VALIDATION: Validate date range
         Instant from = createDto.getFrom();
         Instant to = createDto.getTo();
-        var type = createDto.getType();
-        if (from == null || to == null || type == TimeConstraintType.UNAVAILABLE && !from.isBefore(to)) {
-            throw new ConflictException("Invalid time range: 'from' must be before 'to' for unavailable type");
-        }
-        if (type == TimeConstraintType.EMERGENCY && from.isAfter(to)) {
-            throw new ConflictException("Invalid time whole day range: 'from' must at least be 'to' for emergency type");
-        }
+        validateTimespan(createDto.getType(), from, to);
+
         // get event and volunteer
         var event = eventDao.getById(eventId);
         var volunteer = volunteerDao.getById(userId);
-        // Check that volunteer is part of the event via any of their shift plans
+
+        //VALIDATION: Check that volunteer is part of the event via any of their shift plans
         var userPlans = volunteer.getVolunteeringPlans();
         var volunteerIsInEvent = userPlans != null && userPlans.stream().anyMatch(plan -> plan.getEvent().getId() == eventId);
         if (!volunteerIsInEvent) {
             log.error("Volunteer with id: {} is not part of event with id: {}", userId, eventId);
             throw new ConflictException("Volunteer is not part of event.");
         }
+
+        //VALIDATION: Check for overlapping constraints/assignments
         switch (createDto.getType()) {
             case UNAVAILABLE -> {
                 // Check for overlapping time constraints for this volunteer+event
@@ -77,7 +83,6 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
                 checkForAssignmentOverlaps(userId, from, to);
             }
             case EMERGENCY -> {
-                validateEmergencyWholeDays(from, to);
                 // Check for overlapping time constraints for this volunteer+event+type
                 var existingConstraints = timeConstraintDao.searchByVolunteerAndEventAndType(userId, eventId, TimeConstraintType.EMERGENCY);
                 checkForConstraintOverlaps(createDto, existingConstraints);
@@ -85,16 +90,59 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
             }
             default -> throw new IllegalStateException("Unexpected value: " + createDto.getType());
         }
+        //ACT: Create and save entity
         var entity = timeConstraintDao.save(TimeConstraintMapper.fromCreateDto(createDto, volunteer, event));
+
+        //ACT: Do extra tasks for emergency constraints
+        if (createDto.getType() == TimeConstraintType.EMERGENCY) {
+            handleEmergencyConflictingAssignments(entity);
+        }
+
+        //NOTIFY: Publish event
         publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.TIMECONSTRAINT_CREATED, entity));
         return TimeConstraintMapper.toDto(entity);
     }
 
-    private static void validateEmergencyWholeDays(Instant from, Instant to) {
-        boolean fromIsMidnightUtc = from.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
-        boolean toIsMidnightUtc = to.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
-        if (!fromIsMidnightUtc || !toIsMidnightUtc) {
-            throw new BadRequestException("For EMERGENCY constraints, 'from' and 'to' must be whole days (00:00 UTC).");
+    /**
+     * Handles conflicting assignments for an EMERGENCY time constraint by unassigning or marking them for unassignment.
+     *
+     * @param emergencyConstraint The EMERGENCY time constraint that may conflict with existing assignments.
+     */
+    protected void handleEmergencyConflictingAssignments(@NonNull TimeConstraint emergencyConstraint) {
+        var volunteerId = emergencyConstraint.getVolunteer().getId();
+        var from = emergencyConstraint.getStartTime();
+        var to = emergencyConstraint.getEndTime();
+
+        var conflictingAssignments = assignmentDao.getConflictingAssignments(volunteerId, from, to);
+        for (var assignment : conflictingAssignments) {
+            if (assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus() == LockStatus.SELF_SIGNUP) {
+                log.info("Unassigning assignment id={} due to conflicting EMERGENCY time constraint id={}",
+                    assignment.getId(), emergencyConstraint.getId());
+                assignmentService.unassignInternal(assignment);
+            } else {
+                log.info("Setting assignment id={} to AUCTION_REQUEST_FOR_UNASSIGN due to conflicting EMERGENCY time constraint id={}",
+                    assignment.getId(), emergencyConstraint.getId());
+
+                assignment.setStatus(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
+                assignment = assignmentDao.save(assignment);
+
+                // publish event
+                publisher.publishEvent(PositionSlotVolunteerEvent.ofPositionSlotRequestLeave(
+                    assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
+            }
+        }
+    }
+
+    private static void validateTimespan(@NonNull TimeConstraintType type, Instant from, Instant to) {
+        if (from == null || to == null || !from.isBefore(to)) {
+            throw new ConflictException("Invalid time range: 'from' must be before 'to'");
+        }
+        if (type == TimeConstraintType.EMERGENCY) {
+            boolean fromIsMidnightUtc = from.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
+            boolean toIsMidnightUtc = to.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
+            if (!fromIsMidnightUtc || !toIsMidnightUtc) {
+                throw new BadRequestException("For EMERGENCY constraints, 'from' and 'to' must be whole days (00:00 UTC).");
+            }
         }
     }
 

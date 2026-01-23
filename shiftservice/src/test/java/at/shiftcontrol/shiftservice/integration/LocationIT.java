@@ -211,6 +211,18 @@ class LocationIT extends RestITBase {
     }
 
     @Test
+    void createLocationAsAdminWithDuplicateNameReturnsBadRequest() {
+        var newLocationModificationDto = LocationModificationDto.builder()
+            .name(locationA.getName())
+            .description("New Address")
+            .url("http://newlocation.com")
+            .build();
+
+        doRequestAsAdminAndAssertMessage(Method.POST, EVENT_LOCATION_PATH.formatted(eventA.getId()), newLocationModificationDto, 400,
+            "Location name must be unique within an event", true);
+    }
+
+    @Test
     void updateLocationAsNonAdminReturnsForbidden() {
         var updateLocationModificationDto = LocationModificationDto.builder()
             .name("Updated Location")
@@ -288,4 +300,6 @@ class LocationIT extends RestITBase {
 
         assertThat(locationRepository.existsById(locationA.getId())).isFalse();
     }
+
+
 }

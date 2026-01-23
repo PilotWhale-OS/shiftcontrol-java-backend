@@ -3,26 +3,35 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.List;
 
-import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.shiftservice.dto.assignment.AssignmentContextDto;
-import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
+import org.springframework.stereotype.Service;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.type.TimeConstraintType;
+import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentContextDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 
 @RequiredArgsConstructor
 @Service
 public class AssignmentAssemblingMapper {
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
     private final PositionSlotContextAssemblingMapper positionSlotContextAssemblingMapper;
+    private final TimeConstraintDao timeConstraintDao;
 
     public AssignmentDto assemble(@NonNull Assignment assignment) {
+        var hasEmergencyConstraint = timeConstraintDao.findByAssignmentIdAndType(assignment.getId(), TimeConstraintType.EMERGENCY)
+            .isPresent();
+
         return new AssignmentDto(
             String.valueOf(assignment.getId()),
             String.valueOf(assignment.getPositionSlot().getId()),
             volunteerAssemblingMapper.toDto(assignment.getAssignedVolunteer()),
             assignment.getStatus(),
-            assignment.getAcceptedRewardPoints());
+            assignment.getAcceptedRewardPoints(),
+            hasEmergencyConstraint);
     }
 
     public Collection<AssignmentDto> assemble(Collection<Assignment> assignments) {

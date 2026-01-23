@@ -90,4 +90,9 @@ public class EventDaoImpl implements EventDao {
     public Collection<PlanVolunteerIdRow> getPlannersForEventAndUser(long eventId, String userId) {
         return eventRepository.getPlannersForEventAndUser(eventId, userId);
     }
+
+    @Override
+    public Optional<Event> findByName(String name) {
+        return eventRepository.findByName(name);
+    }
 }

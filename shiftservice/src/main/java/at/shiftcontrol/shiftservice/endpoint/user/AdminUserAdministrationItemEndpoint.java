@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.user.LockUserDto;
+import at.shiftcontrol.shiftservice.dto.user.LockResetUserDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
@@ -57,8 +57,8 @@ public class AdminUserAdministrationItemEndpoint {
     )
     public UserEventDto lockUserForPlan(
         @PathVariable String userId,
-        @RequestBody @Valid LockUserDto updateDto) {
-        return service.lockUser(userId, ConvertUtil.idToLong(updateDto.getShiftPlanId()));
+        @RequestBody @Valid LockResetUserDto updateDto) {
+        return service.lockUser(userId, ConvertUtil.idToLong(updateDto.getShiftPlanIds()));
     }
 
     @PatchMapping("/unlock")
@@ -68,7 +68,18 @@ public class AdminUserAdministrationItemEndpoint {
     )
     public UserEventDto unLockUserForPlan(
         @PathVariable String userId,
-        @RequestBody @Valid LockUserDto updateDto) {
-        return service.unLockuser(userId, ConvertUtil.idToLong(updateDto.getShiftPlanId()));
+        @RequestBody @Valid LockResetUserDto updateDto) {
+        return service.unLockUser(userId, ConvertUtil.idToLong(updateDto.getShiftPlanIds()));
+    }
+
+    @PatchMapping("/reset")
+    @Operation(
+        operationId = "resetUseeInPlan",
+        description = "Reset a user in a given plan"
+    )
+    public UserEventDto resetUserForPlan(
+        @PathVariable String userId,
+        @RequestBody @Valid LockResetUserDto updateDto) {
+        return service.resetUser(userId, ConvertUtil.idToLong(updateDto.getShiftPlanIds()));
     }
 }
