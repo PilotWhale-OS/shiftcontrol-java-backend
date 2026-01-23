@@ -22,8 +22,8 @@ public class AssignmentAssemblingMapper {
     private final TimeConstraintDao timeConstraintDao;
 
     public AssignmentDto assemble(@NonNull Assignment assignment) {
-        var constraint = timeConstraintDao.findByAssignmentIdAndType(assignment.getId(), TimeConstraintType.EMERGENCY);
-        var hasEmergencyConstraint = constraint.isPresent();
+        var hasEmergencyConstraint = timeConstraintDao.findByAssignmentIdAndType(assignment.getId(), TimeConstraintType.EMERGENCY)
+            .isPresent();
 
         return new AssignmentDto(
             String.valueOf(assignment.getId()),
