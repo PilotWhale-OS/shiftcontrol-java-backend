@@ -171,7 +171,6 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             securityHelper.assertUserIsPlanner(plan);
             securityHelper.assertVolunteerIsLockedInPlan(plan, volunteer);
             volunteer.getLockedPlans().remove(plan);
-
         }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.unlock(volunteer));
@@ -190,7 +189,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             var assignments = assignmentService.getAllAssignmentsForUser(plan, volunteer);
             assignments.forEach(assignmentSwitchRequestDao::cancelTradesForAssignment);
             assignmentRepository.flush();
-            assignments.forEach(assignmentService::unassign);
+            assignments.forEach(assignmentService::unassignInternal);
         }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.reset(volunteer));
