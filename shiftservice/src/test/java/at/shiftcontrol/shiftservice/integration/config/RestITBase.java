@@ -226,6 +226,10 @@ public abstract class RestITBase {
         return doRequest(Method.POST, uri, body, new HashMap<>(), asAdminHeaders(), 200, expected);
     }
 
+    public <T> T postRequestAsAdmin(String uri, Object body, Class<T> expected, int expectedStatusCode) {
+        return doRequest(Method.POST, uri, body, new HashMap<>(), asAdminHeaders(), expectedStatusCode, expected);
+    }
+
     public <T> T deleteRequest(final String uri) {
         return doRequest(Method.DELETE, uri, "", 200, null);
     }

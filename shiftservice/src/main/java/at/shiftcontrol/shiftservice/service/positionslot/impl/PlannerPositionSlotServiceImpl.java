@@ -70,7 +70,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
             case AUCTION_REQUEST_FOR_UNASSIGN -> {
-                assignmentService.unassign(assignment);
+                assignmentService.unassignInternal(assignment);
                 routingKey = RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED;
             }
             case REQUEST_FOR_ASSIGNMENT -> {
@@ -186,7 +186,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
 
         Collection<Assignment> assignments =
             assignmentDao.getAssignmentForPositionSlotAndUsers(positionSlot.getId(), assignmentAssignDto.getVolunteerIds());
-        assignments.forEach(assignmentService::unassign);
+        assignments.forEach(assignmentService::unassignInternal);
     }
 
     private void acceptAssignment(Assignment assignment) {

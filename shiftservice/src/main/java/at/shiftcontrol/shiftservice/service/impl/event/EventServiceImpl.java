@@ -186,6 +186,7 @@ public class EventServiceImpl implements EventService {
     @AdminOnly
     public EventDto createEvent(@NonNull EventModificationDto modificationDto) {
         validateEventModificationDto(modificationDto);
+        validateNameUniqueness(modificationDto.getName(), null);
 
         Event event = EventMapper.toEvent(modificationDto);
         event = eventDao.save(event);
@@ -200,6 +201,7 @@ public class EventServiceImpl implements EventService {
     @AdminOnly
     public EventDto updateEvent(long eventId, @NonNull EventModificationDto modificationDto) {
         validateEventModificationDto(modificationDto);
+        validateNameUniqueness(modificationDto.getName(), eventId);
 
         Event event = eventDao.getById(eventId);
         EventMapper.updateEvent(event, modificationDto);
@@ -208,6 +210,13 @@ public class EventServiceImpl implements EventService {
 
         publisher.publishEvent(EventEvent.forEventUpdated(event));
         return EventMapper.toEventDto(event);
+    }
+
+    private void validateNameUniqueness(String name, Long excludeEventId) {
+        var eventOpt = eventDao.findByName(name);
+        if (eventOpt.isPresent() && eventOpt.get().getId() != excludeEventId) {
+            throw new BadRequestException("An event with the given name already exists");
+        }
     }
 
     private void validateEventModificationDto(EventModificationDto modificationDto) {

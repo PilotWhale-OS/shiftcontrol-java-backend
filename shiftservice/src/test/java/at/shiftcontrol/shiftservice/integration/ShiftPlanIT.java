@@ -46,6 +46,7 @@ import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -776,6 +777,26 @@ class ShiftPlanIT extends RestITBase {
             () -> Assertions.assertEquals(AssignmentStatus.ACCEPTED, assignmentDto.getStatus()),
             () -> Assertions.assertEquals(String.valueOf(positionSlotA.getId()), assignmentDto.getPositionSlotId()),
             () -> Assertions.assertEquals(volunteerJoinedAsVolunteerOnly.getId(), assignmentDto.getAssignedVolunteer().getId())
+        );
+    }
+
+    @Test
+    void createShiftPlan_withDuplicateName_shouldFail() {
+        var modificationDto = new ShiftPlanModificationDto("duplicate-plan-name", "desc", "long desc", 10);
+
+        // Create the first shift plan
+        postRequestAsAdmin(
+            SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
+            modificationDto,
+            ShiftPlanCreateDto.class
+        );
+
+        // Try to create a second shift plan with the same name and expect failure
+        postRequestAsAdmin(
+            SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
+            modificationDto,
+            ShiftPlanCreateDto.class,
+            BAD_REQUEST.getStatusCode()
         );
     }
 }

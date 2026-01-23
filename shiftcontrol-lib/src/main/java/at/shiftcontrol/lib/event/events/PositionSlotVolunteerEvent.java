@@ -1,11 +1,14 @@
 package at.shiftcontrol.lib.event.events;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
 
 @Data
@@ -24,5 +27,12 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
 
     public static PositionSlotVolunteerEvent of(String routingKey, PositionSlot positionSlot, String volunteerId) {
         return new PositionSlotVolunteerEvent(routingKey, PositionSlotPart.of(positionSlot), volunteerId);
+    }
+
+    public static PositionSlotVolunteerEvent ofPositionSlotRequestLeave(PositionSlot positionSlot, String volunteerId) {
+        return of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
+                Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
+                    "volunteerId", volunteerId)),
+            positionSlot, volunteerId);
     }
 }

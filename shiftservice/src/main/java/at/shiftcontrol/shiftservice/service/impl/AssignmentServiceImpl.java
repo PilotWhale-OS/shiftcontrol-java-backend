@@ -144,19 +144,21 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void unassign(Assignment assignment) {
-        // update reward points
+    public void unassignInternal(Assignment assignment) {
+        //ACT: update reward points
         rewardPointsService.onAssignmentRemoved(
             assignment
         );
 
+        //ACT: cancel trades & remove assignment
+        assignmentSwitchRequestDao.cancelTradesForAssignment(assignment);
+        assignmentDao.delete(assignment);
+
+        //NOTIFY: publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
                     "volunteerId", assignment.getAssignedVolunteer().getId())),
             assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
-
-        // leave
-        assignmentDao.delete(assignment);
     }
 
     @Override

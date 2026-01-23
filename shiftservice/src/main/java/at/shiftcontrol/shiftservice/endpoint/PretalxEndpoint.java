@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dto.PretalxApiKeyDetailsDto;
 import at.shiftcontrol.shiftservice.dto.PretalxApiKeyDto;
 import at.shiftcontrol.shiftservice.sync.pretalx.PretalxApiKeyService;
@@ -27,6 +28,7 @@ public class PretalxEndpoint {
     private final PretalxApiKeyService pretalxApiKeyService;
 
     @GetMapping
+    @AdminOnly
     @Operation(
         summary = "Get all Pretalx API keys",
         operationId = "getPretalxApiKeys",
@@ -37,6 +39,7 @@ public class PretalxEndpoint {
     }
 
     @PostMapping
+    @AdminOnly
     @Operation(
         summary = "Add a new Pretalx API key",
         operationId = "addPretalxApiKey",
@@ -47,6 +50,7 @@ public class PretalxEndpoint {
     }
 
     @DeleteMapping("/{apiKey}")
+    @AdminOnly
     @Operation(
         summary = "Remove a Pretalx API key",
         operationId = "removePretalxApiKey",
