@@ -2,15 +2,17 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
+
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
-import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -26,7 +28,7 @@ public class UserAssemblingMapper {
         return UserPlanDto.builder()
             .volunteer(user == null ? null : VolunteerAssemblingMapper.toDtoFromUser(user))
             .email(user == null ? null : user.getEmail())
-            .roles(volunteer == null ? null : RoleMapper.toRoleDto(volunteer.getRoles()))
+            .roles(volunteer == null ? null : RoleMapper.toRoleDto(volunteer.getRoles(), planId))
             .isLocked(volunteer == null ? null : volunteer.getLockedPlans().stream().anyMatch(x -> planId.equals(x.getId())))
             .build();
     }
