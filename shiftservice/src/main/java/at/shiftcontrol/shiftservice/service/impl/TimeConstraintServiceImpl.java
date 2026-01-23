@@ -146,14 +146,6 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         }
     }
 
-    private static void validateEmergencyWholeDays(Instant from, Instant to) {
-        boolean fromIsMidnightUtc = from.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
-        boolean toIsMidnightUtc = to.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
-        if (!fromIsMidnightUtc || !toIsMidnightUtc) {
-            throw new BadRequestException("For EMERGENCY constraints, 'from' and 'to' must be whole days (00:00 UTC).");
-        }
-    }
-
     @Override
     @IsNotAdmin
     public void delete(long timeConstraintId) {
