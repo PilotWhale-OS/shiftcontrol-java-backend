@@ -97,7 +97,7 @@ public class ShiftServiceImpl implements ShiftService {
         if (modificationDto.getStartTime().isBefore(event.getStartTime())
             || modificationDto.getEndTime().isAfter(event.getEndTime())
             || modificationDto.getEndTime().isBefore(modificationDto.getStartTime())) {
-            throw new BadRequestException("Shift time must be within event time range");
+            throw new BadRequestException("Shift time range must be within event time range");
         }
 
         shift.setName(modificationDto.getName());

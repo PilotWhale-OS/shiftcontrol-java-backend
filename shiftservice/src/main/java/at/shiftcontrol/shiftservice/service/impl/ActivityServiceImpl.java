@@ -5,13 +5,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.event.RoutingKeys;
@@ -29,6 +22,11 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -101,6 +99,11 @@ public class ActivityServiceImpl implements ActivityService {
 
         if (activity.isReadOnly()) {
             throw new BadRequestException("Cannot modify read-only activity");
+        }
+
+        if (modificationDto.getStartTime().isBefore(activity.getEvent().getStartTime())
+            || modificationDto.getEndTime().isAfter(activity.getEvent().getEndTime())) {
+            throw new BadRequestException("Activity time range must be within event time range");
         }
 
         Location location = null;
