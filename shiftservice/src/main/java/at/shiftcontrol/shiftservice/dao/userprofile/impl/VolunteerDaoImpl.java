@@ -93,12 +93,22 @@ public class VolunteerDaoImpl implements VolunteerDao {
     }
 
     @Override
-    public Collection<Volunteer> findAll(long page, long size) {
-        return volunteerRepository.findAll(page * size, size);
+    public Collection<Volunteer> findAllPaginated(long page, long size) {
+        return volunteerRepository.findAllPaginated(page * size, size);
+    }
+
+    @Override
+    public Collection<Volunteer> findAllByShiftPlanPaginated(long page, long size, long shiftPlanId) {
+        return volunteerRepository.findAllByShiftPlanPaginated(page * size, size, shiftPlanId);
     }
 
     @Override
     public long findAllSize() {
         return volunteerRepository.findAllSize();
+    }
+
+    @Override
+    public long findAllByShiftPlanSize(long shiftPlanId) {
+        return volunteerRepository.findAllByShiftPlanSize(shiftPlanId);
     }
 }
