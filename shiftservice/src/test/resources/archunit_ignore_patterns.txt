@@ -1,0 +1,1 @@
+.*\$deserializeLambda\$\(java\.lang\.invoke\.SerializedLambda\).*

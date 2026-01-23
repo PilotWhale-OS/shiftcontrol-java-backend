@@ -11,6 +11,7 @@ import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
@@ -124,8 +125,16 @@ public class SecurityHelper {
 
     public void assertVolunteerIsVolunteer(ShiftPlan plan, Volunteer volunteer) {
         if (!volunteer.getVolunteeringPlans().contains(plan)) {
-            throw new IllegalArgumentException("User not contained in a plan cannot be lockt for the plan.");
+            throw new IllegalArgumentException("User not contained in plan.");
         }
+    }
+
+    public void assertVolunteerIsVolunteer(Shift shift, Volunteer volunteer) {
+        assertVolunteerIsVolunteer(shift.getShiftPlan(), volunteer);
+    }
+
+    public void assertVolunteerIsVolunteer(PositionSlot slot, Volunteer volunteer) {
+        assertVolunteerIsVolunteer(slot.getShift(), volunteer);
     }
 
     public void assertVolunteerIsLockedInPlan(ShiftPlan plan, Volunteer volunteer) {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import at.shiftcontrol.lib.entity.PretalxApiKey;
 import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.shiftservice.dto.PretalxApiKeyDetailsDto;

@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.util;
 
-import java.net.*;
+import java.net.IDN;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.type.SocialMediaLinkType;
 import at.shiftcontrol.shiftservice.dto.event.SocialMediaLinkDto;
 
@@ -118,7 +121,7 @@ public class SocialLinksParser {
         try {
             return new URI(s);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Invalid URL: " + s, e);
+            throw new IllegalArgumentException("Invalid URL: " + s);
         }
     }
 

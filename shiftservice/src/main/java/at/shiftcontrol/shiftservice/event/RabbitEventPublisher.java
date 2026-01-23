@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.event;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -11,10 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
-import at.shiftcontrol.lib.entity.Event;
-import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.event.BaseEvent;
-import at.shiftcontrol.lib.event.events.LocationEvent;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.config.RabbitMqConfig;
@@ -40,7 +37,7 @@ public class RabbitEventPublisher {
         }
         var routingKey = event.getRoutingKey();
         if (routingKey == null || routingKey.isBlank()) {
-            throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key");
+            throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key", null);
         }
 
         log.trace("Publishing event to RabbitMQ with routing key {}: {}", ROUTING_KEY_PREFIX + routingKey, event);

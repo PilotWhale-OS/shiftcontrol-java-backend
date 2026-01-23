@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dao.role;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import at.shiftcontrol.lib.entity.Role;
@@ -13,4 +14,8 @@ public interface RoleDao extends BasicDao<Role, Long> {
     Collection<Role> findAllById(Collection<Long> roleIds);
 
     Collection<Role> getRolesByIdsAndShiftPlanId(Set<Long> roleIds, Long shiftPlanId);
+
+    Collection<Role> getByIds(Set<Long> roleIds);
+
+    Optional<Role> findByNameAndShiftPlanId(String name, long shiftPlanId);
 }

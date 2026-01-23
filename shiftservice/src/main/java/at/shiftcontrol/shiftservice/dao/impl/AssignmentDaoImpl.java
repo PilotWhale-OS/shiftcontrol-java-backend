@@ -96,6 +96,11 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
+    public Collection<Assignment> findActiveAssignmentsForShiftPlanAndUser(long shiftPlanId, String userId) {
+        return assignmentRepository.findActiveAssignmentsForShiftPlanAndUser(shiftPlanId, userId, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
+    }
+
+    @Override
     public void deleteAll(Collection<Assignment> ids) {
         assignmentRepository.deleteAll(ids);
     }

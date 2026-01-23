@@ -20,7 +20,7 @@
             <column name="id" valueNumeric="2"/>
             <column name="position_slot_id" valueNumeric="2"/>
             <column name="assigned_volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
-            <column name="status" value="REQUEST_FOR_ASSIGNMENT"/>
+            <column name="status" value="ACCEPTED"/>
             <column name="accepted_reward_points" value="30"/>
         </insert>
 

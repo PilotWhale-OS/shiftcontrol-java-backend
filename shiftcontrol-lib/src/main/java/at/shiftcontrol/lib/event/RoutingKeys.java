@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import lombok.NonNull;
 
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
+
 public final class RoutingKeys {
     private static final Pattern PLACEHOLDER = Pattern.compile("\\{([^}]+)}");
 

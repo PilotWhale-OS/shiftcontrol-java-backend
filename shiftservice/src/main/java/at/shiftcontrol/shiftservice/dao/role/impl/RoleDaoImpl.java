@@ -68,4 +68,9 @@ public class RoleDaoImpl implements RoleDao {
         }
         return roles;
     }
+
+    @Override
+    public Optional<Role> findByNameAndShiftPlanId(String name, long shiftPlanId) {
+        return roleRepository.findByNameAndShiftPlanId(name, shiftPlanId);
+    }
 }

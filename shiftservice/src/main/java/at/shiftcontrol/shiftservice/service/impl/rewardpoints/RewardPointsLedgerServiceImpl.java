@@ -4,9 +4,17 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.RewardPointsTransaction;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.RewardPointTransactionEvent;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.type.RewardPointTransactionType;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -17,11 +25,6 @@ import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsTransactionDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.repo.role;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,4 +22,13 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
                 AND r.shiftPlan.id = :shiftPlanId
         """)
     Collection<Role> getRolesByIdsAndShiftPlanId(Set<Long> roleIds, Long shiftPlanId);
+    Collection<Role> getByIds(Set<Long> roleIds);
+
+    @Query("""
+        SELECT r
+        FROM Role r
+        WHERE r.name = :name
+          AND r.shiftPlan.id = :shiftPlanId
+        """)
+    Optional<Role> findByNameAndShiftPlanId(String name, long shiftPlanId);
 }

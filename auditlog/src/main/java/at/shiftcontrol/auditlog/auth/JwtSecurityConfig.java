@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.lib.auth.ApplicationUser;
 import at.shiftcontrol.lib.auth.NonDevTestCondition;
 import at.shiftcontrol.lib.auth.UserAuthenticationToken;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 
 @Slf4j
 @Conditional(NonDevTestCondition.class)
@@ -81,7 +83,7 @@ public class JwtSecurityConfig {
                 .permitAll()
                 .requestMatchers("/v3/api-docs*/**")
                 .permitAll()
-                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**")
+                .requestMatchers(HttpMethod.OPTIONS, "/**")
                 .permitAll() // Permit all OPTIONS requests (preflight))
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

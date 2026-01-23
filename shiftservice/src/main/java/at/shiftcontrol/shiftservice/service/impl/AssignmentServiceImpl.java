@@ -19,6 +19,7 @@ import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -103,7 +104,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public Assignment accept(Assignment assignment) {
         if (assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
-            throw new IllegalArgumentException("Assignment must be a request for assignment");
+            throw new IllegalArgumentException("Assignment must be an assignment request");
         }
 
         // update reward points

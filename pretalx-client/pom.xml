@@ -44,6 +44,12 @@
       <artifactId>jackson-databind-nullable</artifactId>
       <version>0.2.8</version>
     </dependency>
+      <dependency>
+          <groupId>at.shiftcontrol</groupId>
+          <artifactId>shiftcontrol-lib</artifactId>
+          <version>0.0.1-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
   </dependencies>
 
   <build>
