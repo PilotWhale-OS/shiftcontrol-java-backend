@@ -36,6 +36,9 @@ public class EventDto {
     private Instant endTime;
 
     @NotNull
+    private boolean active;
+
+    @NotNull
     @Valid
     private Collection<SocialMediaLinkDto> socialMediaLinks;
 }

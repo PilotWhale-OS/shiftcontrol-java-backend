@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import jakarta.validation.Valid;
 
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
+import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
@@ -26,9 +26,11 @@ public interface UserAdministrationService {
 
     UserPlanDto updatePlanUser(Long shiftPlanId, String userId, UserPlanUpdateDto updateDto);
 
-    UserEventDto lockUser(String userId, long shiftPlanId);
+    UserEventDto lockUser(String userId, Collection<Long> shiftPlanId);
 
-    UserEventDto unLockuser(String userId, long shiftPlanId);
+    UserEventDto unLockUser(String userId, Collection<Long> shiftPlanId);
+
+    UserEventDto resetUser(String userId, Collection<Long> shiftPlanId);
 
     Collection<UserPlanDto> bulkAddRoles(long shiftPlanId, @Valid UserPlanBulkDto updateDto);
 

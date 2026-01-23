@@ -2,6 +2,24 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
+import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
+import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
+import at.shiftcontrol.shiftservice.service.event.EventCloneService;
+import at.shiftcontrol.shiftservice.service.event.EventExportService;
+import at.shiftcontrol.shiftservice.service.event.EventImportService;
+import at.shiftcontrol.shiftservice.service.event.EventService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -18,26 +36,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.event.EventDto;
-import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
-import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
-import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
-import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
-import at.shiftcontrol.shiftservice.service.DashboardService;
-import at.shiftcontrol.shiftservice.service.event.EventCloneService;
-import at.shiftcontrol.shiftservice.service.event.EventExportService;
-import at.shiftcontrol.shiftservice.service.event.EventImportService;
-import at.shiftcontrol.shiftservice.service.event.EventService;
 
 @Slf4j
 @RestController
@@ -60,7 +58,7 @@ public class EventEndpoint {
         return eventService.getEvent(ConvertUtil.idToLong(eventId));
     }
 
-    @GetMapping()
+    @GetMapping
     @Operation(
         operationId = "getAllEvents",
         description = "Find all (volunteer related) events"
@@ -70,7 +68,16 @@ public class EventEndpoint {
     }
     //Todo: Add search capability in future
 
-    @PostMapping()
+    @GetMapping("/open")
+    @Operation(
+        operationId = "getAllOpenEvents",
+        description = "Find all events that are currently ongoing or upcoming"
+    )
+    public Collection<EventDto> getAllOpenEvents() {
+        return eventService.getAllOpenEvents(userProvider.getCurrentUser().getUserId());
+    }
+
+    @PostMapping
     @Operation(
         operationId = "createEvent",
         description = "Create a new event"
@@ -115,16 +122,16 @@ public class EventEndpoint {
         return eventService.getEventShiftPlansOverview(ConvertUtil.idToLong(eventId), userProvider.getCurrentUser().getUserId());
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping("/{eventId}/dashboard")
     @Operation(
         operationId = "getEventsDashboard",
         description = "Get (volunteer related) dashboard data for all events"
     )
-    public EventsDashboardOverviewDto getEventsDashboard() {
-        return dashboardService.getDashboardOverviewsOfAllShiftPlans(userProvider.getCurrentUser().getUserId());
+    public EventsDashboardOverviewDto getEventsDashboard(@PathVariable String eventId) {
+        return dashboardService.getDashboardOverviewsOfAllShiftPlans(eventId, userProvider.getCurrentUser().getUserId());
     }
 
-    @GetMapping("{eventId}/export")
+    @GetMapping("/{eventId}/export")
     @Operation(
         operationId = "exportEventData",
         description = "Export event data for external use"
@@ -148,7 +155,7 @@ public class EventEndpoint {
         return eventImportService.importEvent(file);
     }
 
-    @GetMapping("import/template")
+    @GetMapping("/import/template")
     @Operation(
         operationId = "downloadEventImportTemplate",
         description = "Download event import template file"

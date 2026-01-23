@@ -5,15 +5,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
-
-import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
-
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -51,8 +49,8 @@ public class ShiftPlanDaoImpl implements ShiftPlanDao {
     }
 
     @Override
-    public Collection<ShiftPlan> findAllUserRelatedShiftPlans(String userId) {
-        return shiftPlanRepository.findAllUserRelatedShiftPlans(userId);
+    public Collection<ShiftPlan> findAllUserRelatedShiftPlansInEvent(String userId, String eventId) {
+        return shiftPlanRepository.findAllUserRelatedShiftPlansInEvent(userId, eventId);
     }
 
     @Override

@@ -50,6 +50,7 @@ import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import at.shiftcontrol.shiftservice.util.SocialLinksParser;
 
 @Service
 @RequiredArgsConstructor
@@ -94,6 +95,14 @@ public class EventServiceImpl implements EventService {
             .toList();
 
         return EventMapper.toEventDto(relevantEvents);
+    }
+
+    @Override
+    public Collection<EventDto> getAllOpenEvents(String currentUser) {
+        if (securityHelper.isUserAdmin()) {
+            return EventMapper.toEventDto(eventDao.getAllOpenEvents());
+        }
+        return EventMapper.toEventDto(eventDao.getAllOpenEventsForUser(currentUser));
     }
 
     @Override
@@ -144,17 +153,17 @@ public class EventServiceImpl implements EventService {
 
         // create result
         return volunteerIdsByPlan.entrySet().stream()
-                .map(entry -> {
-                    Long planId = entry.getKey();
-                    String planName = planNames.get(planId);
-                    List<ContactInfoDto> contacts =
-                        entry.getValue().stream()
-                            .map(contactInfoById::get)
-                            .toList();
+            .map(entry -> {
+                Long planId = entry.getKey();
+                String planName = planNames.get(planId);
+                List<ContactInfoDto> contacts =
+                    entry.getValue().stream()
+                        .map(contactInfoById::get)
+                        .toList();
 
-                    return new ShiftPlanContactInfoDto(String.valueOf(planId), planName, contacts);
-                })
-                .toList();
+                return new ShiftPlanContactInfoDto(String.valueOf(planId), planName, contacts);
+            })
+            .toList();
     }
 
     @Override
@@ -183,7 +192,7 @@ public class EventServiceImpl implements EventService {
 
         syncSocialMediaLinks(event, modificationDto);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.EVENT_CREATED, event));
+        publisher.publishEvent(EventEvent.forEventCreated(event));
         return EventMapper.toEventDto(event);
     }
 
@@ -197,7 +206,7 @@ public class EventServiceImpl implements EventService {
         syncSocialMediaLinks(event, modificationDto);
         eventDao.save(event);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_UPDATED, Map.of("eventId", String.valueOf(eventId))), event));
+        publisher.publishEvent(EventEvent.forEventUpdated(event));
         return EventMapper.toEventDto(event);
     }
 
@@ -441,14 +450,11 @@ public class EventServiceImpl implements EventService {
     }
 
     private void syncSocialMediaLinks(Event event, EventModificationDto modificationDto) {
-        var incoming = modificationDto.getSocialMediaLinks() == null
-            ? List.<SocialMediaLinkDto>of()
-            : modificationDto.getSocialMediaLinks().stream().toList();
+        var incoming = SocialLinksParser.parseToDtos(modificationDto.getSocialLinks());
 
         // IMPORTANT: do not replace managed collection
         var links = event.getSocialMediaLinks();
         if (links == null) {
-            // ok for brand new events; for managed events it should normally not be null
             links = new ArrayList<>();
             event.setSocialMediaLinks(links);
         }
@@ -457,16 +463,14 @@ public class EventServiceImpl implements EventService {
             .map(SocialMediaLinkDto::createKey)
             .collect(Collectors.toSet());
 
-        // remove missing -> orphanRemoval deletes rows
         links.removeIf(l -> !incomingKeys.contains(l.getKey()));
 
         var existingKeys = links.stream()
             .map(SocialMediaLink::getKey)
             .collect(Collectors.toSet());
 
-        // add missing (stream-based)
         incoming.stream()
-            .filter(dto -> existingKeys.add(dto.createKey())) // add() returns false if already present
+            .filter(dto -> existingKeys.add(dto.createKey()))
             .map(dto -> EventMapper.toSocialMediaLink(dto, event))
             .forEach(links::add);
     }

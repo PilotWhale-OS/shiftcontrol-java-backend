@@ -3,11 +3,6 @@ package at.shiftcontrol.shiftservice.mapper;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
@@ -19,23 +14,25 @@ import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class PositionSlotAssemblingMapper {
     private final EligibilityService eligibilityService;
-    private final RewardPointsCalculator rewardPointsCalculator;
     private final ApplicationUserProvider applicationUserProvider;
     private final VolunteerDao volunteerDao;
     private final AssignmentDao assignmentDao;
     private final PositionSlotDao positionSlotDao;
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
+    private final RewardPointsAssemblingMapper rewardPointsAssemblingMapper;
     private final TradeMapper tradeMapper;
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
@@ -43,14 +40,7 @@ public class PositionSlotAssemblingMapper {
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
         var volunteer = volunteerDao.getById(applicationUserProvider.getCurrentUser().getUserId());
         var preferenceValue = positionSlotDao.getPreference(volunteer.getId(), positionSlot.getId());
-        var currentRewardPoints = rewardPointsCalculator.calculateForAssignment(positionSlot).rewardPoints();
-        var rewardPointsConfigHash = rewardPointsCalculator.calculatePointsConfigHash(positionSlot);
-
-        var rewardPointsDto = RewardPointsDto.builder()
-            .currentRewardPoints(currentRewardPoints)
-            .overrideRewardPoints(positionSlot.getOverrideRewardPoints())
-            .rewardPointsConfigHash(rewardPointsConfigHash)
-            .build();
+        var rewardPointsDto = rewardPointsAssemblingMapper.toDto(positionSlot);
 
         var requestedTrades = assignmentSwitchRequestDao.findOpenTradesForRequestedPositionAndOfferingUser(
             positionSlot.getId(), volunteer.getId()
@@ -81,7 +71,7 @@ public class PositionSlotAssemblingMapper {
     }
 
     public PositionSlotDto toDto(@NonNull PositionSlot positionSlot, @NonNull PositionSignupState positionSignupState,
-                                        Collection<AssignmentSwitchRequest> offeredTradesForUser, Collection<AssignmentSwitchRequest> requestedTradesForUser,
+                                 Collection<AssignmentSwitchRequest> offeredTradesForUser, Collection<AssignmentSwitchRequest> requestedTradesForUser,
                                  int preferenceValue, RewardPointsDto rewardPointsDto) {
         Collection<AssignmentDto> assignmentDtos;
         Collection<AssignmentDto> auctionDtos;
@@ -91,8 +81,8 @@ public class PositionSlotAssemblingMapper {
             assignmentDtos = null;
             auctionDtos = null;
         } else {
-            assignmentDtos = assignmentAssemblingMapper.toDto(activeAssignments);
-            auctionDtos = assignmentAssemblingMapper.toDto(activeAssignments.stream()
+            assignmentDtos = assignmentAssemblingMapper.assemble(activeAssignments);
+            auctionDtos = assignmentAssemblingMapper.assemble(activeAssignments.stream()
                 .filter(a -> AssignmentStatus.ACTIVE_AUCTION_STATES.contains(a.getStatus()))
                 .toList()); // get open auctions for this slot
         }

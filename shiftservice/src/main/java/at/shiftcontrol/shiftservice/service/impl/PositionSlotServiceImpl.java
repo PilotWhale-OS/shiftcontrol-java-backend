@@ -31,7 +31,7 @@ import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
@@ -85,7 +85,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment assignment = assignmentService.assign(positionSlot, volunteer, requestDto);
 
         // save and return
-        return assignmentAssemblingMapper.toDto(assignment);
+        return assignmentAssemblingMapper.assemble(assignment);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                     "volunteerId", currentUserId)),
             positionSlot, currentUserId));
 
-        return assignmentAssemblingMapper.toDto(joinRequest);
+        return assignmentAssemblingMapper.assemble(joinRequest);
     }
 
     @Override
@@ -201,12 +201,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsInPlan(positionSlot);
-        return assignmentAssemblingMapper.toDto(positionSlot.getAssignments());
+        return assignmentAssemblingMapper.assemble(positionSlot.getAssignments());
     }
 
     @Override
     public AssignmentDto getUserAssignment(@NonNull Long positionSlotId, @NonNull String volunteerId) {
-        return assignmentAssemblingMapper.toDto(assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId));
+        return assignmentAssemblingMapper.assemble(assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId));
     }
 
     @Override
@@ -236,7 +236,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 Map.of("positionSlotId", String.valueOf(positionSlotId))
             ), assignment
         ));
-        return assignmentAssemblingMapper.toDto(assignment);
+        return assignmentAssemblingMapper.assemble(assignment);
     }
 
     @Override
@@ -261,11 +261,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         eligibilityService.validateHasConflictingAssignments(
             currentUser.getId(), auction.getPositionSlot());
         // cancel existing trades
-        assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
+        assignmentSwitchRequestDao.cancelTradesForPositionSlot(positionSlotId, offeringUserId);
         // execute claim
         Assignment claimedAuction = assignmentService.claimAuction(auction, currentUser, requestDto);
 
-        return assignmentAssemblingMapper.toDto(claimedAuction);
+        return assignmentAssemblingMapper.assemble(claimedAuction);
     }
 
     @Override
@@ -284,7 +284,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                 Map.of("positionSlotId", String.valueOf(positionSlotId))
             ), assignment
         ));
-        return assignmentAssemblingMapper.toDto(assignment);
+        return assignmentAssemblingMapper.assemble(assignment);
     }
 
     @Override
