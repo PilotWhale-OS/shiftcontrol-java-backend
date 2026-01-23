@@ -40,10 +40,10 @@ public class UserAdministrationItemEndpoint {
 
     @PatchMapping
     @Operation(
-        operationId = "updateUserPlans",
-        description = "Update user plans"
+        operationId = "updateUserRoles",
+        description = "Update user roles in a plan"
     )
-    public UserPlanDto updateUserPlans(
+    public UserPlanDto updateUserRoles(
         @PathVariable String shiftPlanId,
         @PathVariable String userId,
         @RequestBody @Valid UserPlanUpdateDto updateDto) {
