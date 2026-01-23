@@ -94,6 +94,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @AdminOnly
     public ShiftPlanCreateDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
+        validateUniqueNameInEvent(eventId, modificationDto.getName(), null);
+
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
         plan.setLockStatus(SELF_SIGNUP);
@@ -134,11 +136,24 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @AdminOnly
     public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) {
         var plan = shiftPlanDao.getById(shiftPlanId);
+        validateUniqueNameInEvent(plan.getEvent().getId(), modificationDto.getName(), shiftPlanId);
+
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
         shiftPlanDao.save(plan);
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_UPDATED,
             Map.of("shiftPlanId", String.valueOf(shiftPlanId))), plan));
         return ShiftPlanMapper.toShiftPlanDto(plan);
+    }
+
+    void validateUniqueNameInEvent(long eventId, String name, Long excludeShiftPlanId) {
+        var shiftPlansInEvent = shiftPlanDao.findByEventId(eventId);
+        boolean nameExists = shiftPlansInEvent.stream()
+            .anyMatch(shiftPlan -> shiftPlan.getName() != null
+                && shiftPlan.getName().equalsIgnoreCase(name)
+                && shiftPlan.getId() != excludeShiftPlanId);
+        if (nameExists) {
+            throw new BadRequestException("A shift plan with the given name already exists in the event");
+        }
     }
 
     @Override
