@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.integration;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -21,8 +22,11 @@ import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.LockStatus;
+import at.shiftcontrol.lib.type.TimeConstraintType;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
@@ -33,6 +37,7 @@ import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
+import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +80,8 @@ class PositionSlotIT extends RestITBase {
     private PositionSlot positionSlotA, positionSlotB, positionSlotC;
 
     private Assignment assignmentA;
+    @Autowired
+    private TimeConstraintRepository timeConstraintRepository;
 
     @BeforeEach
     void setUp() {
@@ -290,6 +297,7 @@ class PositionSlotIT extends RestITBase {
         userAttributeProvider.invalidateUserCaches(Set.of(volunteerA.getId(), volunteerB.getId()));
         assignmentRepository.deleteAll();
         positionSlotRepository.deleteAll();
+        timeConstraintRepository.deleteAll();
         eventRepository.deleteAll();
         shiftPlanRepository.deleteAll();
         shiftRepository.deleteAll();
@@ -452,5 +460,111 @@ class PositionSlotIT extends RestITBase {
         );
 
         Assertions.assertFalse(assignmentRepository.findById(ConvertUtil.idToLong(resultJoin2.getId())).isPresent());
+    }
+
+    @Test
+    void createEmergencyTimeConstraint_unassignsFromAssignments() {
+        // We need to create a time constraint that unassigns the user from a shift.
+        // This only works for SELF_SIGNUP shift plans.
+        // shiftC is in shiftPlanB which is SELF_SIGNUP.
+        // volunteerB is part of shiftPlanB.
+
+        // 1. Assign volunteerB to a position slot in a SELF_SIGNUP shift plan (positionSlotC)
+        var positionSlotDto = getRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotC.getId(),
+            PositionSlotDto.class,
+            volunteerB.getId()
+        );
+        var requestDto = new PositionSlotRequestDto(positionSlotDto.getRewardPointsDto().getRewardPointsConfigHash());
+
+        var assignmentDto = postRequestAsAssigned(
+            JOIN_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
+            requestDto,
+            AssignmentDto.class,
+            volunteerB.getId()
+        );
+
+        Assertions.assertNotNull(assignmentDto);
+        Assertions.assertTrue(assignmentRepository.findById(ConvertUtil.idToLong(assignmentDto.getId())).isPresent());
+
+        // 2. Create an EMERGENCY time constraint that conflicts with the shift
+        var shift = shiftRepository.findById(positionSlotC.getShift().getId()).orElseThrow();
+        var eventId = shift.getShiftPlan().getEvent().getId();
+
+        //Start and end time that fully covers the shift and is always from midnight to midnight
+        var startTime = LocalDate.ofInstant(shift.getStartTime(), ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
+        var endTime = LocalDate.ofInstant(shift.getStartTime(), ZoneOffset.UTC).atStartOfDay().plusDays(1).toInstant(ZoneOffset.UTC);
+
+        var timeConstraintCreateDto = new TimeConstraintCreateDto(
+            TimeConstraintType.EMERGENCY,
+            startTime,
+            endTime
+        );
+
+        postRequestAsAssigned(
+            "/events/" + eventId + "/time-constraints",
+            timeConstraintCreateDto,
+            TimeConstraintDto.class,
+            volunteerB.getId()
+        );
+
+        // 3. Verify that the assignment has been removed
+        Assertions.assertFalse(assignmentRepository.findById(ConvertUtil.idToLong(assignmentDto.getId())).isPresent());
+    }
+
+    @Test
+    void createEmergencyTimeConstraint_requestsUnassignFromAssignments_whenShiftPlanSupervised() {
+        // We need to create a time constraint that sets the assignment to AUCTION_REQUEST_FOR_UNASSIGN for the user from a shift.
+        // This only works for SUPERVISED shift plans.
+        // shiftC is in shiftPlanB which is SELF_SIGNUP.
+        // volunteerB is part of shiftPlanB.
+
+        // 1. Assign volunteerB to a position slot in a SELF_SIGNUP shift plan (positionSlotC)
+        var positionSlotDto = getRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotC.getId(),
+            PositionSlotDto.class,
+            volunteerB.getId()
+        );
+        var requestDto = new PositionSlotRequestDto(positionSlotDto.getRewardPointsDto().getRewardPointsConfigHash());
+
+        var assignmentDto = postRequestAsAssigned(
+            JOIN_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
+            requestDto,
+            AssignmentDto.class,
+            volunteerB.getId()
+        );
+
+        Assertions.assertNotNull(assignmentDto);
+        Assertions.assertTrue(assignmentRepository.findById(ConvertUtil.idToLong(assignmentDto.getId())).isPresent());
+
+        // 2. Set the shift plan to SUPERVISED
+        var shift = shiftRepository.findById(positionSlotC.getShift().getId()).orElseThrow();
+        var shiftPlan = shift.getShiftPlan();
+        shiftPlan.setLockStatus(LockStatus.SUPERVISED);
+        shiftPlanRepository.save(shiftPlan);
+
+        // 3. Create an EMERGENCY time constraint that conflicts with the shift
+        var eventId = shift.getShiftPlan().getEvent().getId();
+
+        //Start and end time that fully covers the shift and is always from midnight to midnight
+        var startTime = LocalDate.ofInstant(shift.getStartTime(), ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
+        var endTime = LocalDate.ofInstant(shift.getStartTime(), ZoneOffset.UTC).atStartOfDay().plusDays(1).toInstant(ZoneOffset.UTC);
+
+        var timeConstraintCreateDto = new TimeConstraintCreateDto(
+            TimeConstraintType.EMERGENCY,
+            startTime,
+            endTime
+        );
+
+        postRequestAsAssigned(
+            "/events/" + eventId + "/time-constraints",
+            timeConstraintCreateDto,
+            TimeConstraintDto.class,
+            volunteerB.getId()
+        );
+
+        // 4. Verify that the assignment has been updated to AUCTION_REQUEST_FOR_UNASSIGN
+        var updatedAssignment = assignmentRepository.findById(ConvertUtil.idToLong(assignmentDto.getId())).orElseThrow();
+        Assertions.assertEquals(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN, updatedAssignment.getStatus());
     }
 }

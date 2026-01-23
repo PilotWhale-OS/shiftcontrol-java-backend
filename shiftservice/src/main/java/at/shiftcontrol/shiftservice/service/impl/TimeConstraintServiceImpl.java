@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,8 +55,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
     @Override
     @IsNotAdmin
+    @Transactional
     public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId) {
-        // todo add security
         //VALIDATION: Validate date range
         Instant from = createDto.getFrom();
         Instant to = createDto.getTo();
@@ -107,7 +108,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
      *
      * @param emergencyConstraint The EMERGENCY time constraint that may conflict with existing assignments.
      */
-    private void handleEmergencyConflictingAssignments(@NonNull TimeConstraint emergencyConstraint) {
+    protected void handleEmergencyConflictingAssignments(@NonNull TimeConstraint emergencyConstraint) {
         var volunteerId = emergencyConstraint.getVolunteer().getId();
         var from = emergencyConstraint.getStartTime();
         var to = emergencyConstraint.getEndTime();
@@ -123,13 +124,12 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
                     assignment.getId(), emergencyConstraint.getId());
 
                 assignment.setStatus(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN);
+                assignment = assignmentDao.save(assignment);
 
                 // publish event
                 publisher.publishEvent(PositionSlotVolunteerEvent.ofPositionSlotRequestLeave(
                     assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
             }
-
-            assignmentDao.delete(assignment);
             // todo publish assignment deleted event?
         }
     }
