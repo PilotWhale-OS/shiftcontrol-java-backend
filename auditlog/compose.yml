@@ -1,0 +1,17 @@
+services:
+  auditlog:
+    build:
+      context: ../
+      dockerfile: auditlog/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shiftservice
+      SPRING_DATASOURCE_USERNAME: shiftcontrol
+      SPRING_DATASOURCE_PASSWORD: password
+    volumes:
+      - ./config/application.yml:/app/application.yml
+    networks:
+      - shiftcontrol
+
+networks:
+  shiftcontrol:
+    external: true

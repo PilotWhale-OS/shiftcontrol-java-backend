@@ -16,11 +16,11 @@ public class RedisService {
     private final StringRedisTemplate redis;
 
     private static final long SPAM_WINDOW_SECONDS = 3600;       // 1h
-    private static final long SPAM_THRESHOLD = 4;
+    private static final long SPAM_THRESHOLD = 6;
     private static final long OVERLOAD_WINDOW_SECONDS = 1800;   // 30m
     private static final long OVERLOAD_THRESHOLD = 5;
     private static final long TRADE_THRESHOLD = 10;
-    private static final long AUCTION_THRESHOLD = 3;
+    private static final long AUCTION_THRESHOLD = 5;
 
     public RedisService(StringRedisTemplate redis) {
         this.redis = redis;

@@ -64,7 +64,7 @@ public class LocationServiceImpl implements LocationService {
 
         newLocation = locationDao.save(newLocation);
 
-        publisher.publishEvent(LocationEvent.of(RoutingKeys.LOCATION_CREATED, newLocation));
+        publisher.publishEvent(LocationEvent.forCreated(newLocation));
         return LocationMapper.toLocationDto(newLocation);
     }
 
@@ -84,8 +84,7 @@ public class LocationServiceImpl implements LocationService {
 
         location = locationDao.save(location);
 
-        publisher.publishEvent(LocationEvent.of(RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
-            Map.of("locationId", String.valueOf(locationId))), location));
+        publisher.publishEvent(LocationEvent.forUpdated(location));
         return LocationMapper.toLocationDto(location);
     }
 

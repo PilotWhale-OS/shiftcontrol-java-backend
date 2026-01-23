@@ -8,11 +8,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.dto.TrustAlertDto;
 import at.shiftcontrol.lib.entity.TrustAlert;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.TrustAlertType;
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.TrustAlertRepository;
@@ -78,6 +78,7 @@ public class TrustAlertIT extends RestITBase {
         TrustAlertDisplayDto alert = objectMapper.convertValue(result.getItems().stream().findFirst().get(), TrustAlertDisplayDto.class);
         assertAll(
             () -> assertEquals(trustAlertB.getAlertType(), alert.getAlertType()),
+            () -> assertEquals(trustAlertB.getAlertType().getDescription(), alert.getAlertType().getDescription()),
             () -> assertTrue(Math.abs(
                 trustAlertB.getCreatedAt().toEpochMilli() - alert.getCreatedAt().toEpochMilli()) < 1),
             () -> assertEquals(trustAlertB.getVolunteer().getId(), alert.getVolunteerDto().getId())

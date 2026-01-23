@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.service;
 
+import java.util.Collection;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
@@ -29,6 +31,8 @@ public interface AssignmentService {
      * @return executed trade, where volunteers are swapped
      */
     AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest oldTrade);
+
+    void cancelOtherTrades(AssignmentSwitchRequest trade);
 
     /**
      * accepts an already existing assignment.
@@ -77,4 +81,13 @@ public interface AssignmentService {
      * @param shiftPlan to decline all signup requests
      */
     void declineAllSignupRequests(ShiftPlan shiftPlan);
+
+    /**
+     * get all assignments for a user
+     *
+     * @param plan to fetch the assignments from
+     * @param volunteer to assignments belong to
+     * @return
+     */
+    Collection<Assignment> getAllAssignmentsForUser(ShiftPlan plan, Volunteer volunteer);
 }

@@ -8,6 +8,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.Event;
@@ -44,11 +51,6 @@ import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.SocialLinksParser;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -190,7 +192,7 @@ public class EventServiceImpl implements EventService {
 
         syncSocialMediaLinks(event, modificationDto);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.EVENT_CREATED, event));
+        publisher.publishEvent(EventEvent.forEventCreated(event));
         return EventMapper.toEventDto(event);
     }
 
@@ -204,7 +206,7 @@ public class EventServiceImpl implements EventService {
         syncSocialMediaLinks(event, modificationDto);
         eventDao.save(event);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_UPDATED, Map.of("eventId", String.valueOf(eventId))), event));
+        publisher.publishEvent(EventEvent.forEventUpdated(event));
         return EventMapper.toEventDto(event);
     }
 

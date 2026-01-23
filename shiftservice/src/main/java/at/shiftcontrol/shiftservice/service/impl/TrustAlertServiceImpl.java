@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.dto.TrustAlertDto;
 import at.shiftcontrol.lib.entity.TrustAlert;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.TrustAlertEvent;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.TrustAlertDao;
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 import at.shiftcontrol.shiftservice.mapper.PaginationMapper;
 import at.shiftcontrol.shiftservice.mapper.TrustAlertAssemblingMapper;

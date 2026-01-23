@@ -23,6 +23,7 @@ public class TrustAlertAssemblingMapper {
             .id(String.valueOf(alert.getId()))
             .volunteerDto(volunteerAssemblingMapper.toDto(alert.getVolunteer()))
             .alertType(alert.getAlertType())
+            .alertTypeDescription(alert.getAlertType().getDescription())
             .createdAt(alert.getCreatedAt())
             .build();
     }

@@ -1,0 +1,9 @@
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: shiftcontrol
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: none

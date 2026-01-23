@@ -257,7 +257,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         eligibilityService.validateHasConflictingAssignments(
             currentUser.getId(), auction.getPositionSlot());
         // cancel existing trades
-        assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
+        assignmentSwitchRequestDao.cancelTradesForPositionSlot(positionSlotId, offeringUserId);
         // execute claim
         Assignment claimedAuction = assignmentService.claimAuction(auction, currentUser, requestDto);
 

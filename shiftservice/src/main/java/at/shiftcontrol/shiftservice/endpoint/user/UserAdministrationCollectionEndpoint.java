@@ -17,8 +17,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;

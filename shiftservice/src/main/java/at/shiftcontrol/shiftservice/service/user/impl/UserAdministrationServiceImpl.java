@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.keycloak.representations.idm.UserRepresentation;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -25,10 +26,10 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
@@ -38,6 +39,8 @@ import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
 import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 import at.shiftcontrol.shiftservice.mapper.PaginationMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
+import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
+import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
@@ -52,6 +55,9 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     private final UserAssemblingMapper userAssemblingMapper;
     private final RoleDao roleDao;
     private final ApplicationEventPublisher publisher;
+    private final AssignmentService assignmentService;
+    private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
+    private final AssignmentRepository assignmentRepository;
 
     @Override
     @AdminOnly
@@ -140,16 +146,17 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
     @Override
     @Transactional
-    public UserEventDto lockUser(String userId, long shiftPlanId) {
-        securityHelper.assertUserIsPlanner(shiftPlanId);
+    public UserEventDto lockUser(String userId, Collection<Long> shiftPlanId) {
         var volunteer = volunteerDao.getById(userId);
-        var plan = shiftPlanDao.getById(shiftPlanId);
-        securityHelper.assertVolunteerIsNotLockedInPlan(plan, volunteer);
-        if (volunteer.getLockedPlans() == null) {
-            volunteer.setLockedPlans(new HashSet<>());
+        var plans = shiftPlanDao.getByIds(new HashSet<>(shiftPlanId));
+        for (ShiftPlan plan : plans) {
+            securityHelper.assertUserIsPlanner(plan);
+            securityHelper.assertVolunteerIsNotLockedInPlan(plan, volunteer);
+            if (volunteer.getLockedPlans() == null) {
+                volunteer.setLockedPlans(new HashSet<>());
+            }
+            volunteer.getLockedPlans().add(plan);
         }
-        volunteer.getLockedPlans().add(plan);
-
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.lock(volunteer));
         return userAssemblingMapper.toUserEventDto(volunteer);
@@ -157,15 +164,36 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
     @Override
     @Transactional
-    public UserEventDto unLockuser(String userId, long shiftPlanId) {
-        securityHelper.assertUserIsPlanner(shiftPlanId);
+    public UserEventDto unLockUser(String userId, Collection<Long> shiftPlanId) {
         var volunteer = volunteerDao.getById(userId);
-        var plan = shiftPlanDao.getById(shiftPlanId);
-        securityHelper.assertVolunteerIsLockedInPlan(plan, volunteer);
-        volunteer.getLockedPlans().remove(plan);
+        var plans = shiftPlanDao.getByIds(new HashSet<>(shiftPlanId));
+        for (ShiftPlan plan : plans) {
+            securityHelper.assertUserIsPlanner(plan);
+            securityHelper.assertVolunteerIsLockedInPlan(plan, volunteer);
+            volunteer.getLockedPlans().remove(plan);
 
+        }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.unlock(volunteer));
+        return userAssemblingMapper.toUserEventDto(volunteer);
+    }
+
+    @Override
+    @Transactional
+    public UserEventDto resetUser(String userId, Collection<Long> shiftPlanId) {
+        var volunteer = volunteerDao.getById(userId);
+        var plans = shiftPlanDao.getByIds(new HashSet<>(shiftPlanId));
+        for (ShiftPlan plan : plans) {
+            securityHelper.assertUserIsPlanner(plan);
+            securityHelper.assertVolunteerIsVolunteer(plan, volunteer);
+
+            var assignments = assignmentService.getAllAssignmentsForUser(plan, volunteer);
+            assignments.forEach(assignmentSwitchRequestDao::cancelTradesForAssignment);
+            assignmentRepository.flush();
+            assignments.forEach(assignmentService::unassign);
+        }
+        userAttributeProvider.invalidateUserCache(userId);
+        publisher.publishEvent(UserEvent.reset(volunteer));
         return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
@@ -251,7 +279,12 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             volunteer.getLockedPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
         }
         if (volunteer.getVolunteeringPlans() != null) {
-            volunteer.getPlanningPlans().removeIf(x -> planningToRemove.contains(x.getId()));
+            volunteer.getPlanningPlans().removeIf(plan -> {
+                if (planningToRemove.contains(plan.getId()) && !assignmentService.getAllAssignmentsForUser(plan, volunteer).isEmpty()) {
+                    throw new BadRequestException("Cannot remove a plan in which the user still has assignments.");
+                }
+                return planningToRemove.contains(plan.getId());
+            });
         }
     }
 
