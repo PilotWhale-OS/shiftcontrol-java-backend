@@ -80,10 +80,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public void cancelOtherTrades(AssignmentSwitchRequest trade) {
         // this trade does not need to be excluded because it will be set to ACCEPTED in the next step
-        assignmentSwitchRequestDao.cancelTradesForAssignment(
-            trade.getRequestedAssignment().getPositionSlot().getId(), trade.getRequestedAssignment().getAssignedVolunteer().getId());
-        assignmentSwitchRequestDao.cancelTradesForAssignment(
-            trade.getOfferingAssignment().getPositionSlot().getId(), trade.getOfferingAssignment().getAssignedVolunteer().getId());
+        assignmentSwitchRequestDao.cancelTradesForAssignment(trade.getRequestedAssignment());
+        assignmentSwitchRequestDao.cancelTradesForAssignment(trade.getOfferingAssignment());
     }
 
     /**

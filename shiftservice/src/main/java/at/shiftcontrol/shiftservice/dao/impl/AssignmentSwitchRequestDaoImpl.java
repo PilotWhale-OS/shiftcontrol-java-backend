@@ -16,6 +16,7 @@ import jakarta.persistence.criteria.Root;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentPair;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.type.TradeStatus;
@@ -65,8 +66,13 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     }
 
     @Override
-    public void cancelTradesForAssignment(Long positionSlotId, String assignedUser) {
+    public void cancelTradesForPositionSlot(Long positionSlotId, String assignedUser) {
         assignmentSwitchRequestRepository.cancelTradesForAssignment(positionSlotId, assignedUser, TradeStatus.CANCELED);
+    }
+
+    @Override
+    public void cancelTradesForAssignment(Assignment assignment) {
+        assignmentSwitchRequestRepository.cancelTradesForAssignment(assignment.getPositionSlot().getId(), assignment.getAssignedVolunteer().getId(), TradeStatus.CANCELED);
     }
 
     @Override

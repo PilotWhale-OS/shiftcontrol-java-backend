@@ -39,6 +39,7 @@ import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
 import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 import at.shiftcontrol.shiftservice.mapper.PaginationMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
+import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
@@ -56,6 +57,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     private final ApplicationEventPublisher publisher;
     private final AssignmentService assignmentService;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
+    private final AssignmentRepository assignmentRepository;
 
     @Override
     @AdminOnly
@@ -177,16 +179,17 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     }
 
     @Override
+    @Transactional
     public UserEventDto resetUser(String userId, Collection<Long> shiftPlanId) {
         var volunteer = volunteerDao.getById(userId);
         var plans = shiftPlanDao.getByIds(new HashSet<>(shiftPlanId));
         for (ShiftPlan plan : plans) {
             securityHelper.assertUserIsPlanner(plan);
-
-            var trades = assignmentSwitchRequestDao.findTradesForShiftPlanAndUser(plan.getId(), userId);
-            trades.forEach(assignmentService::cancelOtherTrades);
+            securityHelper.assertVolunteerIsVolunteer(plan, volunteer);
 
             var assignments = assignmentService.getAllAssignmentsForUser(plan, volunteer);
+            assignments.forEach(assignmentSwitchRequestDao::cancelTradesForAssignment);
+            assignmentRepository.flush();
             assignments.forEach(assignmentService::unassign);
         }
         userAttributeProvider.invalidateUserCache(userId);
@@ -276,7 +279,12 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             volunteer.getLockedPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
         }
         if (volunteer.getVolunteeringPlans() != null) {
-            volunteer.getPlanningPlans().removeIf(x -> planningToRemove.contains(x.getId()));
+            volunteer.getPlanningPlans().removeIf(plan -> {
+                if (planningToRemove.contains(plan.getId()) && !assignmentService.getAllAssignmentsForUser(plan, volunteer).isEmpty()) {
+                    throw new BadRequestException("Cannot remove a plan in which the user still has assignments.");
+                }
+                return planningToRemove.contains(plan.getId());
+            });
         }
     }
 
