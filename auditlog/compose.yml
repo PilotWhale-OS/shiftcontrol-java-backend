@@ -17,7 +17,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.auditservice.entrypoints=web
       - traefik.http.routers.auditservice.rule=Host(`auditservice.127.0.0.1.nip.io`)
-      - traefik.http.services.auditservice.loadbalancer.server.port=8080
+      - traefik.http.services.auditservice.loadbalancer.server.port=8089
 
 networks:
   shiftcontrol:

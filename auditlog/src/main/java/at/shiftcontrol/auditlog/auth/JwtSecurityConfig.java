@@ -1,9 +1,6 @@
 package at.shiftcontrol.auditlog.auth;
 
-import at.shiftcontrol.lib.auth.ApplicationUser;
-
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.usertype.UserType;
+import java.util.ArrayList;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -24,11 +21,11 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import at.shiftcontrol.lib.auth.ApplicationUser;
 import at.shiftcontrol.lib.auth.NonDevTestCondition;
 import at.shiftcontrol.lib.auth.UserAuthenticationToken;
-
-import java.util.ArrayList;
 
 @Slf4j
 @Conditional(NonDevTestCondition.class)
@@ -70,9 +67,8 @@ public class JwtSecurityConfig {
             throw new IllegalArgumentException("User token does not contain 'sub' claim");
         }
 
-
         var authorities = new ArrayList<GrantedAuthority>();
-        if (userTypeString != null) {
+        if (userTypeString != null && userTypeString.equals("ADMIN")) {
             authorities.add(new SimpleGrantedAuthority("ADMIN"));
         }
         return new ApplicationUser(authorities, username) {};
