@@ -13,6 +13,11 @@ import at.shiftcontrol.lib.entity.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
+    @Query("""
+        SELECT DISTINCT r
+        FROM Role r
+        WHERE r.shiftPlan.id = :shiftPlanId
+        """)
     List<Role> findAllByShiftPlanId(Long shiftPlanId);
 
     @Query("""
@@ -22,6 +27,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
                 AND r.shiftPlan.id = :shiftPlanId
         """)
     Collection<Role> getRolesByIdsAndShiftPlanId(Set<Long> roleIds, Long shiftPlanId);
+
+    @Query("""
+        SELECT DISTINCT r
+        FROM Role r
+        WHERE r.id in :roleIds
+        """)
     Collection<Role> getByIds(Set<Long> roleIds);
 
     @Query("""

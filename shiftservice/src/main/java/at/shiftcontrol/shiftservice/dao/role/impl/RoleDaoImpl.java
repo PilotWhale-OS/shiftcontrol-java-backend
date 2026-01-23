@@ -70,6 +70,11 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
+    public Collection<Role> getByIds(Set<Long> roleIds) {
+        return roleRepository.getByIds(roleIds);
+    }
+
+    @Override
     public Optional<Role> findByNameAndShiftPlanId(String name, long shiftPlanId) {
         return roleRepository.findByNameAndShiftPlanId(name, shiftPlanId);
     }
