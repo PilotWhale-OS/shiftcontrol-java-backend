@@ -2,6 +2,8 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class UserAssemblingMapper {
         return UserPlanDto.builder()
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
             .email(user.getEmail())
+            .roles(RoleMapper.toRoleDto(volunteer.getRoles()))
             .isLocked(volunteer.getLockedPlans().stream().anyMatch(x -> planId.equals(x.getId())))
             .build();
     }

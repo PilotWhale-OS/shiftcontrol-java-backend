@@ -31,10 +31,10 @@ public class UserAdministrationItemEndpoint {
 
     @GetMapping()
     @Operation(
-        operationId = "getUser",
+        operationId = "getUserOfPlan",
         description = "Get User"
     )
-    public UserPlanDto getUserForEvent(@PathVariable String shiftPlanId, @PathVariable String userId) {
+    public UserPlanDto getUserOfPlan(@PathVariable String shiftPlanId, @PathVariable String userId) {
         return service.getPlanUser(ConvertUtil.idToLong(shiftPlanId), userId);
     }
 

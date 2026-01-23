@@ -36,10 +36,10 @@ public class UserAdministrationCollectionEndpoint {
 
     @GetMapping()
     @Operation(
-        operationId = "getAllUsers",
+        operationId = "getAllUsersOfPlan",
         description = "Find all users."
     )
-    public PaginationDto<UserPlanDto> getAllUsers(@PathVariable String shiftPlanId,
+    public PaginationDto<UserPlanDto> getAllUsersOfPlan(@PathVariable String shiftPlanId,
                                                   @RequestParam int page,
                                                   @RequestParam int size,
                                                   @Valid UserSearchDto searchDto) {
