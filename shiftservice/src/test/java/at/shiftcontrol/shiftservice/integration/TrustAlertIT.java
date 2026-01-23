@@ -78,6 +78,7 @@ public class TrustAlertIT extends RestITBase {
         TrustAlertDisplayDto alert = objectMapper.convertValue(result.getItems().stream().findFirst().get(), TrustAlertDisplayDto.class);
         assertAll(
             () -> assertEquals(trustAlertB.getAlertType(), alert.getAlertType()),
+            () -> assertEquals(trustAlertB.getAlertType().getDescription(), alert.getAlertType().getDescription()),
             () -> assertTrue(Math.abs(
                 trustAlertB.getCreatedAt().toEpochMilli() - alert.getCreatedAt().toEpochMilli()) < 1),
             () -> assertEquals(trustAlertB.getVolunteer().getId(), alert.getVolunteerDto().getId())
