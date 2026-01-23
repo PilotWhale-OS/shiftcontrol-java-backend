@@ -63,7 +63,7 @@ public interface AssignmentService {
      *
      * @param assignment to dissolve
      */
-    void unassign(Assignment assignment);
+    void unassignInternal(Assignment assignment);
 
     /**
      * unassign all volunteers from auctions and declines join requests for a given shift plan.
