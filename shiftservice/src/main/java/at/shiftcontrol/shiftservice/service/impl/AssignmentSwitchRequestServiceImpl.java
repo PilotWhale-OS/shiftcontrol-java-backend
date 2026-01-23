@@ -25,7 +25,7 @@ import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.TradeEvent;
-import at.shiftcontrol.lib.exception.IllegalArgumentException;
+import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
@@ -86,7 +86,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
         // check if user is already assigned to requested position slot
         if (assignedVolunteers.stream().anyMatch(v -> currentUserId.equals(v.getId()))) {
-            throw new IllegalArgumentException("already assigned to position slot");
+            throw new StateViolationException("You are already assigned to this slot");
         }
 
         // only check for locked, eligibility and conflict of current user when creating actual trade
@@ -185,13 +185,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         PositionSlot offeredPositionSlot = positionSlotDao.getById(ConvertUtil.idToLong(tradeCreateDto.getOfferedPositionSlotId()));
         // check if shifts are locked
         if (LockStatusHelper.isLocked(requestedPositionSlot) || LockStatusHelper.isLocked(offeredPositionSlot)) {
-            throw new StateViolationException("trade not possible, shift plan is locked");
+            throw new StateViolationException("Trade not possible, shift plan is locked");
         }
 
         Assignment offeredAssignment = offeredPositionSlot.getAssignments().stream()
             .filter(assignment -> assignment.getAssignedVolunteer().getId().equals(currentUser.getId())
                 && assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT).findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("not assigned to offered Position"));
+            .orElseThrow(() -> new ForbiddenException("You are not assigned to the offered position"));
 
         // check if eligible and for conflicts
         validateTradePossible(offeredPositionSlot, requestedPositionSlot, currentUser);
@@ -269,23 +269,23 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         // check if volunteer is owner of requested slot
         if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
-            throw new StateViolationException("current user is not part of the trade");
+            throw new ForbiddenException("Trade cannot be accepted, because you are not part of it");
         }
 
         // check if shift is locked
         if (LockStatusHelper.isLocked(trade)) {
-            throw new StateViolationException("trade not possible, shift is locked");
+            throw new StateViolationException("Trade not possible, shift is locked");
         }
 
         // check if trade is open
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
-            throw new StateViolationException("trade not open");
+            throw new StateViolationException("Trade is not open");
         }
 
         // check if none of assignment is in request signup status
         if (trade.getRequestedAssignment().getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT
             || trade.getOfferingAssignment().getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
-            throw new IllegalStateException("trade not possible, one volunteer is not assigned anymore");
+            throw new StateViolationException("Trade not possible, one participant is not assigned anymore");
         }
 
         // check for access, eligibility and conflicts for both users
@@ -307,10 +307,10 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         // check if user can decline
         if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
-            throw new IllegalArgumentException("not involved in trade");
+            throw new ForbiddenException("Trade cannot be declined, because you are not part of it");
         }
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
-            throw new StateViolationException("trade not open");
+            throw new StateViolationException("Trade is not open");
         }
 
         trade.setStatus(TradeStatus.REJECTED);
@@ -330,10 +330,10 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         // check if user can cancel
         if (!trade.getOfferingAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
-            throw new IllegalArgumentException("not involved in trade");
+            throw new ForbiddenException("Trade cannot be canceled, because you are not part of it");
         }
         if (!trade.getStatus().equals(TradeStatus.OPEN)) {
-            throw new StateViolationException("trade not open");
+            throw new StateViolationException("Trade is not open");
         }
 
         trade.setStatus(TradeStatus.CANCELED);
@@ -357,12 +357,12 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     private void validateTradePossible(PositionSlot ownedSlot, PositionSlot slotToBeTaken, Volunteer volunteer) {
         // check if position slots belong to same shift plan
-        if (ownedSlot.getShift().getShiftPlan().getId() != slotToBeTaken.getShift().getShiftPlan().getId()) {
-            throw new IllegalArgumentException("position slots belong to different shift plans");
+        if (ownedSlot.getShift().getShiftPlan().getEvent().getId() != slotToBeTaken.getShift().getShiftPlan().getEvent().getId()) {
+            throw new StateViolationException("Trade cannot be created across different events");
         }
 
         // check if volunteer has access to shift plan
-        securityHelper.assertUserIsVolunteer(slotToBeTaken, true);
+        securityHelper.assertVolunteerIsVolunteer(slotToBeTaken, volunteer);
 
         // check if user is eligible for the requested position slot
         eligibilityService.validateIsEligibleAndNotSignedUp(slotToBeTaken, volunteer);

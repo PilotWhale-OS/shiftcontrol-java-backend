@@ -22,7 +22,6 @@ import at.shiftcontrol.lib.event.events.PreferenceEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
-import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -240,7 +239,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // get auction-assignment
         Assignment auction = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
         if (!AssignmentStatus.ACTIVE_AUCTION_STATES.contains(auction.getStatus())) {
-            throw new BadRequestException("assignment not up for auction");
+            throw new BadRequestException("Assignment is not up for auction");
         }
         // check if current user is volunteer in plan
         securityHelper.assertUserIsVolunteer(auction.getPositionSlot(), true);
@@ -269,7 +268,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             securityHelper.assertUserIsVolunteer(assignment.getPositionSlot(), true);
         }
         if (!AssignmentStatus.ACTIVE_AUCTION_STATES.contains(assignment.getStatus())) {
-            throw new BadRequestException("assignment not up for auction");
+            throw new BadRequestException("Assignment is not up for auction");
         }
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignment = assignmentDao.save(assignment);
@@ -288,7 +287,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsVolunteer(positionSlot, true);
         if (preference < -10 || preference > 10) {
-            throw new BadRequestException("preference must be between -10 and 10");
+            throw new IllegalArgumentException("Preference must be between -10 and 10");
         }
         positionSlotDao.setPreference(currentUserId, positionSlotId, preference);
         publisher.publishEvent(PreferenceEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
@@ -329,7 +328,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot) {
         if (modificationDto == null) {
-            throw new BadRequestException("Modification data must be provided");
+            throw new IllegalArgumentException("Modification data must be provided");
         }
         positionSlot.setName(modificationDto.getName());
         positionSlot.setDescription(modificationDto.getDescription());
