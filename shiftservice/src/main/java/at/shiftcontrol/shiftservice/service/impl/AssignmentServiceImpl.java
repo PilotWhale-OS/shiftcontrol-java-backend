@@ -103,7 +103,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public Assignment accept(Assignment assignment) {
         if (assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
-            throw new IllegalArgumentException("Assignment must be a an assignment request");
+            throw new IllegalArgumentException("Assignment must be an assignment request");
         }
 
         // update reward points
