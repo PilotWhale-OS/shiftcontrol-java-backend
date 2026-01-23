@@ -33,6 +33,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mockito;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

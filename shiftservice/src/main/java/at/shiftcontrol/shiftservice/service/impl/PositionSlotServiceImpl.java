@@ -20,6 +20,7 @@ import at.shiftcontrol.lib.event.events.PositionSlotEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.event.events.PreferenceEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.LockStatus;

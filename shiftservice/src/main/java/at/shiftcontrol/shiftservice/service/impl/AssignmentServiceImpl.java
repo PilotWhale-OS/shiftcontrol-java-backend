@@ -19,6 +19,7 @@ import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;

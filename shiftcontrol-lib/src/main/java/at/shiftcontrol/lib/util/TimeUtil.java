@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TimeUtil {
     private static final ZoneId VIENNA_ZONE_ID = ZoneId.of("Europe/Vienna");
