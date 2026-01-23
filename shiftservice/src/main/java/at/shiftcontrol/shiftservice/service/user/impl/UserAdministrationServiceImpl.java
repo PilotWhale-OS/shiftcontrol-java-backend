@@ -282,19 +282,25 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     }
 
     private void removePlans(Volunteer volunteer, Set<Long> volunteerToRemove, Set<Long> planningToRemove) {
-        if (volunteer.getVolunteeringPlans() != null) {
-            volunteer.getVolunteeringPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
+
+        /* demote always possible */
+        if (volunteer.getPlanningPlans() != null) {
+            volunteer.getPlanningPlans().removeIf(x -> planningToRemove.contains(x.getId()));
         }
+
+        /* only allow complete removal from plan if no assignments left */
         if (volunteer.getVolunteeringPlans() != null) {
-            volunteer.getLockedPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
-        }
-        if (volunteer.getVolunteeringPlans() != null) {
-            volunteer.getPlanningPlans().removeIf(plan -> {
-                if (planningToRemove.contains(plan.getId()) && !assignmentService.getAllAssignmentsForUser(plan, volunteer).isEmpty()) {
+            volunteer.getVolunteeringPlans().removeIf(plan -> {
+                if (volunteerToRemove.contains(plan.getId()) && !assignmentService.getAllAssignmentsForUser(plan, volunteer).isEmpty()) {
                     throw new BadRequestException("Cannot remove a plan in which the user still has assignments.");
                 }
-                return planningToRemove.contains(plan.getId());
+                return volunteerToRemove.contains(plan.getId());
             });
+        }
+
+        /* if user is no longer registered in plan, remove from locked as well */
+        if (volunteer.getLockedPlans() != null) {
+            volunteer.getLockedPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
         }
     }
 

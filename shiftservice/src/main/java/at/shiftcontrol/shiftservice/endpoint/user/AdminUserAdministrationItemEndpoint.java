@@ -74,7 +74,7 @@ public class AdminUserAdministrationItemEndpoint {
 
     @PatchMapping("/reset")
     @Operation(
-        operationId = "resetUseeInPlan",
+        operationId = "resetUserInPlan",
         description = "Reset a user in a given plan"
     )
     public UserEventDto resetUserForPlan(
