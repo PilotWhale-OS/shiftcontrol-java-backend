@@ -94,7 +94,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
         //ACT: Do extra tasks for emergency constraints
         if (createDto.getType() == TimeConstraintType.EMERGENCY) {
-            handleConflictingAssignments(entity);
+            handleEmergencyConflictingAssignments(entity);
         }
 
         //NOTIFY: Publish event
@@ -102,7 +102,12 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         return TimeConstraintMapper.toDto(entity);
     }
 
-    private void handleConflictingAssignments(@NonNull TimeConstraint emergencyConstraint) {
+    /**
+     * Handles conflicting assignments for an EMERGENCY time constraint by unassigning or marking them for unassignment.
+     *
+     * @param emergencyConstraint The EMERGENCY time constraint that may conflict with existing assignments.
+     */
+    private void handleEmergencyConflictingAssignments(@NonNull TimeConstraint emergencyConstraint) {
         var volunteerId = emergencyConstraint.getVolunteer().getId();
         var from = emergencyConstraint.getStartTime();
         var to = emergencyConstraint.getEndTime();

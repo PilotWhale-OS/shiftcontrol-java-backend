@@ -53,6 +53,7 @@ public interface AssignmentService {
     Assignment assign(PositionSlot positionSlot, Volunteer volunteer, PositionSlotRequestDto requestDto);
 
     /**
+     * <b>NO VALIDATION!</b><br/>
      * unassigns the volunteer from the position slot.
      * deletes dependent trades and the assignment itself in the process
      * updates reward points & publishes event
