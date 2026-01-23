@@ -14,11 +14,13 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.PositionSignupState;
+import at.shiftcontrol.lib.type.TimeConstraintType;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
+import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
@@ -29,6 +31,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     private final VolunteerDao volunteerDao;
     private final PositionSlotDao positionSlotDao;
     private final AssignmentDao assignmentDao;
+    private final TimeConstraintDao timeConstraintDao;
 
     private final ApplicationUserProvider userProvider;
 
@@ -59,6 +62,23 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.NOT_ELIGIBLE;
         }
 
+        var conflictingConstraint =
+            timeConstraintDao.findByPositionSlotIdVolunteerIdAndType(positionSlot.getId(), volunteer.getId(), TimeConstraintType.UNAVAILABLE);
+        if (conflictingConstraint.isPresent()) {
+            return PositionSignupState.TIME_CONFLICT_TIME_CONSTRAINT;
+        }
+
+        var conflictingAssignments = assignmentDao.getConflictingAssignmentsExcludingSlot(
+            volunteer.getId(),
+            positionSlot.getShift().getStartTime(),
+            positionSlot.getShift().getEndTime(),
+            positionSlot.getId()
+        );
+        if (!conflictingAssignments.isEmpty()) {
+            return PositionSignupState.TIME_CONFLICT_ASSIGNMENT;
+        }
+
+        //Positive cases
         if (hasAuction(positionSlot)) {
             return PositionSignupState.SIGNUP_VIA_AUCTION;
         }

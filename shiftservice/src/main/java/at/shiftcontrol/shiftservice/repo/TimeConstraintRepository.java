@@ -44,4 +44,20 @@ public interface TimeConstraintRepository extends JpaRepository<TimeConstraint, 
           AND tc.type = :type
         """)
     Optional<TimeConstraint> findByAssignmentIdAndType(long assignmentId, TimeConstraintType type);
+
+    @Query("""
+        SELECT tc
+        FROM TimeConstraint tc
+        WHERE tc.volunteer.id = :volunteerId
+          AND tc.type = :type
+          AND EXISTS (
+              SELECT 1
+              FROM PositionSlot ps
+              JOIN ps.shift s
+              WHERE ps.id = :positionSlotId
+                AND tc.event = s.shiftPlan.event
+                AND tc.startTime <= s.endTime AND tc.endTime >= s.startTime
+          )
+        """)
+    Optional<TimeConstraint> findByPositionSlotIdVolunteerIdAndType(long positionSlotId, String volunteerId, TimeConstraintType type);
 }

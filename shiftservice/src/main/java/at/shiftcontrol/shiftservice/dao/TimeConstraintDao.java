@@ -12,4 +12,6 @@ public interface TimeConstraintDao extends BasicDao<TimeConstraint, Long> {
     Collection<TimeConstraint> searchByVolunteerAndEventAndType(String volunteerId, long eventId, TimeConstraintType type);
 
     Optional<TimeConstraint> findByAssignmentIdAndType(long assignmentId, TimeConstraintType type);
+
+    Optional<TimeConstraint> findByPositionSlotIdVolunteerIdAndType(long positionSlotId, String volunteerId, TimeConstraintType type);
 }
