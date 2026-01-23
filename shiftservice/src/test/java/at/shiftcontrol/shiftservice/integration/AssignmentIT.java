@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.integration;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -7,7 +8,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,24 +21,26 @@ import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.LockStatus;
+import at.shiftcontrol.lib.type.TimeConstraintType;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
+import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import at.shiftcontrol.shiftservice.dto.rewardpoints.TotalPointsDto;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
+import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-class PositionSlotIT extends RestITBase {
+class AssignmentIT extends RestITBase {
     private static final String POSITIONSLOT_PATH = "/position-slots";
     private static final String SHIFT_POSITIONSLOT_PATH = "shifts/%d/position-slots";
     private static final String REWARDPOINTS_PATH = "/reward-points";
@@ -66,6 +68,9 @@ class PositionSlotIT extends RestITBase {
     @Autowired
     UserAttributeProvider userAttributeProvider;
 
+    @Autowired
+    private TimeConstraintRepository timeConstraintRepository;
+
     private Event eventA;
     private ShiftPlan shiftPlanA, shiftPlanB;
     private Shift shiftA, shiftB, shiftC;
@@ -81,6 +86,7 @@ class PositionSlotIT extends RestITBase {
         positionSlotRepository.deleteAll();
         shiftRepository.deleteAll();
         shiftPlanRepository.deleteAll();
+        timeConstraintRepository.deleteAll();
         eventRepository.deleteAll();
         volunteerRepository.deleteAll();
         assignmentRepository.deleteAll();
@@ -290,6 +296,7 @@ class PositionSlotIT extends RestITBase {
         userAttributeProvider.invalidateUserCaches(Set.of(volunteerA.getId(), volunteerB.getId()));
         assignmentRepository.deleteAll();
         positionSlotRepository.deleteAll();
+        timeConstraintRepository.deleteAll();
         eventRepository.deleteAll();
         shiftPlanRepository.deleteAll();
         shiftRepository.deleteAll();
@@ -297,160 +304,108 @@ class PositionSlotIT extends RestITBase {
     }
 
     @Test
-    void findEventByNonExistingIdReturnsNotFound() {
-        doRequestAsAssignedAndAssertMessage(Method.GET, POSITIONSLOT_PATH + "/999", "", NOT_FOUND.getStatusCode(), "PositionSlot not found.", true,
-            volunteerA.getId());
-    }
+    void createEmergencyTimeConstraint_unassignsFromAssignments() {
+        // We need to create a time constraint that unassigns the user from a shift.
+        // This only works for SELF_SIGNUP shift plans.
+        // shiftC is in shiftPlanB which is SELF_SIGNUP.
+        // volunteerB is part of shiftPlanB.
 
-    @Test
-    void findPositionSlotByIdReturnsPositionSlot() {
-        var response = getRequestAsAssigned(POSITIONSLOT_PATH + "/" + positionSlotA.getId(), PositionSlotDto.class, volunteerA.getId());
-
-        assertAll(
-            () -> assertThat(response).isNotNull(),
-            () -> assertThat(response.getId()).isEqualTo(String.valueOf(positionSlotA.getId())),
-            () -> assertThat(response.getName()).isEqualTo(positionSlotA.getName()),
-            () -> assertThat(response.getDescription()).isEqualTo(positionSlotA.getDescription()),
-            () -> assertThat(response.getDesiredVolunteerCount()).isEqualTo(positionSlotA.getDesiredVolunteerCount()),
-            () -> assertThat(response.isSkipAutoAssignment()).isEqualTo(positionSlotA.isSkipAutoAssignment()),
-            () -> assertThat(response.getRewardPointsDto().getOverrideRewardPoints()).isNull(),
-            () -> assertThat(response.getRewardPointsDto().getCurrentRewardPoints()).isEqualTo(10 * 60),
-            () -> assertThat(response.getRewardPointsDto().getRewardPointsConfigHash()).isNotBlank()
-        );
-    }
-
-    @Test
-    void auctionAssignmentForPositionSlotInSupervisedShiftPlanWorks() {
-        var response = patchRequestAsAssigned(
-            POSITIONSLOT_PATH + "/" + positionSlotA.getId() + "/auction",
-            "",
-            AssignmentDto.class,
-            volunteerA.getId()
-        );
-
-        assertAll(
-            () -> assertThat(response).isNotNull(),
-            () -> assertThat(response.getPositionSlotId()).isEqualTo(String.valueOf(positionSlotA.getId())),
-            () -> assertThat(response.getAssignedVolunteer().getId()).isEqualTo(volunteerA.getId()),
-            () -> assertThat(response.getStatus()).isEqualTo(AssignmentStatus.AUCTION),
-            () -> assertThat(response.getAcceptedRewardPoints()).isEqualTo(40) // unchanged from existing assignment
-        );
-    }
-
-    @Test
-    void claimAuctionForPositionSlotInSupervisedShiftPlanWorks() {
-        // get me endpoint reward points before auction/claim
-        var rewardPointsBeforeUserA = getRequestAsAssigned(
-            REWARDPOINTS_PATH,
-            TotalPointsDto.class,
-            volunteerA.getId()
-        );
-
-        var rewardPointsBeforeUserB = getRequestAsAssigned(
-            REWARDPOINTS_PATH,
-            TotalPointsDto.class,
-            volunteerB.getId()
-        );
-
-        // First put assignment up for auction as volunteerA
-        patchRequestAsAssigned(
-            POSITIONSLOT_PATH + "/" + positionSlotA.getId() + "/auction",
-            "",
-            AssignmentDto.class,
-            volunteerA.getId()
-        );
-
-        // user wants to see current position slot to know its details/reward points
-        var positionSlotBeforeClaim = getRequestAsAssigned(
-            POSITIONSLOT_PATH + "/" + positionSlotA.getId(),
-            PositionSlotDto.class,
-            volunteerB.getId()
-        );
-
-        // Then claim the auction as volunteerB
-        var response = putRequestAsAssigned(
-            POSITIONSLOT_PATH + "/" + positionSlotA.getId() + "/claim-auction/" + volunteerA.getId(),
-            new PositionSlotRequestDto(positionSlotBeforeClaim.getRewardPointsDto().getRewardPointsConfigHash()),
-            AssignmentDto.class,
-            volunteerB.getId()
-        );
-
-        var rewardPointsAfterUserA = getRequestAsAssigned(
-            REWARDPOINTS_PATH,
-            TotalPointsDto.class,
-            volunteerA.getId()
-        );
-
-        var rewardPointsAfterUserB = getRequestAsAssigned(
-            REWARDPOINTS_PATH,
-            TotalPointsDto.class,
-            volunteerB.getId()
-        );
-
-        // TODO also check here if assigments list of position slot of assigment has correct entries (old removed, new added)
-        assertAll(
-            () -> assertThat(response).isNotNull(),
-            () -> assertThat(response.getPositionSlotId()).isEqualTo(String.valueOf(positionSlotA.getId())),
-            () -> assertThat(response.getAssignedVolunteer().getId()).isEqualTo(volunteerB.getId()),
-            () -> assertThat(response.getStatus()).isEqualTo(AssignmentStatus.ACCEPTED),
-            () -> assertThat(response.getAcceptedRewardPoints()).isEqualTo(10 * 60), // recalculated for new volunteer
-            () -> assertThat(rewardPointsAfterUserA).isNotEqualTo(rewardPointsBeforeUserA),
-            () -> assertThat(rewardPointsAfterUserA.getTotalPoints()).isEqualTo(
-                rewardPointsBeforeUserA.getTotalPoints() - assignmentA.getAcceptedRewardPoints()),
-            () -> assertThat(rewardPointsAfterUserB).isNotEqualTo(rewardPointsBeforeUserB),
-            () -> assertThat(rewardPointsAfterUserB.getTotalPoints()).isEqualTo(rewardPointsBeforeUserB.getTotalPoints() + (10 * 60))
-        );
-    }
-
-    @Test
-    void joinAndLeaveMultipleTimesWorks() {
-        var positionSlotBeforeJoin = getRequestAsAssigned(
+        // 1. Assign volunteerB to a position slot in a SELF_SIGNUP shift plan (positionSlotC)
+        var positionSlotDto = getRequestAsAssigned(
             POSITIONSLOT_PATH + "/" + positionSlotC.getId(),
             PositionSlotDto.class,
             volunteerB.getId()
         );
-        var requestDto = new PositionSlotRequestDto(positionSlotBeforeJoin.getRewardPointsDto().getRewardPointsConfigHash());
+        var requestDto = new PositionSlotRequestDto(positionSlotDto.getRewardPointsDto().getRewardPointsConfigHash());
 
-        var resultJoin1 = postRequestAsAssigned(
+        var assignmentDto = postRequestAsAssigned(
             JOIN_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
             requestDto,
             AssignmentDto.class,
             volunteerB.getId()
         );
 
-        Assertions.assertNotNull(resultJoin1);
-        Assertions.assertEquals(AssignmentStatus.ACCEPTED, resultJoin1.getStatus());
-        Assertions.assertEquals(String.valueOf(positionSlotC.getId()), resultJoin1.getPositionSlotId());
-        Assertions.assertEquals(volunteerB.getId(), resultJoin1.getAssignedVolunteer().getId());
+        Assertions.assertNotNull(assignmentDto);
+        Assertions.assertTrue(assignmentRepository.findById(ConvertUtil.idToLong(assignmentDto.getId())).isPresent());
 
-        deleteRequestAsAssigned(
-            LEAVE_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
-            "",
-            null,
+        // 2. Create an EMERGENCY time constraint that conflicts with the shift
+        var shift = shiftRepository.findById(positionSlotC.getShift().getId()).orElseThrow();
+        var eventId = shift.getShiftPlan().getEvent().getId();
+
+        //Start and end time that fully covers the shift and is always from midnight to midnight
+        var startTime = LocalDate.ofInstant(shift.getStartTime(), ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
+        var endTime = LocalDate.ofInstant(shift.getStartTime(), ZoneOffset.UTC).atStartOfDay().plusDays(1).toInstant(ZoneOffset.UTC);
+
+        var timeConstraintCreateDto = new TimeConstraintCreateDto(
+            TimeConstraintType.EMERGENCY,
+            startTime,
+            endTime
+        );
+
+        postRequestAsAssigned(
+            "/events/" + eventId + "/time-constraints",
+            timeConstraintCreateDto,
+            TimeConstraintDto.class,
             volunteerB.getId()
         );
 
-        Assertions.assertFalse(assignmentRepository.findById(ConvertUtil.idToLong(resultJoin1.getId())).isPresent());
+        // 3. Verify that the assignment has been removed
+        Assertions.assertFalse(assignmentRepository.findById(ConvertUtil.idToLong(assignmentDto.getId())).isPresent());
+    }
 
-        var resultJoin2 = postRequestAsAssigned(
+    @Test
+    void createEmergencyTimeConstraint_requestsUnassignFromAssignments_whenShiftPlanSupervised() {
+        // We need to create a time constraint that sets the assignment to AUCTION_REQUEST_FOR_UNASSIGN for the user from a shift.
+        // This only works for SUPERVISED shift plans.
+        // shiftC is in shiftPlanB which is SELF_SIGNUP.
+        // volunteerB is part of shiftPlanB.
+
+        // 1. Assign volunteerB to a position slot in a SELF_SIGNUP shift plan (positionSlotC)
+        var positionSlotDto = getRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotC.getId(),
+            PositionSlotDto.class,
+            volunteerB.getId()
+        );
+        var requestDto = new PositionSlotRequestDto(positionSlotDto.getRewardPointsDto().getRewardPointsConfigHash());
+
+        var assignmentDto = postRequestAsAssigned(
             JOIN_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
             requestDto,
             AssignmentDto.class,
             volunteerB.getId()
         );
 
-        Assertions.assertNotNull(resultJoin2);
-        Assertions.assertEquals(AssignmentStatus.ACCEPTED, resultJoin2.getStatus());
-        Assertions.assertEquals(String.valueOf(positionSlotC.getId()), resultJoin2.getPositionSlotId());
-        Assertions.assertEquals(volunteerB.getId(), resultJoin2.getAssignedVolunteer().getId());
+        Assertions.assertNotNull(assignmentDto);
+        Assertions.assertTrue(assignmentRepository.findById(ConvertUtil.idToLong(assignmentDto.getId())).isPresent());
 
-        deleteRequestAsAssigned(
-            LEAVE_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
-            "",
-            null,
+        // 2. Set the shift plan to SUPERVISED
+        var shift = shiftRepository.findById(positionSlotC.getShift().getId()).orElseThrow();
+        var shiftPlan = shift.getShiftPlan();
+        shiftPlan.setLockStatus(LockStatus.SUPERVISED);
+        shiftPlanRepository.save(shiftPlan);
+
+        // 3. Create an EMERGENCY time constraint that conflicts with the shift
+        var eventId = shift.getShiftPlan().getEvent().getId();
+
+        //Start and end time that fully covers the shift and is always from midnight to midnight
+        var startTime = LocalDate.ofInstant(shift.getStartTime(), ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
+        var endTime = LocalDate.ofInstant(shift.getStartTime(), ZoneOffset.UTC).atStartOfDay().plusDays(1).toInstant(ZoneOffset.UTC);
+
+        var timeConstraintCreateDto = new TimeConstraintCreateDto(
+            TimeConstraintType.EMERGENCY,
+            startTime,
+            endTime
+        );
+
+        postRequestAsAssigned(
+            "/events/" + eventId + "/time-constraints",
+            timeConstraintCreateDto,
+            TimeConstraintDto.class,
             volunteerB.getId()
         );
 
-        Assertions.assertFalse(assignmentRepository.findById(ConvertUtil.idToLong(resultJoin2.getId())).isPresent());
+        // 4. Verify that the assignment has been updated to AUCTION_REQUEST_FOR_UNASSIGN
+        var updatedAssignment = assignmentRepository.findById(ConvertUtil.idToLong(assignmentDto.getId())).orElseThrow();
+        Assertions.assertEquals(AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN, updatedAssignment.getStatus());
     }
 }
