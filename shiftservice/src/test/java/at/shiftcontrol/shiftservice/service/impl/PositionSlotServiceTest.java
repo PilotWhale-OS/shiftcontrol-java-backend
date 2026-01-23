@@ -15,11 +15,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.exception.ConflictException;
+import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
@@ -29,7 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
-@WithMockUser(authorities = "USER")
+@WithMockUser(authorities = { "USER", Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS })
 public class PositionSlotServiceTest {
 
     @Autowired
@@ -38,6 +40,8 @@ public class PositionSlotServiceTest {
     private AssignmentRepository assignmentRepository;
     @Autowired
     TestEntityFactory testEntityFactory;
+    @Autowired
+    private TimeConstraintDao timeConstraintDao;
 
     @MockitoBean
     KeycloakUserService keycloakUserService;
@@ -114,15 +118,21 @@ public class PositionSlotServiceTest {
 
     @Test
     @Transactional
-    void testJoinDoubleCausesConflict() throws ForbiddenException, NotFoundException {
+    void testJoin() throws ForbiddenException, NotFoundException {
         long positionSlotId = 1L;
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         Mockito.when(keycloakUserService.getUserById(any()))
             .thenReturn(testEntityFactory.getUserRepresentationWithId(userId));
 
-        PositionSlotRequestDto dto = testEntityFactory.getPositionSlotRequestDto(positionSlotId);
+        //Prepare db... .-.
+        timeConstraintDao.delete(TimeConstraint.builder().id(1L).build());
 
-        Assertions.assertThrows(ConflictException.class, () -> positionSlotService.join(positionSlotId, userId, dto));
+        PositionSlotRequestDto dto = testEntityFactory.getPositionSlotRequestDto(positionSlotId);
+        AssignmentDto assignment = positionSlotService.join(positionSlotId, userId, dto);
+
+        Assertions.assertNotNull(assignment);
+        Assertions.assertEquals(userId, assignment.getAssignedVolunteer().getId());
+        Assertions.assertEquals(String.valueOf(positionSlotId), assignment.getPositionSlotId());
     }
 
     @Test
