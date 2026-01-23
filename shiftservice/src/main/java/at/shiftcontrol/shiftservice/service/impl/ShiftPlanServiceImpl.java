@@ -25,6 +25,7 @@ import at.shiftcontrol.lib.event.events.ShiftPlanInviteEvent;
 import at.shiftcontrol.lib.event.events.ShiftPlanVolunteerEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.exception.UnauthorizedException;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.ShiftPlanInviteType;
@@ -94,6 +95,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @AdminOnly
     public ShiftPlanCreateDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
+        validateUniqueNameInEvent(eventId, modificationDto.getName(), null);
+
         var plan = ShiftPlanMapper.toShiftPlan(modificationDto);
         plan.setEvent(event);
         plan.setLockStatus(SELF_SIGNUP);
@@ -134,11 +137,24 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @AdminOnly
     public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) {
         var plan = shiftPlanDao.getById(shiftPlanId);
+        validateUniqueNameInEvent(plan.getEvent().getId(), modificationDto.getName(), shiftPlanId);
+
         ShiftPlanMapper.updateShiftPlan(modificationDto, plan);
         shiftPlanDao.save(plan);
         publisher.publishEvent(ShiftPlanEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_UPDATED,
             Map.of("shiftPlanId", String.valueOf(shiftPlanId))), plan));
         return ShiftPlanMapper.toShiftPlanDto(plan);
+    }
+
+    void validateUniqueNameInEvent(long eventId, String name, Long excludeShiftPlanId) {
+        var shiftPlansInEvent = shiftPlanDao.findByEventId(eventId);
+        boolean nameExists = shiftPlansInEvent.stream()
+            .anyMatch(shiftPlan -> shiftPlan.getName() != null
+                && shiftPlan.getName().equalsIgnoreCase(name)
+                && (excludeShiftPlanId == null || shiftPlan.getId() != excludeShiftPlanId));
+        if (nameExists) {
+            throw new BadRequestException("A shift plan with the given name already exists in the event");
+        }
     }
 
     @Override
@@ -305,7 +321,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
             case PLANNER_JOIN -> {
                 return shiftPlan.getPlanPlanners().contains(volunteer);
             }
-            default -> throw new BadRequestException("Unknown invite type");
+            default -> throw new IllegalStateException("Unknown invite type: " + type);
         }
     }
 
@@ -403,7 +419,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 }
                 return true;
             }
-            default -> throw new BadRequestException("Unknown invite type");
+            default -> throw new IllegalStateException("Unknown invite type: " + type);
         }
     }
 

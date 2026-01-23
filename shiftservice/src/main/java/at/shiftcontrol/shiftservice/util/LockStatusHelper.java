@@ -5,6 +5,7 @@ import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.type.LockStatus;
 
 public class LockStatusHelper {
@@ -56,10 +57,10 @@ public class LockStatusHelper {
 
     public static void assertIsSupervisedWithMessage(ShiftPlan shiftPlan, String triedAction) {
         if (isLocked(shiftPlan)) {
-            throw new IllegalStateException(triedAction + " not possible, shift plan is locked");
+            throw new StateViolationException(triedAction + " not possible, shift plan is locked");
         }
         if (isSelfSignup(shiftPlan)) {
-            throw new IllegalStateException(triedAction + " not possible, shift plan is for self signup");
+            throw new StateViolationException(triedAction + " not possible, shift plan is for self signup");
         }
     }
 
@@ -95,10 +96,10 @@ public class LockStatusHelper {
 
     public static void assertIsSelfSignUpWithMessage(ShiftPlan shiftPlan, String triedAction) {
         if (isLocked(shiftPlan)) {
-            throw new IllegalStateException(triedAction + " not possible, shift plan is locked");
+            throw new StateViolationException(triedAction + " not possible, shift plan is locked");
         }
         if (isSupervised(shiftPlan)) {
-            throw new IllegalStateException(triedAction + " not possible, shift plan is supervised");
+            throw new StateViolationException(triedAction + " not possible, shift plan is supervised");
         }
     }
 

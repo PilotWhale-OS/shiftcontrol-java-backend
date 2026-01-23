@@ -33,6 +33,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mockito;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -223,6 +224,10 @@ public abstract class RestITBase {
 
     public <T> T postRequestAsAdmin(String uri, Object body, Class<T> expected) {
         return doRequest(Method.POST, uri, body, new HashMap<>(), asAdminHeaders(), 200, expected);
+    }
+
+    public <T> T postRequestAsAdmin(String uri, Object body, Class<T> expected, int expectedStatusCode) {
+        return doRequest(Method.POST, uri, body, new HashMap<>(), asAdminHeaders(), expectedStatusCode, expected);
     }
 
     public <T> T deleteRequest(final String uri) {

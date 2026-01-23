@@ -3,6 +3,12 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.LocationEvent;
@@ -16,10 +22,6 @@ import at.shiftcontrol.shiftservice.dto.location.LocationSearchDto;
 import at.shiftcontrol.shiftservice.mapper.LocationMapper;
 import at.shiftcontrol.shiftservice.service.LocationService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +56,8 @@ public class LocationServiceImpl implements LocationService {
     public LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
 
+        validateNameUniquenessInEvent(eventId, modificationDto.getName(), null);
+
         var newLocation = Location.builder()
             .event(event)
             .name(modificationDto.getName())
@@ -64,7 +68,7 @@ public class LocationServiceImpl implements LocationService {
 
         newLocation = locationDao.save(newLocation);
 
-        publisher.publishEvent(LocationEvent.of(RoutingKeys.LOCATION_CREATED, newLocation));
+        publisher.publishEvent(LocationEvent.forCreated(newLocation));
         return LocationMapper.toLocationDto(newLocation);
     }
 
@@ -78,15 +82,23 @@ public class LocationServiceImpl implements LocationService {
             throw new BadRequestException("Cannot modify read-only location");
         }
 
+        validateNameUniquenessInEvent(location.getEvent().getId(), modificationDto.getName(), locationId);
+
         location.setName(modificationDto.getName());
         location.setDescription(modificationDto.getDescription());
         location.setUrl(modificationDto.getUrl());
 
         location = locationDao.save(location);
 
-        publisher.publishEvent(LocationEvent.of(RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
-            Map.of("locationId", String.valueOf(locationId))), location));
+        publisher.publishEvent(LocationEvent.forUpdated(location));
         return LocationMapper.toLocationDto(location);
+    }
+
+    void validateNameUniquenessInEvent(long eventId, String name, Long excludeLocationId) {
+        var locationOpt = locationDao.findByEventAndName(eventId, name);
+        if (locationOpt.isPresent() && (excludeLocationId == null || locationOpt.get().getId() != excludeLocationId)) {
+            throw new BadRequestException("Location name must be unique within an event");
+        }
     }
 
     @Override

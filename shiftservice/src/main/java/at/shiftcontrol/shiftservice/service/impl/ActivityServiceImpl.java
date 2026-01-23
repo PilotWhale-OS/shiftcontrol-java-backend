@@ -5,6 +5,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.event.RoutingKeys;
@@ -22,11 +29,6 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -66,11 +68,14 @@ public class ActivityServiceImpl implements ActivityService {
             .readOnly(false)
             .build();
 
+        //VALIDATION
+        validateNameUniquenessInEvent(eventId, modificationDto.getName(), null);
         var activity = validateModificationDtoAndSetActivityFields(modificationDto, newActivity);
 
+        //ACT
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.of(RoutingKeys.ACTIVITY_CREATED, activity));
+        publisher.publishEvent(ActivityEvent.forCreated(activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -79,12 +84,13 @@ public class ActivityServiceImpl implements ActivityService {
     public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) {
         var activity = activityDao.getById(activityId);
 
+        //VALIDATION
+        validateNameUniquenessInEvent(activity.getEvent().getId(), modificationDto.getName(), activityId);
         activity = validateModificationDtoAndSetActivityFields(modificationDto, activity);
 
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.of(RoutingKeys.format(RoutingKeys.ACTIVITY_UPDATED,
-            Map.of("activityId", String.valueOf(activityId))), activity));
+        publisher.publishEvent(ActivityEvent.forUpdated(activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -106,6 +112,17 @@ public class ActivityServiceImpl implements ActivityService {
         }
 
         return ActivityMapper.updateActivity(modificationDto, location, activity);
+    }
+
+    void validateNameUniquenessInEvent(long eventId, String name, Long excludeActivityId) {
+        var activitiesInEvent = activityDao.findAllByEventId(eventId);
+        boolean nameExists = activitiesInEvent.stream()
+            .anyMatch(activity -> activity.getName() != null
+                && activity.getName().equalsIgnoreCase(name)
+                && (excludeActivityId == null || activity.getId() != excludeActivityId));
+        if (nameExists) {
+            throw new BadRequestException("An activity with the given name already exists in the event");
+        }
     }
 
     @Override

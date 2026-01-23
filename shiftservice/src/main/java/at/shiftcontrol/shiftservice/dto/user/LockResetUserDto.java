@@ -1,5 +1,8 @@
 package at.shiftcontrol.shiftservice.dto.user;
 
+import java.util.Collection;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LockUserDto {
-    private String shiftPlanId;
+public class LockResetUserDto {
+    @NotNull
+    private Collection<String> shiftPlanIds;
 }

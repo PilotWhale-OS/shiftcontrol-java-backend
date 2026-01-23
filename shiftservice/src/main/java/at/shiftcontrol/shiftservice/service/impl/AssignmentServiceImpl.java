@@ -19,6 +19,7 @@ import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -77,12 +78,11 @@ public class AssignmentServiceImpl implements AssignmentService {
         return trade;
     }
 
-    private void cancelOtherTrades(AssignmentSwitchRequest trade) {
+    @Override
+    public void cancelOtherTrades(AssignmentSwitchRequest trade) {
         // this trade does not need to be excluded because it will be set to ACCEPTED in the next step
-        assignmentSwitchRequestDao.cancelTradesForAssignment(
-            trade.getRequestedAssignment().getPositionSlot().getId(), trade.getRequestedAssignment().getAssignedVolunteer().getId());
-        assignmentSwitchRequestDao.cancelTradesForAssignment(
-            trade.getOfferingAssignment().getPositionSlot().getId(), trade.getOfferingAssignment().getAssignedVolunteer().getId());
+        assignmentSwitchRequestDao.cancelTradesForAssignment(trade.getRequestedAssignment());
+        assignmentSwitchRequestDao.cancelTradesForAssignment(trade.getOfferingAssignment());
     }
 
     /**
@@ -104,7 +104,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public Assignment accept(Assignment assignment) {
         if (assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
-            throw new IllegalArgumentException("Assignment must be a request for assignment");
+            throw new IllegalArgumentException("Assignment must be an assignment request");
         }
 
         // update reward points
@@ -144,19 +144,21 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void unassign(Assignment assignment) {
-        // update reward points
+    public void unassignInternal(Assignment assignment) {
+        //ACT: update reward points
         rewardPointsService.onAssignmentRemoved(
             assignment
         );
 
+        //ACT: cancel trades & remove assignment
+        assignmentSwitchRequestDao.cancelTradesForAssignment(assignment);
+        assignmentDao.delete(assignment);
+
+        //NOTIFY: publish event
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
                     "volunteerId", assignment.getAssignedVolunteer().getId())),
             assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
-
-        // leave
-        assignmentDao.delete(assignment);
     }
 
     @Override
@@ -194,5 +196,10 @@ public class AssignmentServiceImpl implements AssignmentService {
         });
 
         assignmentDao.deleteAll(requests);
+    }
+
+    @Override
+    public Collection<Assignment> getAllAssignmentsForUser(ShiftPlan plan, Volunteer volunteer) {
+        return assignmentDao.findAssignmentsForShiftPlanAndUser(plan.getId(), volunteer.getId());
     }
 }

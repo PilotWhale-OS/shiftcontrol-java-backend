@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.auth.ApplicationUser;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 
 @Slf4j

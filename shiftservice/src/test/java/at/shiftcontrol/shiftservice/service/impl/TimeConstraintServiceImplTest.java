@@ -155,9 +155,6 @@ class TimeConstraintServiceImplTest {
             .to(Instant.parse("2030-01-02T00:00:00Z"))
             .build();
 
-        when(eventDao.getById(EVENT_ID)).thenReturn(new Event());
-        when(volunteerDao.getById(USER_ID)).thenReturn(mockVolunteerWithEvent());
-
         assertThatThrownBy(() -> service.createTimeConstraint(dto, USER_ID, EVENT_ID))
             .isInstanceOf(BadRequestException.class)
             .hasMessageContaining("whole days");

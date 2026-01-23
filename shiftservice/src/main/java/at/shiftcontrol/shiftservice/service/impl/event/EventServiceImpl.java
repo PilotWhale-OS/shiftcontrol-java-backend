@@ -8,6 +8,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.Event;
@@ -44,11 +51,6 @@ import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.SocialLinksParser;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -184,13 +186,14 @@ public class EventServiceImpl implements EventService {
     @AdminOnly
     public EventDto createEvent(@NonNull EventModificationDto modificationDto) {
         validateEventModificationDto(modificationDto);
+        validateNameUniqueness(modificationDto.getName(), null);
 
         Event event = EventMapper.toEvent(modificationDto);
         event = eventDao.save(event);
 
         syncSocialMediaLinks(event, modificationDto);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.EVENT_CREATED, event));
+        publisher.publishEvent(EventEvent.forEventCreated(event));
         return EventMapper.toEventDto(event);
     }
 
@@ -198,14 +201,22 @@ public class EventServiceImpl implements EventService {
     @AdminOnly
     public EventDto updateEvent(long eventId, @NonNull EventModificationDto modificationDto) {
         validateEventModificationDto(modificationDto);
+        validateNameUniqueness(modificationDto.getName(), eventId);
 
         Event event = eventDao.getById(eventId);
         EventMapper.updateEvent(event, modificationDto);
         syncSocialMediaLinks(event, modificationDto);
         eventDao.save(event);
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_UPDATED, Map.of("eventId", String.valueOf(eventId))), event));
+        publisher.publishEvent(EventEvent.forEventUpdated(event));
         return EventMapper.toEventDto(event);
+    }
+
+    private void validateNameUniqueness(String name, Long excludeEventId) {
+        var eventOpt = eventDao.findByName(name);
+        if (eventOpt.isPresent() && eventOpt.get().getId() != excludeEventId) {
+            throw new BadRequestException("An event with the given name already exists");
+        }
     }
 
     private void validateEventModificationDto(EventModificationDto modificationDto) {

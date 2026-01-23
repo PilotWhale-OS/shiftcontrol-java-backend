@@ -36,6 +36,7 @@
         <module>shiftcontrol-lib</module>
         <module>pretalx-client</module>
         <module>trustservice</module>
+        <module>auditlog</module>
     </modules>
 
     <build>

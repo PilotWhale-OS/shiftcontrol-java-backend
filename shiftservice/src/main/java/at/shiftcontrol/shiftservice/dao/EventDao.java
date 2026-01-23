@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
@@ -19,4 +20,6 @@ public interface EventDao extends BasicDao<Event, Long> {
     boolean existsByNameIgnoreCase(String name);
 
     Collection<PlanVolunteerIdRow> getPlannersForEventAndUser(long eventId, String userId);
+
+    Optional<Event> findByName(String name);
 }

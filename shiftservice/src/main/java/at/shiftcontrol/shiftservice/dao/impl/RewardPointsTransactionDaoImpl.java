@@ -6,9 +6,12 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.RewardPointsTransaction;
+import at.shiftcontrol.lib.exception.IllegalStateException;
+import at.shiftcontrol.lib.exception.UnsupportedOperationException;
 import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.EventPointsDto;
 import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
@@ -16,6 +19,7 @@ import at.shiftcontrol.shiftservice.repo.RewardPointTransactionRepository;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class RewardPointsTransactionDaoImpl implements RewardPointsTransactionDao {
     @Override
     public @NonNull String getName() {
@@ -46,7 +50,7 @@ public class RewardPointsTransactionDaoImpl implements RewardPointsTransactionDa
     @Override
     public void delete(RewardPointsTransaction entity) {
         // Ledger is append-only: deleting is not allowed by design.
-        throw new UnsupportedOperationException("RewardPointTransaction is append-only and cannot be deleted");
+        throw new UnsupportedOperationException("RewardPointTransaction is append-only and cannot be deleted", null);
     }
 
     @Override

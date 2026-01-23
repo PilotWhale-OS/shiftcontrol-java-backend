@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.repo;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -54,4 +55,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
           )
         """)
     Collection<Event> getAllOpenEventsForUser(String userId, Instant now);
+
+    @Query("SELECT e FROM Event e WHERE e.name = :name")
+    Optional<Event> findByName(String name);
 }

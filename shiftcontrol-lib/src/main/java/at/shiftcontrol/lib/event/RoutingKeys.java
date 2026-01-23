@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import lombok.NonNull;
 
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
+
 public final class RoutingKeys {
     private static final Pattern PLACEHOLDER = Pattern.compile("\\{([^}]+)}");
 
@@ -101,6 +103,7 @@ public final class RoutingKeys {
     public static final String USERS_EVENT_UPDATE = "users.{userId}";
     public static final String USERS_EVENT_LOCK = "users.{userId}.lock";
     public static final String USERS_EVENT_UNLOCK = "users.{userId}.lock";
+    public static final String USERS_RESET = "users.{userId}.reset";
 
     public static final String USERS_PLAN_BULK_ADD = "shift-plans.{shiftPlanId}.users.bulk.add";
     public static final String USERS_PLAN_BULK_REMOVE = "shift-plans.{shiftPlanId}.users.bulk.remove";

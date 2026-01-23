@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.sync.pretalx;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -48,7 +47,6 @@ public class PretalxApiKeyLoader {
         apiKeyCache.clear();
 
         var apiKeys = pretalxApiKeyRepository.findAll();
-        apiKeys = List.of(PretalxApiKey.builder().apiKey("hvha5l5clxescv75isqvs875j1gnpfn29r9hvy4r99w2txggv67lcvw3ggusafu4").build());
         for (var apiKey : apiKeys) {
             var eventsApi = pretalxApiSupplier.eventsApi(apiKey);
             var roomsApi = pretalxApiSupplier.roomsApi(apiKey);
@@ -61,8 +59,8 @@ public class PretalxApiKeyLoader {
                         roomsApi.roomsList(event.getSlug(), 1, null, 0, null);
                         return true;
                     } catch (RestClientResponseException e) {
-                        if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED) ||
-                            e.getStatusCode().isSameCodeAs(HttpStatus.FORBIDDEN)) {
+                        if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED)
+                            || e.getStatusCode().isSameCodeAs(HttpStatus.FORBIDDEN)) {
                             return false;
                         } else {
                             throw e;

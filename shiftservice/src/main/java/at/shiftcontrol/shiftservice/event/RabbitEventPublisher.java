@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.config.RabbitMqConfig;
@@ -31,10 +32,12 @@ public class RabbitEventPublisher {
     )
     private void publishEvent(BaseEvent event) {
         event.setTraceId(getTraceId());
-        event.setActingUserId(getCurrentUserId());
+        if (event.getActingUserId() != null) {
+            event.setActingUserId(getCurrentUserId());
+        }
         var routingKey = event.getRoutingKey();
         if (routingKey == null || routingKey.isBlank()) {
-            throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key");
+            throw new IllegalArgumentException("Event class " + event.getClass().getName() + " returned null or blank routing key", null);
         }
 
         log.trace("Publishing event to RabbitMQ with routing key {}: {}", ROUTING_KEY_PREFIX + routingKey, event);

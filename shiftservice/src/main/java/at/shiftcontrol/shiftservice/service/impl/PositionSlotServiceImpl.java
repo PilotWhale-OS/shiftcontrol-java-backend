@@ -20,6 +20,9 @@ import at.shiftcontrol.lib.event.events.PositionSlotEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.event.events.PreferenceEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
+import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -97,7 +100,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         LockStatusHelper.assertIsSelfSignUpWithMessage(assignment, "leave");
 
         // leave
-        assignmentService.unassign(assignment);
+        assignmentService.unassignInternal(assignment);
     }
 
     @Override
@@ -140,10 +143,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignmentDao.save(assignment);
 
         // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", currentUserId)),
-            assignment.getPositionSlot(), currentUserId));
+        publisher.publishEvent(PositionSlotVolunteerEvent.ofPositionSlotRequestLeave(assignment.getPositionSlot(), currentUserId));
     }
 
     @Override
@@ -253,7 +253,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         eligibilityService.validateHasConflictingAssignments(
             currentUser.getId(), auction.getPositionSlot());
         // cancel existing trades
-        assignmentSwitchRequestDao.cancelTradesForAssignment(positionSlotId, offeringUserId);
+        assignmentSwitchRequestDao.cancelTradesForPositionSlot(positionSlotId, offeringUserId);
         // execute claim
         Assignment claimedAuction = assignmentService.claimAuction(auction, currentUser, requestDto);
 

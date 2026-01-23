@@ -16,6 +16,8 @@ import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.exception.IllegalArgumentException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -68,12 +70,12 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         switch (assignment.getStatus()) {
             case ACCEPTED, AUCTION -> throw new IllegalArgumentException("Assignment is not acceptable");
             case AUCTION_REQUEST_FOR_UNASSIGN -> {
-                assignmentService.unassign(assignment);
+                assignmentService.unassignInternal(assignment);
                 routingKey = RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED;
             }
             case REQUEST_FOR_ASSIGNMENT -> {
                 if (!eligibilityService.hasCapacity(assignment.getPositionSlot())) {
-                    throw new IllegalStateException("Slot is already full");
+                    throw new IllegalArgumentException("Slot is already full");
                 }
                 assignmentService.accept(assignment);
                 routingKey = RoutingKeys.POSITIONSLOT_REQUEST_JOIN_ACCEPTED;
@@ -184,7 +186,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
 
         Collection<Assignment> assignments =
             assignmentDao.getAssignmentForPositionSlotAndUsers(positionSlot.getId(), assignmentAssignDto.getVolunteerIds());
-        assignments.forEach(assignmentService::unassign);
+        assignments.forEach(assignmentService::unassignInternal);
     }
 
     private void acceptAssignment(Assignment assignment) {
