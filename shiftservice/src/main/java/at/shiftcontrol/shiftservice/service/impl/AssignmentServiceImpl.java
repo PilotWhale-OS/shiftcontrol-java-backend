@@ -144,11 +144,13 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void unassign(Assignment assignment) {
+    public void unassignInternal(Assignment assignment) {
         // update reward points
         rewardPointsService.onAssignmentRemoved(
             assignment
         );
+
+        //Todo: Whats with pending switch requests when unassigning?
 
         publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
