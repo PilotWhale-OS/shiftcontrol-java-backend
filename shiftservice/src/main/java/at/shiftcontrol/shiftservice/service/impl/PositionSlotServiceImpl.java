@@ -330,12 +330,14 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new IllegalArgumentException("Modification data must be provided");
         }
 
-        long assignedCount = positionSlot.getAssignments().stream()
-            .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
-            .count();
+        if (positionSlot != null && positionSlot.getAssignments() != null && positionSlot.getAssignments().size() > 0) {
+            long assignedCount = positionSlot.getAssignments().stream()
+                .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
+                .count();
 
-        if (modificationDto.getDesiredVolunteerCount() < assignedCount) {
-            throw new ValidationException("Desired volunteer count cannot be less than currently assigned volunteers");
+            if (modificationDto.getDesiredVolunteerCount() < assignedCount) {
+                throw new ValidationException("Desired volunteer count cannot be less than currently assigned volunteers");
+            }
         }
 
 
