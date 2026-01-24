@@ -40,7 +40,7 @@ public class Event {
     @Column()
     private String shortDescription;
 
-    @Size(max = 1025)
+    @Size(max = 1024)
     @Column(length = 1024)
     private String longDescription;
 
