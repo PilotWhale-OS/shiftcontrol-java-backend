@@ -1,5 +1,7 @@
 package at.shiftcontrol.lib.event.events;
 
+import java.util.Map;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -24,7 +26,16 @@ public class RewardPointsShareTokenEvent extends BaseEvent {
     }
 
     public static RewardPointsShareTokenEvent shareTokenCreated(RewardPointsShareToken shareToken) {
-        return ofInternal(EventType.REWARDPOINTS_SHARETOKEN_CREATED, RoutingKeys.REWARDPOINTS_SHARETOKEN_CREATED, shareToken)
+        return ofInternal(EventType.REWARDPOINTS_SHARETOKEN_CREATED,
+            RoutingKeys.format(RoutingKeys.REWARDPOINTS_SHARETOKEN_CREATED,
+            Map.of("shareTokenId", String.valueOf(shareToken.getId()))), shareToken)
             .withDescription("New reward points share token created: " + shareToken.getId());
+    }
+
+    public static RewardPointsShareTokenEvent shareTokenDeleted(RewardPointsShareToken shareToken) {
+        return ofInternal(EventType.REWARDPOINTS_SHARETOKEN_DELETED,
+            RoutingKeys.format(RoutingKeys.REWARDPOINTS_SHARETOKEN_DELETED,
+                Map.of("shareTokenId", String.valueOf(shareToken.getId()))), shareToken)
+            .withDescription("Reward points share token deleted: " + shareToken.getId());
     }
 }

@@ -20,7 +20,6 @@ import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.RewardPointsShareToken;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.RewardPointsShareTokenEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
@@ -377,11 +376,8 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     public void deleteRewardPointsShareToken(long id) {
         var token = rewardPointsShareTokenDao.getById(id);
 
+        var rewardPointsShareTokenEvent = RewardPointsShareTokenEvent.shareTokenDeleted(token);
         rewardPointsShareTokenDao.delete(token);
-
-        var rewardPointsShareTokenEvent = RewardPointsShareTokenEvent.ofInternal(
-            RoutingKeys.REWARDPOINTS_SHARETOKEN_DELETED,
-            token);
         publisher.publishEvent(rewardPointsShareTokenEvent);
     }
 }
