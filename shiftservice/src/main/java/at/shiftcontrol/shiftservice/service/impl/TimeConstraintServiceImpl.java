@@ -6,14 +6,6 @@ import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Map;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.lib.event.RoutingKeys;
@@ -36,6 +28,12 @@ import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -135,10 +133,10 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     private static void validateTimespan(@NonNull TimeConstraintType type, Instant from, Instant to) {
-        if (from == null || to == null || !from.isBefore(to)) {
+        if (type == TimeConstraintType.UNAVAILABLE && (from == null || to == null || !from.isBefore(to))) {
             throw new ConflictException("Invalid time range: 'from' must be before 'to'");
         }
-        if (type == TimeConstraintType.EMERGENCY) {
+        if (type == TimeConstraintType.EMERGENCY && (from == null || to == null)) {
             boolean fromIsMidnightUtc = from.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
             boolean toIsMidnightUtc = to.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
             if (!fromIsMidnightUtc || !toIsMidnightUtc) {
