@@ -49,7 +49,6 @@ public interface TimeConstraintRepository extends JpaRepository<TimeConstraint, 
         SELECT tc
         FROM TimeConstraint tc
         WHERE tc.volunteer.id = :volunteerId
-          AND tc.type = :type
           AND EXISTS (
               SELECT 1
               FROM PositionSlot ps
@@ -59,5 +58,5 @@ public interface TimeConstraintRepository extends JpaRepository<TimeConstraint, 
                 AND tc.startTime <= s.endTime AND tc.endTime >= s.startTime
           )
         """)
-    Optional<TimeConstraint> findByPositionSlotIdVolunteerIdAndType(long positionSlotId, String volunteerId, TimeConstraintType type);
+    Collection<TimeConstraint> findByPositionSlotIdAndVolunteerId(long positionSlotId, String volunteerId);
 }

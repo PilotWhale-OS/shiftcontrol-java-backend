@@ -14,7 +14,6 @@ import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.PositionSignupState;
-import at.shiftcontrol.lib.type.TimeConstraintType;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
@@ -62,9 +61,9 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.NOT_ELIGIBLE;
         }
 
-        var conflictingConstraint =
-            timeConstraintDao.findByPositionSlotIdVolunteerIdAndType(positionSlot.getId(), volunteer.getId(), TimeConstraintType.UNAVAILABLE);
-        if (conflictingConstraint.isPresent()) {
+        var conflictingConstraints =
+            timeConstraintDao.findByPositionSlotIdAndVolunteerId(positionSlot.getId(), volunteer.getId());
+        if (!conflictingConstraints.isEmpty()) {
             return PositionSignupState.TIME_CONFLICT_TIME_CONSTRAINT;
         }
 

@@ -59,7 +59,7 @@ public class TimeConstraintDaoImpl implements TimeConstraintDao {
     }
 
     @Override
-    public Optional<TimeConstraint> findByPositionSlotIdVolunteerIdAndType(long positionSlotId, String volunteerId, TimeConstraintType type) {
-        return timeConstraintRepository.findByPositionSlotIdVolunteerIdAndType(positionSlotId, volunteerId, type);
+    public Collection<TimeConstraint> findByPositionSlotIdAndVolunteerId(long positionSlotId, String volunteerId) {
+        return timeConstraintRepository.findByPositionSlotIdAndVolunteerId(positionSlotId, volunteerId);
     }
 }
