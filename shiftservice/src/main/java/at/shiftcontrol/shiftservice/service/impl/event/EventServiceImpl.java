@@ -8,13 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.Event;
@@ -40,17 +33,24 @@ import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.event.SocialMediaLinkDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
+import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.SocialLinksParser;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -173,12 +173,24 @@ public class EventServiceImpl implements EventService {
         var eventOverviewDto = EventMapper.toEventDto(event);
         var userRelevantShiftPlans = getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId);
 
+        // get roles of the user; Remove equally named roles (from different ShiftPlans)
+        var roles = volunteerDao.getById(userId).getRoles().stream()
+            .map(RoleMapper::toRoleDto)
+            .collect(Collectors.toMap(
+                RoleDto::getName,
+                r -> r,
+                (r1, r2) -> r1,
+                LinkedHashMap::new
+            ))
+            .values();
+
         return EventShiftPlansOverviewDto.builder()
             .eventOverview(eventOverviewDto)
             .shiftPlans(ShiftPlanMapper.toShiftPlanDto(userRelevantShiftPlans))
             .rewardPoints((int) rewardPointsTransactionDao.sumPointsByVolunteerAndEvent(userId, eventId))
             .ownEventStatistics(statisticService.getOwnStatisticsOfShiftPlans(userRelevantShiftPlans, userId))
             .overallEventStatistics(statisticService.getOverallEventStatistics(event))
+            .roles(roles)
             .build();
     }
 
