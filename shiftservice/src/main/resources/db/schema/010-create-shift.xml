@@ -60,6 +60,18 @@
                 referencedColumnNames="id"
                 constraintName="fk_shift_location_ref"
                 onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint
+                baseTableName="shift"
+                constraintName="fk_shift_activity"/>
+
+        <addForeignKeyConstraint
+                baseTableName="shift"
+                baseColumnNames="activity_id"
+                referencedTableName="activity"
+                referencedColumnNames="id"
+                constraintName="fk_shift_activity"
+                onDelete="SET NULL"/>
     </changeSet>
 
 </databaseChangeLog>
