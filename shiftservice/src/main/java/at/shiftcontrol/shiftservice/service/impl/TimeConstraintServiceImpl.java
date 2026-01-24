@@ -1,8 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Map;
 
@@ -140,11 +139,12 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         if (type == TimeConstraintType.UNAVAILABLE && !from.isBefore(to)) {
             throw new ConflictException("Invalid time range: 'from' must be before 'to'");
         }
+
+        // validate that difference between from and to is exactly 24 hours for EMERGENCY constraints
         if (type == TimeConstraintType.EMERGENCY) {
-            boolean fromIsMidnightUtc = from.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
-            boolean toIsMidnightUtc = to.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
-            if (!fromIsMidnightUtc || !toIsMidnightUtc) {
-                throw new BadRequestException("For EMERGENCY constraints, 'from' and 'to' must be whole days (00:00 UTC).");
+            Duration duration = Duration.between(from, to);
+            if (duration.toHours() / 24 != 0 || duration.isZero() || duration.isNegative()) {
+                throw new BadRequestException("EMERGENCY time constraints must span exactly one day (24 hours)");
             }
         }
     }
