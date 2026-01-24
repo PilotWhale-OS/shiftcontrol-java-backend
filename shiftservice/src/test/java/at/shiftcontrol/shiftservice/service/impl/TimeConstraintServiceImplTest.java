@@ -156,7 +156,7 @@ class TimeConstraintServiceImplTest {
 
         assertThatThrownBy(() -> service.createTimeConstraint(dto, USER_ID, EVENT_ID))
             .isInstanceOf(BadRequestException.class)
-            .hasMessageContaining("must span exactly one day");
+            .hasMessageContaining("must span a positive multiple of 24 hours");
     }
 
     @Test

@@ -147,7 +147,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
             long seconds = duration.getSeconds();
             if (seconds <= 0 || seconds % SECONDS_PER_DAY != 0) {
-                throw new BadRequestException("EMERGENCY time constraints must span exactly 24 hours");
+                throw new BadRequestException("EMERGENCY time constraints must span a positive multiple of 24 hours");
             }
         }
     }
