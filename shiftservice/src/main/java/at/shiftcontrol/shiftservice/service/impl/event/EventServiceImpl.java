@@ -107,7 +107,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) {
-        return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId));
+        var volunteer = volunteerDao.getById(userId);
+        return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, volunteer));
     }
 
     @Override
@@ -169,12 +170,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId) {
         var event = eventDao.getById(eventId);
+        var volunteer = volunteerDao.getById(userId);
 
         var eventOverviewDto = EventMapper.toEventDto(event);
-        var userRelevantShiftPlans = getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId);
+        var userRelevantShiftPlans = getUserRelatedShiftPlanEntitiesOfEvent(eventId, volunteer);
 
         // get roles of the user; Remove equally named roles (from different ShiftPlans)
-        var roles = volunteerDao.getById(userId).getRoles().stream()
+        var roles = volunteer.getRoles().stream()
             .map(RoleMapper::toRoleDto)
             .collect(Collectors.toMap(
                 RoleDto::getName,
@@ -450,7 +452,7 @@ public class EventServiceImpl implements EventService {
 
     // TODO delete ABOVE
 
-    private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) {
+    private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, Volunteer volunteer) {
         var event = eventDao.getById(eventId);
         var shiftPlans = event.getShiftPlans();
 
@@ -458,8 +460,6 @@ public class EventServiceImpl implements EventService {
         if (securityHelper.isUserAdmin()) {
             return shiftPlans.stream().toList();
         }
-
-        var volunteer = volunteerDao.getById(userId);
 
         var volunteerShiftPlans = volunteer.getVolunteeringPlans();
         var planningShiftPlans = volunteer.getPlanningPlans();
