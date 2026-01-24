@@ -46,6 +46,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final SecurityHelper securityHelper;
     private final AssignmentService assignmentService;
 
+    private static final long SECONDS_PER_DAY = Duration.ofDays(1).getSeconds();
+
     @Override
     public Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId) {
         return TimeConstraintMapper.toDto(timeConstraintDao.searchByVolunteerAndEvent(userId, eventId));
@@ -142,7 +144,9 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
 
         if (type == TimeConstraintType.EMERGENCY) {
             Duration duration = Duration.between(from, to);
-            if (!duration.equals(Duration.ofHours(24))) {
+
+            long seconds = duration.getSeconds();
+            if (seconds <= 0 || seconds % SECONDS_PER_DAY != 0) {
                 throw new BadRequestException("EMERGENCY time constraints must span exactly 24 hours");
             }
         }
