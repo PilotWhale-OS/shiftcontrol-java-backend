@@ -146,18 +146,12 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
-        var a = assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
-        if (a.isEmpty()) {
+    public void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot) {
+        var a = assignmentDao.getConflictingAssignments(volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
+        if (a.stream().allMatch(x -> x.getPositionSlot().getShift().equals(positionSlot.getShift()))) {
             return;
         }
         throw new ConflictException("User has conflicting assignments");
-    }
-
-    @Override
-    public void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot) {
-        validateHasConflictingAssignments(volunteerId,
-            positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
     }
 
     @Override
