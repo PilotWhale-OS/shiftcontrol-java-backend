@@ -4,11 +4,18 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.RoleEvent;
 import at.shiftcontrol.lib.event.events.RoleVolunteerEvent;
+import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -22,10 +29,6 @@ import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.role.RoleService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +56,7 @@ public class RoleServiceImpl implements RoleService {
     public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) {
         securityHelper.assertUserIsPlanner(shiftPlanId);
         var shiftPlan = shiftPlanDao.getById(shiftPlanId);
+        validateUniqueNameInShiftPlan(roleDto.getName(), shiftPlanId, null);
 
         var role = RoleMapper.toRole(roleDto);
         role.setShiftPlan(shiftPlan);
@@ -65,6 +69,7 @@ public class RoleServiceImpl implements RoleService {
     public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) {
         var role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
+        validateUniqueNameInShiftPlan(roleDto.getName(), role.getShiftPlan().getId(), roleId);
 
         updateRole(roleDto, role);
         role = roleDao.save(role);
@@ -72,6 +77,13 @@ public class RoleServiceImpl implements RoleService {
         publisher.publishEvent(RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_UPDATED,
             Map.of("roleId", roleId.toString())), role));
         return RoleMapper.toRoleDto(role);
+    }
+
+    private void validateUniqueNameInShiftPlan(String name, long shiftPlanId, Long excludeRoleId) {
+        var existingRole = roleDao.findByNameAndShiftPlanId(name, shiftPlanId);
+        if (existingRole.isPresent() && (excludeRoleId == null || existingRole.get().getId() != excludeRoleId)) {
+            throw new BadRequestException("A role with the given name already exists in this shift plan.");
+        }
     }
 
     private void updateRole(@NonNull RoleModificationDto roleDto, Role role) {

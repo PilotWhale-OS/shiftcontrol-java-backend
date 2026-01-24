@@ -3,6 +3,14 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -14,10 +22,7 @@ import at.shiftcontrol.lib.event.events.PreferenceEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
-import at.shiftcontrol.lib.exception.StateViolationException;
-import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
-import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -37,12 +42,6 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -213,20 +212,15 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
         // no security check necessary, because user is already assigned to position,
         //  if not, assignment would not be found
-        // check for signup phase
-        LockStatus lockStatus = assignment.getPositionSlot().getShift().getShiftPlan().getLockStatus();
-        switch (lockStatus) {
-            case SELF_SIGNUP:
-                throw new StateViolationException("Auction not possible, unassign instead");
-            case SUPERVISED:
-                // proceed with auction
-                assignment.setStatus(AssignmentStatus.AUCTION);
-                break;
-            case LOCKED:
-                throw new StateViolationException("Auction not possible, shift is locked");
-            default:
-                throw new IllegalStateException("Unexpected value: " + lockStatus);
+        if (assignment.getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
+            throw new IllegalStateException("auction not possible, not assigned to slot");
         }
+
+        // check for signup phase
+        LockStatusHelper.assertIsSupervisedWithMessage(assignment, "auction");
+
+        // create auction
+        assignment.setStatus(AssignmentStatus.AUCTION);
         assignment = assignmentDao.save(assignment);
 
         publisher.publishEvent(AssignmentEvent.of(
@@ -244,9 +238,8 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                                       @NonNull PositionSlotRequestDto requestDto) {
         // get auction-assignment
         Assignment auction = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
-        if (auction.getStatus() != AssignmentStatus.AUCTION
-            && auction.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN) {
-            throw new BadRequestException("assignment not up for auction");
+        if (!AssignmentStatus.ACTIVE_AUCTION_STATES.contains(auction.getStatus())) {
+            throw new BadRequestException("Assignment is not up for auction");
         }
         // check if current user is volunteer in plan
         securityHelper.assertUserIsVolunteer(auction.getPositionSlot(), true);
@@ -274,6 +267,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         } else {
             securityHelper.assertUserIsVolunteer(assignment.getPositionSlot(), true);
         }
+        if (!AssignmentStatus.ACTIVE_AUCTION_STATES.contains(assignment.getStatus())) {
+            throw new BadRequestException("Assignment is not up for auction");
+        }
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignment = assignmentDao.save(assignment);
         publisher.publishEvent(AssignmentEvent.of(
@@ -291,7 +287,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsVolunteer(positionSlot, true);
         if (preference < -10 || preference > 10) {
-            throw new BadRequestException("preference must be between -10 and 10");
+            throw new IllegalArgumentException("Preference must be between -10 and 10");
         }
         positionSlotDao.setPreference(currentUserId, positionSlotId, preference);
         publisher.publishEvent(PreferenceEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
@@ -332,7 +328,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot) {
         if (modificationDto == null) {
-            throw new BadRequestException("Modification data must be provided");
+            throw new IllegalArgumentException("Modification data must be provided");
         }
 
         long assignedCount = positionSlot.getAssignments().stream()

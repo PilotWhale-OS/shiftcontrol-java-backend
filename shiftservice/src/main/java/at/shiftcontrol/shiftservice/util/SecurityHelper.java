@@ -131,8 +131,16 @@ public class SecurityHelper {
 
     public void assertVolunteerIsVolunteer(ShiftPlan plan, Volunteer volunteer) {
         if (!volunteer.getVolunteeringPlans().contains(plan)) {
-            throw new IllegalArgumentException("User not contained in a plan cannot be lockt for the plan.");
+            throw new IllegalArgumentException("User not contained in plan.");
         }
+    }
+
+    public void assertVolunteerIsVolunteer(Shift shift, Volunteer volunteer) {
+        assertVolunteerIsVolunteer(shift.getShiftPlan(), volunteer);
+    }
+
+    public void assertVolunteerIsVolunteer(PositionSlot slot, Volunteer volunteer) {
+        assertVolunteerIsVolunteer(slot.getShift(), volunteer);
     }
 
     public void assertVolunteerIsLockedInPlan(ShiftPlan plan, Volunteer volunteer) {
