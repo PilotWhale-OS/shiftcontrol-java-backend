@@ -136,15 +136,14 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
             throw new BadRequestException("'from' and 'to' timestamps must not be null");
         }
 
-        if (type == TimeConstraintType.UNAVAILABLE && !from.isBefore(to)) {
+        if (!from.isBefore(to)) {
             throw new ConflictException("Invalid time range: 'from' must be before 'to'");
         }
 
-        // validate that difference between from and to is exactly 24 hours for EMERGENCY constraints
         if (type == TimeConstraintType.EMERGENCY) {
             Duration duration = Duration.between(from, to);
-            if (duration.toHours() != 24 || duration.isZero() || duration.isNegative()) {
-                throw new BadRequestException("EMERGENCY time constraints must span exactly one day (24 hours)");
+            if (!duration.equals(Duration.ofHours(24))) {
+                throw new BadRequestException("EMERGENCY time constraints must span exactly 24 hours");
             }
         }
     }
