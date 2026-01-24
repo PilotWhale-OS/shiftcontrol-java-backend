@@ -3,12 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -26,6 +20,12 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.impl.event.EventServiceImpl;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -113,7 +113,7 @@ class EventServiceTest {
             .isInstanceOf(NotFoundException.class);
 
         verify(eventDao).getById(eventId);
-        verifyNoInteractions(volunteerDao, statisticService);
+        verifyNoInteractions(statisticService);
     }
 
     @Test
@@ -124,16 +124,13 @@ class EventServiceTest {
         Event event = new Event();
         event.setShiftPlans(List.of());
 
-        when(eventDao.getById(eventId)).thenReturn(event);
         when(volunteerDao.getById(userId)).thenThrow(NotFoundException.class);
-        ;
 
         assertThatThrownBy(() -> eventService.getUserRelatedShiftPlansOfEvent(eventId, userId))
             .isInstanceOf(NotFoundException.class);
 
-        verify(eventDao).getById(eventId);
         verify(volunteerDao).getById(userId);
-        verifyNoInteractions(statisticService);
+        verifyNoInteractions(statisticService, eventDao);
     }
 
     @Test

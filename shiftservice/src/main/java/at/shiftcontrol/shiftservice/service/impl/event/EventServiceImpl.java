@@ -8,13 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.Event;
@@ -40,17 +33,24 @@ import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
 import at.shiftcontrol.shiftservice.dto.event.SocialMediaLinkDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
 import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
+import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.SocialLinksParser;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -107,7 +107,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<ShiftPlanDto> getUserRelatedShiftPlansOfEvent(long eventId, String userId) {
-        return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId));
+        var volunteer = volunteerDao.getById(userId);
+        return ShiftPlanMapper.toShiftPlanDto(getUserRelatedShiftPlanEntitiesOfEvent(eventId, volunteer));
     }
 
     @Override
@@ -169,9 +170,26 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventShiftPlansOverviewDto getEventShiftPlansOverview(long eventId, String userId) {
         var event = eventDao.getById(eventId);
+        var volunteer = volunteerDao.getById(userId);
 
         var eventOverviewDto = EventMapper.toEventDto(event);
-        var userRelevantShiftPlans = getUserRelatedShiftPlanEntitiesOfEvent(eventId, userId);
+        var userRelevantShiftPlans = getUserRelatedShiftPlanEntitiesOfEvent(eventId, volunteer);
+
+        // get roles of the user inside this event's shiftplans; Remove equally named roles (from different ShiftPlans)
+        var roles = volunteer.getRoles().stream()
+            .map(RoleMapper::toRoleDto)
+            .filter(roleDto -> userRelevantShiftPlans.stream()
+                .anyMatch(shiftPlan -> shiftPlan.getRoles().stream()
+                    .anyMatch(role -> role.getName().equals(roleDto.getName()))
+                )
+            )
+            .collect(Collectors.toMap(
+                RoleDto::getName,
+                r -> r,
+                (r1, r2) -> r1,
+                LinkedHashMap::new
+            ))
+            .values();
 
         return EventShiftPlansOverviewDto.builder()
             .eventOverview(eventOverviewDto)
@@ -179,6 +197,7 @@ public class EventServiceImpl implements EventService {
             .rewardPoints((int) rewardPointsTransactionDao.sumPointsByVolunteerAndEvent(userId, eventId))
             .ownEventStatistics(statisticService.getOwnStatisticsOfShiftPlans(userRelevantShiftPlans, userId))
             .overallEventStatistics(statisticService.getOverallEventStatistics(event))
+            .roles(roles)
             .build();
     }
 
@@ -438,7 +457,7 @@ public class EventServiceImpl implements EventService {
 
     // TODO delete ABOVE
 
-    private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, String userId) {
+    private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, Volunteer volunteer) {
         var event = eventDao.getById(eventId);
         var shiftPlans = event.getShiftPlans();
 
@@ -446,8 +465,6 @@ public class EventServiceImpl implements EventService {
         if (securityHelper.isUserAdmin()) {
             return shiftPlans.stream().toList();
         }
-
-        var volunteer = volunteerDao.getById(userId);
 
         var volunteerShiftPlans = volunteer.getVolunteeringPlans();
         var planningShiftPlans = volunteer.getPlanningPlans();
