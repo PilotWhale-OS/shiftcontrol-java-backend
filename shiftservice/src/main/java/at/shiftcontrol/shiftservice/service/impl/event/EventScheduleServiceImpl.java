@@ -326,7 +326,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
     }
 
     private EventScheduleFilterValuesDto getDatesFromAllShifts(Collection<Shift> shifts, Event event) {
-        if (shifts.isEmpty()) {
+        if (shifts.isEmpty() || securityHelper.isUserAdmin() || securityHelper.isUserPlannerInAnyPlanOfEvent(event)) {
             return EventScheduleFilterValuesDto.builder()
                 .locations(List.of())
                 .roles(List.of())

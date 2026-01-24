@@ -8,6 +8,7 @@ COPY shiftcontrol-lib/pom.xml shiftcontrol-lib/
 COPY shiftservice/pom.xml shiftservice/
 COPY pretalx-client/pom.xml pretalx-client/
 COPY trustservice/pom.xml trustservice/
+COPY auditlog/pom.xml auditlog/
 
 # 2️⃣ Pre-fetch dependencies for trustservice
 RUN mvn -pl trustservice -am dependency:go-offline
@@ -17,6 +18,7 @@ COPY shiftcontrol-lib shiftcontrol-lib
 COPY shiftservice shiftservice
 COPY pretalx-client pretalx-client
 COPY trustservice trustservice
+COPY auditlog auditlog
 
 # 4️⃣ Build trustservice (and required modules)
 RUN mvn -pl trustservice -am clean package -DskipTests

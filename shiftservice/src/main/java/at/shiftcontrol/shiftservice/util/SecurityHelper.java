@@ -1,10 +1,5 @@
 package at.shiftcontrol.shiftservice.util;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
@@ -17,6 +12,9 @@ import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +43,16 @@ public class SecurityHelper {
         }
     }
 
+    public boolean isUserPlannerInAnyPlanOfEvent(Event event) {
+        if (event.getShiftPlans() == null || event.getShiftPlans().isEmpty()) {
+            return false;
+        }
+
+        return event.getShiftPlans()
+            .stream()
+            .anyMatch(shiftPlan -> isUserPlanner(shiftPlan.getId()));
+    }
+
     public void assertUserIsPlanner(ShiftPlan shiftPlan) {
         assertUserIsPlanner(shiftPlan.getId());
     }
@@ -58,9 +66,7 @@ public class SecurityHelper {
     }
 
     public void assertUserIsPlannerInAnyPlanOfEvent(Event event) {
-        boolean isPlannerInAnyPlan = event.getShiftPlans()
-            .stream()
-            .anyMatch(shiftPlan -> isUserPlanner(shiftPlan.getId()));
+        boolean isPlannerInAnyPlan = isUserPlannerInAnyPlanOfEvent(event);
         var isNotAdmin = isNotUserAdmin();
         if (!isPlannerInAnyPlan && isNotAdmin) {
             log.error("User has no planner access to any shift plan of event with id: {}", event.getId());

@@ -85,5 +85,23 @@
         </insert>
 
     </changeSet>
+  <changeSet id="010-insert-clones-into-shift-plan-66" author="paul" context="dev">
+    <sql>
+      INSERT INTO shift_plan_volunteer_volunteering (shift_plan_id, volunteer_id)
+      SELECT 66, v.id
+      FROM volunteer v
+      WHERE v.id NOT IN (
+                         '28c02050-4f90-4f3a-b1df-3c7d27a166e5',
+                         '28c02050-4f90-4f3a-b1df-3c7d27a166e6',
+                         '28c02050-4f90-4f3a-b1df-3c7d27a166e7',
+                         '28c02050-4f90-4f3a-b1df-3c7d27a166e8'
+        );
+    </sql>
+    <insert tableName="shift_plan_volunteer_planing">
+      <column name="shift_plan_id" valueNumeric="66"/>
+      <column name="volunteer_id" value="e8097a2f-afd2-40a3-a8aa-7ac5f898e77b"/>
+    </insert>
+  </changeSet>
+
 
 </databaseChangeLog>

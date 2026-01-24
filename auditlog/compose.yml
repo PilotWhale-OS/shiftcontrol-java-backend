@@ -1,5 +1,5 @@
 services:
-  auditlog:
+  auditservice:
     build:
       context: ../
       dockerfile: auditlog/Dockerfile
@@ -11,6 +11,13 @@ services:
       - ./config/application.yml:/app/application.yml
     networks:
       - shiftcontrol
+    ports:
+        - "8089:8080"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.auditservice.entrypoints=web
+      - traefik.http.routers.auditservice.rule=Host(`auditservice.127.0.0.1.nip.io`)
+      - traefik.http.services.auditservice.loadbalancer.server.port=8089
 
 networks:
   shiftcontrol:

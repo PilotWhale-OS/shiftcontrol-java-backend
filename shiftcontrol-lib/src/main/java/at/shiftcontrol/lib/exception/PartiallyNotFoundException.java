@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * Exception indicating that some, but not all, required entities could not be resolved.
  *
@@ -39,23 +41,21 @@ public class PartiallyNotFoundException extends RuntimeException { // todo refac
     }
 
     private static String buildMessage(String context, Map<String, Collection<?>> missingEntities) {
-        if (missingEntities == null || missingEntities.isEmpty()) {
-            return (context == null || context.isBlank())
-                ? "Some required entities were not found."
-                : context + " failed due to missing entities.";
+        if (missingEntities != null && !missingEntities.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            if (context != null && !context.isBlank()) {
+                sb.append(context).append(" failed. ");
+            }
+            sb.append("Missing entities:\n");
+            missingEntities.forEach((type, values) -> {
+                String joined = values.stream()
+                    .map(Objects::toString)
+                    .collect(Collectors.joining(", "));
+                sb.append(" - ").append(type).append(": ").append(joined).append("\n");
+            });
+            LoggerFactory.getLogger(sb.toString().trim());
         }
-        StringBuilder sb = new StringBuilder();
-        if (context != null && !context.isBlank()) {
-            sb.append(context).append(" failed. ");
-        }
-        sb.append("Missing entities:\n");
-        missingEntities.forEach((type, values) -> {
-            String joined = values.stream()
-                .map(Objects::toString)
-                .collect(Collectors.joining(", "));
-            sb.append(" - ").append(type).append(": ").append(joined).append("\n");
-        });
-        return sb.toString().trim();
+        return "Some required entities were not found.";
     }
 
     public static Builder builder() {

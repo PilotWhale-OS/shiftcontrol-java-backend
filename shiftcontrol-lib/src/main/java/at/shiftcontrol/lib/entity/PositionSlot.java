@@ -2,8 +2,7 @@ package at.shiftcontrol.lib.entity;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.type.AssignmentStatus;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,7 +46,7 @@ public class PositionSlot {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @OneToMany(mappedBy = "positionSlot")
+    @OneToMany(mappedBy = "positionSlot", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Assignment> assignments;
 
     @NotNull

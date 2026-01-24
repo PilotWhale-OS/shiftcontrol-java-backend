@@ -148,12 +148,15 @@ public class EventEndpoint {
             .body(new InputStreamResource(export.getExportStream()));
     }
 
-    @PostMapping("/import")
+    @PostMapping(
+        value = "/import",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @Operation(
         operationId = "importEventData",
         description = "Import event data from external source"
     )
-    public EventImportResultDto importEventData(@RequestPart("file") @NotNull MultipartFile file) {
+    public EventImportResultDto importEventData(@RequestPart("file") @Schema(format = "binary") @NotNull MultipartFile file) {
         return eventImportService.importEvent(file);
     }
 

@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.auth;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -51,9 +52,11 @@ public class KeycloakUserService {
     }
 
     public List<UserRepresentation> getAllAssigned() {
-        return keycloak
-            .realm(realm)
-            .users()
-            .searchByAttributes("userType:ASSIGNED");
+        return getAllUsers()
+            .stream()
+
+            /* by default users have no userType attribute, therefore it can't be queried via api */
+            .filter(user -> !Objects.equals(user.firstAttribute("userType"), "ADMIN"))
+            .toList();
     }
 }

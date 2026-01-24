@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.user.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.keycloak.representations.idm.AbstractUserRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.dto.PaginationDto;
@@ -62,7 +64,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @AdminOnly
     public PaginationDto<UserEventDto> getAllUsers(int page, int size, UserSearchDto searchDto) {
-        var volunteers = volunteerDao.findAll(page, size);
+        var volunteers = volunteerDao.findAllPaginated(page, size);
         var users = keycloakUserService.getAllAssigned();
         users = filterUsers(searchDto, users);
         return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users));
@@ -70,11 +72,26 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
     @Override
     public PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size, UserSearchDto searchDto) {
-        var volunteers = volunteerDao.findAll(page, size);
-        var totalSize = volunteerDao.findAllSize();
-        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList()).stream().toList();
-        users = filterUsers(searchDto, users);
-        return PaginationMapper.toPaginationDto(size, page, totalSize, UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId));
+        var allUsers = keycloakUserService.getAllUsers();
+        var volunteersInPlanId = volunteerDao.findAllIdsByShiftPlan(shiftPlanId);
+        var usersForPlan =  allUsers.stream().filter(u -> volunteersInPlanId.contains(u.getId())).toList();
+        var users = filterUsers(searchDto, usersForPlan);
+        var paginatedUsers = paginateUsers(users, page, size);
+        var volunteers = volunteerDao.findAllByVolunteerIds(
+            paginatedUsers.stream().map(AbstractUserRepresentation::getId).toList()
+        );
+
+        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId));
+    }
+
+    private List<UserRepresentation> paginateUsers(List<UserRepresentation> users, int page, int size) {
+        int fromIndex = page * size;
+        if (fromIndex >= users.size()) {
+            return List.of();
+        }
+
+        int toIndex = Math.min(fromIndex + size, users.size());
+        return users.subList(fromIndex, toIndex);
     }
 
     private static List<UserRepresentation> filterUsers(UserSearchDto searchDto, List<UserRepresentation> users) {
@@ -100,6 +117,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     public UserPlanDto getPlanUser(Long shiftPlanId, String userId) {
         var volunteer = volunteerDao.getById(userId);
+        securityHelper.assertVolunteerIsVolunteer(shiftPlanDao.getById(shiftPlanId), volunteer);
         return userAssemblingMapper.toUserPlanDto(volunteer, shiftPlanId);
     }
 
@@ -118,7 +136,6 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var planningToRemove = toRemovePlans(updateDto.getPlanningPlans(), volunteer.getPlanningPlans());
         removePlans(volunteer, volunteerToRemove, planningToRemove);
 
-
         var user = keycloakUserService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.eventUpdate(volunteer));
@@ -126,14 +143,25 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     }
 
     @Override
+    @Transactional
     public UserPlanDto updatePlanUser(Long shiftPlanId, String userId, UserPlanUpdateDto updateDto) {
         var volunteer = volunteerDao.getById(userId);
-        assertRolesChanged(volunteer, updateDto);
+        securityHelper.assertVolunteerIsVolunteer(shiftPlanDao.getById(shiftPlanId), volunteer);
 
-        Set<Long> currentRoles = volunteer.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
+        Collection<Role> requestedRoles = roleDao.getRolesByIdsAndShiftPlanId(updateDto.getRoles()
+            .stream()
+            .map(ConvertUtil::idToLong)
+            .collect(Collectors.toSet()), shiftPlanId);
+
+        Set<Long> currentRoles = volunteer.getRoles().stream()
+            .filter(role -> role.getShiftPlan().getId() == shiftPlanId)
+            .map(Role::getId)
+            .collect(Collectors.toSet());
+
+        assertRolesChanged(currentRoles, requestedRoles);
 
         var rolesToAdd = toAdd(updateDto.getRoles(), currentRoles);
-        addRoles(volunteer, rolesToAdd);
+        addRoles(volunteer, rolesToAdd, requestedRoles);
 
         var rolesToRemove = toRemove(updateDto.getRoles(), currentRoles);
         removeRoles(volunteer, rolesToRemove);
@@ -238,11 +266,15 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     }
 
     @Override
+    @Transactional
     public Collection<UserEventDto> bulkRemoveVolunteeringPlans(UserEventBulkDto updateDto) {
         var volunteers = volunteerDao.findAllByVolunteerIds(updateDto.getVolunteers());
         var plans = shiftPlanDao.getByIds(updateDto.getPlans().stream().map(ConvertUtil::idToLong).collect(Collectors.toSet()));
         for (Volunteer v : volunteers) {
-            v.getVolunteeringPlans().removeAll(plans);
+            removePlans(v,
+                plans.stream().map(ShiftPlan::getId).collect(Collectors.toSet()),
+                Collections.emptySet()
+            );
         }
         publisher.publishEvent(UserEventBulkEvent.remove(volunteers, plans));
         return getUserEventDtos(volunteers);
@@ -271,26 +303,41 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     }
 
     private void removePlans(Volunteer volunteer, Set<Long> volunteerToRemove, Set<Long> planningToRemove) {
-        if (volunteer.getVolunteeringPlans() != null) {
-            volunteer.getVolunteeringPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
+
+        /* demote always possible */
+        if (volunteer.getPlanningPlans() != null) {
+            volunteer.getPlanningPlans().removeIf(x -> planningToRemove.contains(x.getId()));
         }
+
+        /* only allow complete removal from plan if no assignments left */
         if (volunteer.getVolunteeringPlans() != null) {
-            volunteer.getLockedPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
-        }
-        if (volunteer.getVolunteeringPlans() != null) {
-            volunteer.getPlanningPlans().removeIf(plan -> {
-                if (planningToRemove.contains(plan.getId()) && !assignmentService.getAllAssignmentsForUser(plan, volunteer).isEmpty()) {
+            volunteer.getVolunteeringPlans().removeIf(plan -> {
+                var removeMatch = volunteerToRemove.contains(plan.getId());
+                if (removeMatch && !assignmentService.getAllAssignmentsForUser(plan, volunteer).isEmpty()) {
                     throw new BadRequestException("Cannot remove a plan in which the user still has assignments.");
                 }
-                return planningToRemove.contains(plan.getId());
+
+                /* if plan is to be removed, check additionally if user is still planner */
+                if(
+                    removeMatch && volunteer.getPlanningPlans() != null &&
+                        volunteer.getPlanningPlans().stream().map(ShiftPlan::getId).anyMatch(planning -> planning.equals(plan.getId()))
+                ) {
+                    throw new BadRequestException("Cannot remove volunteer access from planner user.");
+                }
+                return removeMatch;
             });
+        }
+
+        /* if user is no longer registered in plan, remove from locked as well */
+        if (volunteer.getLockedPlans() != null) {
+            volunteer.getLockedPlans().removeIf(x -> volunteerToRemove.contains(x.getId()));
         }
     }
 
-    private void addRoles(Volunteer vol, Set<Long> rolesToAdd) {
+    private void addRoles(Volunteer vol, Set<Long> rolesToAdd, Collection<Role> roles) {
         if (rolesToAdd != null && !rolesToAdd.isEmpty()) {
             vol.setRoles(initIfNull(vol.getRoles()));
-            vol.getRoles().addAll(roleDao.getByIds(rolesToAdd));
+            vol.getRoles().addAll(roles.stream().filter(x -> rolesToAdd.contains(x.getId())).toList());
         }
     }
 
@@ -329,11 +376,20 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             && new HashSet<>(currentPlaningPlans).equals(new HashSet<>(updateDto.getPlanningPlans()))) {
             throw new BadRequestException("Update does not change anything");
         }
+
+        if (!new HashSet<>(currentVolunteeringPlans).containsAll(currentPlaningPlans)) {
+            throw new BadRequestException();
+        }
     }
 
-    private void assertRolesChanged(Volunteer volunteer, UserPlanUpdateDto updateDto) {
-        var currentRoles = volunteer.getRoles().stream().map(x -> String.valueOf(x.getId())).toList();
-        if (new HashSet<>(currentRoles).equals(new HashSet<>(updateDto.getRoles()))) {
+    private void assertRolesChanged(Collection<Long> currentRoles, Collection<Role> requestedRoles) {
+        Set<Long> requested = new HashSet<>(currentRoles);
+
+        Set<Long> current = requestedRoles.stream()
+            .map(Role::getId)
+            .collect(Collectors.toSet());
+
+        if (requested.equals(current)) {
             throw new BadRequestException("Update does not change anything");
         }
     }
