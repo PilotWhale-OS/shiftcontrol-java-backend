@@ -8,6 +8,8 @@ import at.shiftcontrol.shiftservice.dao.BasicDao;
 public interface VolunteerDao extends BasicDao<Volunteer, String> {
     Collection<Volunteer> findAllByShiftPlan(long shiftPlanId);
 
+    Collection<String> findAllIdsByShiftPlan(long shiftPlanId);
+
     Collection<Volunteer> findAllPlannersByShiftPlan(long id);
 
     Collection<Volunteer> findAllByEvent(long eventId);

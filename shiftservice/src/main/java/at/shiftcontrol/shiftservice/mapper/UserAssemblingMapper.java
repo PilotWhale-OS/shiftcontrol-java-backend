@@ -26,8 +26,8 @@ public class UserAssemblingMapper {
 
     public static UserPlanDto toUserPlanDto(Volunteer volunteer, UserRepresentation user, Long planId) {
         return UserPlanDto.builder()
-            .volunteer(user == null ? null : VolunteerAssemblingMapper.toDtoFromUser(user))
-            .email(user == null ? null : user.getEmail())
+            .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
+            .email(user.getEmail())
             .roles(volunteer == null ? null : RoleMapper.toRoleDto(volunteer.getRoles(), planId))
             .isLocked(volunteer == null ? null : volunteer.getLockedPlans().stream().anyMatch(x -> planId.equals(x.getId())))
             .build();
@@ -38,7 +38,8 @@ public class UserAssemblingMapper {
             .map(v ->
                 toUserPlanDto(v, users.stream()
                         .filter(u -> u.getId().equals(v.getId()))
-                        .findFirst().orElse(null),
+                        .findFirst()
+                        .orElseThrow(NotFoundException::new),
                     planId)
             )
             .toList();

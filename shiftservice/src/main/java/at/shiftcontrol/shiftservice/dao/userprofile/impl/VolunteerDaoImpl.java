@@ -28,8 +28,13 @@ public class VolunteerDaoImpl implements VolunteerDao {
     }
 
     @Override
-    public Collection<Volunteer> findAllByShiftPlan(long id) {
-        return volunteerRepository.findAllByShiftPlan(id);
+    public Collection<Volunteer> findAllByShiftPlan(long shiftPlanId) {
+        return volunteerRepository.findAllByShiftPlan(shiftPlanId);
+    }
+
+    @Override
+    public Collection<String> findAllIdsByShiftPlan(long shiftPlanId) {
+        return volunteerRepository.findAllIdsByShiftPlan(shiftPlanId);
     }
 
     @Override

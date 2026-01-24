@@ -1,6 +1,5 @@
 package at.shiftcontrol.shiftservice.service.user.impl;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.keycloak.representations.idm.AbstractUserRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.dto.PaginationDto;
@@ -72,24 +72,26 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
     @Override
     public PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size, UserSearchDto searchDto) {
-        var volunteers = volunteerDao.findAllByShiftPlanPaginated(page, size, shiftPlanId);
-        var totalSize = volunteerDao.findAllByShiftPlanSize(shiftPlanId);
-        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList()).stream().toList();
-        users = filterUsers(searchDto, users);
+        var allUsers = keycloakUserService.getAllUsers();
+        var volunteersInPlanId = volunteerDao.findAllIdsByShiftPlan(shiftPlanId);
+        var usersForPlan =  allUsers.stream().filter(u -> volunteersInPlanId.contains(u.getId())).toList();
+        var users = filterUsers(searchDto, usersForPlan);
+        var paginatedUsers = paginateUsers(users, page, size);
+        var volunteers = volunteerDao.findAllByVolunteerIds(
+            paginatedUsers.stream().map(AbstractUserRepresentation::getId).toList()
+        );
 
-        if (volunteers.size() > users.size()) {
-            totalSize = users.size();
-            int fromIndex = page * size;
-            int toIndex = Math.min(fromIndex + size, users.size());
-            if (fromIndex > toIndex) {
-                volunteers = List.of();
-            } else {
-                var userIdsPage = users.subList(fromIndex, toIndex).stream().map(UserRepresentation::getId).toList();
-                volunteers = volunteers.stream().filter(v -> userIdsPage.contains(v.getId())).toList();
-            }
+        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId));
+    }
+
+    private List<UserRepresentation> paginateUsers(List<UserRepresentation> users, int page, int size) {
+        int fromIndex = page * size;
+        if (fromIndex >= users.size()) {
+            return List.of();
         }
 
-        return PaginationMapper.toPaginationDto(size, page, totalSize, UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId));
+        int toIndex = Math.min(fromIndex + size, users.size());
+        return users.subList(fromIndex, toIndex);
     }
 
     private static List<UserRepresentation> filterUsers(UserSearchDto searchDto, List<UserRepresentation> users) {

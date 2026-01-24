@@ -72,6 +72,14 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
     Collection<Volunteer> findAllByShiftPlan(long shiftPlanId);
 
     @Query("""
+            SELECT v.id
+            FROM Volunteer v
+            JOIN v.volunteeringPlans p
+            WHERE p.id = :shiftPlanId
+        """)
+    Collection<String> findAllIdsByShiftPlan(long shiftPlanId);
+
+    @Query("""
             SELECT v
             FROM Volunteer v
             JOIN v.volunteeringPlans p
