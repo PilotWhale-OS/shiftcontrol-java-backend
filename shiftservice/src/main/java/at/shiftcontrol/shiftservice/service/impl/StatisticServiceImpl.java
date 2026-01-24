@@ -3,9 +3,9 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.util.TimeUtil;
@@ -87,11 +87,20 @@ public class StatisticServiceImpl implements StatisticService {
             .mapToDouble(s -> TimeUtil.calculateDurationInMinutes(s.getStartTime(), s.getEndTime()))
             .sum() / 60.0;
 
-        long unassignedCount = shifts.stream()
-            .flatMap(s -> s.getSlots() == null ? Stream.empty() : s.getSlots().stream())
-            .flatMap(slot -> slot.getAssignments() == null ? Stream.empty() : slot.getAssignments().stream())
-            .filter(a -> a.getAssignedVolunteer() == null)
-            .count();
+        var slots = shifts.stream()
+            .flatMap(s -> s.getSlots().stream()).toList();
+
+        var totalRequiredSlotCount = slots.stream()
+            .mapToInt(PositionSlot::getDesiredVolunteerCount)
+            .sum();
+
+        var assignedSlotCount = slots.stream()
+            .mapToInt(s -> (int) s.getAssignments().stream()
+                .filter(a -> a.getAssignedVolunteer() != null)
+                .count())
+            .sum();
+
+        long unassignedCount = totalRequiredSlotCount - assignedSlotCount;
 
         return ScheduleStatisticsDto.builder()
             .totalShifts(shifts.size())

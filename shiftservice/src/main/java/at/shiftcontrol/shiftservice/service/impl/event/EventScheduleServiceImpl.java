@@ -77,7 +77,11 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .toList();
         var scheduleLayoutNoLocationDto = buildScheduleLayoutNoLocationDto(shiftsWithoutLocation);
 
-        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
+        var allShifts = new ArrayList<Shift>();
+        shiftsByLocation.values().forEach(allShifts::addAll);
+        allShifts.addAll(shiftsWithoutLocation);
+
+        var stats = statisticService.getShiftPlanScheduleStatistics(allShifts);
         return EventScheduleLayoutDto.builder()
             .scheduleLayoutDtos(scheduleLayoutDtos)
             .scheduleLayoutNoLocationDto(scheduleLayoutNoLocationDto)
