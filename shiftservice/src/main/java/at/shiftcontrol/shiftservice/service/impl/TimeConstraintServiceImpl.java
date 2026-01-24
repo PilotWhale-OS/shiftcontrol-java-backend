@@ -143,7 +143,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         // validate that difference between from and to is exactly 24 hours for EMERGENCY constraints
         if (type == TimeConstraintType.EMERGENCY) {
             Duration duration = Duration.between(from, to);
-            if (duration.toHours() / 24 != 0 || duration.isZero() || duration.isNegative()) {
+            if (duration.toHours() != 24 || duration.isZero() || duration.isNegative()) {
                 throw new BadRequestException("EMERGENCY time constraints must span exactly one day (24 hours)");
             }
         }
