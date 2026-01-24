@@ -28,7 +28,7 @@ class ShiftPlanInviteEventTest {
             shiftPlanPartMock.when(() -> ShiftPlanPart.of(shiftPlan)).thenReturn(shiftPlanPart);
             invitePartMock.when(() -> InvitePart.of(invite)).thenReturn(invitePart);
 
-            ShiftPlanInviteEvent shiftPlanInviteEvent = ShiftPlanInviteEvent.ofInternal(routingKey, invite);
+            ShiftPlanInviteEvent shiftPlanInviteEvent = ShiftPlanInviteEvent.ofInternal(null, routingKey, invite);
 
             assertEquals(routingKey, shiftPlanInviteEvent.getRoutingKey());
             assertEquals(shiftPlanPart, shiftPlanInviteEvent.getShiftPlan());

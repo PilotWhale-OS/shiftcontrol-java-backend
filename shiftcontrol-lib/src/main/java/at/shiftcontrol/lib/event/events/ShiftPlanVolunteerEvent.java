@@ -25,13 +25,15 @@ public class ShiftPlanVolunteerEvent extends ShiftPlanEvent {
     }
 
     public static ShiftPlanVolunteerEvent joinedAsVolunteer(ShiftPlan shiftPlan, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
+        return ofInternal(EventType.SHIFTPLAN_JOINED_VOLUNTEER,
+            RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_VOLUNTEER,
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", volunteerId)), shiftPlan, volunteerId);
     }
 
     public static ShiftPlanVolunteerEvent joinedAsPlanner(ShiftPlan shiftPlan, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_PLANNER,
+        return ofInternal(EventType.SHIFTPLAN_JOINED_PLANNER,
+            RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_PLANNER,
             Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
                 "volunteerId", volunteerId)), shiftPlan, volunteerId);
     }

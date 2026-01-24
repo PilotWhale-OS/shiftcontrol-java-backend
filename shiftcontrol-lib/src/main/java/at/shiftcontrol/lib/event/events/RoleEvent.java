@@ -24,16 +24,18 @@ public class RoleEvent extends BaseEvent {
     }
 
     public static RoleEvent roleCreated(Role role) {
-        return ofInternal(RoutingKeys.ROLE_CREATED, role);
+        return ofInternal(EventType.ROLE_CREATED, RoutingKeys.ROLE_CREATED, role);
     }
 
     public static RoleEvent roleUpdated(Role role) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.ROLE_UPDATED,
+        return ofInternal(EventType.ROLE_UPDATED,
+            RoutingKeys.format(RoutingKeys.ROLE_UPDATED,
             java.util.Map.of("roleId", String.valueOf(role.getId()))), role);
     }
 
     public static RoleEvent roleDeleted(Role role) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.ROLE_DELETED,
+        return ofInternal(EventType.ROLE_DELETED,
+            RoutingKeys.format(RoutingKeys.ROLE_DELETED,
             java.util.Map.of("roleId", String.valueOf(role.getId()))), role);
     }
 }

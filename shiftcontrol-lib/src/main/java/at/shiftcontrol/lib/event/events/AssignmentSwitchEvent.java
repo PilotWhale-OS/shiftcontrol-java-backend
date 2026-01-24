@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
 
@@ -25,14 +26,14 @@ public class AssignmentSwitchEvent extends BaseEvent {
     public AssignmentSwitchEvent(
         @JsonProperty("requestedAssignment") AssignmentPart requestedAssignment,
         @JsonProperty("offeringAssignment") AssignmentPart offeringAssignment) {
-        super(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_COMPLETED,
+        super(EventType.TRADE_REQUEST_COMPLETED, RoutingKeys.format(RoutingKeys.TRADE_REQUEST_COMPLETED,
             Map.of("requestedVolunteerId", requestedAssignment.getVolunteerId(),
                    "offeringVolunteerId", offeringAssignment.getVolunteerId())));
         this.requestedAssignment = requestedAssignment;
         this.offeringAssignment = offeringAssignment;
     }
 
-    public static AssignmentSwitchEvent of(Assignment requestedAssignment, Assignment offeringAssignment) {
+    public static AssignmentSwitchEvent assignmentSwitched(Assignment requestedAssignment, Assignment offeringAssignment) {
         return new AssignmentSwitchEvent(
             AssignmentPart.of(requestedAssignment),
             AssignmentPart.of(offeringAssignment)

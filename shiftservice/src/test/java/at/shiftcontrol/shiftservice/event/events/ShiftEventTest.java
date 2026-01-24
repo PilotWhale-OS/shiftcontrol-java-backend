@@ -19,7 +19,7 @@ class ShiftEventTest {
         try (var shiftPartMock = org.mockito.Mockito.mockStatic(ShiftPart.class)) {
             shiftPartMock.when(() -> ShiftPart.of(shift)).thenReturn(shiftPart);
 
-            ShiftEvent shiftEvent = ShiftEvent.ofInternal(routingKey, shift);
+            ShiftEvent shiftEvent = ShiftEvent.ofInternal(null, routingKey, shift);
 
             assertEquals(shiftPart, shiftEvent.getShift());
             assertEquals(routingKey, shiftEvent.getRoutingKey());

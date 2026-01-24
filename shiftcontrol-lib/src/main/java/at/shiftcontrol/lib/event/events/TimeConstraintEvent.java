@@ -26,11 +26,12 @@ public class TimeConstraintEvent extends BaseEvent {
     }
 
     public static TimeConstraintEvent timeConstraintCreated(TimeConstraint timeConstraint) {
-        return ofInternal(RoutingKeys.TIMECONSTRAINT_CREATED, timeConstraint);
+        return ofInternal(EventType.TIMECONSTRAINT_CREATED, RoutingKeys.TIMECONSTRAINT_CREATED, timeConstraint);
     }
 
     public static TimeConstraintEvent timeConstraintDeleted(TimeConstraint timeConstraint) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED, Map.of(
+        return ofInternal(EventType.TIMECONSTRAINT_DELETED,
+                RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED, Map.of(
             "timeConstraintId", String.valueOf(timeConstraint.getId()),
             "volunteerId", timeConstraint.getVolunteer().getId())),
             timeConstraint);

@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
 
@@ -19,32 +20,34 @@ public class AssignmentEvent extends BaseEvent {
 
     @JsonCreator
     public AssignmentEvent(
-        @JsonProperty("routingKey") String routingKey,
+        @JsonProperty("eventType") EventType eventType,
+        String routingKey,
         @JsonProperty("assignment") AssignmentPart assignment) {
-        super(routingKey);
+        super(eventType, routingKey);
         this.assignment = assignment;
     }
 
-    public static AssignmentEvent of(String routingKey, Assignment assignment) {
-        return new AssignmentEvent(routingKey, AssignmentPart.of(assignment));
+    public static AssignmentEvent of(EventType eventType, String routingKey, Assignment assignment) {
+        return new AssignmentEvent(eventType, routingKey, AssignmentPart.of(assignment));
     }
 
-    public static AssignmentEvent forAuctionClaimed(Assignment auction, Assignment oldAuction, String oldVolunteerId) {
-        return of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
+    public static AssignmentEvent auctionClaimed(Assignment auction, Assignment oldAuction, String oldVolunteerId) {
+        return of(EventType.AUCTION_CLAIMED,
+            RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
             "positionSlotId", String.valueOf(oldAuction.getPositionSlot().getId()),
             "oldVolunteerId", oldVolunteerId)), auction
         );
     }
 
-    public static AssignmentEvent forAuctionCreated(Assignment auction) {
-        return of(
+    public static AssignmentEvent auctionCreated(Assignment auction) {
+        return of(EventType.AUCTION_CREATED,
             RoutingKeys.format(RoutingKeys.AUCTION_CREATED,
                 Map.of("positionSlotId", String.valueOf(auction.getPositionSlot().getId()))
             ), auction);
     }
 
-    public static AssignmentEvent forAuctionCanceled(Assignment auction) {
-        return of(
+    public static AssignmentEvent auctionCanceled(Assignment auction) {
+        return of(EventType.AUCTION_CANCELED,
             RoutingKeys.format(RoutingKeys.AUCTION_CANCELED,
                 Map.of("positionSlotId", String.valueOf(auction.getPositionSlot().getId()))
             ), auction);

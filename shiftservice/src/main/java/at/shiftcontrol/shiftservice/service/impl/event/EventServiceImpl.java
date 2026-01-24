@@ -280,7 +280,7 @@ public class EventServiceImpl implements EventService {
                 ));
                 break;
             case "TRADE_REQUEST_COMPLETED":
-                publisher.publishEvent(AssignmentSwitchEvent.of(
+                publisher.publishEvent(AssignmentSwitchEvent.assignmentSwitched(
                     trade.getRequestedAssignment(), trade.getOfferingAssignment()));
                 break;
             case "AUCTION_CREATED":
@@ -361,7 +361,7 @@ public class EventServiceImpl implements EventService {
                     Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                         "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
                 ));
-                publisher.publishEvent(AssignmentSwitchEvent.of(
+                publisher.publishEvent(AssignmentSwitchEvent.assignmentSwitched(
                     trade.getRequestedAssignment(), trade.getOfferingAssignment()));
                 publisher.publishEvent(AssignmentEvent.of(
                     RoutingKeys.format(RoutingKeys.AUCTION_CREATED,

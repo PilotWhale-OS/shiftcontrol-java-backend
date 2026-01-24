@@ -19,7 +19,7 @@ class LocationEventTest {
         try (var locationPartMock = org.mockito.Mockito.mockStatic(LocationPart.class)) {
             locationPartMock.when(() -> LocationPart.of(location)).thenReturn(locationPart);
 
-            LocationEvent locationEvent = LocationEvent.ofInternal(routingKey, location);
+            LocationEvent locationEvent = LocationEvent.ofInternal(null, routingKey, location);
 
             assertEquals(locationPart, locationEvent.getLocation());
             assertEquals(routingKey, locationEvent.getRoutingKey());

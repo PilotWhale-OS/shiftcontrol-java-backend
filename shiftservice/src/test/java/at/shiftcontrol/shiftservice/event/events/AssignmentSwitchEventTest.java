@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 class AssignmentSwitchEventTest {
 
     @Test
-    void of() {
+    void assignmentSwitched() {
         Assignment requestedAssignment = mock(Assignment.class);
         Assignment offeringAssignment = mock(Assignment.class);
 
@@ -25,7 +25,7 @@ class AssignmentSwitchEventTest {
             assignmentPartMock.when(() -> AssignmentPart.of(requestedAssignment)).thenReturn(requestedAssignmentPart);
             assignmentPartMock.when(() -> AssignmentPart.of(offeringAssignment)).thenReturn(offeringAssignmentPart);
 
-            AssignmentSwitchEvent assignmentSwitchEvent = AssignmentSwitchEvent.of(requestedAssignment, offeringAssignment);
+            AssignmentSwitchEvent assignmentSwitchEvent = AssignmentSwitchEvent.assignmentSwitched(requestedAssignment, offeringAssignment);
 
             assertEquals(requestedAssignmentPart, assignmentSwitchEvent.getRequestedAssignment());
             assertEquals(offeringAssignmentPart, assignmentSwitchEvent.getOfferingAssignment());

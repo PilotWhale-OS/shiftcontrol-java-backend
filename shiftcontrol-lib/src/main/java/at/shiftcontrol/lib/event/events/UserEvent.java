@@ -27,24 +27,25 @@ public class UserEvent extends BaseEvent {
     }
 
     public static UserEvent eventUpdate(Volunteer volunteer) {
-        return new UserEvent(RoutingKeys.format(USERS_EVENT_UPDATE, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
+        return new UserEvent(EventType.USERS_EVENT_UPDATE, RoutingKeys.format(USERS_EVENT_UPDATE, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
     }
 
     public static UserEvent planUpdate(Volunteer volunteer, String shiftPlanId) {
-        return new UserEvent(RoutingKeys.format(USERS_PLAN_UPDATE,
+        return new UserEvent(EventType.USERS_PLAN_UPDATE,
+            RoutingKeys.format(USERS_PLAN_UPDATE,
             Map.of("shiftPlanId", shiftPlanId, "userId", volunteer.getId())),
             VolunteerPart.of(volunteer));
     }
 
     public static UserEvent lock(Volunteer volunteer) {
-        return new UserEvent(RoutingKeys.format(USERS_EVENT_LOCK, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
+        return new UserEvent(EventType.USERS_EVENT_LOCK, RoutingKeys.format(USERS_EVENT_LOCK, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
     }
 
     public static UserEvent unlock(Volunteer volunteer) {
-        return new UserEvent(RoutingKeys.format(USERS_EVENT_UNLOCK, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
+        return new UserEvent(EventType.USERS_EVENT_UNLOCK, RoutingKeys.format(USERS_EVENT_UNLOCK, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
     }
 
     public static UserEvent reset(Volunteer volunteer) {
-        return new UserEvent(RoutingKeys.format(USERS_RESET, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
+        return new UserEvent(EventType.USERS_RESET, RoutingKeys.format(USERS_RESET, Map.of("userId", volunteer.getId())), VolunteerPart.of(volunteer));
     }
 }

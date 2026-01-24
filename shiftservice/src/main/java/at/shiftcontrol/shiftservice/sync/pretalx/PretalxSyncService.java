@@ -217,7 +217,7 @@ public class PretalxSyncService {
             log.info("Creating new activity: {} for event: {} (ID: {})", activity.getName(), event.getName(), event.getId());
 
             activity = activityDao.save(activity);
-            eventPublisher.publishEvent(ActivityEvent.forCreated(activity).withActingUserId(ACTING_USERID));
+            eventPublisher.publishEvent(ActivityEvent.activityCreated(activity).withActingUserId(ACTING_USERID));
         } else {
             activity = activityOpt.get();
 
@@ -231,7 +231,7 @@ public class PretalxSyncService {
                 activity.setLocation(location);
                 activity.setDescription(descriptionText);
                 activity = activityDao.save(activity);
-                eventPublisher.publishEvent(ActivityEvent.forUpdated(activity).withActingUserId(ACTING_USERID));
+                eventPublisher.publishEvent(ActivityEvent.activityUpdated(activity).withActingUserId(ACTING_USERID));
                 log.info("Updating existing activity: {} (ID: {}) for event: {} (ID: {})", activity.getName(), activity.getId(), event.getName(), event.getId());
             }
         }

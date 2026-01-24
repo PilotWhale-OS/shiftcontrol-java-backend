@@ -26,13 +26,15 @@ public class RewardPointTransactionEvent extends BaseEvent {
     }
 
     public static RewardPointTransactionEvent transactionCreated(RewardPointsTransaction transaction) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_CREATED, Map.of(
+        return ofInternal(EventType.REWARDPOINTS_TRANSACTION_CREATED,
+            RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_CREATED, Map.of(
             "volunteerId", transaction.getVolunteerId(),
             "transactionId", transaction.getId())), transaction);
     }
 
     public static RewardPointTransactionEvent transactionFailed(RewardPointsTransaction transaction) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_FAILED, Map.of(
+        return ofInternal(EventType.REWARDPOINTS_TRANSACTION_FAILED,
+            RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_FAILED, Map.of(
             "volunteerId", transaction.getVolunteerId())), transaction
         );
     }

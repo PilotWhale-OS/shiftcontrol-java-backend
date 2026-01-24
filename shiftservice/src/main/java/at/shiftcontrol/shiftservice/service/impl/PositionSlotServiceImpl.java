@@ -213,7 +213,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignment.setStatus(AssignmentStatus.AUCTION);
         assignment = assignmentDao.save(assignment);
 
-        publisher.publishEvent(AssignmentEvent.forAuctionCreated(assignment));
+        publisher.publishEvent(AssignmentEvent.auctionCreated(assignment));
         return assignmentAssemblingMapper.assemble(assignment);
     }
 
@@ -258,7 +258,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignment = assignmentDao.save(assignment);
-        publisher.publishEvent(AssignmentEvent.forAuctionCanceled(assignment));
+        publisher.publishEvent(AssignmentEvent.auctionCanceled(assignment));
         return assignmentAssemblingMapper.assemble(assignment);
     }
 

@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public abstract class BaseEvent {
+    private final EventType eventType;
     @JsonIgnore
     private final String routingKey;
 

@@ -19,7 +19,7 @@ class TradeEventTest {
         try (var tradePartMock = org.mockito.Mockito.mockStatic(TradePart.class)) {
             tradePartMock.when(() -> TradePart.of(trade)).thenReturn(tradePart);
 
-            TradeEvent tradeEvent = TradeEvent.ofInternal(routingKey, trade);
+            TradeEvent tradeEvent = TradeEvent.ofInternal(null, routingKey, trade);
 
             assertEquals(routingKey, tradeEvent.getRoutingKey());
             assertEquals(tradePart, tradeEvent.getTrade());

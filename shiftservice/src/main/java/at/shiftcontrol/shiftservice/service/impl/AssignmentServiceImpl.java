@@ -46,7 +46,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         // update reward points
         rewardPointsService.onAssignmentReassignedAuction(oldAuction, auction, requestDto.getAcceptedRewardPointsConfigHash());
 
-        publisher.publishEvent(AssignmentEvent.forAuctionClaimed(auction, oldAuction, oldVolunteerId));
+        publisher.publishEvent(AssignmentEvent.auctionClaimed(auction, oldAuction, oldVolunteerId));
         return auction;
     }
 
@@ -67,7 +67,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         rewardPointsService.onAssignmentReassignedTrade(trade.getOfferingAssignment(), trade.getRequestedAssignment());
 
-        publisher.publishEvent(AssignmentSwitchEvent.of(oldTrade.getRequestedAssignment(), oldTrade.getOfferingAssignment()));
+        publisher.publishEvent(AssignmentSwitchEvent.assignmentSwitched(oldTrade.getRequestedAssignment(), oldTrade.getOfferingAssignment()));
 
         return trade;
     }

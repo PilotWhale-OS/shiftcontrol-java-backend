@@ -26,14 +26,14 @@ public class ShiftEvent extends BaseEvent {
     }
 
     public static ShiftEvent shiftCreated(Shift shift) {
-        return ofInternal(RoutingKeys.SHIFT_CREATED, shift);
+        return ofInternal(EventType.SHIFT_CREATED, RoutingKeys.SHIFT_CREATED, shift);
     }
 
     public static ShiftEvent shiftUpdated(Shift shift) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shift.getId()))), shift);
+        return ofInternal(EventType.SHIFT_UPDATED, RoutingKeys.format(RoutingKeys.SHIFT_UPDATED, Map.of("shiftId", String.valueOf(shift.getId()))), shift);
     }
 
     public static ShiftEvent shiftDeleted(Shift shift) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shift.getId()))), shift);
+        return ofInternal(EventType.SHIFT_DELETED, RoutingKeys.format(RoutingKeys.SHIFT_DELETED, Map.of("shiftId", String.valueOf(shift.getId()))), shift);
     }
 }

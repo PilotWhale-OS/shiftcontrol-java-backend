@@ -19,7 +19,7 @@ class RoleEventTest {
         try (var rolePartMock = org.mockito.Mockito.mockStatic(RolePart.class)) {
             rolePartMock.when(() -> RolePart.of(role)).thenReturn(rolePart);
 
-            RoleEvent roleEvent = RoleEvent.ofInternal(routingKey, role);
+            RoleEvent roleEvent = RoleEvent.ofInternal(null, routingKey, role);
 
             assertEquals(rolePart, roleEvent.getRole());
             assertEquals(routingKey, roleEvent.getRoutingKey());

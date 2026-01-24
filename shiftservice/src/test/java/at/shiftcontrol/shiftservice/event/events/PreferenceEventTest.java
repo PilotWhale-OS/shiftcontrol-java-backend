@@ -21,7 +21,7 @@ class PreferenceEventTest {
         try (var positionSlotPartMock = org.mockito.Mockito.mockStatic(PositionSlotPart.class)) {
             positionSlotPartMock.when(() -> PositionSlotPart.of(positionSlot)).thenReturn(positionSlotPart);
 
-            PreferenceEvent preferenceEvent = PreferenceEvent.ofInternal(routingKey, volunteerId, preferenceLevel, positionSlot);
+            PreferenceEvent preferenceEvent = PreferenceEvent.ofInternal(null, routingKey, volunteerId, preferenceLevel, positionSlot);
 
             assertEquals(routingKey, preferenceEvent.getRoutingKey());
             assertEquals(volunteerId, preferenceEvent.getVolunteerId());

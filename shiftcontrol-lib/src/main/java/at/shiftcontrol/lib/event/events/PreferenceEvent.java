@@ -25,12 +25,13 @@ public class PreferenceEvent extends BaseEvent {
         this.positionSlot = positionSlot;
     }
 
-    public static PreferenceEvent ofInternal(String routingKey, String volunteerId, int preferenceLevel, PositionSlot positionSlot) {
-        return new PreferenceEvent(routingKey, volunteerId, preferenceLevel, PositionSlotPart.of(positionSlot));
+    public static PreferenceEvent ofInternal(EventType eventType, String routingKey, String volunteerId, int preferenceLevel, PositionSlot positionSlot) {
+        return new PreferenceEvent(eventType, routingKey, volunteerId, preferenceLevel, PositionSlotPart.of(positionSlot));
     }
 
     public static PreferenceEvent preferenceUpdated(String volunteerId, int preferenceLevel, PositionSlot positionSlot) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
+        return ofInternal(EventType.POSITIONSLOT_PREFERENCE_UPDATED,
+            RoutingKeys.format(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
             Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                 "volunteerId", volunteerId)), volunteerId, preferenceLevel, positionSlot);
     }

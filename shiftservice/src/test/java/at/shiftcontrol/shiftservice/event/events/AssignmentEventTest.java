@@ -19,7 +19,7 @@ class AssignmentEventTest {
         try (var assignmentPartMock = org.mockito.Mockito.mockStatic(AssignmentPart.class)) {
             assignmentPartMock.when(() -> AssignmentPart.of(assignment)).thenReturn(assignmentPart);
 
-            AssignmentEvent assignmentEvent = AssignmentEvent.of(routingKey, assignment);
+            AssignmentEvent assignmentEvent = AssignmentEvent.of(null, routingKey, assignment);
 
             assertEquals(assignmentPart, assignmentEvent.getAssignment());
             assertEquals(routingKey, assignmentEvent.getRoutingKey());

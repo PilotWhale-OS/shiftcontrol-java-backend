@@ -32,14 +32,16 @@ public class TradeEvent extends BaseEvent {
     }
 
     public static TradeEvent tradeCanceled(AssignmentSwitchRequest trade) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
+        return ofInternal(EventType.TRADE_REQUEST_CREATED,
+            RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         );
     }
 
     public static TradeEvent tradeDeclined(AssignmentSwitchRequest trade) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
+        return ofInternal(EventType.TRADE_REQUEST_DECLINED,
+            RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
         );

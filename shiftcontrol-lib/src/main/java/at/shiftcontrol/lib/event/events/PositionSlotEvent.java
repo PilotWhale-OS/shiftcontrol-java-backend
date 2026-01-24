@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
 
@@ -19,27 +20,30 @@ public class PositionSlotEvent extends BaseEvent {
 
     @JsonCreator
     public PositionSlotEvent(
+        @JsonProperty("eventType") EventType eventType,
         @JsonProperty("routingKey") String routingKey,
         @JsonProperty("positionSlot") PositionSlotPart positionSlot) {
-        super(routingKey);
+        super(eventType, routingKey);
         this.positionSlot = positionSlot;
     }
 
-    public static PositionSlotEvent ofInternal(String routingKey, PositionSlot positionSlot) {
-        return new PositionSlotEvent(routingKey, PositionSlotPart.of(positionSlot));
+    public static PositionSlotEvent ofInternal(EventType eventType, String routingKey, PositionSlot positionSlot) {
+        return new PositionSlotEvent(eventType, routingKey, PositionSlotPart.of(positionSlot));
     }
 
     public static PositionSlotEvent positionSlotCreated(PositionSlot positionSlot) {
-        return ofInternal(RoutingKeys.POSITIONSLOT_CREATED, positionSlot);
+        return ofInternal(EventType.POSITIONSLOT_CREATED, RoutingKeys.POSITIONSLOT_CREATED, positionSlot);
     }
 
     public static PositionSlotEvent positionSlotUpdated(PositionSlot positionSlot) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_UPDATED,
+        return ofInternal(EventType.POSITIONSLOT_UPDATED,
+            RoutingKeys.format(RoutingKeys.POSITIONSLOT_UPDATED,
             Map.of("positionSlotId", String.valueOf(positionSlot.getId()))), positionSlot);
     }
 
     public static PositionSlotEvent positionSlotDeleted(PositionSlot positionSlot) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_DELETED,
+        return ofInternal(EventType.POSITIONSLOT_DELETED,
+            RoutingKeys.format(RoutingKeys.POSITIONSLOT_DELETED,
             Map.of("positionSlotId", String.valueOf(positionSlot.getId()))), positionSlot);
     }
 }

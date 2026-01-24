@@ -26,19 +26,22 @@ public class ShiftPlanInviteEvent extends ShiftPlanEvent {
     }
 
     public static ShiftPlanInviteEvent inviteCreated(ShiftPlanInvite invite) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_CREATED,
+        return ofInternal(EventType.SHIFTPLAN_INVITE_CREATED,
+            RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_CREATED,
             Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
                 "inviteId", String.valueOf(invite.getId()))), invite);
     }
 
     public static ShiftPlanInviteEvent inviteDeleted(ShiftPlanInvite invite) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
+        return ofInternal(EventType.SHIFTPLAN_INVITE_DELETED,
+            RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
             Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
                 "inviteId", String.valueOf(invite.getId()))), invite);
     }
 
     public static ShiftPlanInviteEvent inviteRevoked(ShiftPlanInvite invite) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_REVOKED,
+        return ofInternal(EventType.SHIFTPLAN_INVITE_REVOKED,
+            RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_REVOKED,
             Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
                 "inviteId", String.valueOf(invite.getId()))), invite);
     }

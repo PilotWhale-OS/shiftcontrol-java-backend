@@ -26,7 +26,7 @@ public class TrustAlertEvent extends BaseEvent {
     }
 
     public static TrustAlertEvent alertReceived(TrustAlert trustAlert) {
-        return of(
+        return of(EventType.TRUST_ALERT_RECEIVED,
             RoutingKeys.format(RoutingKeys.TRUST_ALERT_RECEIVED,
                 Map.of("alertId", String.valueOf(trustAlert.getId()))
             ), trustAlert

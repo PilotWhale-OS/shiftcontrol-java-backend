@@ -27,82 +27,93 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
         this.volunteerId = volunteerId;
     }
 
-    public static PositionSlotVolunteerEvent ofInternal(String routingKey, PositionSlot positionSlot, String volunteerId) {
-        return new PositionSlotVolunteerEvent(routingKey, PositionSlotPart.of(positionSlot), volunteerId);
-    }
-
-    public static PositionSlotVolunteerEvent positionSlotRequestLeave(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
-                Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
-                    "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+    public static PositionSlotVolunteerEvent ofInternal(EventType eventType, String routingKey, PositionSlot positionSlot, String volunteerId) {
+        return new PositionSlotVolunteerEvent(eventType, routingKey, PositionSlotPart.of(positionSlot), volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoined(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
+        return ofInternal(EventType.POSITIONSLOT_JOINED,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeft(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
+            return ofInternal(EventType.POSITIONSLOT_LEFT,
+                    RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestDenied(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED,
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_JOIN_DECLINED,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestCreated(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_JOIN,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestWithdrawn(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestAccepted(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_ACCEPTED,
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_JOIN_ACCEPTED,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_ACCEPTED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestDeclined(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED,
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_JOIN_DECLINED,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED,
+                Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
+                    "volunteerId", volunteerId)),
+            positionSlot, volunteerId);
+    }
+
+    public static PositionSlotVolunteerEvent positionSlotRequestLeave(PositionSlot positionSlot, String volunteerId) {
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_LEAVE,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeaveRequestWithdrawn(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeaveRequestAccepted(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED,
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeaveRequestDeclined(PositionSlot positionSlot, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED,
+        return ofInternal(EventType.POSITIONSLOT_REQUEST_LEAVE_DECLINED,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);

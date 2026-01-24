@@ -25,14 +25,16 @@ public class RoleVolunteerEvent extends RoleEvent {
     }
 
     public static RoleVolunteerEvent roleAssigned(Role role, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.ROLE_ASSIGNED, Map.of(
+        return ofInternal(EventType.ROLE_ASSIGNED,
+            RoutingKeys.format(RoutingKeys.ROLE_ASSIGNED, Map.of(
                 "roleId", String.valueOf(role.getId()),
                 "volunteerId", volunteerId)),
             role, volunteerId);
     }
 
     public static RoleVolunteerEvent roleUnassigned(Role role, String volunteerId) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.ROLE_UNASSIGNED, Map.of(
+        return ofInternal(EventType.ROLE_UNASSIGNED,
+            RoutingKeys.format(RoutingKeys.ROLE_UNASSIGNED, Map.of(
                 "roleId", String.valueOf(role.getId()),
                 "volunteerId", volunteerId)),
             role, volunteerId);

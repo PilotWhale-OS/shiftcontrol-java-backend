@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.LocationPart;
 
@@ -15,26 +16,28 @@ import at.shiftcontrol.lib.event.events.parts.LocationPart;
 public class LocationEvent extends BaseEvent {
     private final LocationPart location;
 
-    public LocationEvent(String routingKey, LocationPart location) {
-        super(routingKey);
+    public LocationEvent(EventType eventType, String routingKey, LocationPart location) {
+        super(eventType, routingKey);
         this.location = location;
     }
 
-    public static LocationEvent ofInternal(String routingKey, Location location) {
-        return new LocationEvent(routingKey, LocationPart.of(location));
+    public static LocationEvent ofInternal(EventType eventType, String routingKey, Location location) {
+        return new LocationEvent(eventType, routingKey, LocationPart.of(location));
     }
 
     public static LocationEvent locationCreated(Location location) {
-        return ofInternal(RoutingKeys.LOCATION_CREATED, location);
+        return ofInternal(EventType.LOCATION_CREATED, RoutingKeys.LOCATION_CREATED, location);
     }
 
     public static LocationEvent locationUpdated(Location location) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
+        return ofInternal(EventType.LOCATION_UPDATED,
+            RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
             Map.of("locationId", String.valueOf(location.getId()))), location);
     }
 
     public static LocationEvent locationDeleted(Location location) {
-        return ofInternal(RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
+        return ofInternal(EventType.LOCATION_DELETED,
+            RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
             Map.of("locationId", String.valueOf(location.getId()))), location);
     }
 }
