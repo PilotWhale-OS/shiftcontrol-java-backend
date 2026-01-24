@@ -32,18 +32,21 @@ public class PositionSlotEvent extends BaseEvent {
     }
 
     public static PositionSlotEvent positionSlotCreated(PositionSlot positionSlot) {
-        return ofInternal(EventType.POSITIONSLOT_CREATED, RoutingKeys.POSITIONSLOT_CREATED, positionSlot);
+        return ofInternal(EventType.POSITIONSLOT_CREATED, RoutingKeys.POSITIONSLOT_CREATED, positionSlot)
+            .withDescription("New position slot created: " + positionSlot.getName());
     }
 
     public static PositionSlotEvent positionSlotUpdated(PositionSlot positionSlot) {
         return ofInternal(EventType.POSITIONSLOT_UPDATED,
             RoutingKeys.format(RoutingKeys.POSITIONSLOT_UPDATED,
-            Map.of("positionSlotId", String.valueOf(positionSlot.getId()))), positionSlot);
+            Map.of("positionSlotId", String.valueOf(positionSlot.getId()))), positionSlot)
+            .withDescription("Position slot updated: " + positionSlot.getName());
     }
 
     public static PositionSlotEvent positionSlotDeleted(PositionSlot positionSlot) {
         return ofInternal(EventType.POSITIONSLOT_DELETED,
             RoutingKeys.format(RoutingKeys.POSITIONSLOT_DELETED,
-            Map.of("positionSlotId", String.valueOf(positionSlot.getId()))), positionSlot);
+            Map.of("positionSlotId", String.valueOf(positionSlot.getId()))), positionSlot)
+            .withDescription("Position slot deleted: " + positionSlot.getName());
     }
 }

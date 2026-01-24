@@ -37,6 +37,8 @@ public class AssignmentSwitchEvent extends BaseEvent {
         return new AssignmentSwitchEvent(
             AssignmentPart.of(requestedAssignment),
             AssignmentPart.of(offeringAssignment)
-        );
+        ).withDescription("Assignment switch completed between volunteers "
+            + requestedAssignment.getAssignedVolunteer().getId() + " and "
+            + offeringAssignment.getAssignedVolunteer().getId());
     }
 }

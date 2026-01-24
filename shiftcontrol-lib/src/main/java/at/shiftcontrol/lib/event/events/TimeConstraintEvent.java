@@ -26,7 +26,8 @@ public class TimeConstraintEvent extends BaseEvent {
     }
 
     public static TimeConstraintEvent timeConstraintCreated(TimeConstraint timeConstraint) {
-        return ofInternal(EventType.TIMECONSTRAINT_CREATED, RoutingKeys.TIMECONSTRAINT_CREATED, timeConstraint);
+        return ofInternal(EventType.TIMECONSTRAINT_CREATED, RoutingKeys.TIMECONSTRAINT_CREATED, timeConstraint)
+            .withDescription("New time constraint created for volunteer ID: " + timeConstraint.getVolunteer().getId());
     }
 
     public static TimeConstraintEvent timeConstraintDeleted(TimeConstraint timeConstraint) {
@@ -34,6 +35,7 @@ public class TimeConstraintEvent extends BaseEvent {
                 RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED, Map.of(
             "timeConstraintId", String.valueOf(timeConstraint.getId()),
             "volunteerId", timeConstraint.getVolunteer().getId())),
-            timeConstraint);
+            timeConstraint)
+            .withDescription("Time constraint deleted for volunteer ID: " + timeConstraint.getVolunteer().getId());
     }
 }

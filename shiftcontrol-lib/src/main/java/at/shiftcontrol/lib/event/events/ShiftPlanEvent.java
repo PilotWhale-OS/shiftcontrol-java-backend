@@ -32,18 +32,21 @@ public class ShiftPlanEvent extends BaseEvent {
     public static ShiftPlanEvent planUpdated(ShiftPlan shiftPlan) {
         return ofInternal(EventType.SHIFTPLAN_UPDATED,
             RoutingKeys.format(RoutingKeys.SHIFTPLAN_UPDATED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()))), shiftPlan);
+            Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()))), shiftPlan)
+            .withDescription("Shift plan updated: " + shiftPlan.getName());
     }
 
     public static ShiftPlanEvent planDeleted(ShiftPlan shiftPlan) {
         return ofInternal(EventType.SHIFTPLAN_DELETED,
             RoutingKeys.format(RoutingKeys.SHIFTPLAN_DELETED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()))), shiftPlan);
+            Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()))), shiftPlan)
+            .withDescription("Shift plan deleted: " + shiftPlan.getName());
     }
 
     public static ShiftPlanEvent planLockStatusChanged(ShiftPlan shiftPlan) {
         return ofInternal(EventType.SHIFTPLAN_LOCKSTATUS_CHANGED,
             RoutingKeys.format(RoutingKeys.SHIFTPLAN_LOCKSTATUS_CHANGED,
-            Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()))), shiftPlan);
+            Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()))), shiftPlan)
+            .withDescription("Shift plan lock status changed: " + shiftPlan.getName());
     }
 }

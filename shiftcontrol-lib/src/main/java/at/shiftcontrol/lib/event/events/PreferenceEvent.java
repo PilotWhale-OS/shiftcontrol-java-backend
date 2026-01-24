@@ -33,6 +33,7 @@ public class PreferenceEvent extends BaseEvent {
         return ofInternal(EventType.POSITIONSLOT_PREFERENCE_UPDATED,
             RoutingKeys.format(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
             Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
-                "volunteerId", volunteerId)), volunteerId, preferenceLevel, positionSlot);
+                "volunteerId", volunteerId)), volunteerId, preferenceLevel, positionSlot)
+            .withDescription("Preference updated for volunteer " + volunteerId + " on position slot " + positionSlot.getId());
     }
 }

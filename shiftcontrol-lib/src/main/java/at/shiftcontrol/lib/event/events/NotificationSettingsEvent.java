@@ -31,6 +31,6 @@ public class NotificationSettingsEvent extends BaseEvent {
         return ofInternal(EventType.VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED,
             RoutingKeys.format(RoutingKeys.VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED,
                 Map.of("volunteerId", volunteerId)),
-            volunteerId, notificationSettings);
+            volunteerId, notificationSettings).withDescription("Notification settings updated for volunteer ID: " + volunteerId);
     }
 }

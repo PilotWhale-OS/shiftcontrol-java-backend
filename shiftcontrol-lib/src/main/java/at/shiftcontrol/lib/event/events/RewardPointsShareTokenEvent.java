@@ -24,6 +24,7 @@ public class RewardPointsShareTokenEvent extends BaseEvent {
     }
 
     public static RewardPointsShareTokenEvent shareTokenCreated(RewardPointsShareToken shareToken) {
-        return ofInternal(EventType.REWARDPOINTS_SHARETOKEN_CREATED, RoutingKeys.REWARDPOINTS_SHARETOKEN_CREATED, shareToken);
+        return ofInternal(EventType.REWARDPOINTS_SHARETOKEN_CREATED, RoutingKeys.REWARDPOINTS_SHARETOKEN_CREATED, shareToken)
+            .withDescription("New reward points share token created: " + shareToken.getId());
     }
 }

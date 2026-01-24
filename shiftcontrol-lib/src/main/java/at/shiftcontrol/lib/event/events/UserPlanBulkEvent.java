@@ -30,11 +30,13 @@ public class UserPlanBulkEvent extends BaseEvent {
 
     public static UserPlanBulkEvent add(Collection<Volunteer> volunteers, Collection<Role> plans, String shiftPlanId) {
         return new UserPlanBulkEvent(EventType.USERS_PLAN_BULK_ADD, RoutingKeys.format(USERS_PLAN_BULK_ADD, Map.of("shiftPlanId", shiftPlanId)),
-            VolunteerPart.of(volunteers), RolePart.of(plans));
+            VolunteerPart.of(volunteers), RolePart.of(plans))
+            .withDescription("Added " + volunteers.size() + " volunteers to " + plans.size() + " plans in shift plan " + shiftPlanId);
     }
 
     public static UserPlanBulkEvent remove(Collection<Volunteer> volunteers, Collection<Role> plans, String shiftPlanId) {
         return new UserPlanBulkEvent(EventType.USERS_PLAN_BULK_REMOVE, RoutingKeys.format(USERS_PLAN_BULK_REMOVE, Map.of("shiftPlanId", shiftPlanId)),
-            VolunteerPart.of(volunteers), RolePart.of(plans));
+            VolunteerPart.of(volunteers), RolePart.of(plans))
+            .withDescription("Removed " + volunteers.size() + " volunteers from " + plans.size() + " plans in shift plan " + shiftPlanId);
     }
 }

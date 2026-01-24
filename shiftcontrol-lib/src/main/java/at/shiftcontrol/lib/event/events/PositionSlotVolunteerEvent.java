@@ -36,7 +36,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Volunteer " + volunteerId + " joined position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeft(PositionSlot positionSlot, String volunteerId) {
@@ -44,7 +45,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                     RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Volunteer " + volunteerId + " left position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestDenied(PositionSlot positionSlot, String volunteerId) {
@@ -52,7 +54,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Join request denied for volunteer " + volunteerId + " for position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestCreated(PositionSlot positionSlot, String volunteerId) {
@@ -60,7 +63,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Volunteer " + volunteerId + " requested to join position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestWithdrawn(PositionSlot positionSlot, String volunteerId) {
@@ -68,7 +72,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Volunteer " + volunteerId + " withdrew join request for position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestAccepted(PositionSlot positionSlot, String volunteerId) {
@@ -76,7 +81,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_ACCEPTED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Join request accepted for volunteer " + volunteerId + " for position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestDeclined(PositionSlot positionSlot, String volunteerId) {
@@ -84,7 +90,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Join request declined for volunteer " + volunteerId + " for position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotRequestLeave(PositionSlot positionSlot, String volunteerId) {
@@ -92,7 +99,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Volunteer " + volunteerId + " requested to leave position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeaveRequestWithdrawn(PositionSlot positionSlot, String volunteerId) {
@@ -100,7 +108,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Volunteer " + volunteerId + " withdrew leave request for position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeaveRequestAccepted(PositionSlot positionSlot, String volunteerId) {
@@ -108,7 +117,8 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Leave request accepted for volunteer " + volunteerId + " for position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeaveRequestDeclined(PositionSlot positionSlot, String volunteerId) {
@@ -116,6 +126,7 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
                 RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
-            positionSlot, volunteerId);
+            positionSlot, volunteerId)
+            .withDescription("Leave request declined for volunteer " + volunteerId + " for position slot " + positionSlot.getId());
     }
 }

@@ -27,10 +27,12 @@ public class UserEventBulkEvent extends BaseEvent {
     }
 
     public static UserEventBulkEvent add(Collection<Volunteer> volunteers, Collection<ShiftPlan> plans) {
-        return new UserEventBulkEvent(EventType.USERS_EVENT_BULK_ADD, USERS_EVENT_BULK_ADD, VolunteerPart.of(volunteers), ShiftPlanPart.of(plans));
+        return new UserEventBulkEvent(EventType.USERS_EVENT_BULK_ADD, USERS_EVENT_BULK_ADD, VolunteerPart.of(volunteers), ShiftPlanPart.of(plans))
+            .withDescription("Added " + volunteers.size() + " volunteers to " + plans.size() + " shift plans.");
     }
 
     public static UserEventBulkEvent remove(Collection<Volunteer> volunteers, Collection<ShiftPlan> plans) {
-        return new UserEventBulkEvent(EventType.USERS_EVENT_BULK_REMOVE, USERS_EVENT_BULK_REMOVE, VolunteerPart.of(volunteers), ShiftPlanPart.of(plans));
+        return new UserEventBulkEvent(EventType.USERS_EVENT_BULK_REMOVE, USERS_EVENT_BULK_REMOVE, VolunteerPart.of(volunteers), ShiftPlanPart.of(plans))
+            .withDescription("Removed " + volunteers.size() + " volunteers from " + plans.size() + " shift plans.");
     }
 }

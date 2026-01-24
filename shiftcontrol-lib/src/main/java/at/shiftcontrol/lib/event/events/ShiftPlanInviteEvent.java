@@ -29,20 +29,23 @@ public class ShiftPlanInviteEvent extends ShiftPlanEvent {
         return ofInternal(EventType.SHIFTPLAN_INVITE_CREATED,
             RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_CREATED,
             Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
-                "inviteId", String.valueOf(invite.getId()))), invite);
+                "inviteId", String.valueOf(invite.getId()))), invite)
+            .withDescription("Shift plan invite created: " + invite.getId());
     }
 
     public static ShiftPlanInviteEvent inviteDeleted(ShiftPlanInvite invite) {
         return ofInternal(EventType.SHIFTPLAN_INVITE_DELETED,
             RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_DELETED,
             Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
-                "inviteId", String.valueOf(invite.getId()))), invite);
+                "inviteId", String.valueOf(invite.getId()))), invite)
+            .withDescription("Shift plan invite deleted: " + invite.getId());
     }
 
     public static ShiftPlanInviteEvent inviteRevoked(ShiftPlanInvite invite) {
         return ofInternal(EventType.SHIFTPLAN_INVITE_REVOKED,
             RoutingKeys.format(RoutingKeys.SHIFTPLAN_INVITE_REVOKED,
             Map.of("shiftPlanId", String.valueOf(invite.getShiftPlan().getId()),
-                "inviteId", String.valueOf(invite.getId()))), invite);
+                "inviteId", String.valueOf(invite.getId()))), invite)
+            .withDescription("Shift plan invite revoked: " + invite.getId());
     }
 }

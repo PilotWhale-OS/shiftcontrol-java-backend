@@ -21,15 +21,11 @@ public class TrustAlertEvent extends BaseEvent {
         this.trustAlertPart = trustAlertPart;
     }
 
-    private static TrustAlertEvent of(EventType eventType, String routingKey, TrustAlert trustAlertPart) {
-        return new TrustAlertEvent(eventType, routingKey, TrustAlertPart.of(trustAlertPart));
-    }
-
     public static TrustAlertEvent alertReceived(TrustAlert trustAlert) {
-        return of(EventType.TRUST_ALERT_RECEIVED,
+        return new TrustAlertEvent(EventType.TRUST_ALERT_RECEIVED,
             RoutingKeys.format(RoutingKeys.TRUST_ALERT_RECEIVED,
                 Map.of("alertId", String.valueOf(trustAlert.getId()))
-            ), trustAlert
-        );
+            ), TrustAlertPart.of(trustAlert)
+        ).withDescription("Trust alert received with ID: " + trustAlert.getId());
     }
 }

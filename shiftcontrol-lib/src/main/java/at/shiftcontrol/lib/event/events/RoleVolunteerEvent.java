@@ -29,7 +29,8 @@ public class RoleVolunteerEvent extends RoleEvent {
             RoutingKeys.format(RoutingKeys.ROLE_ASSIGNED, Map.of(
                 "roleId", String.valueOf(role.getId()),
                 "volunteerId", volunteerId)),
-            role, volunteerId);
+            role, volunteerId)
+            .withDescription("Role ID " + role.getId() + " assigned to volunteer ID " + volunteerId);
     }
 
     public static RoleVolunteerEvent roleUnassigned(Role role, String volunteerId) {
@@ -37,6 +38,7 @@ public class RoleVolunteerEvent extends RoleEvent {
             RoutingKeys.format(RoutingKeys.ROLE_UNASSIGNED, Map.of(
                 "roleId", String.valueOf(role.getId()),
                 "volunteerId", volunteerId)),
-            role, volunteerId);
+            role, volunteerId)
+            .withDescription("Role ID " + role.getId() + " unassigned from volunteer ID " + volunteerId);
     }
 }

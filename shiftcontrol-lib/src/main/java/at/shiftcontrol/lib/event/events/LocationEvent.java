@@ -32,12 +32,14 @@ public class LocationEvent extends BaseEvent {
     public static LocationEvent locationUpdated(Location location) {
         return ofInternal(EventType.LOCATION_UPDATED,
             RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
-            Map.of("locationId", String.valueOf(location.getId()))), location);
+            Map.of("locationId", String.valueOf(location.getId()))), location)
+            .withDescription("Location updated: " + location.getName());
     }
 
     public static LocationEvent locationDeleted(Location location) {
         return ofInternal(EventType.LOCATION_DELETED,
             RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
-            Map.of("locationId", String.valueOf(location.getId()))), location);
+            Map.of("locationId", String.valueOf(location.getId()))), location)
+            .withDescription("Location deleted: " + location.getName());
     }
 }

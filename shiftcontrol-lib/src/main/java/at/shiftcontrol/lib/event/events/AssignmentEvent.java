@@ -36,20 +36,24 @@ public class AssignmentEvent extends BaseEvent {
             RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
             "positionSlotId", String.valueOf(oldAuction.getPositionSlot().getId()),
             "oldVolunteerId", oldVolunteerId)), auction
-        );
+        ).withDescription("Auction claimed for position slot ID "
+            + auction.getPositionSlot().getId() + " by volunteer ID "
+            + auction.getAssignedVolunteer().getId());
     }
 
     public static AssignmentEvent auctionCreated(Assignment auction) {
         return of(EventType.AUCTION_CREATED,
             RoutingKeys.format(RoutingKeys.AUCTION_CREATED,
                 Map.of("positionSlotId", String.valueOf(auction.getPositionSlot().getId()))
-            ), auction);
+            ), auction).withDescription("New auction created for position slot ID "
+            + auction.getPositionSlot().getId());
     }
 
     public static AssignmentEvent auctionCanceled(Assignment auction) {
         return of(EventType.AUCTION_CANCELED,
             RoutingKeys.format(RoutingKeys.AUCTION_CANCELED,
                 Map.of("positionSlotId", String.valueOf(auction.getPositionSlot().getId()))
-            ), auction);
+            ), auction).withDescription("Auction canceled for position slot ID "
+            + auction.getPositionSlot().getId());
     }
 }

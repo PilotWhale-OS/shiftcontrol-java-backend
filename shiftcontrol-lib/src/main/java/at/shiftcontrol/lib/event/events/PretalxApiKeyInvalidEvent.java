@@ -16,6 +16,7 @@ public class PretalxApiKeyInvalidEvent extends BaseEvent {
 
     public PretalxApiKeyInvalidEvent(String apiKey) {
         super(EventType.PRETALX_API_KEY_INVALID, RoutingKeys.format(RoutingKeys.PRETALX_API_KEY_INVALID, Map.of("apiKey", apiKey)));
+        withDescription("Pretalx API key is invalid and has been removed: " + apiKey);
         this.apiKey = apiKey;
     }
 }

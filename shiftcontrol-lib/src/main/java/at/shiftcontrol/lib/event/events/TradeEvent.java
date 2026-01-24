@@ -36,7 +36,9 @@ public class TradeEvent extends BaseEvent {
             RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-        );
+        ).withDescription("Trade request canceled between volunteers "
+            + trade.getRequestedAssignment().getAssignedVolunteer().getId() + " and "
+            + trade.getOfferingAssignment().getAssignedVolunteer().getId());
     }
 
     public static TradeEvent tradeDeclined(AssignmentSwitchRequest trade) {
@@ -44,6 +46,8 @@ public class TradeEvent extends BaseEvent {
             RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
             Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
                 "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-        );
+        ).withDescription("Trade request declined between volunteers "
+            + trade.getRequestedAssignment().getAssignedVolunteer().getId() + " and "
+            + trade.getOfferingAssignment().getAssignedVolunteer().getId());
     }
 }

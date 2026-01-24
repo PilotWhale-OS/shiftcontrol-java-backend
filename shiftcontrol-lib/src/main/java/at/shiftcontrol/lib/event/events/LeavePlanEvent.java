@@ -31,6 +31,6 @@ public class LeavePlanEvent extends BaseEvent {
         return new LeavePlanEvent(RoutingKeys.format(SHIFTPLAN_LEAVE, Map.of("shiftPlanId", shiftPlanId)),
             VolunteerPart.of(volunteer),
             AssignmentPart.of(deletedAssignments)
-        );
+        ).withDescription("Volunteer " + volunteer.getId() + " left shift plan " + shiftPlanId);
     }
 }
