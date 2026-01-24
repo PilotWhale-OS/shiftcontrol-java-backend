@@ -16,6 +16,9 @@ import at.shiftcontrol.shiftservice.service.event.EventExportService;
 import at.shiftcontrol.shiftservice.service.event.EventImportService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.SchemaProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -146,12 +149,15 @@ public class EventEndpoint {
             .body(new InputStreamResource(export.getExportStream()));
     }
 
-    @PostMapping("/import")
+    @PostMapping(
+        value = "/import",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @Operation(
         operationId = "importEventData",
         description = "Import event data from external source"
     )
-    public EventImportResultDto importEventData(@RequestPart("file") @NotNull MultipartFile file) {
+    public EventImportResultDto importEventData(@RequestPart("file") @Schema(format = "binary") @NotNull MultipartFile file) {
         return eventImportService.importEvent(file);
     }
 
