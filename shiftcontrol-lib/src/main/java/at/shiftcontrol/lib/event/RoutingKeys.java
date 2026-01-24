@@ -104,7 +104,7 @@ public final class RoutingKeys {
 
     public static final String USERS_EVENT_UPDATE = "users.{userId}.update";
     public static final String USERS_EVENT_LOCK = "users.{userId}.lock";
-    public static final String USERS_EVENT_UNLOCK = "users.{userId}.lock";
+    public static final String USERS_EVENT_UNLOCK = "users.{userId}.unlock";
     public static final String USERS_RESET = "users.{userId}.reset";
 
     public static final String USERS_PLAN_BULK_ADD = "shift-plans.{shiftPlanId}.users.bulk.add";
