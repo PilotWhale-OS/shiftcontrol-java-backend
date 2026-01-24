@@ -8,11 +8,13 @@ import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleStatisticsDto;
+import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class StatisticServiceImpl implements StatisticService {
     private final ShiftDao shiftDao;
+    private final EligibilityService eligibilityService;
 
     @Override
     public OwnStatisticsDto getOwnStatisticsOfShifts(List<Shift> userShifts) {
@@ -82,7 +85,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public ScheduleStatisticsDto getShiftPlanScheduleStatistics(List<Shift> shifts) {
+    public ScheduleStatisticsDto getShiftPlanScheduleStatistics(List<Shift> shifts, Volunteer volunteer) {
         double totalHours = shifts.stream()
             .mapToDouble(s -> TimeUtil.calculateDurationInMinutes(s.getStartTime(), s.getEndTime()))
             .sum() / 60.0;
@@ -100,12 +103,29 @@ public class StatisticServiceImpl implements StatisticService {
                 .count())
             .sum();
 
-        long unassignedCount = totalRequiredSlotCount - assignedSlotCount;
+        int unassignedCount = totalRequiredSlotCount - assignedSlotCount;
+
+        // calculate shift count for signup (count of distinct shifts with at least one unassigned slot where user is eligible to sign up)
+        var shiftWithUnassignedSlots = new HashSet<Shift>();
+        for (var shift : shifts) {
+            for (var slot : shift.getSlots()) {
+                var assignedCount = slot.getAssignments().stream()
+                    .filter(a -> a.getAssignedVolunteer() != null)
+                    .count();
+                if (assignedCount < slot.getDesiredVolunteerCount() &&
+                    eligibilityService.isEligibleAndNotSignedUp(slot, volunteer)) {
+                    shiftWithUnassignedSlots.add(shift);
+                    break;
+                }
+            }
+        }
+        int shiftCountForSignup = shiftWithUnassignedSlots.size();
 
         return ScheduleStatisticsDto.builder()
             .totalShifts(shifts.size())
             .totalHours(totalHours)
-            .unassignedCount((int) unassignedCount)
+            .unassignedCount(unassignedCount)
+            .shiftCountForSignup(shiftCountForSignup)
             .build();
     }
 
