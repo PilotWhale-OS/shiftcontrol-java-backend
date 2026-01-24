@@ -10,6 +10,8 @@ import tools.jackson.databind.node.ObjectNode;
 @Builder
 public class LogEntryCreateDto {
     private String routingKey;
+    private String eventType;
+    private String description;
     private String actingUserId;
     private String traceId;
     private Instant timestamp;

@@ -25,4 +25,6 @@ public class LogSearchDto {
      * Substring match for routing key.
      */
     private String routingKey;
+
+    private String eventType;
 }
