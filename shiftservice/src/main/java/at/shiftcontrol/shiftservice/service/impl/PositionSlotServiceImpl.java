@@ -3,14 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.Map;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -22,6 +14,7 @@ import at.shiftcontrol.lib.event.events.PreferenceEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
+import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
@@ -42,6 +35,12 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -330,6 +329,18 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         if (modificationDto == null) {
             throw new IllegalArgumentException("Modification data must be provided");
         }
+
+        if (positionSlot != null && positionSlot.getAssignments() != null && !positionSlot.getAssignments().isEmpty()) {
+            long assignedCount = positionSlot.getAssignments().stream()
+                .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
+                .count();
+
+            if (modificationDto.getDesiredVolunteerCount() < assignedCount) {
+                throw new ValidationException("Desired volunteer count cannot be less than currently assigned volunteers");
+            }
+        }
+
+
         positionSlot.setName(modificationDto.getName());
         positionSlot.setDescription(modificationDto.getDescription());
         positionSlot.setSkipAutoAssignment(modificationDto.isSkipAutoAssignment());

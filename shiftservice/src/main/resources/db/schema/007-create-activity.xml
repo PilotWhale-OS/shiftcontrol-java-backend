@@ -41,6 +41,18 @@
 
         </createTable>
 
+        <dropForeignKeyConstraint
+                baseTableName="activity"
+                constraintName="fk_activity_location"/>
+        
+        <addForeignKeyConstraint
+                baseTableName="activity"
+                baseColumnNames="location_id"
+                referencedTableName="location"
+                referencedColumnNames="id"
+                constraintName="fk_activity_location"
+                onDelete="SET NULL"/>
+
     </changeSet>
 
 </databaseChangeLog>

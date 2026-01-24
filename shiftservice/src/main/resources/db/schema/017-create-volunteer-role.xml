@@ -1,47 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <!-- Create Volunteer-Role Join Table -->
-  <changeSet id="017-create-volunteer-role" author="paul">
+    <!-- Create Volunteer-Role Join Table -->
+    <changeSet id="017-create-volunteer-role" author="paul">
 
-    <createTable tableName="volunteer_role">
+        <createTable tableName="volunteer_role">
 
-      <column name="volunteer_id" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
+            <column name="volunteer_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
 
-      <column name="role_id" type="BIGINT">
-        <constraints nullable="false"/>
-      </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
-    </createTable>
+        </createTable>
 
-    <!-- Primary key on both columns -->
-    <addPrimaryKey
-      tableName="volunteer_role"
-      columnNames="volunteer_id, role_id"
-      constraintName="pk_volunteer_role"/>
+        <!-- Primary key on both columns -->
+        <addPrimaryKey
+                tableName="volunteer_role"
+                columnNames="volunteer_id, role_id"
+                constraintName="pk_volunteer_role"/>
 
-    <!-- Foreign key to shift -->
-    <addForeignKeyConstraint
-      baseTableName="volunteer_role"
-      baseColumnNames="volunteer_id"
-      referencedTableName="volunteer"
-      referencedColumnNames="id"
-      constraintName="fk_volunteer_role_volunteer"/>
+        <!-- Foreign key to shift -->
+        <addForeignKeyConstraint
+                baseTableName="volunteer_role"
+                baseColumnNames="volunteer_id"
+                referencedTableName="volunteer"
+                referencedColumnNames="id"
+                constraintName="fk_volunteer_role_volunteer"
+                onDelete="CASCADE"/>
 
-    <!-- Foreign key to location -->
-    <addForeignKeyConstraint
-      baseTableName="volunteer_role"
-      baseColumnNames="role_id"
-      referencedTableName="role"
-      referencedColumnNames="id"
-      constraintName="fk_volunteer_role_role"/>
+        <!-- Foreign key to location -->
+        <addForeignKeyConstraint
+                baseTableName="volunteer_role"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fk_volunteer_role_role"
+                onDelete="CASCADE"/>
 
-  </changeSet>
+    </changeSet>
 
 </databaseChangeLog>
