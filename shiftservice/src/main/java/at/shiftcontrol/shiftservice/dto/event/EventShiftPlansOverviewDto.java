@@ -2,6 +2,10 @@ package at.shiftcontrol.shiftservice.dto.event;
 
 import java.util.Collection;
 
+import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
+import at.shiftcontrol.shiftservice.dto.role.RoleDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -9,10 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
-import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 
 @Data
 @NoArgsConstructor
@@ -38,4 +38,8 @@ public class EventShiftPlansOverviewDto {
     @NotNull
     @Valid
     private Collection<ShiftPlanDto> shiftPlans;
+
+    @NotNull
+    @Valid
+    private Collection<RoleDto> roles;
 }

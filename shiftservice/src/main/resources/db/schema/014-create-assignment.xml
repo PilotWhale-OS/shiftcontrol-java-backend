@@ -10,7 +10,7 @@
         <createTable tableName="assignment">
 
             <column name="id" type="BIGINT" autoIncrement="true">
-              <constraints primaryKey="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
 
             <column name="position_slot_id" type="BIGINT">
@@ -33,15 +33,15 @@
 
         <!-- slot-user must be unique -->
         <addUniqueConstraint
-          tableName="assignment"
-          columnNames="position_slot_id, assigned_volunteer_id"
-          constraintName="uq_assignment_slot_volunteer"/>
+                tableName="assignment"
+                columnNames="position_slot_id, assigned_volunteer_id"
+                constraintName="uq_assignment_slot_volunteer"/>
 
         <createIndex
-          indexName="idx_assignment_slot_volunteer"
-          tableName="assignment">
-          <column name="position_slot_id"/>
-          <column name="assigned_volunteer_id"/>
+                indexName="idx_assignment_slot_volunteer"
+                tableName="assignment">
+            <column name="position_slot_id"/>
+            <column name="assigned_volunteer_id"/>
         </createIndex>
 
         <!-- Foreign key to PositionSlot -->
@@ -50,7 +50,8 @@
                 baseColumnNames="position_slot_id"
                 referencedTableName="position_slot"
                 referencedColumnNames="id"
-                constraintName="fk_assignment_position_slot"/>
+                constraintName="fk_assignment_position_slot"
+                onDelete="CASCADE"/>
 
         <!-- Foreign key to Volunteer -->
         <addForeignKeyConstraint
@@ -58,7 +59,8 @@
                 baseColumnNames="assigned_volunteer_id"
                 referencedTableName="volunteer"
                 referencedColumnNames="id"
-                constraintName="fk_assignment_volunteer"/>
+                constraintName="fk_assignment_volunteer"
+                onDelete="CASCADE"/>
 
     </changeSet>
 

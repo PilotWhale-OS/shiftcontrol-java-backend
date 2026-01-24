@@ -1,56 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
 
-  <changeSet id="018-create-position-slot-preference" author="paul">
+    <changeSet id="018-create-position-slot-preference" author="paul">
 
-    <createTable tableName="position_slot_preference">
+        <createTable tableName="position_slot_preference">
 
-      <column name="volunteer_id" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
+            <column name="volunteer_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
 
-      <column name="position_slot_id" type="BIGINT">
-        <constraints nullable="false"/>
-      </column>
+            <column name="position_slot_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
-      <column name="preference_level" type="INT">
-        <constraints nullable="false"/>
-      </column>
+            <column name="preference_level" type="INT">
+                <constraints nullable="false"/>
+            </column>
 
-    </createTable>
+        </createTable>
 
-    <sql>
-      ALTER TABLE position_slot_preference ADD CONSTRAINT int_check CHECK (preference_level &gt;=-10 AND preference_level &lt;= 10)
-    </sql>
+        <sql>
+            ALTER TABLE position_slot_preference
+                ADD CONSTRAINT int_check CHECK (preference_level &gt;= -10 AND preference_level &lt;= 10)
+        </sql>
 
 
-    <!-- Primary key on both columns -->
-    <addPrimaryKey
-      tableName="position_slot_preference"
-      columnNames="volunteer_id, position_slot_id"
-      constraintName="pk_position_slot_preference"/>
+        <!-- Primary key on both columns -->
+        <addPrimaryKey
+                tableName="position_slot_preference"
+                columnNames="volunteer_id, position_slot_id"
+                constraintName="pk_position_slot_preference"/>
 
-    <!-- Foreign key to shift -->
-    <addForeignKeyConstraint
-      baseTableName="position_slot_preference"
-      baseColumnNames="volunteer_id"
-      referencedTableName="volunteer"
-      referencedColumnNames="id"
-      constraintName="fk_position_slot_preference_volunteer"/>
+        <!-- Foreign key to shift -->
+        <addForeignKeyConstraint
+                baseTableName="position_slot_preference"
+                baseColumnNames="volunteer_id"
+                referencedTableName="volunteer"
+                referencedColumnNames="id"
+                constraintName="fk_position_slot_preference_volunteer"
+                onDelete="CASCADE"/>
 
-    <!-- Foreign key to location -->
-    <addForeignKeyConstraint
-      baseTableName="position_slot_preference"
-      baseColumnNames="position_slot_id"
-      referencedTableName="position_slot"
-      referencedColumnNames="id"
-      constraintName="fk_position_slot_preference_position_slot"/>
+        <!-- Foreign key to location -->
+        <addForeignKeyConstraint
+                baseTableName="position_slot_preference"
+                baseColumnNames="position_slot_id"
+                referencedTableName="position_slot"
+                referencedColumnNames="id"
+                constraintName="fk_position_slot_preference_position_slot"
+                onDelete="CASCADE"/>
 
-  </changeSet>
+    </changeSet>
 
 </databaseChangeLog>

@@ -1,18 +1,9 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Map;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.TimeConstraint;
@@ -36,6 +27,12 @@ import at.shiftcontrol.shiftservice.mapper.TimeConstraintMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.TimeConstraintService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +45,8 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private final ApplicationEventPublisher publisher;
     private final SecurityHelper securityHelper;
     private final AssignmentService assignmentService;
+
+    private static final long SECONDS_PER_DAY = Duration.ofDays(1).getSeconds();
 
     @Override
     public Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId) {
@@ -135,14 +134,20 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     private static void validateTimespan(@NonNull TimeConstraintType type, Instant from, Instant to) {
-        if (from == null || to == null || !from.isBefore(to)) {
+        if (from == null || to == null) {
+            throw new BadRequestException("'from' and 'to' timestamps must not be null");
+        }
+
+        if (!from.isBefore(to)) {
             throw new ConflictException("Invalid time range: 'from' must be before 'to'");
         }
+
         if (type == TimeConstraintType.EMERGENCY) {
-            boolean fromIsMidnightUtc = from.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
-            boolean toIsMidnightUtc = to.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
-            if (!fromIsMidnightUtc || !toIsMidnightUtc) {
-                throw new BadRequestException("For EMERGENCY constraints, 'from' and 'to' must be whole days (00:00 UTC).");
+            Duration duration = Duration.between(from, to);
+
+            long seconds = duration.getSeconds();
+            if (seconds <= 0 || seconds % SECONDS_PER_DAY != 0) {
+                throw new BadRequestException("EMERGENCY time constraints must span a positive multiple of 24 hours");
             }
         }
     }

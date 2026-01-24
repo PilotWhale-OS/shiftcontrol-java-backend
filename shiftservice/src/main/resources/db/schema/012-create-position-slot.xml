@@ -39,6 +39,18 @@
 
         </createTable>
 
+        <dropForeignKeyConstraint
+                baseTableName="position_slot"
+                constraintName="fk_position_slot_role"/>
+
+        <addForeignKeyConstraint
+                baseTableName="position_slot"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fk_position_slot_role"
+                onDelete="SET NULL"/>
+
     </changeSet>
 
 </databaseChangeLog>

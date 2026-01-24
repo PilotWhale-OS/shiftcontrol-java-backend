@@ -2,6 +2,7 @@ package at.shiftcontrol.lib.entity;
 
 import java.util.Collection;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -36,7 +37,7 @@ public class Volunteer {
     )
     private Collection<Role> roles;
 
-    @OneToMany(mappedBy = "volunteerNotificationAssignmentId.volunteerId")
+    @OneToMany(mappedBy = "volunteerNotificationAssignmentId.volunteerId", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<VolunteerNotificationAssignment> notificationAssignments;
 
     @ManyToMany

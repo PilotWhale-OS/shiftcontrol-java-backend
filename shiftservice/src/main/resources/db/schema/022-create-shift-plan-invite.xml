@@ -53,7 +53,8 @@
                 baseColumnNames="shift_plan_id"
                 referencedTableName="shift_plan"
                 referencedColumnNames="id"
-                constraintName="fk_shift_plan_invite_shift_plan"/>
+                constraintName="fk_shift_plan_invite_shift_plan"
+                onDelete="CASCADE"/>
 
         <createTable tableName="shift_plan_invite_role">
             <column name="invite_id" type="BIGINT">
@@ -74,14 +75,16 @@
                 baseColumnNames="invite_id"
                 referencedTableName="shift_plan_invite"
                 referencedColumnNames="id"
-                constraintName="fk_invite_role_invite"/>
+                constraintName="fk_invite_role_invite"
+                onDelete="CASCADE"/>
 
         <addForeignKeyConstraint
                 baseTableName="shift_plan_invite_role"
                 baseColumnNames="role_id"
                 referencedTableName="role"
                 referencedColumnNames="id"
-                constraintName="fk_invite_role_role"/>
+                constraintName="fk_invite_role_role"
+                onDelete="CASCADE"/>
 
         <createIndex tableName="shift_plan_invite" indexName="idx_shift_plan_invite_shift_plan_id">
             <column name="shift_plan_id"/>
