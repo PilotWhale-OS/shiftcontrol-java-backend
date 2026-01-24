@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.RolePart;
 import at.shiftcontrol.lib.event.events.parts.VolunteerPart;
@@ -21,8 +22,8 @@ public class UserPlanBulkEvent extends BaseEvent {
     private final Collection<VolunteerPart> volunteers;
     private final Collection<RolePart> roles;
 
-    public UserPlanBulkEvent(String routingKey, Collection<VolunteerPart> volunteers, Collection<RolePart> roles) {
-        super(routingKey);
+    public UserPlanBulkEvent(EventType eventType, String routingKey, Collection<VolunteerPart> volunteers, Collection<RolePart> roles) {
+        super(eventType, routingKey);
         this.volunteers = volunteers;
         this.roles = roles;
     }

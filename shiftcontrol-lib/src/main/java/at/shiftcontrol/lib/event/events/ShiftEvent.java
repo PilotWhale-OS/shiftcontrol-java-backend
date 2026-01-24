@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.ShiftPart;
 
@@ -15,13 +16,13 @@ import at.shiftcontrol.lib.event.events.parts.ShiftPart;
 public class ShiftEvent extends BaseEvent {
     private final ShiftPart shift;
 
-    public ShiftEvent(String routingKey, ShiftPart shift) {
-        super(routingKey);
+    public ShiftEvent(EventType eventType, String routingKey, ShiftPart shift) {
+        super(eventType, routingKey);
         this.shift = shift;
     }
 
-    public static ShiftEvent ofInternal(String routingKey, Shift shift) {
-        return new ShiftEvent(routingKey, ShiftPart.of(shift));
+    public static ShiftEvent ofInternal(EventType eventType, String routingKey, Shift shift) {
+        return new ShiftEvent(eventType, routingKey, ShiftPart.of(shift));
     }
 
     public static ShiftEvent shiftCreated(Shift shift) {

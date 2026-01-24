@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.TimeConstraintPart;
 
@@ -15,13 +16,13 @@ import at.shiftcontrol.lib.event.events.parts.TimeConstraintPart;
 public class TimeConstraintEvent extends BaseEvent {
     private final TimeConstraintPart timeConstraint;
 
-    public TimeConstraintEvent(String routingKey, TimeConstraintPart timeConstraint) {
-        super(routingKey);
+    public TimeConstraintEvent(EventType eventType, String routingKey, TimeConstraintPart timeConstraint) {
+        super(eventType, routingKey);
         this.timeConstraint = timeConstraint;
     }
 
-    public static TimeConstraintEvent ofInternal(String routingKey, TimeConstraint timeConstraint) {
-        return new TimeConstraintEvent(routingKey, TimeConstraintPart.of(timeConstraint));
+    public static TimeConstraintEvent ofInternal(EventType eventType, String routingKey, TimeConstraint timeConstraint) {
+        return new TimeConstraintEvent(eventType, routingKey, TimeConstraintPart.of(timeConstraint));
     }
 
     public static TimeConstraintEvent timeConstraintCreated(TimeConstraint timeConstraint) {

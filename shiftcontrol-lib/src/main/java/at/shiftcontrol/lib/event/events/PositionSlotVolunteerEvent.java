@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
 
@@ -18,10 +19,11 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
 
     @JsonCreator
     public PositionSlotVolunteerEvent(
+        @JsonProperty("eventType") EventType eventType,
         @JsonProperty("routingKey") String routingKey,
         @JsonProperty("positionSlot") PositionSlotPart positionSlot,
         @JsonProperty("volunteerId") String volunteerId) {
-        super(routingKey, positionSlot);
+        super(eventType, routingKey, positionSlot);
         this.volunteerId = volunteerId;
     }
 

@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.RolePart;
 
@@ -13,13 +14,13 @@ import at.shiftcontrol.lib.event.events.parts.RolePart;
 public class RoleEvent extends BaseEvent {
     private final RolePart role;
 
-    public RoleEvent(String routingKey, RolePart role) {
-        super(routingKey);
+    public RoleEvent(EventType eventType, String routingKey, RolePart role) {
+        super(eventType, routingKey);
         this.role = role;
     }
 
-    public static RoleEvent ofInternal(String routingKey, Role role) {
-        return new RoleEvent(routingKey, RolePart.of(role));
+    public static RoleEvent ofInternal(EventType eventType, String routingKey, Role role) {
+        return new RoleEvent(eventType, routingKey, RolePart.of(role));
     }
 
     public static RoleEvent roleCreated(Role role) {

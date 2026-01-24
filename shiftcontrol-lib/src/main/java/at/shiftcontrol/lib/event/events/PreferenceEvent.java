@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
 
@@ -17,8 +18,8 @@ public class PreferenceEvent extends BaseEvent {
     private final int preferenceLevel;
     private final PositionSlotPart positionSlot;
 
-    public PreferenceEvent(String routingKey, String volunteerId, int preferenceLevel, PositionSlotPart positionSlot) {
-        super(routingKey);
+    public PreferenceEvent(EventType eventType, String routingKey, String volunteerId, int preferenceLevel, PositionSlotPart positionSlot) {
+        super(eventType, routingKey);
         this.volunteerId = volunteerId;
         this.preferenceLevel = preferenceLevel;
         this.positionSlot = positionSlot;

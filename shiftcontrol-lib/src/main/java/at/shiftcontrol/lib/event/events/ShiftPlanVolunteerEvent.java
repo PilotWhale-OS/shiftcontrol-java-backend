@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.ShiftPlanPart;
 
@@ -14,13 +15,13 @@ import at.shiftcontrol.lib.event.events.parts.ShiftPlanPart;
 public class ShiftPlanVolunteerEvent extends ShiftPlanEvent {
     private final String volunteerId;
 
-    public ShiftPlanVolunteerEvent(String routingKey, ShiftPlanPart shiftPlan, String volunteerId) {
-        super(routingKey, shiftPlan);
+    public ShiftPlanVolunteerEvent(EventType eventType, String routingKey, ShiftPlanPart shiftPlan, String volunteerId) {
+        super(eventType, routingKey, shiftPlan);
         this.volunteerId = volunteerId;
     }
 
-    public static ShiftPlanVolunteerEvent ofInternal(String routingKey, ShiftPlan shiftPlan, String volunteerId) {
-        return new ShiftPlanVolunteerEvent(routingKey, ShiftPlanPart.of(shiftPlan), volunteerId);
+    public static ShiftPlanVolunteerEvent ofInternal(EventType eventType, String routingKey, ShiftPlan shiftPlan, String volunteerId) {
+        return new ShiftPlanVolunteerEvent(eventType, routingKey, ShiftPlanPart.of(shiftPlan), volunteerId);
     }
 
     public static ShiftPlanVolunteerEvent joinedAsVolunteer(ShiftPlan shiftPlan, String volunteerId) {

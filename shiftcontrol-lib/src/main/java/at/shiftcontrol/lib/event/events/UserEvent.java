@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.VolunteerPart;
 import static at.shiftcontrol.lib.event.RoutingKeys.USERS_EVENT_LOCK;
@@ -20,8 +21,8 @@ import static at.shiftcontrol.lib.event.RoutingKeys.USERS_RESET;
 public class UserEvent extends BaseEvent {
     private final VolunteerPart volunteer;
 
-    public UserEvent(String routingKey, VolunteerPart volunteer) {
-        super(routingKey);
+    public UserEvent(EventType eventType, String routingKey, VolunteerPart volunteer) {
+        super(eventType, routingKey);
         this.volunteer = volunteer;
     }
 

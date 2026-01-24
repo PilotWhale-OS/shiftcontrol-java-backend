@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.TrustAlert;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.TrustAlertPart;
 
@@ -15,13 +16,13 @@ import at.shiftcontrol.lib.event.events.parts.TrustAlertPart;
 public class TrustAlertEvent extends BaseEvent {
     private final TrustAlertPart trustAlertPart;
 
-    public TrustAlertEvent(String routingKey, TrustAlertPart trustAlertPart) {
-        super(routingKey);
+    public TrustAlertEvent(EventType eventType, String routingKey, TrustAlertPart trustAlertPart) {
+        super(eventType, routingKey);
         this.trustAlertPart = trustAlertPart;
     }
 
-    private static TrustAlertEvent of(String routingKey, TrustAlert trustAlertPart) {
-        return new TrustAlertEvent(routingKey, TrustAlertPart.of(trustAlertPart));
+    private static TrustAlertEvent of(EventType eventType, String routingKey, TrustAlert trustAlertPart) {
+        return new TrustAlertEvent(eventType, routingKey, TrustAlertPart.of(trustAlertPart));
     }
 
     public static TrustAlertEvent alertReceived(TrustAlert trustAlert) {
