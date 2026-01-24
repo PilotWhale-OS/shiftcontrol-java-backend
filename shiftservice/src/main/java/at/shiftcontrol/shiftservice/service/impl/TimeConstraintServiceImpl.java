@@ -133,10 +133,14 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     private static void validateTimespan(@NonNull TimeConstraintType type, Instant from, Instant to) {
-        if (type == TimeConstraintType.UNAVAILABLE && (from == null || to == null || !from.isBefore(to))) {
+        if (from == null || to == null) {
+            throw new BadRequestException("'from' and 'to' timestamps must not be null");
+        }
+
+        if (type == TimeConstraintType.UNAVAILABLE && !from.isBefore(to)) {
             throw new ConflictException("Invalid time range: 'from' must be before 'to'");
         }
-        if (type == TimeConstraintType.EMERGENCY && (from == null || to == null)) {
+        if (type == TimeConstraintType.EMERGENCY) {
             boolean fromIsMidnightUtc = from.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
             boolean toIsMidnightUtc = to.atZone(ZoneOffset.UTC).toLocalTime().equals(LocalTime.MIDNIGHT);
             if (!fromIsMidnightUtc || !toIsMidnightUtc) {
