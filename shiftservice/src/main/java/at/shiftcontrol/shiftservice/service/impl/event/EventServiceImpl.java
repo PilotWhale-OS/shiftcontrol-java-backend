@@ -27,6 +27,7 @@ import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.EventEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
+import at.shiftcontrol.lib.event.events.ShiftPlanVolunteerEvent;
 import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -247,6 +248,7 @@ public class EventServiceImpl implements EventService {
         Assignment assignmentFix = getAssignment(userId, testIdFix);
         Assignment assignmentInc = getAssignment(userId, ++testIdIncrementing);
         AssignmentSwitchRequest trade = getAssignmentSwitchRequest(userId, ++testIdIncrementing, userIdRequested, ++testIdIncrementing);
+        ShiftPlan shiftPlan = getShiftPlan(++testIdIncrementing);
 
         switch (testEvent) {
             case "POSITIONSLOT_JOINED":
@@ -304,14 +306,14 @@ public class EventServiceImpl implements EventService {
                     ), assignmentInc
                 ));
                 break;
-            case "POSITIONSLOT_REQUEST_LEAVE":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
+            case "POSITIONSLOT_REQUEST_LEAVE_CREATED":
+                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_CREATED,
                         Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
                             "volunteerId", userId)),
                     assignmentFix.getPositionSlot(), userId));
                 break;
             case "POSITIONSLOT_REQUEST_JOIN":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
+                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_CREATED,
                         Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
                             "volunteerId", userId)),
                     assignmentFix.getPositionSlot(), userId));
@@ -339,6 +341,11 @@ public class EventServiceImpl implements EventService {
                         Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
                             "volunteerId", userId)),
                     assignmentFix.getPositionSlot(), userId));
+                break;
+            case "SHIFTPLAN_JOINED_PLANNER":
+                publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_PLANNER,
+                    Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
+                        "volunteerId", userId)), shiftPlan, userId));
                 break;
             default:
                 publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
@@ -378,11 +385,11 @@ public class EventServiceImpl implements EventService {
                         Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()))
                     ), assignmentInc
                 ));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
+                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_CREATED,
                         Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
                             "volunteerId", userId)),
                     assignmentInc.getPositionSlot(), userId));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
+                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_CREATED,
                         Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
                             "volunteerId", userId)),
                     assignmentFix.getPositionSlot(), userId));
@@ -433,6 +440,13 @@ public class EventServiceImpl implements EventService {
     private static PositionSlot getPositionSlot(long id) {
         return PositionSlot.builder()
             .id(id)
+            .build();
+    }
+
+    private static ShiftPlan getShiftPlan(long id) {
+        return ShiftPlan.builder()
+            .id(id)
+            .name("Testname")
             .build();
     }
 

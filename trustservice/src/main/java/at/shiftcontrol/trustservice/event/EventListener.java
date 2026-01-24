@@ -107,12 +107,12 @@ public class EventListener {
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotRequestLeaveWithdraw(event);
 
-            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_CREATED_PREFIX)) {
                 PositionSlotVolunteerEvent event =
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotRequestLeave(event);
 
-            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_JOIN_PREFIX)) {
+            } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.POSITIONSLOT_REQUEST_JOIN_CREATED_PREFIX)) {
                 PositionSlotVolunteerEvent event =
                     objectMapper.readValue(rawJson, PositionSlotVolunteerEvent.class);
                 trustService.handlePositionSlotJoined(event);

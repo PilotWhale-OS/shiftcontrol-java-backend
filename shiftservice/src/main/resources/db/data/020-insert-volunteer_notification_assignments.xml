@@ -21,7 +21,7 @@
 
     <insert tableName="volunteer_notification_assignment">
       <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e6"/>
-      <column name="notification_type" value="VOLUNTEER_TRADES_AUCTIONS_REQUESTS_CHANGED"/>
+      <column name="notification_type" value="ADMIN_TRUST_ALERT_RECEIVED"/>
       <column name="notification_channel" value="PUSH"/>
     </insert>
 

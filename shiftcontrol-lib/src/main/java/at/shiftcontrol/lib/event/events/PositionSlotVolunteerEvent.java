@@ -30,7 +30,7 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
     }
 
     public static PositionSlotVolunteerEvent ofPositionSlotRequestLeave(PositionSlot positionSlot, String volunteerId) {
-        return of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
+        return of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_CREATED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId);

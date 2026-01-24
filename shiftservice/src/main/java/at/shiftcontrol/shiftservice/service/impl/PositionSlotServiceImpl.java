@@ -120,7 +120,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         joinRequest = assignmentDao.save(joinRequest);
 
         // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
+        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_CREATED,
                 Map.of("positionSlotId", String.valueOf(positionSlotId),
                     "volunteerId", currentUserId)),
             positionSlot, currentUserId));
