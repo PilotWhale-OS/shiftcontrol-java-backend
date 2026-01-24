@@ -50,6 +50,16 @@
 
         </createTable>
 
+        <dropForeignKeyConstraint
+                baseTableName="shift"
+                constraintName="fk_shift_location_ref"/>
+        <addForeignKeyConstraint
+                baseTableName="shift"
+                baseColumnNames="location_id"
+                referencedTableName="location"
+                referencedColumnNames="id"
+                constraintName="fk_shift_location_ref"
+                onDelete="SET NULL"/>
     </changeSet>
 
 </databaseChangeLog>
