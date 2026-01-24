@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.event.events;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,8 +14,14 @@ class AssignmentSwitchEventTest {
 
     @Test
     void assignmentSwitched() {
+        Volunteer requestedVolunteer = mock(Volunteer.class);
+        Volunteer offeringVolunteer = mock(Volunteer.class);
         Assignment requestedAssignment = mock(Assignment.class);
         Assignment offeringAssignment = mock(Assignment.class);
+        when(requestedAssignment.getAssignedVolunteer()).thenReturn(requestedVolunteer);
+        when(offeringAssignment.getAssignedVolunteer()).thenReturn(offeringVolunteer);
+        when(requestedVolunteer.getId()).thenReturn("1");
+        when(offeringVolunteer.getId()).thenReturn("2");
 
         AssignmentPart requestedAssignmentPart = mock(AssignmentPart.class);
         AssignmentPart offeringAssignmentPart = mock(AssignmentPart.class);
