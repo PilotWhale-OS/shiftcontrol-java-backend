@@ -330,7 +330,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new IllegalArgumentException("Modification data must be provided");
         }
 
-        if (positionSlot != null && positionSlot.getAssignments() != null && positionSlot.getAssignments().size() > 0) {
+        if (positionSlot != null && positionSlot.getAssignments() != null && !positionSlot.getAssignments().isEmpty()) {
             long assignedCount = positionSlot.getAssignments().stream()
                 .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
                 .count();
