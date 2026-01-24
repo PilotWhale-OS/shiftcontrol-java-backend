@@ -175,9 +175,14 @@ public class EventServiceImpl implements EventService {
         var eventOverviewDto = EventMapper.toEventDto(event);
         var userRelevantShiftPlans = getUserRelatedShiftPlanEntitiesOfEvent(eventId, volunteer);
 
-        // get roles of the user; Remove equally named roles (from different ShiftPlans)
+        // get roles of the user inside this event's shiftplans; Remove equally named roles (from different ShiftPlans)
         var roles = volunteer.getRoles().stream()
             .map(RoleMapper::toRoleDto)
+            .filter(roleDto -> userRelevantShiftPlans.stream()
+                .anyMatch(shiftPlan -> shiftPlan.getRoles().stream()
+                    .anyMatch(role -> role.getName().equals(roleDto.getName()))
+                )
+            )
             .collect(Collectors.toMap(
                 RoleDto::getName,
                 r -> r,
