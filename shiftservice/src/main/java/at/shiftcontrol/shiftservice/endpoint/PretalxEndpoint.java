@@ -19,6 +19,7 @@ import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dto.PretalxApiKeyDetailsDto;
 import at.shiftcontrol.shiftservice.dto.PretalxApiKeyDto;
 import at.shiftcontrol.shiftservice.sync.pretalx.PretalxApiKeyService;
+import at.shiftcontrol.shiftservice.sync.pretalx.PretalxSyncService;
 
 @Slf4j
 @RestController
@@ -26,6 +27,7 @@ import at.shiftcontrol.shiftservice.sync.pretalx.PretalxApiKeyService;
 @RequiredArgsConstructor
 public class PretalxEndpoint {
     private final PretalxApiKeyService pretalxApiKeyService;
+    private final PretalxSyncService pretalxSyncService;
 
     @GetMapping
     @AdminOnly
@@ -58,5 +60,16 @@ public class PretalxEndpoint {
     )
     public void removeApiKey(@PathVariable String apiKey) {
         pretalxApiKeyService.removeKey(apiKey);
+    }
+
+    @PostMapping("/sync")
+    @AdminOnly
+    @Operation(
+        summary = "Trigger immediate synchronization with Pretalx",
+        operationId = "syncPretalxNow",
+        description = "Triggers an immediate synchronization with all configured Pretalx API keys."
+    )
+    public void syncNow() {
+        pretalxSyncService.syncAll();
     }
 }

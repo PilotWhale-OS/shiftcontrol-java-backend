@@ -40,7 +40,7 @@ public class Event {
     @Column()
     private String shortDescription;
 
-    @Size(max = 1025)
+    @Size(max = 1024)
     @Column(length = 1024)
     private String longDescription;
 
@@ -54,6 +54,10 @@ public class Event {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<SocialMediaLink> socialMediaLinks;
+
+    @Size(max = 2048)
+    @Column(length = 2048)
+    private String rewardPointsRedeemUrl;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Location> locations;

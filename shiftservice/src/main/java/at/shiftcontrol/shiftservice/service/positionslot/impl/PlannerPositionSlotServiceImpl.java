@@ -77,7 +77,6 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
                 }
                 assignmentService.accept(assignment);
                 publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotJoinRequestAccepted(assignment.getPositionSlot(), userId));
-
             }
             default -> throw new IllegalStateException("Unexpected value: " + assignment.getStatus());
         }

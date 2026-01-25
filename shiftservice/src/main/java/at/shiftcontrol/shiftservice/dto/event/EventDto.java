@@ -41,4 +41,7 @@ public class EventDto {
     @NotNull
     @Valid
     private Collection<SocialMediaLinkDto> socialMediaLinks;
+
+    @Size(max = 2048)
+    private String rewardPointsRedeemUrl;
 }

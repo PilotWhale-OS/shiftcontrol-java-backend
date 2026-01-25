@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.impl;
+package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
 import java.util.Collection;
 
@@ -10,8 +10,19 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotEvent;
@@ -38,7 +49,7 @@ import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import at.shiftcontrol.shiftservice.service.positionslot.PositionSlotService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
@@ -279,34 +290,55 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) {
+        //VERIFY
         var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
         var positionSlot = PositionSlot.builder()
             .shift(shift)
             .build();
+        validateUniqueNameInShift(modificationDto.getName(), shift, null);
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
+
+        //ACT: save position slot
         positionSlot = positionSlotDao.save(positionSlot);
+
+        //NOTIFY: publish event
         publisher.publishEvent(PositionSlotEvent.positionSlotCreated(positionSlot));
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
+    private void validateUniqueNameInShift(@NotNull @Size(max = 50) String name, Shift shift, Long excludePositionSlotId) {
+        shift.getSlots().stream()
+            .filter(slot -> slot.getName().equalsIgnoreCase(name)
+                && (excludePositionSlotId == null || slot.getId() != excludePositionSlotId))
+            .findAny()
+            .ifPresent(slot -> {
+                throw new ValidationException("A position slot with the name '%s' already exists in shift '%s'".formatted(name, shift.getName()));
+            });
+    }
+
     @Override
     public PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto) {
+        //VERIFY
         var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsPlanner(positionSlot);
+        validateUniqueNameInShift(modificationDto.getName(), positionSlot.getShift(), positionSlot.getId());
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
+
+        //ACT: save position slot
         positionSlot = positionSlotDao.save(positionSlot);
 
+        //NOTIFY: publish event
         publisher.publishEvent(PositionSlotEvent.positionSlotUpdated(positionSlot));
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
-    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot) {
+    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, @NonNull PositionSlot positionSlot) {
         if (modificationDto == null) {
             throw new IllegalArgumentException("Modification data must be provided");
         }
 
-        if (positionSlot != null && positionSlot.getAssignments() != null && !positionSlot.getAssignments().isEmpty()) {
+        if (positionSlot.getAssignments() != null && !positionSlot.getAssignments().isEmpty()) {
             long assignedCount = positionSlot.getAssignments().stream()
                 .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
                 .count();

@@ -27,6 +27,7 @@ public class EventMapper {
             .endTime(event.getEndTime())
             .active(isActive(now, event))
             .socialMediaLinks(toSocialMediaLinkDto(event.getSocialMediaLinks()))
+            .rewardPointsRedeemUrl(event.getRewardPointsRedeemUrl())
             .build();
     }
 
@@ -43,6 +44,7 @@ public class EventMapper {
             .longDescription(modificationDto.getLongDescription())
             .startTime(modificationDto.getStartTime())
             .endTime(modificationDto.getEndTime())
+            .rewardPointsRedeemUrl(modificationDto.getRewardPointsRedeemUrl())
             .build();
     }
 
@@ -52,6 +54,7 @@ public class EventMapper {
         event.setLongDescription(eventModificationDto.getLongDescription());
         event.setStartTime(eventModificationDto.getStartTime());
         event.setEndTime(eventModificationDto.getEndTime());
+        event.setRewardPointsRedeemUrl(eventModificationDto.getRewardPointsRedeemUrl());
     }
 
     public static ActivityScheduleDto toActivityScheduleDto(Event event, List<Activity> activities) {

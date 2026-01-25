@@ -29,7 +29,7 @@ import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotPreferenceUpdateDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import at.shiftcontrol.shiftservice.service.positionslot.PositionSlotService;
 
 @Tag(
     name = "position-slot-endpoint"
