@@ -51,7 +51,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Volunteer volunteer) {
+    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Volunteer volunteer) { // todo fix testdata
         if (isSignedUp(positionSlot, volunteer)) {
             return PositionSignupState.SIGNED_UP;
         }
@@ -67,11 +67,11 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.TIME_CONFLICT_TIME_CONSTRAINT;
         }
 
-        var conflictingAssignments = assignmentDao.getConflictingAssignmentsExcludingSlot(
+        var conflictingAssignments = assignmentDao.getConflictingAssignmentsExcludingShift(
             volunteer.getId(),
             positionSlot.getShift().getStartTime(),
             positionSlot.getShift().getEndTime(),
-            positionSlot.getId()
+            positionSlot.getShift().getId()
         );
         if (!conflictingAssignments.isEmpty()) {
             return PositionSignupState.TIME_CONFLICT_ASSIGNMENT;
@@ -166,7 +166,7 @@ public class EligibilityServiceImpl implements EligibilityService {
 
     @Override
     public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        return assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
+        return assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, positionSlot);
     }
 
     @Override
@@ -177,7 +177,7 @@ public class EligibilityServiceImpl implements EligibilityService {
 
     @Override
     public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        var a = assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
+        var a = assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, positionSlot);
         if (a.isEmpty()) {
             return;
         }
