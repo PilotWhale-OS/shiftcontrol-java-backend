@@ -25,6 +25,7 @@ import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
+import at.shiftcontrol.shiftservice.service.positionslot.impl.PositionSlotServiceImpl;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 import static org.mockito.ArgumentMatchers.any;

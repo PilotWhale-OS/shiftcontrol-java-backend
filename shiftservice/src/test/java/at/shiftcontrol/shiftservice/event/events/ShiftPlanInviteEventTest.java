@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 class ShiftPlanInviteEventTest {
 
     @Test
-    void of() {
+    void ofInternal() {
         String routingKey = "routingKey";
         ShiftPlanInvite invite = mock(ShiftPlanInvite.class);
         ShiftPlan shiftPlan = mock(ShiftPlan.class);
@@ -28,7 +28,7 @@ class ShiftPlanInviteEventTest {
             shiftPlanPartMock.when(() -> ShiftPlanPart.of(shiftPlan)).thenReturn(shiftPlanPart);
             invitePartMock.when(() -> InvitePart.of(invite)).thenReturn(invitePart);
 
-            ShiftPlanInviteEvent shiftPlanInviteEvent = ShiftPlanInviteEvent.of(routingKey, invite);
+            ShiftPlanInviteEvent shiftPlanInviteEvent = ShiftPlanInviteEvent.ofInternal(null, routingKey, invite);
 
             assertEquals(routingKey, shiftPlanInviteEvent.getRoutingKey());
             assertEquals(shiftPlanPart, shiftPlanInviteEvent.getShiftPlan());

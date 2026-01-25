@@ -28,7 +28,4 @@ public interface EventService {
     EventDto updateEvent(long eventId, EventModificationDto eventModificationDto);
 
     void deleteEvent(long eventId);
-
-    // TODO delete this test method
-    boolean sendTestEvent(String event);
 }

@@ -4,6 +4,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.context.ApplicationEventPublisher;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -20,13 +28,6 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -195,10 +196,14 @@ class TimeConstraintServiceImplTest {
         when(timeConstraintDao.searchByVolunteerAndEvent(USER_ID, EVENT_ID)).thenReturn(List.of());
         when(assignmentDao.getConflictingAssignments(eq(USER_ID), any(), any())).thenReturn(List.of());
 
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(USER_ID);
         TimeConstraint saved = new TimeConstraint();
         saved.setId(10L);
         saved.setStartTime(dto.getFrom());
         saved.setEndTime(dto.getTo());
+        saved.setVolunteer(volunteer);
 
         when(timeConstraintDao.save(any(TimeConstraint.class))).thenReturn(saved);
 

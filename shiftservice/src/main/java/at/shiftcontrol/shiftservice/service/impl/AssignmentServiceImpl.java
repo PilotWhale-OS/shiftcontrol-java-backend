@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
@@ -48,11 +46,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         // update reward points
         rewardPointsService.onAssignmentReassignedAuction(oldAuction, auction, requestDto.getAcceptedRewardPointsConfigHash());
 
-        publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
-            "positionSlotId", String.valueOf(oldAuction.getPositionSlot().getId()),
-            "oldVolunteerId", oldVolunteerId)), auction
-        ));
-
+        publisher.publishEvent(AssignmentEvent.auctionClaimed(auction, oldAuction, oldVolunteerId));
         return auction;
     }
 
@@ -73,7 +67,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         rewardPointsService.onAssignmentReassignedTrade(trade.getOfferingAssignment(), trade.getRequestedAssignment());
 
-        publisher.publishEvent(AssignmentSwitchEvent.of(oldTrade.getRequestedAssignment(), oldTrade.getOfferingAssignment()));
+        publisher.publishEvent(AssignmentSwitchEvent.assignmentSwitched(oldTrade.getRequestedAssignment(), oldTrade.getOfferingAssignment()));
 
         return trade;
     }
@@ -113,11 +107,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignment = assignmentDao.save(assignment);
 
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
-                Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
-                    "volunteerId", assignment.getAssignedVolunteer().getId())),
-            assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
-
+        publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotJoined(assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
         return assignment;
     }
 
@@ -135,11 +125,8 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignmentSwitchRequestDao.cancelTradesForOfferedPositionAndRequestedUser(positionSlot.getId(), volunteer.getId());
         assignment = assignmentDao.save(assignment);
 
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
-                Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
-                    "volunteerId", volunteer.getId())),
-            positionSlot, volunteer.getId()));
 
+        publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotJoined(assignment.getPositionSlot(), volunteer.getId()));
         return assignment;
     }
 
@@ -155,10 +142,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignmentDao.delete(assignment);
 
         //NOTIFY: publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
-                Map.of("positionSlotId", String.valueOf(assignment.getPositionSlot().getId()),
-                    "volunteerId", assignment.getAssignedVolunteer().getId())),
-            assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
+        publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotLeft(assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
     }
 
     @Override
@@ -173,10 +157,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             );
 
             // publish event
-            publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
-                    Map.of("positionSlotId", String.valueOf((auction.getPositionSlot().getId())),
-                        "volunteerId", auction.getAssignedVolunteer().getId())),
-                auction.getPositionSlot(), auction.getAssignedVolunteer().getId()));
+            publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotLeft(auction.getPositionSlot(), auction.getAssignedVolunteer().getId()));
         });
 
         assignmentDao.deleteAll(auctions);
@@ -187,13 +168,9 @@ public class AssignmentServiceImpl implements AssignmentService {
     public void declineAllSignupRequests(ShiftPlan shiftPlan) {
         Collection<Assignment> requests = assignmentDao.findSignupRequestsByShiftPlanId(shiftPlan.getId());
 
-        requests.forEach(request -> {
-            // publish event
-            publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_DECLINED,
-                    Map.of("positionSlotId", String.valueOf((request.getPositionSlot().getId())),
-                        "volunteerId", request.getAssignedVolunteer().getId())),
-                request.getPositionSlot(), request.getAssignedVolunteer().getId()));
-        });
+        // publish events
+        requests.forEach(request ->
+            publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotJoinRequestDenied(request.getPositionSlot(), request.getAssignedVolunteer().getId())));
 
         assignmentDao.deleteAll(requests);
     }

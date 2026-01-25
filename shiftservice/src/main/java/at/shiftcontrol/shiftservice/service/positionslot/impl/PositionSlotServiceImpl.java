@@ -1,12 +1,21 @@
-package at.shiftcontrol.shiftservice.service.impl;
+package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
 import java.util.Collection;
-import java.util.Map;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
@@ -32,15 +41,9 @@ import at.shiftcontrol.shiftservice.mapper.AssignmentAssemblingMapper;
 import at.shiftcontrol.shiftservice.mapper.PositionSlotAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import at.shiftcontrol.shiftservice.service.positionslot.PositionSlotService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -119,11 +122,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         joinRequest = assignmentDao.save(joinRequest);
 
         // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", currentUserId)),
-            positionSlot, currentUserId));
-
+        publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotJoinRequestCreated(positionSlot, currentUserId));
         return assignmentAssemblingMapper.assemble(joinRequest);
     }
 
@@ -141,7 +140,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignmentDao.save(assignment);
 
         // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.ofPositionSlotRequestLeave(assignment.getPositionSlot(), currentUserId));
+        publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotRequestLeave(assignment.getPositionSlot(), currentUserId));
     }
 
     @Override
@@ -154,11 +153,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new IllegalArgumentException("Assignment not in request status");
         }
         LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw join request");
+
         // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", currentUserId)),
-            assignment.getPositionSlot(), currentUserId));
+        publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotJoinRequestWithdrawn(assignment.getPositionSlot(), currentUserId));
         // delete assignment
         assignmentDao.delete(assignment);
     }
@@ -176,11 +173,9 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // change back to signed-up state
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignmentDao.save(assignment);
+
         // publish event
-        publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
-                Map.of("positionSlotId", String.valueOf(positionSlotId),
-                    "volunteerId", currentUserId)),
-            assignment.getPositionSlot(), currentUserId));
+        publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotLeaveRequestWithdrawn(assignment.getPositionSlot(), currentUserId));
     }
 
     private void assertJoinPossible(PositionSlot positionSlot, Volunteer volunteer) {
@@ -222,11 +217,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assignment.setStatus(AssignmentStatus.AUCTION);
         assignment = assignmentDao.save(assignment);
 
-        publisher.publishEvent(AssignmentEvent.of(
-            RoutingKeys.format(RoutingKeys.AUCTION_CREATED,
-                Map.of("positionSlotId", String.valueOf(positionSlotId))
-            ), assignment
-        ));
+        publisher.publishEvent(AssignmentEvent.auctionCreated(assignment));
         return assignmentAssemblingMapper.assemble(assignment);
     }
 
@@ -271,12 +262,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         }
         assignment.setStatus(AssignmentStatus.ACCEPTED);
         assignment = assignmentDao.save(assignment);
-        publisher.publishEvent(AssignmentEvent.of(
-            RoutingKeys.format(
-                RoutingKeys.AUCTION_CANCELED,
-                Map.of("positionSlotId", String.valueOf(positionSlotId))
-            ), assignment
-        ));
+        publisher.publishEvent(AssignmentEvent.auctionCanceled(assignment));
         return assignmentAssemblingMapper.assemble(assignment);
     }
 
@@ -289,9 +275,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
             throw new IllegalArgumentException("Preference must be between -10 and 10");
         }
         positionSlotDao.setPreference(currentUserId, positionSlotId, preference);
-        publisher.publishEvent(PreferenceEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_PREFERENCE_UPDATED,
-            Map.of("positionSlotId", String.valueOf(positionSlotId),
-                "volunteerId", currentUserId)), currentUserId, preference, positionSlot));
+        publisher.publishEvent(PreferenceEvent.preferenceUpdated(currentUserId, preference, positionSlot));
     }
 
     @Override
@@ -303,34 +287,55 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     public PositionSlotDto createPositionSlot(@NonNull Long shiftId, @NonNull PositionSlotModificationDto modificationDto) {
+        //VERIFY
         var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
         var positionSlot = PositionSlot.builder()
             .shift(shift)
             .build();
+        validateUniqueNameInShift(modificationDto.getName(), shift, null);
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
+
+        //ACT: save position slot
         positionSlot = positionSlotDao.save(positionSlot);
-        publisher.publishEvent(PositionSlotEvent.of(RoutingKeys.POSITIONSLOT_CREATED, positionSlot));
+
+        //NOTIFY: publish event
+        publisher.publishEvent(PositionSlotEvent.positionSlotCreated(positionSlot));
         return positionSlotAssemblingMapper.assemble(positionSlot);
+    }
+
+    private void validateUniqueNameInShift(@NotNull @Size(max = 50) String name, Shift shift, Long excludePositionSlotId) {
+        shift.getSlots().stream()
+            .filter(slot -> slot.getName().equalsIgnoreCase(name)
+                && (excludePositionSlotId == null || slot.getId() != excludePositionSlotId))
+            .findAny()
+            .ifPresent(slot -> {
+                throw new ValidationException("A position slot with the name '%s' already exists in shift '%s'".formatted(name, shift.getName()));
+            });
     }
 
     @Override
     public PositionSlotDto updatePositionSlot(@NonNull Long positionSlotId, @NonNull PositionSlotModificationDto modificationDto) {
+        //VERIFY
         var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsPlanner(positionSlot);
+        validateUniqueNameInShift(modificationDto.getName(), positionSlot.getShift(), positionSlot.getId());
         validateModificationDtoAndSetPositionSlotFields(modificationDto, positionSlot);
+
+        //ACT: save position slot
         positionSlot = positionSlotDao.save(positionSlot);
-        publisher.publishEvent(PositionSlotEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_UPDATED,
-            Map.of("positionSlotId", String.valueOf(positionSlotId))), positionSlot));
+
+        //NOTIFY: publish event
+        publisher.publishEvent(PositionSlotEvent.positionSlotUpdated(positionSlot));
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
-    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot) {
+    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, @NonNull PositionSlot positionSlot) {
         if (modificationDto == null) {
             throw new IllegalArgumentException("Modification data must be provided");
         }
 
-        if (positionSlot != null && positionSlot.getAssignments() != null && !positionSlot.getAssignments().isEmpty()) {
+        if (positionSlot.getAssignments() != null && !positionSlot.getAssignments().isEmpty()) {
             long assignedCount = positionSlot.getAssignments().stream()
                 .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
                 .count();
@@ -359,8 +364,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         var positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsPlanner(positionSlot);
 
-        var positionSlotEvent = PositionSlotEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_DELETED,
-            Map.of("positionSlotId", String.valueOf(positionSlotId))), positionSlot);
+        var positionSlotEvent = PositionSlotEvent.positionSlotDeleted(positionSlot);
         positionSlotDao.delete(positionSlot);
         publisher.publishEvent(positionSlotEvent);
     }

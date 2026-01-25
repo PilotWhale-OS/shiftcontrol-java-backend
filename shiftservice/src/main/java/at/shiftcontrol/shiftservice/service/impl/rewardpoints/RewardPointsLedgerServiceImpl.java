@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.RewardPointsTransaction;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.RewardPointTransactionEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.type.RewardPointTransactionType;
@@ -109,17 +108,11 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
         try {
             RewardPointsTransaction saved = dao.save(tx);
 
-            publisher.publishEvent(RewardPointTransactionEvent.of(RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_CREATED, Map.of(
-                "volunteerId", saved.getVolunteerId(),
-                "transactionId", saved.getId())), saved
-            ));
+            publisher.publishEvent(RewardPointTransactionEvent.transactionCreated(saved));
             return new BookingResultDto(true, saved);
         } catch (DataIntegrityViolationException e) {
             // publish failed event with uncommitted transaction data
-            publisher.publishEvent(RewardPointTransactionEvent.of(RoutingKeys.format(RoutingKeys.REWARDPOINTS_TRANSACTION_FAILED, Map.of(
-                "volunteerId", tx.getVolunteerId())), tx
-            ));
-
+            publisher.publishEvent(RewardPointTransactionEvent.transactionFailed(tx));
             return new BookingResultDto(false, null);
         }
     }

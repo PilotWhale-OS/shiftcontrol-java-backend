@@ -2,12 +2,10 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Location;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.ActivityEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -73,7 +71,7 @@ public class ActivityServiceImpl implements ActivityService {
         //ACT
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.forCreated(activity));
+        publisher.publishEvent(ActivityEvent.activityCreated(activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -88,7 +86,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.forUpdated(activity));
+        publisher.publishEvent(ActivityEvent.activityUpdated(activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -137,8 +135,7 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BadRequestException("Cannot modify read-only activity");
         }
 
-        var activityEvent = ActivityEvent.of(RoutingKeys.format(RoutingKeys.ACTIVITY_DELETED,
-            Map.of("activityId", String.valueOf(activityId))), activity);
+        var activityEvent = ActivityEvent.activityDeleted(activity);
         activityDao.delete(activity);
         publisher.publishEvent(activityEvent);
     }

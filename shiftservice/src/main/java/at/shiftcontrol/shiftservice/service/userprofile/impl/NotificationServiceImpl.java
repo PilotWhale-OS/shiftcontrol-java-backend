@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.VolunteerNotificationAssignment;
 import at.shiftcontrol.lib.entity.VolunteerNotificationAssignmentId;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.NotificationSettingsEvent;
 import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
 import at.shiftcontrol.lib.type.NotificationChannel;
@@ -99,9 +98,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         var settings = fetchPersistedSettings(userId, type);
 
-        publisher.publishEvent(NotificationSettingsEvent.of(RoutingKeys.format(RoutingKeys.VOLUNTEER_NOTIFICATION_PREFERENCE_UPDATED,
-            Map.of("volunteerId", userId)),
-            userId, NotificationSettingsMapper.toEntity(settings)));
+        publisher.publishEvent(NotificationSettingsEvent.settingsUpdated(userId, NotificationSettingsMapper.toEntity(settings)));
         return settings;
     }
 

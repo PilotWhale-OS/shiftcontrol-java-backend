@@ -1,6 +1,9 @@
 package at.shiftcontrol.shiftservice.service.impl.event;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -19,20 +22,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import at.shiftcontrol.lib.entity.Event;
-import at.shiftcontrol.lib.entity.PositionSlot;
-import at.shiftcontrol.lib.entity.Shift;
-import at.shiftcontrol.lib.entity.ShiftPlan;
-import at.shiftcontrol.lib.event.RoutingKeys;
-import at.shiftcontrol.lib.event.events.EventEvent;
-import at.shiftcontrol.lib.exception.BadRequestException;
-import at.shiftcontrol.lib.exception.FileExportException;
-import at.shiftcontrol.lib.type.AssignmentStatus;
-import at.shiftcontrol.lib.type.ExportFormat;
-import at.shiftcontrol.shiftservice.annotation.AdminOnly;
-import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dto.event.EventExportDto;
-import at.shiftcontrol.shiftservice.service.event.EventExportService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -42,9 +35,20 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+
+import at.shiftcontrol.lib.entity.Event;
+import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.event.events.EventEvent;
+import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.FileExportException;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.lib.type.ExportFormat;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
+import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dto.event.EventExportDto;
+import at.shiftcontrol.shiftservice.service.event.EventExportService;
 
 @Service
 @RequiredArgsConstructor
@@ -75,10 +79,7 @@ public class EventExportServiceImpl implements EventExportService {
             case XLSX -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         });
 
-        publisher.publishEvent(EventEvent.of(RoutingKeys.format(RoutingKeys.EVENT_EXPORTED, Map.of(
-            "eventId", String.valueOf(eventId),
-            "exportFormat", exportFormat.name()
-        )), event));
+        publisher.publishEvent(EventEvent.eventExported(event, exportFormat.name()));
 
         return EventExportDto.builder()
             .exportStream(new ByteArrayInputStream(out.toByteArray()))

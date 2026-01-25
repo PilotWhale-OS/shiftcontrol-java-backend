@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.RolePart;
 import at.shiftcontrol.lib.event.events.parts.VolunteerPart;
@@ -21,19 +22,21 @@ public class UserPlanBulkEvent extends BaseEvent {
     private final Collection<VolunteerPart> volunteers;
     private final Collection<RolePart> roles;
 
-    public UserPlanBulkEvent(String routingKey, Collection<VolunteerPart> volunteers, Collection<RolePart> roles) {
-        super(routingKey);
+    public UserPlanBulkEvent(EventType eventType, String routingKey, Collection<VolunteerPart> volunteers, Collection<RolePart> roles) {
+        super(eventType, routingKey);
         this.volunteers = volunteers;
         this.roles = roles;
     }
 
     public static UserPlanBulkEvent add(Collection<Volunteer> volunteers, Collection<Role> plans, String shiftPlanId) {
-        return new UserPlanBulkEvent(RoutingKeys.format(USERS_PLAN_BULK_ADD, Map.of("shiftPlanId", shiftPlanId)),
-            VolunteerPart.of(volunteers), RolePart.of(plans));
+        return new UserPlanBulkEvent(EventType.USERS_PLAN_BULK_ADD, RoutingKeys.format(USERS_PLAN_BULK_ADD, Map.of("shiftPlanId", shiftPlanId)),
+            VolunteerPart.of(volunteers), RolePart.of(plans))
+            .withDescription("Added " + volunteers.size() + " volunteers to " + plans.size() + " plans in shift plan " + shiftPlanId);
     }
 
     public static UserPlanBulkEvent remove(Collection<Volunteer> volunteers, Collection<Role> plans, String shiftPlanId) {
-        return new UserPlanBulkEvent(RoutingKeys.format(USERS_PLAN_BULK_REMOVE, Map.of("shiftPlanId", shiftPlanId)),
-            VolunteerPart.of(volunteers), RolePart.of(plans));
+        return new UserPlanBulkEvent(EventType.USERS_PLAN_BULK_REMOVE, RoutingKeys.format(USERS_PLAN_BULK_REMOVE, Map.of("shiftPlanId", shiftPlanId)),
+            VolunteerPart.of(volunteers), RolePart.of(plans))
+            .withDescription("Removed " + volunteers.size() + " volunteers from " + plans.size() + " plans in shift plan " + shiftPlanId);
     }
 }

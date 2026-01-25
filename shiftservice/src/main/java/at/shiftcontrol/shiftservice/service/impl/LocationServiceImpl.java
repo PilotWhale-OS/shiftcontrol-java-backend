@@ -1,7 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Location;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.LocationEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
@@ -68,7 +66,7 @@ public class LocationServiceImpl implements LocationService {
 
         newLocation = locationDao.save(newLocation);
 
-        publisher.publishEvent(LocationEvent.forCreated(newLocation));
+        publisher.publishEvent(LocationEvent.locationCreated(newLocation));
         return LocationMapper.toLocationDto(newLocation);
     }
 
@@ -90,7 +88,7 @@ public class LocationServiceImpl implements LocationService {
 
         location = locationDao.save(location);
 
-        publisher.publishEvent(LocationEvent.forUpdated(location));
+        publisher.publishEvent(LocationEvent.locationUpdated(location));
         return LocationMapper.toLocationDto(location);
     }
 
@@ -110,8 +108,7 @@ public class LocationServiceImpl implements LocationService {
             throw new BadRequestException("Cannot modify read-only location");
         }
 
-        var locationEvent = LocationEvent.of(RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
-            Map.of("locationId", String.valueOf(locationId))), location);
+        var locationEvent = LocationEvent.locationDeleted(location);
         locationDao.delete(location);
         publisher.publishEvent(locationEvent);
     }

@@ -3,11 +3,9 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Map;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.TimeConstraint;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.event.events.TimeConstraintEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
@@ -99,7 +97,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
         }
 
         //NOTIFY: Publish event
-        publisher.publishEvent(TimeConstraintEvent.of(RoutingKeys.TIMECONSTRAINT_CREATED, entity));
+        publisher.publishEvent(TimeConstraintEvent.timeConstraintCreated(entity));
         return TimeConstraintMapper.toDto(entity);
     }
 
@@ -127,7 +125,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
                 assignment = assignmentDao.save(assignment);
 
                 // publish event
-                publisher.publishEvent(PositionSlotVolunteerEvent.ofPositionSlotRequestLeave(
+                publisher.publishEvent(PositionSlotVolunteerEvent.positionSlotRequestLeave(
                     assignment.getPositionSlot(), assignment.getAssignedVolunteer().getId()));
             }
         }
@@ -157,8 +155,7 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     public void delete(long timeConstraintId) {
         var timeConstraint = timeConstraintDao.getById(timeConstraintId);
 
-        var timeConstraintEvent = TimeConstraintEvent.of(RoutingKeys.format(RoutingKeys.TIMECONSTRAINT_DELETED,
-            Map.of("timeConstraintId", String.valueOf(timeConstraintId), "volunteerId", timeConstraint.getVolunteer().getId())), timeConstraint);
+        var timeConstraintEvent = TimeConstraintEvent.timeConstraintDeleted(timeConstraint);
         timeConstraintDao.delete(timeConstraint);
         publisher.publishEvent(timeConstraintEvent);
     }

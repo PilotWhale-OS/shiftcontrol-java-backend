@@ -2,27 +2,6 @@ package at.shiftcontrol.shiftservice.endpoint.event;
 
 import java.util.Collection;
 
-import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.dto.event.EventDto;
-import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
-import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
-import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
-import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
-import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
-import at.shiftcontrol.shiftservice.service.DashboardService;
-import at.shiftcontrol.shiftservice.service.event.EventCloneService;
-import at.shiftcontrol.shiftservice.service.event.EventExportService;
-import at.shiftcontrol.shiftservice.service.event.EventImportService;
-import at.shiftcontrol.shiftservice.service.event.EventService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperty;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -39,6 +18,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.dto.event.EventDto;
+import at.shiftcontrol.shiftservice.dto.event.EventImportResultDto;
+import at.shiftcontrol.shiftservice.dto.event.EventModificationDto;
+import at.shiftcontrol.shiftservice.dto.event.EventShiftPlansOverviewDto;
+import at.shiftcontrol.shiftservice.dto.event.EventsDashboardOverviewDto;
+import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanContactInfoDto;
+import at.shiftcontrol.shiftservice.service.DashboardService;
+import at.shiftcontrol.shiftservice.service.event.EventCloneService;
+import at.shiftcontrol.shiftservice.service.event.EventExportService;
+import at.shiftcontrol.shiftservice.service.event.EventImportService;
+import at.shiftcontrol.shiftservice.service.event.EventService;
 
 @Slf4j
 @RestController
@@ -184,15 +184,5 @@ public class EventEndpoint {
         return eventService.getPlannerContactInfo(
             ConvertUtil.idToLong(eventId),
             userProvider.getCurrentUser().getUserId());
-    }
-
-    // TODO delete this test controller!!!
-    @GetMapping("/trust-alert")
-    @Operation(
-        operationId = "sendTestEvent",
-        description = "sends a test event to the event bus"
-    )
-    public boolean sendTestEvent(@RequestParam String event) {
-        return eventService.sendTestEvent(event);
     }
 }

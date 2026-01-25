@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
-import java.util.Map;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.dto.TrustAlertDto;
 import at.shiftcontrol.lib.entity.TrustAlert;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.TrustAlertEvent;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.dao.TrustAlertDao;
@@ -40,11 +37,7 @@ public class TrustAlertServiceImpl implements TrustAlertService {
         TrustAlert entity = trustAlertAssemblingMapper.toEntity(alert);
         entity = trustAlertDao.save(entity);
 
-        publisher.publishEvent(TrustAlertEvent.of(
-            RoutingKeys.format(RoutingKeys.TRUST_ALERT_RECEIVED,
-                Map.of("alertId", String.valueOf(entity.getId()))
-            ), entity
-        ));
+        publisher.publishEvent(TrustAlertEvent.alertReceived(entity));
 
         return trustAlertAssemblingMapper.toDto(entity);
     }

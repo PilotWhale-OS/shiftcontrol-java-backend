@@ -7,15 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import at.shiftcontrol.lib.event.events.ActivityEvent;
-import at.shiftcontrol.lib.event.events.EventEvent;
-
-import at.shiftcontrol.lib.event.events.LocationEvent;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Location;
+import at.shiftcontrol.lib.event.events.ActivityEvent;
+import at.shiftcontrol.lib.event.events.EventEvent;
+import at.shiftcontrol.lib.event.events.LocationEvent;
 import at.shiftcontrol.pretalxclient.model.Room;
 import at.shiftcontrol.pretalxclient.model.Submission;
 import at.shiftcontrol.pretalxclient.model.TalkSlot;
@@ -58,6 +57,7 @@ public class PretalxSyncService {
     }
 
     @Scheduled(cron = "${pretalx.sync.cron}")
+    @Transactional
     public void syncAll() {
         apiKeyLoader.refreshApiKeys();
         var accessibleEvents = apiKeyLoader.accessibleEventSlugs();
@@ -98,7 +98,7 @@ public class PretalxSyncService {
                 .endTime(endTime)
                 .build();
             event = eventDao.save(event);
-            eventPublisher.publishEvent(EventEvent.forEventCreated(event).withActingUserId(ACTING_USERID));
+            eventPublisher.publishEvent(EventEvent.eventCreated(event).withActingUserId(ACTING_USERID));
             return event;
         } else if (existingEvents.size() == 1) {
             //Update existing event
@@ -111,7 +111,7 @@ public class PretalxSyncService {
                 existingEvent.setStartTime(startTime);
                 existingEvent.setEndTime(endTime);
                 existingEvent = eventDao.save(existingEvent);
-                eventPublisher.publishEvent(EventEvent.forEventUpdated(existingEvent).withActingUserId(ACTING_USERID));
+                eventPublisher.publishEvent(EventEvent.eventUpdated(existingEvent).withActingUserId(ACTING_USERID));
                 return existingEvent;
             }
             return existingEvent;
@@ -148,7 +148,7 @@ public class PretalxSyncService {
                 .description(room.getDescription() != null ? getStringForLocale(room.getDescription()) : null)
                 .build();
             location = locationDao.save(location);
-            eventPublisher.publishEvent(LocationEvent.forCreated(location).withActingUserId(ACTING_USERID));
+            eventPublisher.publishEvent(LocationEvent.locationCreated(location).withActingUserId(ACTING_USERID));
             return location;
         } else if (locations.size() == 1) {
             //Update existing location
@@ -159,7 +159,7 @@ public class PretalxSyncService {
                 location.setName(roomName);
                 location.setDescription(room.getDescription() != null ? getStringForLocale(room.getDescription()) : null);
                 location = locationDao.save(location);
-                eventPublisher.publishEvent(LocationEvent.forUpdated(location).withActingUserId(ACTING_USERID));
+                eventPublisher.publishEvent(LocationEvent.locationUpdated(location).withActingUserId(ACTING_USERID));
                 return location;
             }
             return location;
@@ -219,7 +219,7 @@ public class PretalxSyncService {
             log.info("Creating new activity: {} for event: {} (ID: {})", activity.getName(), event.getName(), event.getId());
 
             activity = activityDao.save(activity);
-            eventPublisher.publishEvent(ActivityEvent.forCreated(activity).withActingUserId(ACTING_USERID));
+            eventPublisher.publishEvent(ActivityEvent.activityCreated(activity).withActingUserId(ACTING_USERID));
         } else {
             activity = activityOpt.get();
 
@@ -233,7 +233,7 @@ public class PretalxSyncService {
                 activity.setLocation(location);
                 activity.setDescription(descriptionText);
                 activity = activityDao.save(activity);
-                eventPublisher.publishEvent(ActivityEvent.forUpdated(activity).withActingUserId(ACTING_USERID));
+                eventPublisher.publishEvent(ActivityEvent.activityUpdated(activity).withActingUserId(ACTING_USERID));
                 log.info("Updating existing activity: {} (ID: {}) for event: {} (ID: {})", activity.getName(), activity.getId(), event.getName(), event.getId());
             }
         }

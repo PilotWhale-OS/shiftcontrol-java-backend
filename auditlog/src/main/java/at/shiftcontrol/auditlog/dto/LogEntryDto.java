@@ -21,6 +21,8 @@ public class LogEntryDto {
     private String id;
 
     private String routingKey;
+    private String eventType;
+    private String description;
 
     private String actingUserId;
     private String traceId;
@@ -33,6 +35,8 @@ public class LogEntryDto {
     public static LogEntryDto of(LogEntry entity) {
         LogEntryDto dto = new LogEntryDto();
         dto.setId(entity.getId().toString());
+        dto.setEventType(entity.getEventType());
+        dto.setDescription(entity.getDescription());
         dto.setRoutingKey(entity.getRoutingKey());
         dto.setActingUserId(entity.getActingUserId());
         dto.setTraceId(entity.getTraceId());

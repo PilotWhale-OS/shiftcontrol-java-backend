@@ -24,6 +24,8 @@ public class AuditLogService {
         var entry = LogEntry.builder()
                 .id(UUID.randomUUID())
                 .routingKey(createDto.getRoutingKey())
+                .eventType(createDto.getEventType())
+                .description(createDto.getDescription())
                 .actingUserId(createDto.getActingUserId())
                 .traceId(createDto.getTraceId())
                 .timestamp(createDto.getTimestamp())

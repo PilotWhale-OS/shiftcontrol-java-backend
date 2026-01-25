@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotModificationDto;
-import at.shiftcontrol.shiftservice.service.PositionSlotService;
+import at.shiftcontrol.shiftservice.service.positionslot.PositionSlotService;
 
 @Tag(
     name = "position-slot-endpoint"
