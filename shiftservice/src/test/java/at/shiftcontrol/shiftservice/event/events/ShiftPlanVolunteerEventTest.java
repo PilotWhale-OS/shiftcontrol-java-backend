@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 class ShiftPlanVolunteerEventTest {
 
     @Test
-    void of() {
+    void ofInternal() {
         String routingKey = "routingKey";
         ShiftPlan shiftPlan = mock(ShiftPlan.class);
         String volunteerId = "volunteerId";
@@ -20,7 +20,7 @@ class ShiftPlanVolunteerEventTest {
         try (var shiftPlanPartMock = org.mockito.Mockito.mockStatic(ShiftPlanPart.class)) {
             shiftPlanPartMock.when(() -> ShiftPlanPart.of(shiftPlan)).thenReturn(shiftPlanPart);
 
-            ShiftPlanVolunteerEvent shiftPlanVolunteerEvent = ShiftPlanVolunteerEvent.of(routingKey, shiftPlan, volunteerId);
+            ShiftPlanVolunteerEvent shiftPlanVolunteerEvent = ShiftPlanVolunteerEvent.ofInternal(null, routingKey, shiftPlan, volunteerId);
 
             assertEquals(routingKey, shiftPlanVolunteerEvent.getRoutingKey());
             assertEquals(shiftPlanPart, shiftPlanVolunteerEvent.getShiftPlan());

@@ -28,7 +28,8 @@ public class UserAssemblingMapper {
         return UserPlanDto.builder()
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
             .email(user.getEmail())
-            .isLocked(volunteer.getLockedPlans().stream().anyMatch(x -> planId.equals(x.getId())))
+            .roles(volunteer == null ? null : RoleMapper.toRoleDto(volunteer.getRoles(), planId))
+            .isLocked(volunteer == null ? null : volunteer.getLockedPlans().stream().anyMatch(x -> planId.equals(x.getId())))
             .build();
     }
 

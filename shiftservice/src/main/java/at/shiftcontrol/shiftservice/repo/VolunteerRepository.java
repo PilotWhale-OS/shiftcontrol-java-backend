@@ -20,13 +20,21 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
             ORDER BY v.id DESC
             LIMIT :size OFFSET :offset
         """)
-    Collection<Volunteer> findAll(long offset, long size);
+    Collection<Volunteer> findAllPaginated(long offset, long size);
 
     @Query("""
             SELECT count(v)
             FROM Volunteer v
         """)
     long findAllSize();
+
+    @Query("""
+            SELECT count(v)
+            FROM Volunteer v
+            JOIN v.volunteeringPlans p
+            WHERE p.id = :shiftPlanId
+        """)
+    long findAllByShiftPlanSize(long shiftPlanId);
 
     @Query("""
             select (count(sp) > 0)
@@ -62,6 +70,24 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, String> {
             WHERE p.id = :shiftPlanId
         """)
     Collection<Volunteer> findAllByShiftPlan(long shiftPlanId);
+
+    @Query("""
+            SELECT v.id
+            FROM Volunteer v
+            JOIN v.volunteeringPlans p
+            WHERE p.id = :shiftPlanId
+        """)
+    Collection<String> findAllIdsByShiftPlan(long shiftPlanId);
+
+    @Query("""
+            SELECT v
+            FROM Volunteer v
+            JOIN v.volunteeringPlans p
+            WHERE p.id = :shiftPlanId
+            ORDER BY v.id DESC
+            LIMIT :size OFFSET :offset
+        """)
+    Collection<Volunteer> findAllByShiftPlanPaginated(long offset, long size, long shiftPlanId);
 
     @Query("""
             SELECT v

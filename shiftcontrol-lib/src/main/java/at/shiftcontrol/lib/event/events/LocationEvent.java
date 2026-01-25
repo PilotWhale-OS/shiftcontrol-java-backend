@@ -1,36 +1,45 @@
 package at.shiftcontrol.lib.event.events;
 
-import at.shiftcontrol.lib.event.RoutingKeys;
+import java.util.Map;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
+import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.LocationPart;
-
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class LocationEvent extends BaseEvent {
     private final LocationPart location;
 
-    public LocationEvent(String routingKey, LocationPart location) {
-        super(routingKey);
+    public LocationEvent(EventType eventType, String routingKey, LocationPart location) {
+        super(eventType, routingKey);
         this.location = location;
     }
 
-    public static LocationEvent of(String routingKey, Location location) {
-        return new LocationEvent(routingKey, LocationPart.of(location));
+    public static LocationEvent ofInternal(EventType eventType, String routingKey, Location location) {
+        return new LocationEvent(eventType, routingKey, LocationPart.of(location));
     }
 
-    public static LocationEvent forCreated(Location location) {
-        return of(RoutingKeys.LOCATION_CREATED, location);
+    public static LocationEvent locationCreated(Location location) {
+        return ofInternal(EventType.LOCATION_CREATED, RoutingKeys.LOCATION_CREATED, location);
     }
 
-    public static LocationEvent forUpdated(Location location) {
-        return of(RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
-            Map.of("locationId", String.valueOf(location.getId()))), location);
+    public static LocationEvent locationUpdated(Location location) {
+        return ofInternal(EventType.LOCATION_UPDATED,
+            RoutingKeys.format(RoutingKeys.LOCATION_UPDATED,
+            Map.of("locationId", String.valueOf(location.getId()))), location)
+            .withDescription("Location updated: " + location.getName());
+    }
+
+    public static LocationEvent locationDeleted(Location location) {
+        return ofInternal(EventType.LOCATION_DELETED,
+            RoutingKeys.format(RoutingKeys.LOCATION_DELETED,
+            Map.of("locationId", String.valueOf(location.getId()))), location)
+            .withDescription("Location deleted: " + location.getName());
     }
 }

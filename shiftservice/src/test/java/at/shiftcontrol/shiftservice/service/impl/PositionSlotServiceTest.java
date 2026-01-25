@@ -2,19 +2,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Optional;
 
-import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.lib.type.AssignmentStatus;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
-import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
-import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
-import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
-import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import at.shiftcontrol.shiftservice.util.TestEntityFactory;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
@@ -23,11 +10,28 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.TimeConstraint;
+import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.NotFoundException;
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.shiftservice.auth.Authorities;
+import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
+import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
+import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
+import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
-@WithMockUser(authorities = "USER")
+@WithMockUser(authorities = { "USER", Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS })
 public class PositionSlotServiceTest {
 
     @Autowired
@@ -36,6 +40,8 @@ public class PositionSlotServiceTest {
     private AssignmentRepository assignmentRepository;
     @Autowired
     TestEntityFactory testEntityFactory;
+    @Autowired
+    private TimeConstraintDao timeConstraintDao;
 
     @MockitoBean
     KeycloakUserService keycloakUserService;
@@ -117,6 +123,9 @@ public class PositionSlotServiceTest {
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         Mockito.when(keycloakUserService.getUserById(any()))
             .thenReturn(testEntityFactory.getUserRepresentationWithId(userId));
+
+        //Prepare db... .-.
+        timeConstraintDao.delete(TimeConstraint.builder().id(1L).build());
 
         PositionSlotRequestDto dto = testEntityFactory.getPositionSlotRequestDto(positionSlotId);
         AssignmentDto assignment = positionSlotService.join(positionSlotId, userId, dto);

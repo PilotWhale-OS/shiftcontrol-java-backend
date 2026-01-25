@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.endpoint;
 
+import at.shiftcontrol.lib.util.ConvertUtil;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +49,7 @@ public class TrustAlertEndpoint {
         operationId = "deleteTrustAlert",
         description = "Deletes the trust alert"
     )
-    public void deleteTrustAlert(@PathVariable long id) {
-        trustAlertService.delete(id);
+    public void deleteTrustAlert(@PathVariable String id) {
+        trustAlertService.delete(ConvertUtil.idToLong(id));
     }
 }

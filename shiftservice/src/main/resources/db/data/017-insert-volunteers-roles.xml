@@ -54,5 +54,73 @@
     </insert>
 
   </changeSet>
+  <changeSet id="017-assign-clone-ranks" author="paul" context="dev">
+
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="e8097a2f-afd2-40a3-a8aa-7ac5f898e77b"/>
+      <column name="role_id" valueNumeric="12"/>
+    </insert>
+
+    <!-- Captain Rex -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="d56d7196-e6cb-4344-82d2-2b1a68991b2a"/>
+      <column name="role_id" valueNumeric="14"/>
+    </insert>
+
+    <!-- Commander Cody -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="9b855259-ce39-4f05-87cc-62b41fd6a6ab"/>
+      <column name="role_id" valueNumeric="13"/>
+    </insert>
+
+    <!-- Commander Wolffe -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="0d828b5d-aa49-48c2-86ba-102bf28e674d"/>
+      <column name="role_id" valueNumeric="13"/>
+    </insert>
+
+    <!-- Commander Fox -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="1379d2a9-39ce-4d36-982f-8ffc654f901a"/>
+      <column name="role_id" valueNumeric="13"/>
+    </insert>
+
+    <!-- Commander Bly -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="3d4674bb-78ad-45a7-9376-daef0ccda57a"/>
+      <column name="role_id" valueNumeric="13"/>
+    </insert>
+
+    <!-- Commander Gree -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="85212921-85cd-4bc1-bce3-e58a43b06792"/>
+      <column name="role_id" valueNumeric="13"/>
+    </insert>
+
+    <!-- Commander Bacara -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="57d0079e-4817-489b-b03a-39f73e4de50b"/>
+      <column name="role_id" valueNumeric="13"/>
+    </insert>
+
+    <!-- Commander Appo -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="f1412fe3-269f-4899-9581-ba6ccc174410"/>
+      <column name="role_id" valueNumeric="13"/>
+    </insert>
+
+    <!-- Captain Hunter -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="374ccd97-f018-4419-98ac-3ad01b2b5163"/>
+      <column name="role_id" valueNumeric="14"/>
+    </insert>
+
+    <!-- Captain Crosshair -->
+    <insert tableName="volunteer_role">
+      <column name="volunteer_id" value="714ea46b-9d68-4df8-957b-be0ac6d330dd"/>
+      <column name="role_id" valueNumeric="14"/>
+    </insert>
+
+  </changeSet>
 
 </databaseChangeLog>

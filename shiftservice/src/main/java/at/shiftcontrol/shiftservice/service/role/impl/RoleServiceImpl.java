@@ -2,7 +2,6 @@ package at.shiftcontrol.shiftservice.service.role.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.RoleEvent;
 import at.shiftcontrol.lib.event.events.RoleVolunteerEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
@@ -61,7 +59,7 @@ public class RoleServiceImpl implements RoleService {
         var role = RoleMapper.toRole(roleDto);
         role.setShiftPlan(shiftPlan);
 
-        publisher.publishEvent(RoleEvent.of(RoutingKeys.ROLE_CREATED, role));
+        publisher.publishEvent(RoleEvent.roleCreated(role));
         return RoleMapper.toRoleDto(roleDao.save(role));
     }
 
@@ -74,8 +72,7 @@ public class RoleServiceImpl implements RoleService {
         updateRole(roleDto, role);
         role = roleDao.save(role);
 
-        publisher.publishEvent(RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_UPDATED,
-            Map.of("roleId", roleId.toString())), role));
+        publisher.publishEvent(RoleEvent.roleUpdated(role));
         return RoleMapper.toRoleDto(role);
     }
 
@@ -98,8 +95,7 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
-        var roleEvent = RoleEvent.of(RoutingKeys.format(RoutingKeys.ROLE_DELETED,
-            Map.of("roleId", roleId.toString())), role);
+        var roleEvent = RoleEvent.roleDeleted(role);
         publisher.publishEvent(roleEvent);
         roleDao.delete(role);
     }
@@ -120,8 +116,7 @@ public class RoleServiceImpl implements RoleService {
         volunteer.getRoles().add(role);
         volunteerDao.save(volunteer);
 
-        publisher.publishEvent(RoleVolunteerEvent.of(RoutingKeys.format(RoutingKeys.ROLE_ASSIGNED,
-            Map.of("roleId", String.valueOf(role.getId()), "volunteerId", volunteer.getId())), role, volunteer.getId()));
+        publisher.publishEvent(RoleVolunteerEvent.roleAssigned(role, volunteer.getId()));
         return volunteerAssemblingMapper.toDto(volunteer);
     }
 
@@ -137,8 +132,7 @@ public class RoleServiceImpl implements RoleService {
             throw new NotFoundException("Role is not assigned to this user.");
         }
 
-        publisher.publishEvent(RoleVolunteerEvent.of(RoutingKeys.format(RoutingKeys.ROLE_UNASSIGNED,
-            Map.of("roleId", String.valueOf(role.getId()), "volunteerId", volunteer.getId())), role, volunteer.getId()));
+        publisher.publishEvent(RoleVolunteerEvent.roleUnassigned(role, volunteer.getId()));
         volunteerDao.save(volunteer);
     }
 }

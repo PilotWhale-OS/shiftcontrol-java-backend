@@ -31,19 +31,19 @@ public class UserAdministrationItemEndpoint {
 
     @GetMapping()
     @Operation(
-        operationId = "getUser",
+        operationId = "getUserOfPlan",
         description = "Get User"
     )
-    public UserPlanDto getUserForEvent(@PathVariable String shiftPlanId, @PathVariable String userId) {
+    public UserPlanDto getUserOfPlan(@PathVariable String shiftPlanId, @PathVariable String userId) {
         return service.getPlanUser(ConvertUtil.idToLong(shiftPlanId), userId);
     }
 
     @PatchMapping
     @Operation(
-        operationId = "updateUserPlans",
-        description = "Update user plans"
+        operationId = "updateUserRoles",
+        description = "Update user roles in a plan"
     )
-    public UserPlanDto updateUserPlans(
+    public UserPlanDto updateUserRoles(
         @PathVariable String shiftPlanId,
         @PathVariable String userId,
         @RequestBody @Valid UserPlanUpdateDto updateDto) {

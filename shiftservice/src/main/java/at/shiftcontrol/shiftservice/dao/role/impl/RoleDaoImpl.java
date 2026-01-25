@@ -57,8 +57,8 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
-    public Collection<Role> getByIds(Set<Long> roleIds) {
-        var roles = roleRepository.getByIds(roleIds);
+    public Collection<Role> getRolesByIdsAndShiftPlanId(Set<Long> roleIds, Long shiftPlanId) {
+        var roles = roleRepository.getRolesByIdsAndShiftPlanId(roleIds, shiftPlanId);
         if (roles.size() != roleIds.size()) {
             var foundId = roles.stream()
                 .map(Role::getId)
@@ -67,6 +67,11 @@ public class RoleDaoImpl implements RoleDao {
             throw PartiallyNotFoundException.of(getName(), roleIds);
         }
         return roles;
+    }
+
+    @Override
+    public Collection<Role> getByIds(Set<Long> roleIds) {
+        return roleRepository.getByIds(roleIds);
     }
 
     @Override

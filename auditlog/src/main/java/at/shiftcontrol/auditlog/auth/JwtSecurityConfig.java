@@ -69,9 +69,8 @@ public class JwtSecurityConfig {
             throw new IllegalArgumentException("User token does not contain 'sub' claim");
         }
 
-
         var authorities = new ArrayList<GrantedAuthority>();
-        if (userTypeString != null) {
+        if (userTypeString != null && userTypeString.equals("ADMIN")) {
             authorities.add(new SimpleGrantedAuthority("ADMIN"));
         }
         return new ApplicationUser(authorities, username) {};
@@ -83,8 +82,6 @@ public class JwtSecurityConfig {
                 .requestMatchers("/swagger-ui/**")
                 .permitAll()
                 .requestMatchers("/v3/api-docs*/**")
-                .permitAll()
-                .requestMatchers("/api/v1/reward-points/share/**") // permit access to reward points share endpoint via token
                 .permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**")
                 .permitAll() // Permit all OPTIONS requests (preflight))

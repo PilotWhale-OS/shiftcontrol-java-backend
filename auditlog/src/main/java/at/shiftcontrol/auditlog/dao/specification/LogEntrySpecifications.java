@@ -31,6 +31,16 @@ public final class LogEntrySpecifications {
                 );
             }
 
+            // event type substring match
+            if (searchDto.getEventType() != null && !searchDto.getEventType().isBlank()) {
+                String pattern = "%" + searchDto.getEventType().toLowerCase().trim() + "%";
+                predicates = criteriaBuilder.and(predicates,
+                    criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("eventType")),
+                        pattern
+                    ));
+            }
+
             // routing key substring match
             if (searchDto.getRoutingKey() != null && !searchDto.getRoutingKey().isBlank()) {
                 String pattern = "%" + searchDto.getRoutingKey().toLowerCase().trim() + "%";

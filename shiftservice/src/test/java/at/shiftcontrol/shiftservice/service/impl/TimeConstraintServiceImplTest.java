@@ -157,7 +157,7 @@ class TimeConstraintServiceImplTest {
 
         assertThatThrownBy(() -> service.createTimeConstraint(dto, USER_ID, EVENT_ID))
             .isInstanceOf(BadRequestException.class)
-            .hasMessageContaining("whole days");
+            .hasMessageContaining("must span a positive multiple of 24 hours");
     }
 
     @Test
@@ -196,10 +196,14 @@ class TimeConstraintServiceImplTest {
         when(timeConstraintDao.searchByVolunteerAndEvent(USER_ID, EVENT_ID)).thenReturn(List.of());
         when(assignmentDao.getConflictingAssignments(eq(USER_ID), any(), any())).thenReturn(List.of());
 
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(USER_ID);
         TimeConstraint saved = new TimeConstraint();
         saved.setId(10L);
         saved.setStartTime(dto.getFrom());
         saved.setEndTime(dto.getTo());
+        saved.setVolunteer(volunteer);
 
         when(timeConstraintDao.save(any(TimeConstraint.class))).thenReturn(saved);
 

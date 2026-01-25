@@ -2,19 +2,10 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Stream;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Location;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.ActivityEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
@@ -29,6 +20,11 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityTimeFilterDto;
 import at.shiftcontrol.shiftservice.mapper.ActivityMapper;
 import at.shiftcontrol.shiftservice.service.ActivityService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +71,7 @@ public class ActivityServiceImpl implements ActivityService {
         //ACT
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.forCreated(activity));
+        publisher.publishEvent(ActivityEvent.activityCreated(activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -90,7 +86,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         activity = activityDao.save(activity);
 
-        publisher.publishEvent(ActivityEvent.forUpdated(activity));
+        publisher.publishEvent(ActivityEvent.activityUpdated(activity));
         return ActivityMapper.toActivityDto(activity);
     }
 
@@ -101,6 +97,11 @@ public class ActivityServiceImpl implements ActivityService {
 
         if (activity.isReadOnly()) {
             throw new BadRequestException("Cannot modify read-only activity");
+        }
+
+        if (modificationDto.getStartTime().isBefore(activity.getEvent().getStartTime())
+            || modificationDto.getEndTime().isAfter(activity.getEvent().getEndTime())) {
+            throw new BadRequestException("Activity time range must be within event time range");
         }
 
         Location location = null;
@@ -134,8 +135,7 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BadRequestException("Cannot modify read-only activity");
         }
 
-        var activityEvent = ActivityEvent.of(RoutingKeys.format(RoutingKeys.ACTIVITY_DELETED,
-            Map.of("activityId", String.valueOf(activityId))), activity);
+        var activityEvent = ActivityEvent.activityDeleted(activity);
         activityDao.delete(activity);
         publisher.publishEvent(activityEvent);
     }
