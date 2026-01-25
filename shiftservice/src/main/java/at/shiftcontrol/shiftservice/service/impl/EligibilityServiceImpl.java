@@ -89,10 +89,10 @@ public class EligibilityServiceImpl implements EligibilityService {
         switch (signupState) {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION:
                 // simply joining is not possible
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
             case NOT_ELIGIBLE:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
-                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                    throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
                 }
                 break;
             case SIGNUP_POSSIBLE, SIGNUP_OR_TRADE:
@@ -107,10 +107,10 @@ public class EligibilityServiceImpl implements EligibilityService {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         switch (signupState) {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_POSSIBLE, SIGNUP_OR_TRADE:
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
             case NOT_ELIGIBLE:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
-                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                    throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
                 }
                 break;
             case SIGNUP_VIA_AUCTION:

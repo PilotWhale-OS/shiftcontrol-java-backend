@@ -1,12 +1,21 @@
 package at.shiftcontrol.lib.type;
 
-public enum PositionSignupState {
-    SIGNED_UP,                      // current user is already assigned to this slot
-    SIGNUP_POSSIBLE,                // free & eligible
-    SIGNUP_VIA_TRADE,               // full but trade request targets this user
-    SIGNUP_VIA_AUCTION,             // full but auction mechanism exists
-    FULL,                           // slot has no capacity left (and not trade or auction exists)
-    NOT_ELIGIBLE,                   // user cannot join (wrong role/qualification)
-    SIGNUP_OR_TRADE                 // user can either join normally or via trade
-}
+import lombok.Getter;
 
+public enum PositionSignupState {
+    SIGNED_UP("Already signed up in slot"),
+    SIGNUP_POSSIBLE("A normal signup is possible"),
+    SIGNUP_VIA_TRADE("This slot can be signed up only via a trade"),
+    SIGNUP_VIA_AUCTION("This slot can be signed up only via an auction"),
+    FULL("Slot already is full"),
+    NOT_ELIGIBLE("The required role for this slot is missing"),
+    SIGNUP_OR_TRADE("A normal signup is possible");
+
+
+    @Getter
+    private final String message;
+
+    PositionSignupState(String message) {
+        this.message = message;
+    }
+}
