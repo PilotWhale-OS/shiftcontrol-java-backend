@@ -70,14 +70,21 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             .map(entry -> buildScheduleLayoutDto(entry.getKey(), entry.getValue()))
             .toList();
 
+        var userId = userProvider.getCurrentUser().getUserId();
         var shiftsWithoutLocation = shiftDao.searchShiftsInEvent(eventId,
-                userProvider.getCurrentUser().getUserId(),
+                userId,
                 filterDto).stream()
             .filter(shift -> shift.getLocation() == null)
             .toList();
         var scheduleLayoutNoLocationDto = buildScheduleLayoutNoLocationDto(shiftsWithoutLocation);
 
-        var stats = statisticService.getShiftPlanScheduleStatistics(shiftsByLocation.values().stream().flatMap(List::stream).toList());
+        var allShifts = new ArrayList<Shift>();
+        shiftsByLocation.values().forEach(allShifts::addAll);
+        allShifts.addAll(shiftsWithoutLocation);
+
+        var volunteer = volunteerDao.getById(userId);
+
+        var stats = statisticService.getShiftPlanScheduleStatistics(allShifts, volunteer);
         return EventScheduleLayoutDto.builder()
             .scheduleLayoutDtos(scheduleLayoutDtos)
             .scheduleLayoutNoLocationDto(scheduleLayoutNoLocationDto)
