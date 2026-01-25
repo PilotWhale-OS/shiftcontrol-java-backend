@@ -11,8 +11,8 @@
       <column name="volunteer_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e5"/>
       <column name="event_id" valueNumeric="1"/>
       <column name="type" value="UNAVAILABLE"/>
-      <column name="start_time" value="2025-09-12T08:00:00Z"/>
-      <column name="end_time" value="2025-09-12T12:00:00Z"/>
+      <column name="start_time" value="2025-09-12T14:30:00Z"/>
+      <column name="end_time" value="2025-09-12T16:00:00Z"/>
     </insert>
 
     <insert tableName="time_constraint">
