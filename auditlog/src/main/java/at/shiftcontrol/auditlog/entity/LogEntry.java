@@ -29,6 +29,8 @@ public class LogEntry {
     private UUID id;
 
     private String routingKey;
+    private String eventType;
+    private String description;
 
     private String actingUserId;
     private String traceId;

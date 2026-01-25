@@ -19,6 +19,7 @@ import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.Authorities;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
+import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
@@ -29,6 +30,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     private final VolunteerDao volunteerDao;
     private final PositionSlotDao positionSlotDao;
     private final AssignmentDao assignmentDao;
+    private final TimeConstraintDao timeConstraintDao;
 
     private final ApplicationUserProvider userProvider;
 
@@ -59,6 +61,23 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.NOT_ELIGIBLE;
         }
 
+        var conflictingConstraints =
+            timeConstraintDao.findByPositionSlotIdAndVolunteerId(positionSlot.getId(), volunteer.getId());
+        if (!conflictingConstraints.isEmpty()) {
+            return PositionSignupState.TIME_CONFLICT_TIME_CONSTRAINT;
+        }
+
+        var conflictingAssignments = assignmentDao.getConflictingAssignmentsExcludingSlot(
+            volunteer.getId(),
+            positionSlot.getShift().getStartTime(),
+            positionSlot.getShift().getEndTime(),
+            positionSlot.getId()
+        );
+        if (!conflictingAssignments.isEmpty()) {
+            return PositionSignupState.TIME_CONFLICT_ASSIGNMENT;
+        }
+
+        //Positive cases
         if (hasAuction(positionSlot)) {
             return PositionSignupState.SIGNUP_VIA_AUCTION;
         }
@@ -90,7 +109,7 @@ public class EligibilityServiceImpl implements EligibilityService {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION:
                 // simply joining is not possible
                 throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
-            case NOT_ELIGIBLE:
+            case NOT_ELIGIBLE, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
                     throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
                 }

@@ -36,8 +36,11 @@ public class EventBusListenerService {
     ) throws IOException {
         var root = objectMapper.readTree(body); // JsonNode
 
-        String actingUserId = root.path("actingUserId").isMissingNode() ? null : root.path("actingUserId").asText(null);
-        String traceId      = root.path("traceId").isMissingNode() ? null : root.path("traceId").asText(null);
+        String actingUserId  = root.path("actingUserId").isMissingNode() ? null : root.path("actingUserId").asText(null);
+        String traceId       = root.path("traceId").isMissingNode() ? null : root.path("traceId").asText(null);
+        String eventType     = root.path("eventType").isMissingNode() ? null :  root.path("eventType").asText(null);
+        String description   = root.path("description").isMissingNode() ? null :  root.path("description").asText(null);
+
         var timestampNode   = root.get("timestamp"); // keep as JsonNode if you want
         var instant = getTimestamp(timestampNode);
         // remove metadata fields from payload
@@ -46,6 +49,8 @@ public class EventBusListenerService {
             obj.remove("actingUserId");
             obj.remove("traceId");
             obj.remove("timestamp");
+            obj.remove("eventType");
+            obj.remove("description");
         }
 
         ObjectNode payload = null;
@@ -55,6 +60,8 @@ public class EventBusListenerService {
 
         var createDto = LogEntryCreateDto.builder()
             .routingKey(routingKey)
+            .eventType(eventType)
+            .description(description)
             .actingUserId(actingUserId)
             .traceId(traceId)
             .timestamp(instant)

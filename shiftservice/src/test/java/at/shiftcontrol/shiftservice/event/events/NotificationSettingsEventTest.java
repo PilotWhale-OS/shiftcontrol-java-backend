@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 class NotificationSettingsEventTest {
 
     @Test
-    void of() {
+    void ofInternal() {
         String routingKey = "routingKey";
         String volunteerId = "volunteerId";
         NotificationSettings notificationSettings = mock(NotificationSettings.class);
@@ -20,7 +20,7 @@ class NotificationSettingsEventTest {
         try (var notificationSettingsPartMock = org.mockito.Mockito.mockStatic(NotificationSettingsPart.class)) {
             notificationSettingsPartMock.when(() -> NotificationSettingsPart.of(notificationSettings)).thenReturn(notificationSettingsPart);
 
-            NotificationSettingsEvent notificationSettingsEvent = NotificationSettingsEvent.of(routingKey, volunteerId, notificationSettings);
+            NotificationSettingsEvent notificationSettingsEvent = NotificationSettingsEvent.ofInternal(null, routingKey, volunteerId, notificationSettings);
 
             assertEquals(routingKey, notificationSettingsEvent.getRoutingKey());
             assertEquals(volunteerId, notificationSettingsEvent.getVolunteerId());

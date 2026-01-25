@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -23,7 +22,6 @@ import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequestKey;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.StateViolationException;
@@ -241,10 +239,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         trades = assignmentSwitchRequestDao.saveAll(trades);
 
-        trades.forEach(trade -> publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
-            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                   "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-        )));
+        trades.forEach(trade -> publisher.publishEvent(TradeEvent.tradeCanceled(trade)));
         return tradeMapper.toDto(trades);
     }
 
@@ -316,10 +311,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         trade.setStatus(TradeStatus.REJECTED);
 
         trade = assignmentSwitchRequestDao.save(trade);
-        publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
-            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-        ));
+        publisher.publishEvent(TradeEvent.tradeDeclined(trade));
         return tradeMapper.toDto(trade);
     }
 
@@ -339,10 +331,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         trade.setStatus(TradeStatus.CANCELED);
 
         trade = assignmentSwitchRequestDao.save(trade);
-        publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CANCELED,
-            Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-        ));
+        publisher.publishEvent(TradeEvent.tradeCanceled(trade));
         return tradeMapper.toDto(trade);
     }
 

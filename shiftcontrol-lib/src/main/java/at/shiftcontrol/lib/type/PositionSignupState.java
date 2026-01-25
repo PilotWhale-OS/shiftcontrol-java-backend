@@ -9,6 +9,8 @@ public enum PositionSignupState {
     SIGNUP_VIA_AUCTION("This slot can be signed up only via an auction"),
     FULL("Slot already is full"),
     NOT_ELIGIBLE("The required role for this slot is missing"),
+    TIME_CONFLICT_TIME_CONSTRAINT("There is a time conflict with a time constraint"),  // user has a time conflict with a time constraint
+    TIME_CONFLICT_ASSIGNMENT("There is a time conflict with an existing assignment"),       // user has a time conflict with an existing assignment
     SIGNUP_OR_TRADE("A normal signup is possible");
 
 
@@ -19,3 +21,4 @@ public enum PositionSignupState {
         this.message = message;
     }
 }
+

@@ -58,6 +58,17 @@
       <column name="short_description" value="Just the good stuff of Uni @ TU."/>
       <column name="long_description" value="A week full of events, organized by and for students. The whole TU is transfigured to a place of joy!"/>
     </insert>
+  </changeSet>
+
+  <changeSet id="002-insert-clone-wars-event" author="marco" context="dev">
+    <insert tableName="event">
+      <column name="id" valueNumeric="66"/>
+      <column name="name" value="The Cole Wars"/>
+      <column name="short_description" value="Battles for the republic"/>
+      <column name="long_description" value="Do your part in the liberation of all separatist ruled systems."/>
+      <column name="start_time" value="2026-12-1T00:00:00.000Z"/>
+      <column name="end_time" value="2026-12-7T23:59:59.999Z"/>
+    </insert>
 
   </changeSet>
 

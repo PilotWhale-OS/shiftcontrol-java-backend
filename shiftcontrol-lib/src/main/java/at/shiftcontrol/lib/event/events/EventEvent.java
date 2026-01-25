@@ -1,36 +1,68 @@
 package at.shiftcontrol.lib.event.events;
 
-import at.shiftcontrol.lib.event.RoutingKeys;
+import java.util.Map;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.event.BaseEvent;
+import at.shiftcontrol.lib.event.EventType;
+import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.EventPart;
-
-import java.util.Map;
+import static at.shiftcontrol.lib.event.RoutingKeys.EVENT_CLONED;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class EventEvent extends BaseEvent {
     private final EventPart event;
 
-    public EventEvent(String routingKey, EventPart event) {
-        super(routingKey);
+    public EventEvent(EventType eventType, String routingKey, EventPart event) {
+        super(eventType, routingKey);
         this.event = event;
     }
 
-    public static EventEvent of(String routingKey, Event event) {
-        return new EventEvent(routingKey, EventPart.of(event));
+    public static EventEvent ofInternal(EventType eventType, String routingKey, Event event) {
+        return new EventEvent(eventType, routingKey, EventPart.of(event));
     }
 
-    public static EventEvent forEventCreated(Event event) {
-        return of(RoutingKeys.EVENT_CREATED, event);
+    public static EventEvent eventCreated(Event event) {
+        return ofInternal(EventType.EVENT_CREATED, RoutingKeys.EVENT_CREATED, event);
     }
 
-    public static EventEvent forEventUpdated(Event event) {
-        return of(RoutingKeys.format(RoutingKeys.EVENT_UPDATED,
-            Map.of("eventId", String.valueOf(event.getId()))), event);
+    public static EventEvent eventUpdated(Event event) {
+        return ofInternal(EventType.EVENT_UPDATED,
+            RoutingKeys.format(RoutingKeys.EVENT_UPDATED,
+            Map.of("eventId", String.valueOf(event.getId()))), event)
+            .withDescription("Event updated: " + event.getName());
+    }
+
+    public static EventEvent eventDeleted(Event event) {
+        return ofInternal(EventType.EVENT_DELETED,
+            RoutingKeys.format(RoutingKeys.EVENT_DELETED, Map.of("eventId", String.valueOf(event.getId()))), event)
+            .withDescription("Event deleted: " + event.getName());
+    }
+
+    public static EventEvent eventCloned(Event event, Long originalEventId) {
+        return ofInternal(EventType.EVENT_CLONED,
+            RoutingKeys.format(EVENT_CLONED, Map.of(
+                "sourceEventId", String.valueOf(originalEventId),
+                "newEventId", String.valueOf(event.getId()))),
+            event).withDescription("Event cloned: " + event.getName());
+    }
+
+    public static EventEvent eventExported(Event event, String exportFormat) {
+        return ofInternal(EventType.EVENT_EXPORTED,
+                RoutingKeys.format(RoutingKeys.EVENT_EXPORTED, Map.of(
+                "eventId", String.valueOf(event.getId()),
+                "exportFormat", exportFormat)),
+            event).withDescription("Event exported: " + event.getName() + " in format " + exportFormat);
+    }
+
+    public static EventEvent eventImported(Event event) {
+        return ofInternal(EventType.EVENT_IMPORTED,
+            RoutingKeys.format(RoutingKeys.EVENT_IMPORTED, Map.of(
+            "eventId", String.valueOf(event.getId())
+        )), event).withDescription("Event imported: " + event.getName());
     }
 }

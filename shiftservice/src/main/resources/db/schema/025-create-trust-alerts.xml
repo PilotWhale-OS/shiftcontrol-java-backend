@@ -32,7 +32,8 @@
                 baseColumnNames="volunteer_id"
                 referencedTableName="volunteer"
                 referencedColumnNames="id"
-                constraintName="fk_trust_alert_volunteer"/>
+                constraintName="fk_trust_alert_volunteer"
+                onDelete="CASCADE"/>
 
     </changeSet>
 

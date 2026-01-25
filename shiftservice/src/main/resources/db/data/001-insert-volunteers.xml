@@ -23,5 +23,145 @@
     </insert>
 
   </changeSet>
+  <changeSet id="002-insert-clone-volunteers" author="marco" context="dev">
+    <insert tableName="volunteer">
+      <column name="id" value="e8097a2f-afd2-40a3-a8aa-7ac5f898e77b"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="d56d7196-e6cb-4344-82d2-2b1a68991b2a"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="9b855259-ce39-4f05-87cc-62b41fd6a6ab"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="448e0d24-7403-40fd-874b-4a5e6e78572d"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="a39b1c9d-75f3-4cd8-94cc-bf9f44d589c9"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="8e9edffd-0160-4dcf-bed0-d33ba24251c5"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="5e3e1efa-ca27-4629-97ae-a7cf13332f37"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="c9a89a51-989f-4ca5-8317-c85e47019487"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="40e4c5aa-e37b-4aaa-b8b0-71b4afb317ea"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="6e20c170-7773-448c-bc91-8175d732d6ba"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="e3a1d0c3-6cb9-4cea-9a14-c663f3ded335"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="4a852e39-92f3-4ec8-afd6-63ebe1ee2385"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="808088cf-c3b6-4d0f-8b6d-b9fa596928d9"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="0d828b5d-aa49-48c2-86ba-102bf28e674d"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="1379d2a9-39ce-4d36-982f-8ffc654f901a"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="cba329af-20c6-4306-a3bd-7843967c5b5a"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="f1412fe3-269f-4899-9581-ba6ccc174410"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="3d4674bb-78ad-45a7-9376-daef0ccda57a"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="127a7d87-fdc3-4fcb-aee0-b85a664d17a7"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="85212921-85cd-4bc1-bce3-e58a43b06792"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="57d0079e-4817-489b-b03a-39f73e4de50b"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="48a9234f-f5fa-451e-8e52-55ebcff573fc"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="cfcb96a9-1bab-499f-b671-36ed0ae95943"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="998786bc-bb77-4b30-8714-52b8cd230beb"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="6b16274a-b0ed-4883-a820-c1bcfdc1a26d"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="be0ed04d-8c1f-4a23-bc6f-568baf4e5558"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="6018b66d-d539-421c-803b-2284a0775c36"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="d7668c03-a1b1-4c6f-9716-9c85bf26d1da"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="aeb9c79f-db3d-402f-8454-cbd339901a72"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="4ce32c99-40cd-40c9-8efe-f81c2e2df52e"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="8c7dde5a-ecef-484b-9a81-d5016f3a72b9"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="9ae96362-a609-4591-89d9-ea158795c75a"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="5a7de7a7-b995-443b-8b4e-4544d5db8aa9"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="374ccd97-f018-4419-98ac-3ad01b2b5163"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="d5218c2a-fc08-4398-a7d3-8e84ce280051"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="002a3306-30d1-4a47-b14e-34d4d3522f74"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="714ea46b-9d68-4df8-957b-be0ac6d330dd"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="a1d7697e-04a7-4d8b-8b72-adac54789969"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="3c65a7a9-5287-4fbd-99c8-c5088303c0a3"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="ffb1eb90-f6d1-4604-a3a9-ee7a4feec22f"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="e637ce55-a623-482c-8517-37f64769f4af"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="c6e61ee5-15af-497c-ab8a-be5f08e20f0e"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="87b687ca-8398-4ce5-8a37-15680f59432d"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="38f423b4-a33d-4085-8b3f-49b799bb0881"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="ecf73937-d04b-4f3e-be1c-17e0d6366876"/>
+    </insert>
+    <insert tableName="volunteer">
+      <column name="id" value="34925169-178b-4872-8062-112edf6e0bfc"/>
+    </insert>
+  </changeSet>
 
 </databaseChangeLog>

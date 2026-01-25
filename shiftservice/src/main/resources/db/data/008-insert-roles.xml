@@ -85,9 +85,9 @@
         </insert>
 
         <!--
-    
+
           manual test event roles
-    
+
           -->
 
         <insert tableName="role">
@@ -98,5 +98,41 @@
             <column name="reward_points_per_minute" value="2"/>
         </insert>
     </changeSet>
+  <changeSet id="012-insert-clone-ranks" author="marco" context="dev">
+
+    <insert tableName="role">
+      <column name="id" valueNumeric="12"/>
+      <column name="shift_plan_id" valueNumeric="66"/>
+      <column name="name" value="General"/>
+      <column name="description" value="Overall command authority for the operation"/>
+      <column name="reward_points_per_minute" value="5"/>
+    </insert>
+
+    <insert tableName="role">
+      <column name="id" valueNumeric="13"/>
+      <column name="shift_plan_id" valueNumeric="66"/>
+      <column name="name" value="Commander"/>
+      <column name="description" value="Senior field commander responsible for execution"/>
+      <column name="reward_points_per_minute" value="4"/>
+    </insert>
+
+    <insert tableName="role">
+      <column name="id" valueNumeric="14"/>
+      <column name="shift_plan_id" valueNumeric="66"/>
+      <column name="name" value="Captain"/>
+      <column name="description" value="Unit leader coordinating squad-level actions"/>
+      <column name="reward_points_per_minute" value="3"/>
+    </insert>
+
+    <insert tableName="role">
+      <column name="id" valueNumeric="15"/>
+      <column name="shift_plan_id" valueNumeric="66"/>
+      <column name="name" value="Recruit"/>
+      <column name="description" value="Newly assigned volunteer assisting where needed"/>
+      <column name="reward_points_per_minute" value="1"/>
+    </insert>
+
+  </changeSet>
+
 
 </databaseChangeLog>

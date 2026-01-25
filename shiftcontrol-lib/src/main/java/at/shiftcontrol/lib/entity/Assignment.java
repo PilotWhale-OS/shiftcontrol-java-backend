@@ -2,6 +2,8 @@ package at.shiftcontrol.lib.entity;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,8 +21,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import at.shiftcontrol.lib.type.AssignmentStatus;
 
 
 @Getter
@@ -50,10 +50,10 @@ public class Assignment {
     @Column(nullable = false)
     private AssignmentStatus status;
 
-    @OneToMany(mappedBy = "offeringAssignment")
+    @OneToMany(mappedBy = "offeringAssignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<AssignmentSwitchRequest> outgoingSwitchRequests;
 
-    @OneToMany(mappedBy = "requestedAssignment")
+    @OneToMany(mappedBy = "requestedAssignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<AssignmentSwitchRequest> incomingSwitchRequests;
 
     @Column(nullable = false)

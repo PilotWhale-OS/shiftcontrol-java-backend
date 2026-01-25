@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 class PreferenceEventTest {
 
     @Test
-    void of() {
+    void ofInternal() {
         String routingKey = "routingKey";
         String volunteerId = "volunteerId";
         int preferenceLevel = 1;
@@ -21,7 +21,7 @@ class PreferenceEventTest {
         try (var positionSlotPartMock = org.mockito.Mockito.mockStatic(PositionSlotPart.class)) {
             positionSlotPartMock.when(() -> PositionSlotPart.of(positionSlot)).thenReturn(positionSlotPart);
 
-            PreferenceEvent preferenceEvent = PreferenceEvent.of(routingKey, volunteerId, preferenceLevel, positionSlot);
+            PreferenceEvent preferenceEvent = PreferenceEvent.ofInternal(null, routingKey, volunteerId, preferenceLevel, positionSlot);
 
             assertEquals(routingKey, preferenceEvent.getRoutingKey());
             assertEquals(volunteerId, preferenceEvent.getVolunteerId());
