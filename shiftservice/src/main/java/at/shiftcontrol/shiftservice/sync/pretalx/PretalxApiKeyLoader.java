@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import lombok.RequiredArgsConstructor;
@@ -92,8 +93,10 @@ public class PretalxApiKeyLoader {
                         || e.getStatusCode().isSameCodeAs(HttpStatus.FORBIDDEN)) {
                         return false;
                     } else {
-                        throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key", e);
+                        throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key: " + e.getMessage(), e);
                     }
+                } catch (RestClientException e) {
+                    throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key: " + e.getMessage(), e);
                 }
             }).toList();
 
@@ -112,8 +115,10 @@ public class PretalxApiKeyLoader {
                 removeInvalidApiKey(apiKey);
                 return Optional.empty();
             } else {
-                throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key", e);
+                throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key: " + e.getMessage(), e);
             }
+        } catch (RestClientException e) {
+            throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key: " + e.getMessage(), e);
         }
     }
 
