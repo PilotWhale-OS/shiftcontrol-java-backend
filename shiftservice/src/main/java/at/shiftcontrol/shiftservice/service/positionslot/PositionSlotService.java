@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service;
+package at.shiftcontrol.shiftservice.service.positionslot;
 
 import java.util.Collection;
 

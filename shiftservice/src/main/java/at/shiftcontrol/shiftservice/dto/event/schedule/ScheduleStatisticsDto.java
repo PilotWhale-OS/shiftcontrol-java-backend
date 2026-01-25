@@ -22,4 +22,8 @@ public class ScheduleStatisticsDto {
     @NotNull
     @Min(0)
     private int unassignedCount;
+
+    @NotNull
+    @Min(0)
+    private int shiftCountForSignup;
 }

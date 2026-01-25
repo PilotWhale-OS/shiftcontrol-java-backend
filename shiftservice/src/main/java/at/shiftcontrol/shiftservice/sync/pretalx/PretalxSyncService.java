@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +57,7 @@ public class PretalxSyncService {
     }
 
     @Scheduled(cron = "${pretalx.sync.cron}")
+    @Transactional
     public void syncAll() {
         apiKeyLoader.refreshApiKeys();
         var accessibleEvents = apiKeyLoader.accessibleEventSlugs();

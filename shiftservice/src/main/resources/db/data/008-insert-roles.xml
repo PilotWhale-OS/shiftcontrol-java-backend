@@ -32,7 +32,7 @@
 
         <insert tableName="role">
             <column name="id" valueNumeric="4"/>
-            <column name="shift_plan_id" valueNumeric="1"/>
+            <column name="shift_plan_id" valueNumeric="2"/>
             <column name="name" value="LIGHTING_TECH"/>
             <column name="description" value="Responsible for lighting operation and adjustments"/>
             <column name="reward_points_per_minute" value="2"/>
