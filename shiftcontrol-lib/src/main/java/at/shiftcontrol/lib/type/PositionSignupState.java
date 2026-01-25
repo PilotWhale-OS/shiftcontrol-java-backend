@@ -9,6 +9,6 @@ public enum PositionSignupState {
     NOT_ELIGIBLE,                   // user cannot join (wrong role/qualification)
     TIME_CONFLICT_TIME_CONSTRAINT,  // user has a time conflict with a time constraint
     TIME_CONFLICT_ASSIGNMENT,       // user has a time conflict with an existing assignment
-    SIGNUP_OR_TRADE                 // user can either join normally or via trade
+    SIGNUP_OR_TRADE                 // user can choose to join normally or via trade
 }
 
