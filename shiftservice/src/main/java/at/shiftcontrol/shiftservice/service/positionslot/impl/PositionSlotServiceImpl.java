@@ -330,12 +330,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         return positionSlotAssemblingMapper.assemble(positionSlot);
     }
 
-    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, PositionSlot positionSlot) {
+    private void validateModificationDtoAndSetPositionSlotFields(PositionSlotModificationDto modificationDto, @NonNull PositionSlot positionSlot) {
         if (modificationDto == null) {
             throw new IllegalArgumentException("Modification data must be provided");
         }
 
-        if (positionSlot != null && positionSlot.getAssignments() != null && !positionSlot.getAssignments().isEmpty()) {
+        if (positionSlot.getAssignments() != null && !positionSlot.getAssignments().isEmpty()) {
             long assignedCount = positionSlot.getAssignments().stream()
                 .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
                 .count();
