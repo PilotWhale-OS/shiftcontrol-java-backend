@@ -8,17 +8,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.keycloak.representations.idm.UserRepresentation;
+
 import at.shiftcontrol.lib.entity.Event;
-import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.SocialMediaLink;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.EventEvent;
-import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
-import at.shiftcontrol.lib.event.events.ShiftPlanVolunteerEvent;
-import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
@@ -44,11 +45,6 @@ import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.SocialLinksParser;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -251,222 +247,6 @@ public class EventServiceImpl implements EventService {
         eventDao.delete(event);
         publisher.publishEvent(eventEvent);
     }
-
-    // TODO delete this test method
-    private static long testIdFix = 0;
-    private static long testIdIncrementing = 0;
-
-    @Override
-    public boolean sendTestEvent(String testEvent) {
-        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
-        String userIdRequested = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
-
-        Assignment assignmentFix = getAssignment(userId, testIdFix);
-        Assignment assignmentInc = getAssignment(userId, ++testIdIncrementing);
-        AssignmentSwitchRequest trade = getAssignmentSwitchRequest(userId, ++testIdIncrementing, userIdRequested, ++testIdIncrementing);
-        ShiftPlan shiftPlan = getShiftPlan(++testIdIncrementing);
-
-        switch (testEvent) {
-            case "POSITIONSLOT_JOINED":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", assignmentFix.getAssignedVolunteer().getId())),
-                    assignmentFix.getPositionSlot(), assignmentFix.getAssignedVolunteer().getId()));
-                break;
-            case "POSITIONSLOT_LEFT":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", assignmentFix.getAssignedVolunteer().getId())),
-                    assignmentFix.getPositionSlot(), assignmentFix.getAssignedVolunteer().getId()));
-                break;
-            case "TRADE_REQUEST_CREATED":
-                publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
-                    Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                        "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-                ));
-                break;
-            case "TRADE_REQUEST_DECLINED":
-                publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
-                    Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                        "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-                ));
-                break;
-            case "TRADE_REQUEST_CANCELED":
-                publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CANCELED,
-                    Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                        "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-                ));
-                break;
-            case "TRADE_REQUEST_COMPLETED":
-                publisher.publishEvent(AssignmentSwitchEvent.of(
-                    trade.getRequestedAssignment(), trade.getOfferingAssignment()));
-                break;
-            case "AUCTION_CREATED":
-                publisher.publishEvent(AssignmentEvent.of(
-                    RoutingKeys.format(RoutingKeys.AUCTION_CREATED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()))
-                    ), assignmentInc
-                ));
-                break;
-            case "AUCTION_CLAIMED":
-                publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
-                    "positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                    "oldVolunteerId", userIdRequested)), assignmentInc
-                ));
-                break;
-            case "AUCTION_CANCELED":
-                publisher.publishEvent(AssignmentEvent.of(
-                    RoutingKeys.format(
-                        RoutingKeys.AUCTION_CANCELED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()))
-                    ), assignmentInc
-                ));
-                break;
-            case "POSITIONSLOT_REQUEST_LEAVE_CREATED":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_CREATED,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentFix.getPositionSlot(), userId));
-                break;
-            case "POSITIONSLOT_REQUEST_JOIN":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_CREATED,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentFix.getPositionSlot(), userId));
-                break;
-            case "POSITIONSLOT_REQUEST_LEAVE_ACCEPTED":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentInc.getPositionSlot(), userId));
-                break;
-            case "POSITIONSLOT_REQUEST_LEAVE_DECLINED":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentInc.getPositionSlot(), userId));
-                break;
-            case "POSITIONSLOT_REQUEST_JOIN_WITHDRAW":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentFix.getPositionSlot(), userId));
-                break;
-            case "POSITIONSLOT_REQUEST_LEAVE_WITHDRAW":
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentFix.getPositionSlot(), userId));
-                break;
-            case "SHIFTPLAN_JOINED_PLANNER":
-                publisher.publishEvent(ShiftPlanVolunteerEvent.of(RoutingKeys.format(RoutingKeys.SHIFTPLAN_JOINED_PLANNER,
-                    Map.of("shiftPlanId", String.valueOf(shiftPlan.getId()),
-                        "volunteerId", userId)), shiftPlan, userId));
-                break;
-            default:
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_JOINED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                            "volunteerId", assignmentInc.getAssignedVolunteer().getId())),
-                    assignmentInc.getPositionSlot(), assignmentInc.getAssignedVolunteer().getId()));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                            "volunteerId", assignmentInc.getAssignedVolunteer().getId())),
-                    assignmentInc.getPositionSlot(), assignmentInc.getAssignedVolunteer().getId()));
-                publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CREATED,
-                    Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                        "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-                ));
-                publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_DECLINED,
-                    Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                        "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-                ));
-                publisher.publishEvent(TradeEvent.of(RoutingKeys.format(RoutingKeys.TRADE_REQUEST_CANCELED,
-                    Map.of("requestedVolunteerId", trade.getRequestedAssignment().getAssignedVolunteer().getId(),
-                        "offeringVolunteerId", trade.getOfferingAssignment().getAssignedVolunteer().getId())), trade
-                ));
-                publisher.publishEvent(AssignmentSwitchEvent.of(
-                    trade.getRequestedAssignment(), trade.getOfferingAssignment()));
-                publisher.publishEvent(AssignmentEvent.of(
-                    RoutingKeys.format(RoutingKeys.AUCTION_CREATED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()))
-                    ), assignmentInc
-                ));
-                publisher.publishEvent(AssignmentEvent.of(RoutingKeys.format(RoutingKeys.AUCTION_CLAIMED, Map.of(
-                    "positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                    "oldVolunteerId", userIdRequested)), assignmentInc
-                ));
-                publisher.publishEvent(AssignmentEvent.of(
-                    RoutingKeys.format(
-                        RoutingKeys.AUCTION_CANCELED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()))
-                    ), assignmentInc
-                ));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_CREATED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentInc.getPositionSlot(), userId));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_CREATED,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentFix.getPositionSlot(), userId));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_ACCEPTED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentInc.getPositionSlot(), userId));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_DECLINED,
-                        Map.of("positionSlotId", String.valueOf(assignmentInc.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentInc.getPositionSlot(), userId));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_WITHDRAW,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentFix.getPositionSlot(), userId));
-                publisher.publishEvent(PositionSlotVolunteerEvent.of(RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_WITHDRAW,
-                        Map.of("positionSlotId", String.valueOf(assignmentFix.getPositionSlot().getId()),
-                            "volunteerId", userId)),
-                    assignmentFix.getPositionSlot(), userId));
-        }
-
-        return true;
-    }
-
-    private static AssignmentSwitchRequest getAssignmentSwitchRequest(String offeringUserId, long offeringSlotId,
-                                                                      String requestingUserId, long requestingSlotId) {
-        Assignment offering = getAssignment(offeringUserId, offeringSlotId);
-        Assignment requesting = getAssignment(requestingUserId, requestingSlotId);
-        return AssignmentSwitchRequest.builder()
-            .offeringAssignment(offering)
-            .requestedAssignment(requesting)
-            .build();
-    }
-
-    private static Assignment getAssignment(String volunteerId, long slotId) {
-        return Assignment.builder()
-            .assignedVolunteer(getVolunteer(volunteerId))
-            .positionSlot(getPositionSlot(slotId))
-            .build();
-    }
-
-    private static Volunteer getVolunteer(String id) {
-        return Volunteer.builder()
-            .id(id)
-            .build();
-    }
-
-    private static PositionSlot getPositionSlot(long id) {
-        return PositionSlot.builder()
-            .id(id)
-            .build();
-    }
-
-    private static ShiftPlan getShiftPlan(long id) {
-        return ShiftPlan.builder()
-            .id(id)
-            .name("Testname")
-            .build();
-    }
-
-    // TODO delete ABOVE
 
     private List<ShiftPlan> getUserRelatedShiftPlanEntitiesOfEvent(long eventId, Volunteer volunteer) {
         var event = eventDao.getById(eventId);

@@ -41,12 +41,12 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
     }
 
     public static PositionSlotVolunteerEvent positionSlotLeft(PositionSlot positionSlot, String volunteerId) {
-            return ofInternal(EventType.POSITIONSLOT_LEFT,
-                    RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
-                Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
-                    "volunteerId", volunteerId)),
-            positionSlot, volunteerId)
-            .withDescription("Volunteer " + volunteerId + " left position slot " + positionSlot.getId());
+        return ofInternal(EventType.POSITIONSLOT_LEFT,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_LEFT,
+            Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
+                "volunteerId", volunteerId)),
+        positionSlot, volunteerId)
+        .withDescription("Volunteer " + volunteerId + " left position slot " + positionSlot.getId());
     }
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestDenied(PositionSlot positionSlot, String volunteerId) {
@@ -60,7 +60,7 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
 
     public static PositionSlotVolunteerEvent positionSlotJoinRequestCreated(PositionSlot positionSlot, String volunteerId) {
         return ofInternal(EventType.POSITIONSLOT_REQUEST_JOIN,
-                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_JOIN_CREATED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId)
@@ -96,7 +96,7 @@ public class PositionSlotVolunteerEvent extends PositionSlotEvent {
 
     public static PositionSlotVolunteerEvent positionSlotRequestLeave(PositionSlot positionSlot, String volunteerId) {
         return ofInternal(EventType.POSITIONSLOT_REQUEST_LEAVE,
-                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE,
+                RoutingKeys.format(RoutingKeys.POSITIONSLOT_REQUEST_LEAVE_CREATED,
                 Map.of("positionSlotId", String.valueOf(positionSlot.getId()),
                     "volunteerId", volunteerId)),
             positionSlot, volunteerId)
