@@ -14,4 +14,9 @@ import at.shiftcontrol.lib.type.PositionSignupState;
 public class PositionSlotJoinErrorDto {
     private PositionSignupState state;
     private String message;
+
+    public PositionSlotJoinErrorDto(PositionSignupState state) {
+        this.state = state;
+        this.message = state.getMessage();
+    }
 }

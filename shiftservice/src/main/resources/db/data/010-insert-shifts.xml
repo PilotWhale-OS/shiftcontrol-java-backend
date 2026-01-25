@@ -52,7 +52,7 @@
             <column name="short_description" value="Help set up Workshop Room A"/>
             <column name="start_time" value="2025-09-14T13:00:00Z"/>
             <column name="end_time" value="2025-09-14T17:00:00Z"/>
-            <column name="location_id" valueNumeric="3"/>
+            <column name="location_id" valueNumeric="2"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -77,7 +77,7 @@
             <column name="long_description" value="Shift long description"/>
             <column name="start_time" value="2025-09-13T17:30:00Z"/>
             <column name="end_time" value="2025-09-13T21:00:00Z"/>
-            <column name="location_id" valueNumeric="4"/>
+            <column name="location_id" valueNumeric="2"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -88,7 +88,7 @@
             <column name="name" value="Morning Room Assistance"/>
             <column name="start_time" value="2025-10-03T08:00:00Z"/>
             <column name="end_time" value="2025-10-03T12:00:00Z"/>
-            <column name="location_id" valueNumeric="5"/>
+            <column name="location_id" valueNumeric="3"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -101,7 +101,7 @@
             <column name="long_description" value="Shift long description"/>
             <column name="start_time" value="2025-10-04T08:00:00Z"/>
             <column name="end_time" value="2025-10-04T12:00:00Z"/>
-            <column name="location_id" valueNumeric="1"/>
+            <column name="location_id" valueNumeric="3"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -153,7 +153,7 @@
             <column name="long_description" value="Shift long description"/>
             <column name="start_time" value="2025-11-16T08:00:00Z"/>
             <column name="end_time" value="2025-11-16T12:00:00Z"/>
-            <column name="location_id" valueNumeric="7"/>
+            <column name="location_id" valueNumeric="5"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -165,7 +165,7 @@
             <column name="long_description" value="Shift long description"/>
             <column name="start_time" value="2025-11-15T13:00:00Z"/>
             <column name="end_time" value="2025-11-15T17:00:00Z"/>
-            <column name="location_id" valueNumeric="8"/>
+            <column name="location_id" valueNumeric="5"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -177,7 +177,7 @@
             <column name="short_description" value="Help manage speaker transitions"/>
             <column name="start_time" value="2025-11-16T13:00:00Z"/>
             <column name="end_time" value="2025-11-16T17:00:00Z"/>
-            <column name="location_id" valueNumeric="9"/>
+            <column name="location_id" valueNumeric="5"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -190,7 +190,7 @@
             <column name="long_description" value="Shift long description"/>
             <column name="start_time" value="2025-12-10T08:00:00Z"/>
             <column name="end_time" value="2025-12-10T12:00:00Z"/>
-            <column name="location_id" valueNumeric="10"/>
+            <column name="location_id" valueNumeric="7"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -202,7 +202,7 @@
             <column name="short_description" value="Prepare equipment for sessions"/>
             <column name="start_time" value="2025-12-11T08:00:00Z"/>
             <column name="end_time" value="2025-12-11T12:00:00Z"/>
-            <column name="location_id" valueNumeric="1"/>
+            <column name="location_id" valueNumeric="7"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -215,7 +215,7 @@
             <column name="long_description" value="Shift long description"/>
             <column name="start_time" value="2025-12-12T13:00:00Z"/>
             <column name="end_time" value="2025-12-12T17:00:00Z"/>
-            <column name="location_id" valueNumeric="2"/>
+            <column name="location_id" valueNumeric="7"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -228,7 +228,7 @@
             <column name="long_description" value="Shift long description"/>
             <column name="start_time" value="2025-12-10T17:00:00Z"/>
             <column name="end_time" value="2025-12-10T20:00:00Z"/>
-            <column name="location_id" valueNumeric="3"/>
+            <column name="location_id" valueNumeric="7"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -241,7 +241,7 @@
             <column name="short_description" value="Morning registration desk shift"/>
             <column name="start_time" value="2026-01-20T08:00:00Z"/>
             <column name="end_time" value="2026-01-20T12:00:00Z"/>
-            <column name="location_id" valueNumeric="4"/>
+            <column name="location_id" valueNumeric="7"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
@@ -254,14 +254,14 @@
             <column name="long_description" value="Shift long description"/>
             <column name="start_time" value="2026-01-21T13:00:00Z"/>
             <column name="end_time" value="2026-01-21T17:00:00Z"/>
-            <column name="location_id" valueNumeric="5"/>
+            <column name="location_id" valueNumeric="7"/>
             <column name="bonus_reward_points" value="5"/>
         </insert>
 
         <!--
-    
+
           manual test event shifts
-    
+
           -->
 
         <!-- edge case -->
