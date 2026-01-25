@@ -74,6 +74,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
                 userProvider.getCurrentUser().getUserId(),
                 filterDto).stream()
             .filter(shift -> shift.getLocation() == null)
+            .filter(securityHelper::isUserInPlan)
             .toList();
         var scheduleLayoutNoLocationDto = buildScheduleLayoutNoLocationDto(shiftsWithoutLocation);
 
@@ -140,7 +141,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
         var queriedShifts = getShiftsBasedOnViewModes(eventId, userId, filterDto, filteredShiftsWithoutViewMode);
         Map<Location, List<Shift>> shiftsByLocation = new HashMap<>();
         for (var shift : queriedShifts) {
-            if (shift.getLocation() == null) {
+            if (shift.getLocation() == null || !securityHelper.isUserInPlan(shift)) {
                 continue;
             }
             shiftsByLocation.computeIfAbsent(shift.getLocation(), k -> new ArrayList<>()).add(shift);
@@ -205,6 +206,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
                 userProvider.getCurrentUser().getUserId(),
                 searchDto).stream()
             .filter(shift -> shift.getLocation() == null)
+            .filter(securityHelper::isUserInPlan)
             .toList();
 
         var filteredShiftsWithoutLocation = getShiftsBasedOnViewModes(eventId,

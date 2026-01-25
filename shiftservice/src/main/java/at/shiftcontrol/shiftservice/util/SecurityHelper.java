@@ -163,6 +163,10 @@ public class SecurityHelper {
         return currentUser.isVolunteerInPlan(shiftPlanId) || currentUser.isPlannerInPlan(shiftPlanId);
     }
 
+    public boolean isUserInPlan(Shift shift) {
+        return isUserInPlan(shift.getShiftPlan().getId());
+    }
+
     public void assertUserIsInPlan(long shiftPlanId) {
         if (!isUserInPlan(shiftPlanId)) {
             log.error("User has no access to shift plan with id: {}", shiftPlanId);
