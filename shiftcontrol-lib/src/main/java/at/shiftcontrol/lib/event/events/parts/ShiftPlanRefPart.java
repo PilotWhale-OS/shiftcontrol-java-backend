@@ -1,0 +1,24 @@
+package at.shiftcontrol.lib.event.events.parts;
+
+import java.util.Collection;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import at.shiftcontrol.lib.entity.ShiftPlan;
+
+@AllArgsConstructor
+@Data
+public class ShiftPlanRefPart {
+    private long id;
+    private String name;
+    private EventRefPart eventRefPart;
+
+    public static ShiftPlanRefPart of(ShiftPlan shiftPlan) {
+        return new ShiftPlanRefPart(shiftPlan.getId(), shiftPlan.getName(), EventRefPart.of(shiftPlan.getEvent()));
+    }
+
+    public static Collection<ShiftPlanRefPart> of(Collection<ShiftPlan> shiftPlans) {
+        return shiftPlans.stream().map(ShiftPlanRefPart::of).toList();
+    }
+}

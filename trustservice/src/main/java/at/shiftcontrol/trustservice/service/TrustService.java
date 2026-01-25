@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
+import at.shiftcontrol.lib.event.events.ClaimedAuctionEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.type.TrustAlertType;
@@ -77,9 +78,8 @@ public class TrustService {
         checkAuction(userId);
     }
 
-    public void handleAuctionClaimed(AssignmentEvent event) {
-        int lastDot = event.getRoutingKey().lastIndexOf('.');
-        String oldUserId = event.getRoutingKey().substring(lastDot + 1);
+    public void handleAuctionClaimed(ClaimedAuctionEvent event) {
+        String oldUserId = event.getOldVolunteerId();
         String slotId = String.valueOf(event.getAssignment().getPositionSlot().getPositionSlotId());
         redisService.removeAuction(oldUserId, slotId);
     }

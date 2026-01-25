@@ -25,13 +25,16 @@ public class ShiftPlanPart {
 
     private LockStatus lockStatus;
 
+    private final EventRefPart eventRefPart;
+
     public static ShiftPlanPart of(ShiftPlan shiftPlan) {
         return new ShiftPlanPart(
             String.valueOf(shiftPlan.getId()),
             shiftPlan.getName(),
             shiftPlan.getShortDescription(),
             shiftPlan.getLongDescription(),
-            shiftPlan.getLockStatus()
+            shiftPlan.getLockStatus(),
+            EventRefPart.of(shiftPlan.getEvent())
         );
     }
 

@@ -4,7 +4,10 @@ import java.util.Map;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
@@ -57,6 +60,16 @@ public class TestEntityFactory {
     private static PositionSlot getPositionSlot(long id) {
         return PositionSlot.builder()
             .id(id)
+            .shift(getSetupShift())
             .build();
+    }
+
+    private static Shift getSetupShift() {
+        Shift shift = new Shift();
+        ShiftPlan shiftPlan = new ShiftPlan();
+        shift.setShiftPlan(shiftPlan);
+        Event event = new Event();
+        shiftPlan.setEvent(event);
+        return shift;
     }
 }

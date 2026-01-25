@@ -7,7 +7,10 @@ import org.junit.jupiter.api.Test;
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentKey;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.parts.AssignmentPart;
 import at.shiftcontrol.lib.event.events.parts.TradePart;
@@ -27,10 +30,17 @@ class TradePartTest {
         Volunteer volunteer2 = new Volunteer();
         volunteer2.setId("volunteer-2");
 
+        Shift shift = new Shift();
+        ShiftPlan shiftPlan = new ShiftPlan();
+        shift.setShiftPlan(shiftPlan);
+        Event event = new Event();
+        shiftPlan.setEvent(event);
+
         PositionSlot offeringSlot = new PositionSlot();
         offeringSlot.setId(1L);
         offeringSlot.setName("Offering Slot");
         offeringSlot.setDescription("Offering Description");
+        offeringSlot.setShift(shift);
 
         AssignmentKey offeringId = new AssignmentKey(1L, "volunteer-1");
         Assignment offeringAssignment = new Assignment();
@@ -42,6 +52,7 @@ class TradePartTest {
         requestedSlot.setId(2L);
         requestedSlot.setName("Requested Slot");
         requestedSlot.setDescription("Requested Description");
+        requestedSlot.setShift(shift);
 
         AssignmentKey requestedId = new AssignmentKey(2L, "volunteer-2");
         Assignment requestedAssignment = new Assignment();

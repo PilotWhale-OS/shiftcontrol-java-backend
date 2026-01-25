@@ -9,19 +9,22 @@ import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.event.EventType;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.parts.RolePart;
+import at.shiftcontrol.lib.event.events.parts.ShiftPlanRefPart;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class RoleVolunteerEvent extends RoleEvent {
     private final String volunteerId;
+    private final ShiftPlanRefPart shiftPlanRefPart;
 
-    public RoleVolunteerEvent(EventType eventType, String routingKey, RolePart role, String volunteerId) {
+    public RoleVolunteerEvent(EventType eventType, String routingKey, RolePart role, String volunteerId, ShiftPlanRefPart shiftPlanRefPart) {
         super(eventType, routingKey, role);
         this.volunteerId = volunteerId;
+        this.shiftPlanRefPart = shiftPlanRefPart;
     }
 
     public static RoleVolunteerEvent ofInternal(EventType eventType, String routingKey, Role role, String volunteerId) {
-        return new RoleVolunteerEvent(eventType, routingKey, RolePart.of(role), volunteerId);
+        return new RoleVolunteerEvent(eventType, routingKey, RolePart.of(role), volunteerId, ShiftPlanRefPart.of(role.getShiftPlan()));
     }
 
     public static RoleVolunteerEvent roleAssigned(Role role, String volunteerId) {

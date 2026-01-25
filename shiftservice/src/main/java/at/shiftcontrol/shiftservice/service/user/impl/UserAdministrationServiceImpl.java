@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -138,7 +139,11 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
         var user = keycloakUserService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
-        publisher.publishEvent(UserEvent.eventUpdate(volunteer));
+        var allPlans = shiftPlanDao.getByIds(Stream.concat(
+            updateDto.getPlanningPlans().stream(), updateDto.getVolunteeringPlans().stream())
+            .map(ConvertUtil::idToLong)
+            .collect(Collectors.toSet()));
+        publisher.publishEvent(UserEvent.eventUpdate(volunteer, allPlans));
         return UserAssemblingMapper.toUserEventDto(volunteer, user);
     }
 
@@ -168,7 +173,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
         var user = keycloakUserService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
-        publisher.publishEvent(UserEvent.planUpdate(volunteer, String.valueOf(shiftPlanId)));
+        publisher.publishEvent(UserEvent.planUpdate(volunteer, shiftPlanDao.getById(shiftPlanId)));
         return UserAssemblingMapper.toUserPlanDto(volunteer, user, shiftPlanId);
     }
 
@@ -186,7 +191,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             volunteer.getLockedPlans().add(plan);
         }
         userAttributeProvider.invalidateUserCache(userId);
-        publisher.publishEvent(UserEvent.lock(volunteer));
+        publisher.publishEvent(UserEvent.lock(volunteer, plans));
         return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
@@ -201,7 +206,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             volunteer.getLockedPlans().remove(plan);
         }
         userAttributeProvider.invalidateUserCache(userId);
-        publisher.publishEvent(UserEvent.unlock(volunteer));
+        publisher.publishEvent(UserEvent.unlock(volunteer, plans));
         return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
@@ -220,7 +225,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             assignments.forEach(assignmentService::unassignInternal);
         }
         userAttributeProvider.invalidateUserCache(userId);
-        publisher.publishEvent(UserEvent.reset(volunteer));
+        publisher.publishEvent(UserEvent.reset(volunteer, plans));
         return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
@@ -235,7 +240,8 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
                 }
             }
         }
-        publisher.publishEvent(UserPlanBulkEvent.add(volunteers, roles, String.valueOf(shiftPlanId)));
+        var shiftPlan = shiftPlanDao.getById(shiftPlanId);
+        publisher.publishEvent(UserPlanBulkEvent.add(volunteers, roles, shiftPlan));
         return getUserPlanDtos(shiftPlanId, volunteers);
     }
 
@@ -246,7 +252,8 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         for (Volunteer v : volunteers) {
             v.getRoles().removeAll(roles);
         }
-        publisher.publishEvent(UserPlanBulkEvent.remove(volunteers, roles, String.valueOf(shiftPlanId)));
+        var shiftPlan = shiftPlanDao.getById(shiftPlanId);
+        publisher.publishEvent(UserPlanBulkEvent.remove(volunteers, roles, shiftPlan));
         return getUserPlanDtos(shiftPlanId, volunteers);
     }
 

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.lib.event.RoutingKeys;
 import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
+import at.shiftcontrol.lib.event.events.ClaimedAuctionEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.trustservice.service.TrustService;
@@ -78,8 +79,8 @@ public class EventListener {
                 trustService.handleAuctionCreated(event);
 
             } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.AUCTION_CLAIMED_PREFIX)) {
-                AssignmentEvent event =
-                    objectMapper.readValue(rawJson, AssignmentEvent.class);
+                ClaimedAuctionEvent event =
+                    objectMapper.readValue(rawJson, ClaimedAuctionEvent.class);
                 trustService.handleAuctionClaimed(event);
 
             } else if (routingKey.startsWith(ROUTING_KEY_PREFIX + RoutingKeys.AUCTION_CANCELED_PREFIX)) {

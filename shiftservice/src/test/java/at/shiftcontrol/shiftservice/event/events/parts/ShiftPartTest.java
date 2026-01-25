@@ -6,9 +6,11 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Activity;
+import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Location;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.event.events.parts.PositionSlotPart;
 import at.shiftcontrol.lib.event.events.parts.ShiftPart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,12 +29,18 @@ class ShiftPartTest {
         Location location = new Location();
         location.setId(1L);
 
+        Shift shift = new Shift();
+        ShiftPlan shiftPlan = new ShiftPlan();
+        shift.setShiftPlan(shiftPlan);
+        Event event = new Event();
+        shiftPlan.setEvent(event);
+
         PositionSlot positionSlot = new PositionSlot();
         positionSlot.setId(1L);
         positionSlot.setName("Test Slot");
         positionSlot.setDescription("Test Description");
+        positionSlot.setShift(shift);
 
-        Shift shift = new Shift();
         shift.setId(1L);
         shift.setName("Test Shift");
         shift.setShortDescription("Short Description");

@@ -2,7 +2,9 @@ package at.shiftcontrol.shiftservice.event.events;
 
 import org.junit.jupiter.api.Test;
 
+import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Role;
+import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.event.events.RoleVolunteerEvent;
 import at.shiftcontrol.lib.event.events.parts.RolePart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +15,11 @@ class RoleVolunteerEventTest {
     @Test
     void ofInternal() {
         String routingKey = "routingKey";
-        Role role = mock(Role.class);
+        Role role = new Role();
+        ShiftPlan shiftPlan = new ShiftPlan();
+        role.setShiftPlan(shiftPlan);
+        Event event = new Event();
+        shiftPlan.setEvent(event);
         String volunteerId = "volunteerId";
 
         RolePart rolePart = mock(RolePart.class);

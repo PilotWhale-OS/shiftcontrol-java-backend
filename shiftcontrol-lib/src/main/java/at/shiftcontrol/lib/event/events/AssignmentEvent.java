@@ -21,7 +21,7 @@ public class AssignmentEvent extends BaseEvent {
     @JsonCreator
     public AssignmentEvent(
         @JsonProperty("eventType") EventType eventType,
-        String routingKey,
+        @JsonProperty("routingKey") String routingKey,
         @JsonProperty("assignment") AssignmentPart assignment) {
         super(eventType, routingKey);
         this.assignment = assignment;
