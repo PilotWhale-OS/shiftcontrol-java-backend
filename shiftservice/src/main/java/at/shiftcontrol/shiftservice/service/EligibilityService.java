@@ -97,30 +97,11 @@ public interface EligibilityService {
     /**
      * returns all conflicting assignments within a given time for a specific user.
      *
-     * @param volunteerId The volunteer to check
+     * @param volunteerId  The volunteer to check
      * @param positionSlot slot of which the time is to check
      * @return the overlapping assignments
      */
     Collection<Assignment> getConflictingAssignments(String volunteerId, PositionSlot positionSlot);
-
-    /**
-     * checks if the user has any conflicting assignments within a given time.
-     *
-     * @param volunteerId The volunteer to check
-     * @param startTime   start of the timespan to check
-     * @param endTime     end of the timespan to check
-     * @throws ConflictException if overlapping assignments exist
-     */
-    void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
-
-    /**
-     * checks if the user has any conflicting assignments with a given positionSlot.
-     *
-     * @param volunteerId  The volunteer to check
-     * @param positionSlot positionSlot to check
-     * @throws ConflictException if overlapping assignments exist
-     */
-    void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot);
 
     /**
      * returns all conflicting assignments within a given time for a specific user, ignoring the provided position slot.
@@ -136,8 +117,8 @@ public interface EligibilityService {
     /**
      * returns all conflicting assignments with a given position slot for a specific user, ignoring  another position slot.
      *
-     * @param volunteerId  The volunteer to check
-     * @param positionSlot positionSlot to check
+     * @param volunteerId   The volunteer to check
+     * @param positionSlot  positionSlot to check
      * @param slotToExclude position slot that is ignored for the check
      * @return the overlapping assignments
      */
@@ -152,17 +133,17 @@ public interface EligibilityService {
      * @param positionSlot position slot that is ignored for the check
      * @throws ConflictException if overlapping assignments exist
      */
-    void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot);
+    void validateHasConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long positionSlot);
 
     /**
      * checks if the user has any conflicting assignments with a given position slot, ignoring another position slot.
      *
-     * @param volunteerId  The volunteer to check
-     * @param positionSlot positionSlot to check
-     * @param slotToExclude position slot that is ignored for the check
+     * @param volunteerId    The volunteer to check
+     * @param positionSlot   positionSlot to check
+     * @param shiftToExclude shift that is ignored for the check
      * @throws ConflictException if overlapping assignments exist
      */
-    void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude);
+    void validateHasConflictingAssignmentsExcludingShift(String volunteerId, PositionSlot positionSlot, long shiftToExclude);
 
     /**
      * checks if a position slot is full.

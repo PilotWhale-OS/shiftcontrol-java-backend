@@ -75,8 +75,8 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlotId) {
-        return assignmentRepository.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlotId);
+    public Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId) {
+        return assignmentRepository.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, shiftId);
     }
 
     @Override

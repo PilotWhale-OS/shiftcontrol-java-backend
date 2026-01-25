@@ -19,7 +19,7 @@ public interface AssignmentDao extends BasicDao<Assignment, Long> {
 
     Collection<Assignment> getActiveAssignmentsOfSlot(long positionSlotId);
 
-    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlotId);
+    Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId);
 
     Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
 

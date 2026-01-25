@@ -3,10 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -23,6 +19,8 @@ import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +37,7 @@ public class EligibilityServiceImpl implements EligibilityService {
         return getSignupStateForPositionSlot(
             positionSlotDao.getById(positionSlotId),
             volunteerDao.getById(userId)
-            );
+        );
     }
 
     @Override
@@ -47,11 +45,11 @@ public class EligibilityServiceImpl implements EligibilityService {
         return getSignupStateForPositionSlot(
             positionSlot,
             volunteerDao.getById(userId)
-            );
+        );
     }
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Volunteer volunteer) {
+    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Volunteer volunteer) { // todo fix testdata
         if (isSignedUp(positionSlot, volunteer)) {
             return PositionSignupState.SIGNED_UP;
         }
@@ -67,11 +65,11 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.TIME_CONFLICT_TIME_CONSTRAINT;
         }
 
-        var conflictingAssignments = assignmentDao.getConflictingAssignmentsExcludingSlot(
+        var conflictingAssignments = assignmentDao.getConflictingAssignmentsExcludingShift(
             volunteer.getId(),
             positionSlot.getShift().getStartTime(),
             positionSlot.getShift().getEndTime(),
-            positionSlot.getId()
+            positionSlot.getShift().getId()
         );
         if (!conflictingAssignments.isEmpty()) {
             return PositionSignupState.TIME_CONFLICT_ASSIGNMENT;
@@ -108,10 +106,10 @@ public class EligibilityServiceImpl implements EligibilityService {
         switch (signupState) {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION:
                 // simply joining is not possible
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
             case NOT_ELIGIBLE, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
-                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                    throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
                 }
                 break;
             case SIGNUP_POSSIBLE, SIGNUP_OR_TRADE:
@@ -126,10 +124,10 @@ public class EligibilityServiceImpl implements EligibilityService {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         switch (signupState) {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_POSSIBLE, SIGNUP_OR_TRADE:
-                throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
             case NOT_ELIGIBLE:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
-                    throw new ConflictException(PositionSlotJoinErrorDto.builder().state(signupState).build());
+                    throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
                 }
                 break;
             case SIGNUP_VIA_AUCTION:
@@ -165,23 +163,8 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
-        var a = assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
-        if (a.isEmpty()) {
-            return;
-        }
-        throw new ConflictException("User has conflicting assignments");
-    }
-
-    @Override
-    public void validateHasConflictingAssignments(String volunteerId, PositionSlot positionSlot) {
-        validateHasConflictingAssignments(volunteerId,
-            positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
-    }
-
-    @Override
     public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        return assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
+        return assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, positionSlot);
     }
 
     @Override
@@ -191,8 +174,8 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        var a = assignmentDao.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, positionSlot);
+    public void validateHasConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId) {
+        var a = assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, shiftId);
         if (a.isEmpty()) {
             return;
         }
@@ -200,9 +183,9 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
-        validateHasConflictingAssignmentsExcludingSlot(
-            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
+    public void validateHasConflictingAssignmentsExcludingShift(String volunteerId, PositionSlot positionSlot, long shiftToExclude) {
+        validateHasConflictingAssignmentsExcludingShift(
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), shiftToExclude);
     }
 
     @Override

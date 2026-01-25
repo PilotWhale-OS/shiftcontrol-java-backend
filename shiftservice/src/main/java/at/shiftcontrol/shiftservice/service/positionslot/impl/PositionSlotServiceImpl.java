@@ -6,6 +6,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.NonNull;
@@ -184,8 +192,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // check if already assigned, eligible and conflicts
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
-        eligibilityService.validateHasConflictingAssignments(
-            volunteer.getId(), positionSlot);
     }
 
     @Override
@@ -238,9 +244,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // check for trade not necessary
         // check if user is eligible for the auction position slot
         eligibilityService.validateSignUpStateForAuction(auction.getPositionSlot(), currentUser);
-        // check if any current assignments overlap with auction position slot
-        eligibilityService.validateHasConflictingAssignments(
-            currentUser.getId(), auction.getPositionSlot());
         // cancel existing trades
         assignmentSwitchRequestDao.cancelTradesForPositionSlot(positionSlotId, offeringUserId);
         // execute claim

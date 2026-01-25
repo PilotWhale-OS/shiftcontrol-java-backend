@@ -53,11 +53,11 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     @Query("""
         SELECT a FROM Assignment a
         WHERE a.assignedVolunteer.id = :volunteerId
-        AND a.positionSlot.id <> :positionSlotId
+        AND a.positionSlot.shift.id <> :shiftId
         AND a.positionSlot.shift.endTime > :startTime
         AND a.positionSlot.shift.startTime < :endTime
         """)
-    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlotId);
+    Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId);
 
     @Query("""
         SELECT a FROM Assignment a
