@@ -9,12 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentKey;
 import at.shiftcontrol.lib.entity.AssignmentPair;
@@ -45,6 +39,10 @@ import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -357,7 +355,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         eligibilityService.validateIsEligibleAndNotSignedUp(slotToBeTaken, volunteer);
 
         // check if any current assignments overlap with requested position slot
-        eligibilityService.validateHasConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), slotToBeTaken, ownedSlot.getId());
+        eligibilityService.validateHasConflictingAssignmentsExcludingShift(
+            volunteer.getId(), slotToBeTaken, ownedSlot.getShift().getId());
     }
 }

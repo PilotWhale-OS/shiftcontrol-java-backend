@@ -3,10 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -23,6 +19,8 @@ import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +37,7 @@ public class EligibilityServiceImpl implements EligibilityService {
         return getSignupStateForPositionSlot(
             positionSlotDao.getById(positionSlotId),
             volunteerDao.getById(userId)
-            );
+        );
     }
 
     @Override
@@ -47,7 +45,7 @@ public class EligibilityServiceImpl implements EligibilityService {
         return getSignupStateForPositionSlot(
             positionSlot,
             volunteerDao.getById(userId)
-            );
+        );
     }
 
     @Override
@@ -176,8 +174,8 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        var a = assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, positionSlot);
+    public void validateHasConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId) {
+        var a = assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, shiftId);
         if (a.isEmpty()) {
             return;
         }
@@ -185,9 +183,9 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
-        validateHasConflictingAssignmentsExcludingSlot(
-            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
+    public void validateHasConflictingAssignmentsExcludingShift(String volunteerId, PositionSlot positionSlot, long shiftToExclude) {
+        validateHasConflictingAssignmentsExcludingShift(
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), shiftToExclude);
     }
 
     @Override
