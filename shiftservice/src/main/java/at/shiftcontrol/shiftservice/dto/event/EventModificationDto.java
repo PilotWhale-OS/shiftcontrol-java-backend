@@ -32,4 +32,7 @@ public class EventModificationDto {
 
     @Size(max = 4096)
     private String socialLinks;
+
+    @Size(max = 2048)
+    private String rewardPointsRedeemUrl;
 }

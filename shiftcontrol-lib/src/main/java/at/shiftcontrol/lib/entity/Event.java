@@ -55,6 +55,10 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<SocialMediaLink> socialMediaLinks;
 
+    @Size(max = 2048)
+    @Column(length = 2048)
+    private String rewardPointsRedeemUrl;
+
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Location> locations;
 

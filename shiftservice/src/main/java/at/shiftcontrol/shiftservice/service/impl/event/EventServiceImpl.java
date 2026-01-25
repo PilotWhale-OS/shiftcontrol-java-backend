@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl.event;
 
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -17,6 +18,7 @@ import at.shiftcontrol.lib.entity.SocialMediaLink;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.EventEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
@@ -43,6 +45,7 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.SocialLinksParser;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -228,7 +231,7 @@ public class EventServiceImpl implements EventService {
 
     private void validateNameUniqueness(String name, Long excludeEventId) {
         var eventOpt = eventDao.findByName(name);
-        if (eventOpt.isPresent() && eventOpt.get().getId() != excludeEventId) {
+        if (eventOpt.isPresent() && (excludeEventId == null || eventOpt.get().getId() != excludeEventId)) {
             throw new BadRequestException("An event with the given name already exists");
         }
     }
@@ -236,6 +239,16 @@ public class EventServiceImpl implements EventService {
     private void validateEventModificationDto(EventModificationDto modificationDto) {
         if (modificationDto.getStartTime().isAfter(modificationDto.getEndTime())) {
             throw new BadRequestException("Event end time must be after start time");
+        }
+
+        // validate that rewardPointsRedeemUrl is a valid URL if provided
+        String url = modificationDto.getRewardPointsRedeemUrl();
+        if (StringUtils.isNotBlank(url)) {
+            try {
+                new URL(url);
+            } catch (MalformedURLException e) {
+                throw new ValidationException("Reward points redeem URL is not a valid URL");
+            }
         }
     }
 
