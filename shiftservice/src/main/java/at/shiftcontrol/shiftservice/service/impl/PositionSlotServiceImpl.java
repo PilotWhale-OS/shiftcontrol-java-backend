@@ -2,6 +2,14 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -33,12 +41,6 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.PositionSlotService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -179,8 +181,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
         // check if already assigned, eligible and conflicts
         eligibilityService.validateSignUpStateForJoin(positionSlot, volunteer);
-        eligibilityService.validateHasConflictingAssignments(
-            volunteer.getId(), positionSlot);
     }
 
     @Override
@@ -233,9 +233,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         // check for trade not necessary
         // check if user is eligible for the auction position slot
         eligibilityService.validateSignUpStateForAuction(auction.getPositionSlot(), currentUser);
-        // check if any current assignments overlap with auction position slot
-        eligibilityService.validateHasConflictingAssignments(
-            currentUser.getId(), auction.getPositionSlot());
         // cancel existing trades
         assignmentSwitchRequestDao.cancelTradesForPositionSlot(positionSlotId, offeringUserId);
         // execute claim
