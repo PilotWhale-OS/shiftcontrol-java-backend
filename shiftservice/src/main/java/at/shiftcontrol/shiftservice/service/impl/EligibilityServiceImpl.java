@@ -3,10 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -23,6 +19,8 @@ import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -165,14 +163,14 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        return assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, positionSlot);
+    public Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftIdToExclude) {
+        return assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, shiftIdToExclude);
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
-        return getConflictingAssignmentsExcludingSlot(
-            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
+    public Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, PositionSlot positionSlot, long shiftIdToExclude) {
+        return getConflictingAssignmentsExcludingShift(
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), shiftIdToExclude);
     }
 
     @Override

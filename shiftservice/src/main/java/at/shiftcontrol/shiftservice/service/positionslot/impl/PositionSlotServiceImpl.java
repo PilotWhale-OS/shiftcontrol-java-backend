@@ -2,24 +2,6 @@ package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
 import java.util.Collection;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
@@ -52,6 +34,14 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PositionSlotService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -126,7 +116,20 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assertJoinPossible(positionSlot, volunteer);
 
         // create assignment
-        Assignment joinRequest = Assignment.of(positionSlot, volunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
+        Assignment joinRequest = null;
+        try {
+            joinRequest = assignmentDao.getAssignmentForPositionSlotAndUser(
+                positionSlot.getId(), volunteer.getId());
+
+            if (joinRequest.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
+                throw new IllegalStateException("Join request already exists in different status");
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        if (joinRequest == null) {
+            joinRequest = Assignment.of(positionSlot, volunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
+        }
         joinRequest = assignmentDao.save(joinRequest);
 
         // publish event

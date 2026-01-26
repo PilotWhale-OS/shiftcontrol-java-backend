@@ -124,8 +124,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // check if assignable
         boolean eligible = eligibilityService.isEligibleAndNotSignedUp(positionSlot, volunteer);
         // check for conflicts
-        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), positionSlot, positionSlot.getId());
+        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingShift(
+            volunteer.getId(), positionSlot, positionSlot.getShift().getId());
 
         return eligible && conflicts.isEmpty();
     }
@@ -153,9 +153,19 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         Collection<Assignment> assignments = new ArrayList<>(volunteers.size());
         Iterator<Volunteer> iterator = volunteers.stream().iterator();
         while (iterator.hasNext() && eligibilityService.hasCapacity(positionSlot)) {
+            Assignment assignment = null;
+            var nextVolunteer = iterator.next();
+            try {
+                assignment = assignmentDao.getAssignmentForPositionSlotAndUser(
+                    positionSlot.getId(), nextVolunteer.getId());
+            } catch (Exception e) {
+                // ignore
+            }
+            if (assignment == null) {
+                assignment = Assignment.of(positionSlot, nextVolunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
+            }
             assignments.add(
-                assignmentService.accept(
-                    Assignment.of(positionSlot, iterator.next(), AssignmentStatus.REQUEST_FOR_ASSIGNMENT))
+                assignmentService.accept(assignment)
             );
         }
 

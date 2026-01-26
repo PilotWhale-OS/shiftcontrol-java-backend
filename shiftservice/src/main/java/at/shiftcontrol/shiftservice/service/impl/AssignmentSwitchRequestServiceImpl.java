@@ -115,8 +115,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check if assignable
         boolean eligible = eligibilityService.isEligibleAndNotSignedUp(offeredPositionSlot, volunteer);
         // check for conflicts
-        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), offeredPositionSlot, requestedPositionSlot.getId());
+        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingShift(
+            volunteer.getId(), offeredPositionSlot, requestedPositionSlot.getShift().getId());
 
         return eligible && conflicts.isEmpty();
     }

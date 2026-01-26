@@ -106,23 +106,23 @@ public interface EligibilityService {
     /**
      * returns all conflicting assignments within a given time for a specific user, ignoring the provided position slot.
      *
-     * @param volunteerId  The volunteer to check
-     * @param startTime    start of the timespan to check
-     * @param endTime      end of the timespan to check
-     * @param positionSlot position slot that is ignored for the check
+     * @param volunteerId      The volunteer to check
+     * @param startTime        start of the timespan to check
+     * @param endTime          end of the timespan to check
+     * @param shiftIdToExclude shift that is ignored for the check
      * @return the overlapping assignments
      */
-    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot);
+    Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftIdToExclude);
 
     /**
      * returns all conflicting assignments with a given position slot for a specific user, ignoring  another position slot.
      *
-     * @param volunteerId   The volunteer to check
-     * @param positionSlot  positionSlot to check
-     * @param slotToExclude position slot that is ignored for the check
+     * @param volunteerId      The volunteer to check
+     * @param positionSlot     positionSlot to check
+     * @param shiftIdToExclude shift that is ignored for the check
      * @return the overlapping assignments
      */
-    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude);
+    Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, PositionSlot positionSlot, long shiftIdToExclude);
 
     /**
      * checks if the user has any conflicting assignments within a given time, ignoring the given position slot.
