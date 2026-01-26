@@ -2,10 +2,12 @@ package at.shiftcontrol.lib.event.events.parts;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Event;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class EventRefPart {
     private long id;

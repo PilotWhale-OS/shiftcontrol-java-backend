@@ -48,11 +48,12 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
         // if admin access level, all other filters are automatically true: in all plans and events
         if (filter.getReceiverAccessLevel() == ReceiverAccessLevel.ADMIN) {
             recipientIds = filterAdminsById(filter, recipientIds);
+        } else {
+            // filter by eventId, shiftId and volunteerIds if present
+            recipientIds = filterByShiftPlanAndVolunteerIds(filter, recipientIds);
+            recipientIds = filterByEventAndVolunteerIds(filter, recipientIds);
+            recipientIds = filterByVolunteerIds(filter, recipientIds);
         }
-        // filter by eventId, shiftId and volunteerIds if present
-        recipientIds = filterByShiftPlanAndVolunteerIds(filter, recipientIds);
-        recipientIds = filterByEventAndVolunteerIds(filter, recipientIds);
-        recipientIds = filterByVolunteerIds(filter, recipientIds);
 
         if (recipientIds != null) {
             if (filter.getNotificationChannel() == NotificationChannel.EMAIL) {

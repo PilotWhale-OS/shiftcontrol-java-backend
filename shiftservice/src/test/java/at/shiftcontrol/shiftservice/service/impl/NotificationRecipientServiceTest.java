@@ -36,6 +36,26 @@ public class NotificationRecipientServiceTest {
     KeycloakUserService keycloakUserService;
 
     @Test
+    void testGetRecipientsForNotificationAdminTest() {
+        String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
+        RecipientsFilterDto filter = RecipientsFilterDto.builder()
+            .notificationType(NotificationType.ADMIN_PLANNER_JOINED_PLAN)
+            .notificationChannel(NotificationChannel.PUSH)
+            .receiverAccessLevel(ReceiverAccessLevel.ADMIN)
+            .relatedShiftPlanId("4")
+            .build();
+        Mockito.when(keycloakUserService.getAllAdmins())
+            .thenReturn(List.of(testEntityFactory.getUserRepresentationWithId(userId)));
+        Mockito.when(keycloakUserService.getUserByIds(any()))
+            .thenReturn(List.of(testEntityFactory.getUserRepresentationWithId(userId)));
+
+        RecipientsDto recipientsDto = notificationRecipientService.getRecipientsForNotification(filter);
+
+        Assertions.assertNotNull(recipientsDto);
+        Assertions.assertFalse(recipientsDto.getRecipients().isEmpty());
+    }
+    /*
+    @Test
     void testGetRecipientsForNotificationAdmin() {
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
         RecipientsFilterDto filter = RecipientsFilterDto.builder()
@@ -71,4 +91,6 @@ public class NotificationRecipientServiceTest {
         Assertions.assertNotNull(recipientsDto);
         Assertions.assertFalse(recipientsDto.getRecipients().isEmpty());
     }
+
+     */
 }
