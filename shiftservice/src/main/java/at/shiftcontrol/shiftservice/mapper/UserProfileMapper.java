@@ -2,6 +2,8 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.entity.Event;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,16 @@ public class UserProfileMapper {
             .assignedRoles(RoleMapper.toRoleDto(volunteer.getRoles()))
             .volunteeringPlans(ConvertUtil.toStringList(volunteer.getVolunteeringPlans().stream().map(ShiftPlan::getId)))
             .planningPlans(ConvertUtil.toStringList(volunteer.getPlanningPlans().stream().map(ShiftPlan::getId)))
+            .volunteeringEvents(ConvertUtil.toStringList(volunteer
+                .getVolunteeringPlans().stream()
+                .map(ShiftPlan::getEvent)
+                .map(Event::getId)
+                .distinct()))
+            .planningEvents(ConvertUtil.toStringList(volunteer
+                .getPlanningPlans().stream()
+                .map(ShiftPlan::getEvent)
+                .map(Event::getId)
+                .distinct()))
             .build();
     }
 }

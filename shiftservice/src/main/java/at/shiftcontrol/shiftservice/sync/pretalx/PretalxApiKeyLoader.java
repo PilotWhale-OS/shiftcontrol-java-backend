@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.entity.PretalxApiKey;
 import at.shiftcontrol.lib.event.events.PretalxApiKeyInvalidEvent;
+import at.shiftcontrol.lib.exception.PretalxApiKeyInvalidException;
 import at.shiftcontrol.pretalxclient.model.EventList;
 import at.shiftcontrol.shiftservice.repo.pretalx.PretalxApiKeyRepository;
 
@@ -48,46 +50,75 @@ public class PretalxApiKeyLoader {
 
         var apiKeys = pretalxApiKeyRepository.findAll();
         for (var apiKey : apiKeys) {
-            var eventsApi = pretalxApiSupplier.eventsApi(apiKey);
-            var roomsApi = pretalxApiSupplier.roomsApi(apiKey);
-            try {
-                var allEvents = eventsApi.apiEventsList(null, null, null);
+            var keyDataOpt = checkApiKeyInternal(apiKey);
 
-                //Verify access to rooms endpoint for each event
-                var accessibleEvents = allEvents.stream().filter(event -> {
-                    try {
-                        roomsApi.roomsList(event.getSlug(), 1, null, 0, null);
-                        return true;
-                    } catch (RestClientResponseException e) {
-                        if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED)
-                            || e.getStatusCode().isSameCodeAs(HttpStatus.FORBIDDEN)) {
-                            return false;
-                        } else {
-                            throw e;
-                        }
-                    }
-                }).toList();
-
-                if (accessibleEvents.isEmpty()) {
-                    removeInvalidApiKey(apiKey);
-                    continue;
-                }
-
-                var keyData = new PretalxApiKeyData(
-                    apiKey.getApiKey(),
-                    apiKey.getPretalxHost(),
-                    accessibleEvents.stream().map(EventList::getSlug).toList());
+            if (keyDataOpt.isPresent()) {
+                var keyData = keyDataOpt.get();
                 activeApiKeys.add(keyData);
                 //Update cache
-                accessibleEvents.forEach(event -> apiKeyCache.put(event.getSlug(), apiKey));
-            } catch (RestClientResponseException e) {
-                //Remove invalid API key
-                if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED)) {
-                    removeInvalidApiKey(apiKey);
-                } else {
-                    throw e;
-                }
+                keyData.getEventSlugs().forEach(eventSlug -> apiKeyCache.put(eventSlug, apiKey));
             }
+        }
+    }
+
+    public Optional<PretalxApiKeyData> checkApiKey(PretalxApiKey apiKey) {
+        lock.writeLock().lock();
+        try {
+            var keyDataOpt = checkApiKeyInternal(apiKey);
+            if (keyDataOpt.isPresent()) {
+                var keyData = keyDataOpt.get();
+                //Update active keys and cache
+                activeApiKeys.add(keyData);
+                keyData.getEventSlugs().forEach(eventSlug -> apiKeyCache.put(eventSlug, apiKey));
+            }
+            return keyDataOpt;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    private Optional<PretalxApiKeyData> checkApiKeyInternal(PretalxApiKey apiKey) {
+        var eventsApi = pretalxApiSupplier.eventsApi(apiKey);
+        var roomsApi = pretalxApiSupplier.roomsApi(apiKey);
+        try {
+            var allEvents = eventsApi.apiEventsList(null, null, null);
+
+            //Verify access to rooms endpoint for each event
+            var accessibleEvents = allEvents.stream().filter(event -> {
+                try {
+                    roomsApi.roomsList(event.getSlug(), 1, null, 0, null);
+                    return true;
+                } catch (RestClientResponseException e) {
+                    if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED)
+                        || e.getStatusCode().isSameCodeAs(HttpStatus.FORBIDDEN)) {
+                        return false;
+                    } else {
+                        throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key: " + e.getMessage(), e);
+                    }
+                } catch (RestClientException e) {
+                    throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key: " + e.getMessage(), e);
+                }
+            }).toList();
+
+            if (accessibleEvents.isEmpty()) {
+                removeInvalidApiKey(apiKey);
+                return Optional.empty();
+            }
+
+            return Optional.of(new PretalxApiKeyData(
+                apiKey.getApiKey(),
+                apiKey.getPretalxHost(),
+                accessibleEvents.stream().map(EventList::getSlug).toList()));
+        } catch (RestClientResponseException e) {
+            //Remove invalid API key
+            if (e.getStatusCode().isSameCodeAs(HttpStatus.UNAUTHORIZED)) {
+                removeInvalidApiKey(apiKey);
+                return Optional.empty();
+            } else {
+                throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key: " + e.getMessage(), e);
+            }
+        } catch (RestClientException e) {
+            throw new PretalxApiKeyInvalidException("Error while verifying Pretalx API key: " + e.getMessage(), e);
         }
     }
 

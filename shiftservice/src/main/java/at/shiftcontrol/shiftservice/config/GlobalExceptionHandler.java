@@ -24,6 +24,7 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.exception.NotificationSettingAlreadyExistsException;
 import at.shiftcontrol.lib.exception.PartiallyNotFoundException;
+import at.shiftcontrol.lib.exception.PretalxApiKeyInvalidException;
 import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.exception.UnauthorizedException;
 import at.shiftcontrol.lib.exception.ValidationException;
@@ -102,6 +103,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {UnsupportedOperationException.class})
     protected ResponseEntity<Object> handleUnsupportedOperationException(Exception ex, WebRequest request) {
+        return handleInternal(ex, request, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {PretalxApiKeyInvalidException.class})
+    protected ResponseEntity<Object> handlePretalxApiKeyInvalidException(Exception ex, WebRequest request) {
         return handleInternal(ex, request, BAD_REQUEST);
     }
 

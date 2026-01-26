@@ -1,19 +1,21 @@
 package at.shiftcontrol.shiftservice.sync.pretalx;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.PretalxApiKey;
 import at.shiftcontrol.lib.exception.ConflictException;
-import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.shiftservice.dto.PretalxApiKeyDetailsDto;
 import at.shiftcontrol.shiftservice.dto.PretalxApiKeyDto;
 import at.shiftcontrol.shiftservice.repo.pretalx.PretalxApiKeyRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -41,24 +43,19 @@ public class PretalxApiKeyService {
             throw new ValidationException("Pretalx host is not a valid URL");
         }
 
-
         var apiKey = PretalxApiKey.builder()
             .apiKey(apiKeyDto.getApiKey())
             .pretalxHost(apiKeyDto.getPretalxHost())
             .build();
-        pretalxApiKeyRepository.save(apiKey);
 
-        pretalxApiKeyLoader.refreshApiKeys();
-        var addedKey = pretalxApiKeyLoader.getActiveApiKeys().stream()
-            .filter(key -> key.getApiKey().equals(apiKeyDto.getApiKey()))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Added API key not found in active keys"));
-
-        if (addedKey == null) {
-            throw new ValidationException("Added API key is not valid or has no accessible events");
+        var keyDataOpt = pretalxApiKeyLoader.checkApiKey(apiKey);
+        if (keyDataOpt.isEmpty()) {
+            throw new ValidationException("API key is not valid or has no accessible events");
         }
 
-        return PretalxApiKeyDetailsDto.of(addedKey);
+        pretalxApiKeyRepository.save(apiKey);
+
+        return PretalxApiKeyDetailsDto.of(keyDataOpt.get());
     }
 
     @Transactional

@@ -5,12 +5,11 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.type.AssignmentStatus;
 
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
@@ -80,11 +79,11 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     @Query("""
         SELECT a FROM Assignment a
-        WHERE a.positionSlot.id = :positionSlotId
+        WHERE a.positionSlot.shift.shiftPlan.id = :shiftPlanId
         AND a.assignedVolunteer.id IN :userIds
         AND a.status != :status
         """)
-    Collection<Assignment> findActiveAssignmentsForShiftPlanAndUser(long positionSlotId, String userIds, AssignmentStatus status);
+    Collection<Assignment> findActiveAssignmentsForShiftPlanAndUser(long shiftPlanId, String userIds, AssignmentStatus status);
 
     @Query("""
         SELECT a FROM Assignment a

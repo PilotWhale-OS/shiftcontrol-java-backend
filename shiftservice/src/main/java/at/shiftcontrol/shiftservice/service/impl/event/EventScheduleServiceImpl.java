@@ -304,8 +304,8 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             return EventScheduleFilterValuesDto.builder()
                 .locations(List.of())
                 .roles(List.of())
-                .firstDate(TimeUtil.convertToUtcLocalDate(event.getStartTime()))
-                .lastDate(TimeUtil.convertToUtcLocalDate(event.getEndTime()))
+                .firstDate(event.getStartTime())
+                .lastDate(event.getEndTime())
                 .build();
         }
 
@@ -339,8 +339,8 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             return EventScheduleFilterValuesDto.builder()
                 .locations(List.of())
                 .roles(List.of())
-                .firstDate(TimeUtil.convertToUtcLocalDate(event.getStartTime()))
-                .lastDate(TimeUtil.convertToUtcLocalDate(event.getEndTime()))
+                .firstDate(event.getStartTime())
+                .lastDate(event.getEndTime())
                 .build();
         }
         // Determine first and last date from shifts and related activities
@@ -353,8 +353,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             )
             .filter(Objects::nonNull)
             .min(Instant::compareTo)
-            .map(TimeUtil::convertToUtcLocalDate)
-            .orElse(TimeUtil.convertToUtcLocalDate(event.getStartTime()));
+            .orElse(event.getStartTime());
         var lastDate = Stream.concat(
                 shifts.stream().map(Shift::getEndTime),
                 shifts.stream()
@@ -364,8 +363,7 @@ public class EventScheduleServiceImpl implements EventScheduleService {
             )
             .filter(Objects::nonNull)
             .max(Instant::compareTo)
-            .map(TimeUtil::convertToUtcLocalDate)
-            .orElse(TimeUtil.convertToUtcLocalDate(event.getEndTime()));
+            .orElse(event.getEndTime());
 
         return EventScheduleFilterValuesDto.builder()
             .locations(List.of())
