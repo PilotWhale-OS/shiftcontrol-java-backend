@@ -131,6 +131,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public void unassignInternal(Assignment assignment) {
         //ACT: update reward points
         rewardPointsService.onAssignmentRemoved(
