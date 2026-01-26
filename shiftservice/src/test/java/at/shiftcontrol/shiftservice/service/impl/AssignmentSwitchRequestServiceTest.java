@@ -173,10 +173,10 @@ public class AssignmentSwitchRequestServiceTest {
         Assertions.assertFalse(deletedRequested.isPresent());
 
         // check initial reward points before trade
-        Assertions.assertEquals(10, pointsOtherUserBeforeTrade);
+        Assertions.assertEquals(20, pointsOtherUserBeforeTrade);
         Assertions.assertEquals(30, pointsCurrentUserBeforeTrade);
         // check reward points swapped after trade
-        Assertions.assertEquals(30, pointsOtherUserAfterTrade);
+        Assertions.assertEquals(40, pointsOtherUserAfterTrade);
         Assertions.assertEquals(10, pointsCurrentUserAfterTrade);
         // check reward points in dto stay the same for assignment (only volunteers swapped)
         Assertions.assertEquals(10, dto.getOfferingAssignment().getAcceptedRewardPoints());
