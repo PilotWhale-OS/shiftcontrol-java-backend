@@ -54,7 +54,7 @@ public class NotificationRecipientServiceTest {
         Assertions.assertNotNull(recipientsDto);
         Assertions.assertFalse(recipientsDto.getRecipients().isEmpty());
     }
-    /*
+
     @Test
     void testGetRecipientsForNotificationAdmin() {
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
@@ -91,6 +91,4 @@ public class NotificationRecipientServiceTest {
         Assertions.assertNotNull(recipientsDto);
         Assertions.assertFalse(recipientsDto.getRecipients().isEmpty());
     }
-
-     */
 }
