@@ -137,7 +137,7 @@ public class PretalxSyncService {
 
     private Location syncRoom(Event event, Room room) {
         var roomName = getStringForLocale(room.getName());
-        var locations = locationDao.search(LocationSearchDto.builder().name(roomName).build());
+        var locations = locationDao.search(event.getId(), LocationSearchDto.builder().name(roomName).build());
 
         if (locations.isEmpty()) {
             log.info("Creating new location: {} for event: {} (ID: {})", roomName, event.getName(), event.getId());

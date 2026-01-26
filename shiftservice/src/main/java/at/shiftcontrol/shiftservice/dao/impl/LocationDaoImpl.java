@@ -52,12 +52,12 @@ public class LocationDaoImpl implements LocationDao {
     }
 
     @Override
-    public List<Location> search(LocationSearchDto searchDto) {
+    public List<Location> search(long eventId, LocationSearchDto searchDto) {
         return locationRepository.findAll((Specification<Location>) (root, query, criteriaBuilder) -> {
             if (searchDto == null || StringUtils.isBlank(searchDto.getName())) {
                 return null; //Select all
             }
-            var predicates = criteriaBuilder.conjunction();
+            var predicates = criteriaBuilder.equal(root.get("event").get("id"), eventId);
 
             if (searchDto.getName() != null && !searchDto.getName().isEmpty()) {
                 var nameLower = searchDto.getName().toLowerCase().trim();
