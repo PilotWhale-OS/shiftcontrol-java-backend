@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dto.event.schedule;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 
@@ -21,7 +22,7 @@ public class EventScheduleFilterValuesDto {
     @Valid
     private Collection<RoleDto> roles;
 
-    private LocalDate firstDate;
+    private Instant firstDate;
 
-    private LocalDate lastDate;
+    private Instant lastDate;
 }
