@@ -1,5 +1,7 @@
 package at.shiftcontrol.shiftservice.mapper;
 
+import java.util.Collection;
+
 import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.lib.entity.NotificationSettings;
@@ -12,5 +14,16 @@ public class NotificationSettingsMapper {
             .channels(dto.getChannels())
             .type(dto.getType())
             .build();
+    }
+
+    public static NotificationSettingsDto toDto(NotificationSettings dto) {
+        return NotificationSettingsDto.builder()
+            .channels(dto.getChannels())
+            .type(dto.getType())
+            .build();
+    }
+
+    public static Collection<NotificationSettingsDto> toDto(Collection<NotificationSettings> dtos) {
+        return dtos.stream().map(NotificationSettingsMapper::toDto).toList();
     }
 }

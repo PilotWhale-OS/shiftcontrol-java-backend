@@ -1,20 +1,22 @@
 package at.shiftcontrol.shiftservice.dto.notifications;
 
-import at.shiftcontrol.lib.type.NotificationChannel;
-import at.shiftcontrol.lib.type.NotificationType;
-import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
+import java.util.Set;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Set;
+import at.shiftcontrol.lib.type.NotificationChannel;
+import at.shiftcontrol.lib.type.NotificationType;
+import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
 
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RecipientsFilterDto {
 
     @NotNull

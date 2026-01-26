@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="020-insert-user-notification-settings" author="paul" context="dev">
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="1"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="VOLUNTEER_REQUEST_HANDLED"/>
+    </insert>
+
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="1"/>
+      <column name="channel" value="EMAIL"/>
+    </insert>
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="1"/>
+      <column name="channel" value="PUSH"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="2"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="VOLUNTEER_TRADE_OR_AUCTION"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="3"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="VOLUNTEER_PLANS_CHANGED"/>
+    </insert>
+
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="3"/>
+      <column name="channel" value="EMAIL"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="4"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="VOLUNTEER_ROLES_CHANGED"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="5"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="VOLUNTEER_STATUS_CHANGED"/>
+    </insert>
+
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="5"/>
+      <column name="channel" value="EMAIL"/>
+    </insert>
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="5"/>
+      <column name="channel" value="PUSH"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="6"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="VOLUNTEER_AUTO_ASSIGNED"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="7"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="VOLUNTEER_SHIFT_REMINDER"/>
+    </insert>
+
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="7"/>
+      <column name="channel" value="EMAIL"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="8"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="PLANNER_VOLUNTEER_REQUEST"/>
+    </insert>
+
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="8"/>
+      <column name="channel" value="PUSH"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="9"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="PLANNER_VOLUNTEER_JOINED_PLAN"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="10"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="ADMIN_PLANNER_JOINED_PLAN"/>
+    </insert>
+
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="10"/>
+      <column name="channel" value="EMAIL"/>
+    </insert>
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="10"/>
+      <column name="channel" value="PUSH"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="11"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="ADMIN_TRUST_ALERT_RECEIVED"/>
+    </insert>
+
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="11"/>
+      <column name="channel" value="EMAIL"/>
+    </insert>
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="11"/>
+      <column name="channel" value="PUSH"/>
+    </insert>
+
+
+    <insert tableName="notification_settings">
+      <column name="id" valueNumeric="12"/>
+      <column name="user_id" value="28c02050-4f90-4f3a-b1df-3c7d27a166e8"/>
+      <column name="notification_type" value="ADMIN_REWARD_SYNC_USED"/>
+    </insert>
+
+    <insert tableName="notification_setting_channels">
+      <column name="setting_id" valueNumeric="12"/>
+      <column name="channel" value="EMAIL"/>
+    </insert>
+
+  </changeSet>
+
+</databaseChangeLog>

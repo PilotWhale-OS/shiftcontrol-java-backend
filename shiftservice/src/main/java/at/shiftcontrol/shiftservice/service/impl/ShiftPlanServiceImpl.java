@@ -349,7 +349,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 .planningPlans(Collections.emptySet())
                 .volunteeringPlans(Collections.emptySet())
                 .roles(Collections.emptySet())
-                .notificationAssignments(Collections.emptySet())
+                .notificationSettings(Collections.emptySet())
                 .build();
             return volunteerDao.save(newVolunteer);
         });
