@@ -4,12 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -34,6 +28,10 @@ import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +59,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
+    @Transactional
     public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
@@ -83,6 +82,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
+    @Transactional
     public void declineRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
@@ -163,6 +163,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
+    @Transactional
     public void unAssignUsersFromSlot(AssignmentAssignDto assignmentAssignDto) {
         PositionSlot positionSlot = positionSlotDao.getById(
             ConvertUtil.idToLong(assignmentAssignDto.getPositionSlotId()));
