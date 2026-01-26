@@ -7,6 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Location;
@@ -21,13 +30,6 @@ import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.LocationDao;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationSearchDto;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -135,7 +137,7 @@ public class PretalxSyncService {
 
     private Location syncRoom(Event event, Room room) {
         var roomName = getStringForLocale(room.getName());
-        var locations = locationDao.search(LocationSearchDto.builder().name(roomName).build());
+        var locations = locationDao.search(event.getId(), LocationSearchDto.builder().name(roomName).build());
 
         if (locations.isEmpty()) {
             log.info("Creating new location: {} for event: {} (ID: {})", roomName, event.getName(), event.getId());
@@ -152,11 +154,13 @@ public class PretalxSyncService {
         } else if (locations.size() == 1) {
             //Update existing location
             var location = locations.iterator().next();
+            var description = room.getDescription() != null ? getStringForLocale(room.getDescription()) : null;
+
             if (!location.getName().equals(roomName)
-                || (room.getDescription() != null && !getStringForLocale(room.getDescription()).equals(location.getDescription()))) {
+                || (description != null && !description.equals(location.getDescription()))) {
                 log.info("Updating existing location: {} (ID: {}) for event: {} (ID: {})", roomName, location.getId(), event.getName(), event.getId());
                 location.setName(roomName);
-                location.setDescription(room.getDescription() != null ? getStringForLocale(room.getDescription()) : null);
+                location.setDescription(description);
                 location = locationDao.save(location);
                 eventPublisher.publishEvent(LocationEvent.locationUpdated(location).withActingUserId(ACTING_USERID));
                 return location;

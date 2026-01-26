@@ -10,7 +10,7 @@ import at.shiftcontrol.shiftservice.dto.location.LocationSearchDto;
 public interface LocationDao extends BasicDao<Location, Long> {
     Collection<Location> findAllByEventId(Long eventId);
 
-    List<Location> search(LocationSearchDto searchDto);
+    List<Location> search(long eventId, LocationSearchDto searchDto);
 
     Optional<Location> findByEventAndName(long eventId, String name);
 }
