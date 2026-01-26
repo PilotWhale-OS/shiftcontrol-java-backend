@@ -33,4 +33,10 @@ public class UserProfileDto {
 
     @NotNull
     private Collection<String> volunteeringPlans;
+
+    @NotNull
+    private Collection<String> planningEvents;
+
+    @NotNull
+    private Collection<String> volunteeringEvents;
 }
