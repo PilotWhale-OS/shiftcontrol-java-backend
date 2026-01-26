@@ -10,6 +10,7 @@ import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
+import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -152,7 +153,10 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // assign volunteers to slot
         Collection<Assignment> assignments = new ArrayList<>(volunteers.size());
         Iterator<Volunteer> iterator = volunteers.stream().iterator();
-        while (iterator.hasNext() && eligibilityService.hasCapacity(positionSlot)) {
+        while (iterator.hasNext()) {
+            if (!eligibilityService.hasCapacity(positionSlot)) {
+                throw new ValidationException("Slot is already full");
+            }
             Assignment assignment = null;
             var nextVolunteer = iterator.next();
             try {
