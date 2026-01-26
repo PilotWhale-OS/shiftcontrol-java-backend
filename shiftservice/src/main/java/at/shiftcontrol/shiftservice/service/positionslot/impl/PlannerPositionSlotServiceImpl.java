@@ -4,18 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.exception.IllegalStateException;
+import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -34,6 +29,10 @@ import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +60,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
+    @Transactional
     public void acceptRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
@@ -83,6 +83,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
+    @Transactional
     public void declineRequest(long shiftPlanId, long positionSlotId, String userId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, userId);
         securityHelper.assertUserIsPlanner(assignment.getPositionSlot());
@@ -124,8 +125,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // check if assignable
         boolean eligible = eligibilityService.isEligibleAndNotSignedUp(positionSlot, volunteer);
         // check for conflicts
-        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), positionSlot, positionSlot.getId());
+        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingShift(
+            volunteer.getId(), positionSlot, positionSlot.getShift().getId());
 
         return eligible && conflicts.isEmpty();
     }
@@ -152,10 +153,23 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // assign volunteers to slot
         Collection<Assignment> assignments = new ArrayList<>(volunteers.size());
         Iterator<Volunteer> iterator = volunteers.stream().iterator();
-        while (iterator.hasNext() && eligibilityService.hasCapacity(positionSlot)) {
+        while (iterator.hasNext()) {
+            if (!eligibilityService.hasCapacity(positionSlot)) {
+                throw new ValidationException("Slot is already full");
+            }
+            Assignment assignment = null;
+            var nextVolunteer = iterator.next();
+            try {
+                assignment = assignmentDao.getAssignmentForPositionSlotAndUser(
+                    positionSlot.getId(), nextVolunteer.getId());
+            } catch (Exception e) {
+                // ignore
+            }
+            if (assignment == null) {
+                assignment = Assignment.of(positionSlot, nextVolunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
+            }
             assignments.add(
-                assignmentService.accept(
-                    Assignment.of(positionSlot, iterator.next(), AssignmentStatus.REQUEST_FOR_ASSIGNMENT))
+                assignmentService.accept(assignment)
             );
         }
 
@@ -163,6 +177,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     }
 
     @Override
+    @Transactional
     public void unAssignUsersFromSlot(AssignmentAssignDto assignmentAssignDto) {
         PositionSlot positionSlot = positionSlotDao.getById(
             ConvertUtil.idToLong(assignmentAssignDto.getPositionSlotId()));

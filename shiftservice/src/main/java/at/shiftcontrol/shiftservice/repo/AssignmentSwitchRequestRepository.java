@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.repo;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +19,7 @@ public interface AssignmentSwitchRequestRepository extends JpaRepository<Assignm
             WHERE a.offeringAssignment.id = :offeredAssignmentId
             AND a.requestedAssignment.id = :requestedAssignmentId
         """)
-    Optional<AssignmentSwitchRequest> findByAssignmentIds(long offeredAssignmentId, long requestedAssignmentId);
+    List<AssignmentSwitchRequest> findByAssignmentIds(long offeredAssignmentId, long requestedAssignmentId);
 
     @Query("""
             SELECT a FROM AssignmentSwitchRequest a

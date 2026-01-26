@@ -41,11 +41,6 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     }
 
     @Override
-    public Optional<AssignmentSwitchRequest> findByAssignmentIds(long offeredAssignmentId, long requestedAssignmentId) {
-        return assignmentSwitchRequestRepository.findByAssignmentIds(offeredAssignmentId, requestedAssignmentId);
-    }
-
-    @Override
     public Optional<AssignmentSwitchRequest> findBySlotsAndUsers(long offeredSlotId, String offeringUserId, long requestedSlotId, String requestedUserId) {
         return assignmentSwitchRequestRepository.findBySlotsAndUsers(offeredSlotId, offeringUserId, requestedSlotId, requestedUserId);
     }
@@ -91,7 +86,7 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
     }
 
     @Override
-    public Optional<AssignmentSwitchRequest> findInverseTrade(AssignmentSwitchRequest trade) {
+    public List<AssignmentSwitchRequest> findInverseTrade(AssignmentSwitchRequest trade) {
         return assignmentSwitchRequestRepository.findByAssignmentIds(
             trade.getRequestedAssignment().getId(),
             trade.getOfferingAssignment().getId()

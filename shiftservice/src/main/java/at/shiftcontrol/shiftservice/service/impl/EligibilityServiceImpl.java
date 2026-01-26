@@ -123,7 +123,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     public void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         switch (signupState) {
-            case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_POSSIBLE, SIGNUP_OR_TRADE:
+            case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_POSSIBLE, SIGNUP_OR_TRADE, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT:
                 throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
             case NOT_ELIGIBLE:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
@@ -163,14 +163,14 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long positionSlot) {
-        return assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, positionSlot);
+    public Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftIdToExclude) {
+        return assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, shiftIdToExclude);
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot positionSlot, long slotToExclude) {
-        return getConflictingAssignmentsExcludingSlot(
-            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), slotToExclude);
+    public Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, PositionSlot positionSlot, long shiftIdToExclude) {
+        return getConflictingAssignmentsExcludingShift(
+            volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), shiftIdToExclude);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.sync.pretalx;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -17,6 +18,9 @@ import at.shiftcontrol.pretalxclient.invoker.ApiClient;
 @Service
 public class PretalxApiSupplier {
     private final RestClient.Builder restClientBuilder;
+
+    @Value("${spring.application.version:unknown}")
+    private String appVersion;
 
     public EventsApi eventsApi(PretalxApiKey apiKey) {
         return new EventsApi(buildApiClient(apiKey));
@@ -37,6 +41,7 @@ public class PretalxApiSupplier {
     private @NonNull ApiClient buildApiClient(PretalxApiKey apiKey) {
         var restClient = buildRestClient(apiKey.getApiKey());
         var apiClient = new ApiClient(restClient);
+        apiClient.setUserAgent("ShiftControl-ShiftService/" + appVersion);
         apiClient.setBasePath(apiKey.getPretalxHost());
 
         return apiClient;

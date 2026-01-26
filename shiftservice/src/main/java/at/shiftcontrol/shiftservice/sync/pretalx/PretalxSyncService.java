@@ -46,7 +46,8 @@ public class PretalxSyncService {
 
     private final String locale;
 
-    public PretalxSyncService(ApplicationEventPublisher eventPublisher, PretalxApiKeyLoader apiKeyLoader, PretalxDataGatherer dataGatherer, EventDao eventDao, LocationDao locationDao, ActivityDao activityDao, @Value("${pretalx.locale}") String locale) {
+    public PretalxSyncService(ApplicationEventPublisher eventPublisher, PretalxApiKeyLoader apiKeyLoader, PretalxDataGatherer dataGatherer, EventDao eventDao,
+                              LocationDao locationDao, ActivityDao activityDao, @Value("${pretalx.locale}") String locale) {
         this.eventPublisher = eventPublisher;
         this.apiKeyLoader = apiKeyLoader;
         this.dataGatherer = dataGatherer;
@@ -61,7 +62,7 @@ public class PretalxSyncService {
     public void syncAll() {
         apiKeyLoader.refreshApiKeys();
         var accessibleEvents = apiKeyLoader.accessibleEventSlugs();
-        log.info("Starting Pretalx synchronization for {} events", accessibleEvents.size());
+        log.debug("Starting Pretalx synchronization for {} events", accessibleEvents.size());
         var now = Instant.now();
 
         for (var eventSlug : accessibleEvents) {
@@ -70,14 +71,14 @@ public class PretalxSyncService {
             var locationLookupTable = syncRooms(event.getId(), ptEvent);
             var activities = syncActivities(event, ptEvent.getSlug(), locationLookupTable);
 
-            log.info("Synchronized event: {} (ID: {}) with {} locations and {} activities",
+            log.debug("Synchronized event: {} (ID: {}) with {} locations and {} activities",
                 event.getName(),
                 event.getId(),
                 locationLookupTable.size(),
                 activities.size());
         }
         var timeDiff = Instant.now().toEpochMilli() - now.toEpochMilli();
-        log.info("Pretalx synchronization completed in {}ms. Total events synchronized: {}", timeDiff, accessibleEvents.size());
+        log.debug("Pretalx synchronization completed in {}ms. Total events synchronized: {}", timeDiff, accessibleEvents.size());
     }
 
     private Event syncEvent(at.shiftcontrol.pretalxclient.model.Event ptEvent) {
@@ -136,7 +137,7 @@ public class PretalxSyncService {
 
     private Location syncRoom(Event event, Room room) {
         var roomName = getStringForLocale(room.getName());
-        var locations = locationDao.search(LocationSearchDto.builder().name(roomName).build());
+        var locations = locationDao.search(event.getId(), LocationSearchDto.builder().name(roomName).build());
 
         if (locations.isEmpty()) {
             log.info("Creating new location: {} for event: {} (ID: {})", roomName, event.getName(), event.getId());
@@ -153,11 +154,13 @@ public class PretalxSyncService {
         } else if (locations.size() == 1) {
             //Update existing location
             var location = locations.iterator().next();
+            var description = room.getDescription() != null ? getStringForLocale(room.getDescription()) : null;
+
             if (!location.getName().equals(roomName)
-                || (room.getDescription() != null && !getStringForLocale(room.getDescription()).equals(location.getDescription()))) {
+                || (description != null && !description.equals(location.getDescription()))) {
                 log.info("Updating existing location: {} (ID: {}) for event: {} (ID: {})", roomName, location.getId(), event.getName(), event.getId());
                 location.setName(roomName);
-                location.setDescription(room.getDescription() != null ? getStringForLocale(room.getDescription()) : null);
+                location.setDescription(description);
                 location = locationDao.save(location);
                 eventPublisher.publishEvent(LocationEvent.locationUpdated(location).withActingUserId(ACTING_USERID));
                 return location;
@@ -234,13 +237,18 @@ public class PretalxSyncService {
                 activity.setDescription(descriptionText);
                 activity = activityDao.save(activity);
                 eventPublisher.publishEvent(ActivityEvent.activityUpdated(activity).withActingUserId(ACTING_USERID));
-                log.info("Updating existing activity: {} (ID: {}) for event: {} (ID: {})", activity.getName(), activity.getId(), event.getName(), event.getId());
+                log.info("Updating existing activity: {} (ID: {}) for event: {} (ID: {})", activity.getName(), activity.getId(), event.getName(),
+                    event.getId());
             }
         }
         return activity;
     }
 
     private String getStringForLocale(@NonNull Map<String, String> map) {
+        if (map.isEmpty() || !map.containsKey(locale)) {
+            return "";
+        }
+
         return map.get(locale);
     }
 }

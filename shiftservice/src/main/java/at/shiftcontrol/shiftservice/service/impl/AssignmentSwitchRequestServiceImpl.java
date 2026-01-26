@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,6 +17,7 @@ import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
@@ -115,8 +115,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check if assignable
         boolean eligible = eligibilityService.isEligibleAndNotSignedUp(offeredPositionSlot, volunteer);
         // check for conflicts
-        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingSlot(
-            volunteer.getId(), offeredPositionSlot, requestedPositionSlot.getId());
+        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingShift(
+            volunteer.getId(), offeredPositionSlot, requestedPositionSlot.getShift().getId());
 
         return eligible && conflicts.isEmpty();
     }
@@ -209,29 +209,47 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check for existing trades
         Collection<AssignmentPair> pairs = trades.stream().map(
             t -> AssignmentPair.of(t.getOfferingAssignment().getId(), t.getRequestedAssignment().getId())).toList();
-        Collection<AssignmentSwitchRequest> existingTrades = assignmentSwitchRequestDao.findAllByAssignmentPairs(pairs);
-        Set<AssignmentPair> existingPairs =
-            existingTrades.stream()
-                .map(t -> new AssignmentPair(
-                    t.getOfferingAssignment().getId(),
-                    t.getRequestedAssignment().getId()
-                ))
-                .collect(Collectors.toSet());
+
+        Collection<AssignmentSwitchRequest> existingAnyStatus =
+            assignmentSwitchRequestDao.findAllByAssignmentPairs(pairs);
+
+        var existingByPair = existingAnyStatus.stream()
+            .collect(Collectors.toMap(
+                t -> AssignmentPair.of(t.getOfferingAssignment().getId(), t.getRequestedAssignment().getId()),
+                t -> t,
+                (a, b) -> a
+            ));
+
+        // either insert new trade or update existing trade to OPEN
         trades = trades.stream()
-            .filter(t -> {
-                AssignmentPair pair = new AssignmentPair(
-                    t.getOfferingAssignment().getId(),
-                    t.getRequestedAssignment().getId()
-                );
-                return !existingPairs.contains(pair);
-            }).toList();
+            .map(t -> {
+                AssignmentPair pair = AssignmentPair.of(t.getOfferingAssignment().getId(), t.getRequestedAssignment().getId());
+                AssignmentSwitchRequest existing = existingByPair.get(pair);
+                if (existing == null) {
+                    return t; // create new
+                }
+                if (existing.getStatus() == TradeStatus.OPEN) {
+                    return null; // already open, skip
+                }
+                existing.setStatus(TradeStatus.OPEN);
+                existing.setCreatedAt(Instant.now());
+                return existing; // re-open existing
+            })
+            .filter(Objects::nonNull)
+            .toList();
 
         // check if trade in other direction already exists
         //      accept if exists
         for (AssignmentSwitchRequest trade : trades) {
-            Optional<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade);
-            if (inverse.isPresent()) {
-                return List.of(acceptTrade(inverse.get().getId(), currentUserId));
+            List<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade)
+                .stream()
+                .filter(x -> x.getStatus().equals(TradeStatus.OPEN))
+                .toList();
+            if (inverse.size() > 1) {
+                throw new IllegalStateException("more than one inverse trade is open" + inverse);
+            }
+            if (!inverse.isEmpty()) {
+                return List.of(acceptTrade(inverse.get(0).getId(), currentUserId));
             }
         }
 
