@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import at.shiftcontrol.lib.event.events.AssignmentEvent;
 import at.shiftcontrol.lib.event.events.AssignmentSwitchEvent;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -53,7 +55,16 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest trade) {
         // delete inverse trade if exists
-        assignmentSwitchRequestDao.findInverseTrade(trade).ifPresent(assignmentSwitchRequestDao::delete);
+        List<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade)
+            .stream()
+            .filter(x -> x.getStatus().equals(TradeStatus.OPEN))
+            .toList();
+        if (inverse.size() > 1) {
+            throw new IllegalStateException("more than one inverse trade is open" + inverse);
+        }
+        if (!inverse.isEmpty()) {
+            assignmentSwitchRequestDao.delete(inverse.get(0));
+        }
         // cancel all trades for involved assignments
         cancelOtherTrades(trade);
 

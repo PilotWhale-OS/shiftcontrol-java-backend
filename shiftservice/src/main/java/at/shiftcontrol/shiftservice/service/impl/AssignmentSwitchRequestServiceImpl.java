@@ -5,9 +5,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentKey;
@@ -18,6 +23,7 @@ import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.TradeEvent;
 import at.shiftcontrol.lib.exception.ForbiddenException;
+import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.exception.StateViolationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.TradeStatus;
@@ -39,10 +45,6 @@ import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -229,9 +231,15 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check if trade in other direction already exists
         //      accept if exists
         for (AssignmentSwitchRequest trade : trades) {
-            Optional<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade);
-            if (inverse.isPresent()) {
-                return List.of(acceptTrade(inverse.get().getId(), currentUserId));
+            List<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade)
+                .stream()
+                .filter(x -> x.getStatus().equals(TradeStatus.OPEN))
+                .toList();
+            if (inverse.size() > 1) {
+                throw new IllegalStateException("more than one inverse trade is open" + inverse);
+            }
+            if (!inverse.isEmpty()) {
+                return List.of(acceptTrade(inverse.get(0).getId(), currentUserId));
             }
         }
 
