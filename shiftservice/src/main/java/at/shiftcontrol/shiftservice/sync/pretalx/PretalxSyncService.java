@@ -61,7 +61,7 @@ public class PretalxSyncService {
     public void syncAll() {
         apiKeyLoader.refreshApiKeys();
         var accessibleEvents = apiKeyLoader.accessibleEventSlugs();
-        log.info("Starting Pretalx synchronization for {} events", accessibleEvents.size());
+        log.debug("Starting Pretalx synchronization for {} events", accessibleEvents.size());
         var now = Instant.now();
 
         for (var eventSlug : accessibleEvents) {
@@ -70,14 +70,14 @@ public class PretalxSyncService {
             var locationLookupTable = syncRooms(event.getId(), ptEvent);
             var activities = syncActivities(event, ptEvent.getSlug(), locationLookupTable);
 
-            log.info("Synchronized event: {} (ID: {}) with {} locations and {} activities",
+            log.debug("Synchronized event: {} (ID: {}) with {} locations and {} activities",
                 event.getName(),
                 event.getId(),
                 locationLookupTable.size(),
                 activities.size());
         }
         var timeDiff = Instant.now().toEpochMilli() - now.toEpochMilli();
-        log.info("Pretalx synchronization completed in {}ms. Total events synchronized: {}", timeDiff, accessibleEvents.size());
+        log.debug("Pretalx synchronization completed in {}ms. Total events synchronized: {}", timeDiff, accessibleEvents.size());
     }
 
     private Event syncEvent(at.shiftcontrol.pretalxclient.model.Event ptEvent) {
