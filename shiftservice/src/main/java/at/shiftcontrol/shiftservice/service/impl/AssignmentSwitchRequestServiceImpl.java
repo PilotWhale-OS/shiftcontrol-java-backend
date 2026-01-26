@@ -8,12 +8,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentKey;
 import at.shiftcontrol.lib.entity.AssignmentPair;
@@ -45,6 +39,10 @@ import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -211,22 +209,34 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check for existing trades
         Collection<AssignmentPair> pairs = trades.stream().map(
             t -> AssignmentPair.of(t.getOfferingAssignment().getId(), t.getRequestedAssignment().getId())).toList();
-        Collection<AssignmentSwitchRequest> existingTrades = assignmentSwitchRequestDao.findAllByAssignmentPairs(pairs);
-        Set<AssignmentPair> existingPairs =
-            existingTrades.stream()
-                .map(t -> new AssignmentPair(
-                    t.getOfferingAssignment().getId(),
-                    t.getRequestedAssignment().getId()
-                ))
-                .collect(Collectors.toSet());
+
+        Collection<AssignmentSwitchRequest> existingAnyStatus =
+            assignmentSwitchRequestDao.findAllByAssignmentPairs(pairs);
+
+        var existingByPair = existingAnyStatus.stream()
+            .collect(Collectors.toMap(
+                t -> AssignmentPair.of(t.getOfferingAssignment().getId(), t.getRequestedAssignment().getId()),
+                t -> t,
+                (a, b) -> a
+            ));
+
+        // either insert new trade or update existing trade to OPEN
         trades = trades.stream()
-            .filter(t -> {
-                AssignmentPair pair = new AssignmentPair(
-                    t.getOfferingAssignment().getId(),
-                    t.getRequestedAssignment().getId()
-                );
-                return !existingPairs.contains(pair);
-            }).toList();
+            .map(t -> {
+                AssignmentPair pair = AssignmentPair.of(t.getOfferingAssignment().getId(), t.getRequestedAssignment().getId());
+                AssignmentSwitchRequest existing = existingByPair.get(pair);
+                if (existing == null) {
+                    return t; // create new
+                }
+                if (existing.getStatus() == TradeStatus.OPEN) {
+                    return null; // already open, skip
+                }
+                existing.setStatus(TradeStatus.OPEN);
+                existing.setCreatedAt(Instant.now());
+                return existing; // re-open existing
+            })
+            .filter(Objects::nonNull)
+            .toList();
 
         // check if trade in other direction already exists
         //      accept if exists
