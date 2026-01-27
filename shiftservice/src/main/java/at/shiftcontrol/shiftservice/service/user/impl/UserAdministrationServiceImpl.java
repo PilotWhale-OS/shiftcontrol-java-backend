@@ -72,7 +72,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
             paginatedUsers.stream().map(AbstractUserRepresentation::getId).toList()
         );
 
-        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users));
+        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, paginatedUsers));
     }
 
     @Override
