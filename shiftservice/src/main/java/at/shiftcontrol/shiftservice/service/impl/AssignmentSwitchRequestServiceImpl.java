@@ -174,8 +174,11 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.getById(ConvertUtil.idToLong(tradeCreateDto.getRequestedPositionSlotId()));
+        securityHelper.assertVolunteerIsVolunteer(requestedPositionSlot, currentUser, true);
+
         // get offering assignment
         PositionSlot offeredPositionSlot = positionSlotDao.getById(ConvertUtil.idToLong(tradeCreateDto.getOfferedPositionSlotId()));
+        securityHelper.assertVolunteerIsVolunteer(offeredPositionSlot, currentUser, true);
         // check if shifts are locked
         if (LockStatusHelper.isLocked(requestedPositionSlot) || LockStatusHelper.isLocked(offeredPositionSlot)) {
             throw new StateViolationException("Trade not possible, shift plan is locked");
@@ -275,6 +278,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
+        securityHelper.assertVolunteerIsNotLockedInPlan(trade.getOfferingAssignment());
+        securityHelper.assertVolunteerIsNotLockedInPlan(trade.getRequestedAssignment());
+
         // check if volunteer is owner of requested slot
         if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
             throw new ForbiddenException("Trade cannot be accepted, because you are not part of it");
@@ -313,6 +319,9 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     public TradeDto declineTrade(long id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
+        securityHelper.assertVolunteerIsNotLockedInPlan(trade.getOfferingAssignment());
+        securityHelper.assertVolunteerIsNotLockedInPlan(trade.getRequestedAssignment());
+
         // check if user can decline
         if (!trade.getRequestedAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
             throw new ForbiddenException("Trade cannot be declined, because you are not part of it");
@@ -333,6 +342,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     public TradeDto cancelTrade(long id, String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
+        securityHelper.assertVolunteerIsNotLockedInPlan(trade.getOfferingAssignment());
+        securityHelper.assertVolunteerIsNotLockedInPlan(trade.getRequestedAssignment());
         // check if user can cancel
         if (!trade.getOfferingAssignment().getAssignedVolunteer().getId().equals(currentUserId)) {
             throw new ForbiddenException("Trade cannot be canceled, because you are not part of it");
@@ -364,7 +375,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         }
 
         // check if volunteer has access to shift plan
-        securityHelper.assertVolunteerIsVolunteer(slotToBeTaken, volunteer);
+        securityHelper.assertVolunteerIsVolunteer(slotToBeTaken, volunteer, true);
 
         // check if user is eligible for the requested position slot and has no conflicts
         eligibilityService.validateIsEligibleAndNotSignedUp(slotToBeTaken, volunteer);

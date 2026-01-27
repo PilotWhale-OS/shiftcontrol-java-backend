@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.integration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,11 +14,17 @@ import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Location;
+import at.shiftcontrol.lib.entity.ShiftPlan;
+import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.type.LockStatus;
+import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 import at.shiftcontrol.shiftservice.integration.config.RestITBase;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
+import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
+import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,9 +40,22 @@ class LocationIT extends RestITBase {
     @Autowired
     EventRepository eventRepository;
 
+    @Autowired
+    VolunteerRepository volunteerRepository;
+
+    @Autowired
+    ShiftPlanRepository shiftPlanRepository;
+
+    @Autowired
+    UserAttributeProvider userAttributeProvider;
+
     private Event eventA, eventB, eventC;
 
     private Location locationA, locationB, locationC;
+
+    private ShiftPlan shiftPlanA;
+
+    private Volunteer volunteerA;
 
     @BeforeEach
     void setUp() {
@@ -44,6 +64,8 @@ class LocationIT extends RestITBase {
 
         createEvents();
         createLocations();
+        createShiftPlans();
+        createVolunteers();
     }
 
     private void createEvents() {
@@ -125,10 +147,40 @@ class LocationIT extends RestITBase {
         );
     }
 
+    private void createShiftPlans() {
+        shiftPlanA = ShiftPlan.builder()
+            .name("ShiftPlanA")
+            .event(eventA)
+            .lockStatus(LockStatus.SELF_SIGNUP)
+            .build();
+
+        shiftPlanRepository.save(shiftPlanA);
+
+        assertAll(
+            () -> assertThat(shiftPlanA.getId()).isGreaterThan(0),
+            () -> assertThat(shiftPlanRepository.existsById(shiftPlanA.getId())).isTrue()
+        );
+    }
+
+    private void createVolunteers() {
+        volunteerA = Volunteer.builder()
+            .id("123abc")
+            .volunteeringPlans(List.of(shiftPlanA))
+            .build();
+        volunteerRepository.save(volunteerA);
+
+        shiftPlanA.setPlanVolunteers(List.of(volunteerA));
+        shiftPlanRepository.save(shiftPlanA);
+
+        userAttributeProvider.invalidateUserCache(volunteerA.getId());
+    }
+
     @AfterEach
     void tearDown() {
         eventRepository.deleteAll();
         locationRepository.deleteAll();
+        shiftPlanRepository.deleteAll();
+        volunteerRepository.deleteAll();
     }
 
     @Test
@@ -138,10 +190,10 @@ class LocationIT extends RestITBase {
 
     @Test
     void findEventByExistingIdReturnsLocationSuccessfully() {
-        var response = getRequestAsAssigned(LOCATION_PATH + "/" + locationA.getId(), LocationDto.class, "123abc");
+        var response = getRequestAsAssigned(LOCATION_PATH + "/" + locationA.getId(), LocationDto.class, volunteerA.getId());
 
+        assertThat(response).isNotNull();
         assertAll(
-            () -> assertThat(response).isNotNull(),
             () -> assertThat(response.getId()).isEqualTo(String.valueOf(locationA.getId())),
             () -> assertThat(response.getName()).isEqualTo(locationA.getName()),
             () -> assertThat(response.getDescription()).isEqualTo(locationA.getDescription()),
@@ -151,11 +203,10 @@ class LocationIT extends RestITBase {
 
     @Test
     void getAllLocationsForEventReturnsLocationsSuccessfully() {
+        var response = getRequestListAsAssigned(EVENT_LOCATION_PATH.formatted(eventA.getId()), LocationDto.class, volunteerA.getId());
 
-        var response = getRequestList(EVENT_LOCATION_PATH.formatted(eventA.getId()), LocationDto.class);
-
+        assertThat(response).isNotNull();
         assertAll(
-            () -> assertThat(response).isNotNull(),
             () -> assertThat(response).hasSize(2),
             () -> assertThat(response.stream().anyMatch(loc -> loc.getId().equals(String.valueOf(locationA.getId())))).isTrue(),
             () -> assertThat(response.stream().anyMatch(loc -> loc.getId().equals(String.valueOf(locationB.getId())))).isTrue()

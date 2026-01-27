@@ -30,14 +30,15 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public LocationDto getLocation(long locationId) {
-        var location = getLocationOrThrow(locationId);
+        var location = locationDao.getById(locationId);
 
+        securityHelper.assertUserIsAllowedToAccessEvent(location.getEvent());
         return LocationMapper.toLocationDto(location);
     }
 
     @Override
     public Collection<LocationDto> getAllLocationsForEvent(long eventId) {
-        eventDao.getById(eventId);
+        securityHelper.assertUserIsAllowedToAccessEvent(eventDao.getById(eventId));
         var locations = locationDao.findAllByEventId(eventId);
 
         return LocationMapper.toLocationDto(locations.stream().toList());
@@ -68,7 +69,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     @AdminOnly
     public LocationDto updateLocation(long locationId, @NonNull LocationModificationDto modificationDto) {
-        var location = getLocationOrThrow(locationId);
+        var location = locationDao.getById(locationId);
 
         if (location.isReadOnly()) {
             throw new BadRequestException("Cannot modify read-only location");
@@ -96,7 +97,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     @AdminOnly
     public void deleteLocation(long locationId) {
-        var location = getLocationOrThrow(locationId);
+        var location = locationDao.getById(locationId);
 
         if (location.isReadOnly()) {
             throw new BadRequestException("Cannot modify read-only location");
@@ -105,9 +106,5 @@ public class LocationServiceImpl implements LocationService {
         var locationEvent = LocationEvent.locationDeleted(location);
         locationDao.delete(location);
         publisher.publishEvent(locationEvent);
-    }
-
-    private Location getLocationOrThrow(long locationId) {
-        return locationDao.getById(locationId);
     }
 }

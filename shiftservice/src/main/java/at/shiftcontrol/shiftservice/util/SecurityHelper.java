@@ -1,5 +1,11 @@
 package at.shiftcontrol.shiftservice.util;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
@@ -12,9 +18,6 @@ import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -129,30 +132,41 @@ public class SecurityHelper {
         assertUserIsVolunteer(positionSlot.getShift(), needsWriteAccess);
     }
 
-    public void assertVolunteerIsVolunteer(ShiftPlan plan, Volunteer volunteer) {
+    public void assertVolunteerIsVolunteer(ShiftPlan plan, Volunteer volunteer, boolean needsWriteAccess) {
         if (!volunteer.getVolunteeringPlans().contains(plan)) {
             throw new IllegalArgumentException("User not contained in plan.");
         }
+        if (needsWriteAccess && isVolunteerLockedInPlan(plan, volunteer)) {
+            log.error("User is locked in plan with id: {}", plan.getId());
+            throw new ForbiddenException("User is locked in plan.");
+        }
     }
 
-    public void assertVolunteerIsVolunteer(Shift shift, Volunteer volunteer) {
-        assertVolunteerIsVolunteer(shift.getShiftPlan(), volunteer);
+    public void assertVolunteerIsVolunteer(Shift shift, Volunteer volunteer, boolean needsWriteAccess) {
+        assertVolunteerIsVolunteer(shift.getShiftPlan(), volunteer, needsWriteAccess);
     }
 
-    public void assertVolunteerIsVolunteer(PositionSlot slot, Volunteer volunteer) {
-        assertVolunteerIsVolunteer(slot.getShift(), volunteer);
+    public void assertVolunteerIsVolunteer(PositionSlot slot, Volunteer volunteer, boolean needsWriteAccess) {
+        assertVolunteerIsVolunteer(slot.getShift(), volunteer, needsWriteAccess);
     }
 
     public void assertVolunteerIsLockedInPlan(ShiftPlan plan, Volunteer volunteer) {
-        assertVolunteerIsVolunteer(plan, volunteer);
+        assertVolunteerIsVolunteer(plan, volunteer, false);
         if (!isVolunteerLockedInPlan(plan, volunteer)) {
             throw new ForbiddenException("User is already not locked");
         }
     }
 
     public void assertVolunteerIsNotLockedInPlan(ShiftPlan plan, Volunteer volunteer) {
-        assertVolunteerIsVolunteer(plan, volunteer);
+        assertVolunteerIsVolunteer(plan, volunteer, false);
         if (isVolunteerLockedInPlan(plan, volunteer)) {
+            throw new ForbiddenException("User is already locked");
+        }
+    }
+
+    public void assertVolunteerIsNotLockedInPlan(Assignment ass) {
+        assertVolunteerIsVolunteer(ass.getPositionSlot(), ass.getAssignedVolunteer(), true);
+        if (isVolunteerLockedInPlan(ass.getPositionSlot().getShift().getShiftPlan(), ass.getAssignedVolunteer())) {
             throw new ForbiddenException("User is already locked");
         }
     }

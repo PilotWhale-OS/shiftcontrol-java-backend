@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.auth;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,6 +35,7 @@ public class KeycloakUserService {
             .list()
             .stream()
             .filter(u -> userIds.contains(u.getId()))
+
             .toList();
     }
 
@@ -41,14 +43,20 @@ public class KeycloakUserService {
         return keycloak
             .realm(realm)
             .users()
-            .list();
+            .list()
+            .stream()
+            .sorted(Comparator.comparing(UserRepresentation::getLastName))
+            .toList();
     }
 
     public List<UserRepresentation> getAllAdmins() {
         return keycloak
             .realm(realm)
             .users()
-            .searchByAttributes("userType:ADMIN");
+            .searchByAttributes("userType:ADMIN")
+            .stream()
+            .sorted(Comparator.comparing(UserRepresentation::getLastName))
+            .toList();
     }
 
     public List<UserRepresentation> getAllAssigned() {

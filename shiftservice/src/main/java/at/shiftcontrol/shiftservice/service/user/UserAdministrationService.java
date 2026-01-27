@@ -20,6 +20,8 @@ public interface UserAdministrationService {
 
     UserEventDto getUser(String userId);
 
+    UserEventDto createVolunteer(String userId);
+
     UserPlanDto getPlanUser(Long shiftPlanId, String userId);
 
     UserEventDto updateEventUser(String userId, UserEventUpdateDto updateDto);

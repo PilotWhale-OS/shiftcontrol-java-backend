@@ -194,6 +194,10 @@ public abstract class RestITBase {
         return doRequest(Method.GET, uri, "", new HashMap<>(), asAdminHeaders(), 200, expected);
     }
 
+    public <T> List<T> getRequestListAsAssigned(final String uri, final Class<T> expected, String userId) {
+        return this.doRequestList(Method.GET, uri, "", new HashMap<>(), asAssignedHeaders(userId), 200, expected);
+    }
+
     public <T> List<T> getRequestList(final String uri, final Class<T> expectedObject) {
         return this.doRequestList(Method.GET, uri, "", 200, expectedObject);
     }
@@ -284,6 +288,21 @@ public abstract class RestITBase {
         return RestAssured.given()
             .body(body)
             .params(params)
+            .request(method, url)
+            .then()
+            .statusCode(expectedStatusCode)
+            .extract()
+            .body()
+            .jsonPath()
+            .getList(".", elementType); // Explicitly convert LinkedHashMap to T
+    }
+
+    public <T> List<T> doRequestList(final Method method, final String url, final Object body,
+                                     final Map<String, String> params, final Map<String, String> headers, final int expectedStatusCode, final Class<T> elementType) {
+        return RestAssured.given()
+            .body(body)
+            .params(params)
+            .headers(headers)
             .request(method, url)
             .then()
             .statusCode(expectedStatusCode)
