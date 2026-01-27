@@ -37,19 +37,6 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         var user = kcService.getUserById(userId);
 
-        /* fetch persistent notification settings and add empty set to missing types */
-        var notifications = notificationService.getNotificationsForUser(userId);
-        for (NotificationType type : NotificationType.values()) {
-            if (notifications.stream().noneMatch(n -> n.getType() == type)) {
-                notifications.add(NotificationSettingsDto
-                    .builder()
-                    .type(type)
-                    .channels(Set.of())
-                    .build()
-                );
-            }
-        }
-
         // volunteer data might not yet exist
         Volunteer volunteer = volunteerDao.findById(userId).orElse(null);
         if (volunteer == null) {
@@ -65,6 +52,19 @@ public class UserProfileServiceImpl implements UserProfileService {
             } catch (DataIntegrityViolationException e) {
                 // another concurrent request created the same volunteer in the meantime
                 volunteer = volunteerDao.getById(userId);
+            }
+        }
+
+        /* fetch persistent notification settings and add empty set to missing types */
+        var notifications = notificationService.getNotificationsForUser(userId);
+        for (NotificationType type : NotificationType.values()) {
+            if (notifications.stream().noneMatch(n -> n.getType() == type)) {
+                notifications.add(NotificationSettingsDto
+                    .builder()
+                    .type(type)
+                    .channels(Set.of())
+                    .build()
+                );
             }
         }
 
