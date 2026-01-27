@@ -1,6 +1,17 @@
 package at.shiftcontrol.shiftservice.service.positionslot.impl;
 
 import java.util.Collection;
+import java.util.Optional;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
@@ -34,14 +45,6 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PositionSlotService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -116,20 +119,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         assertJoinPossible(positionSlot, volunteer);
 
         // create assignment
-        Assignment joinRequest = null;
-        try {
-            joinRequest = assignmentDao.getAssignmentForPositionSlotAndUser(
-                positionSlot.getId(), volunteer.getId());
-
-            if (joinRequest.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
-                throw new IllegalStateException("Join request already exists in different status");
-            }
-        } catch (Exception e) {
-            // ignore
+        Optional<Assignment> existingRequest = assignmentDao.findAssignmentForPositionSlotAndUser(
+            positionSlot.getId(), volunteer.getId());
+        if (existingRequest.isPresent()) {
+            throw new IllegalStateException("You already joined or requested join for this position!");
         }
-        if (joinRequest == null) {
-            joinRequest = Assignment.of(positionSlot, volunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
-        }
+        Assignment joinRequest = Assignment.of(positionSlot, volunteer, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
         joinRequest = assignmentDao.save(joinRequest);
 
         // publish event
@@ -141,7 +136,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @IsNotAdmin
     public void leaveRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get assignment
-        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        Optional<Assignment> existingAssignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        if (existingAssignment.isEmpty() || AssignmentStatus.REQUEST_STATES.contains(existingAssignment.get().getStatus())) {
+            throw new IllegalStateException("You already left or requested leaving this position!");
+        }
+        Assignment assignment = existingAssignment.get();
 
         // check if plan is locked or supervised
         LockStatusHelper.assertIsSupervisedWithMessage(assignment, "leave request");
@@ -158,11 +157,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @IsNotAdmin
     public void joinRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get assignment
-        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        Optional<Assignment> existingAssignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
         // check status
-        if (assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
+        if (existingAssignment.isEmpty() || existingAssignment.get().getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
             throw new IllegalArgumentException("Assignment not in request status");
         }
+        Assignment assignment = existingAssignment.get();
         LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw join request");
 
         // publish event
@@ -175,11 +175,12 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @IsNotAdmin
     public void leaveRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get assignment
-        Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        Optional<Assignment> existingAssignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
         // check status
-        if (assignment.getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN) {
+        if (existingAssignment.isEmpty() || existingAssignment.get().getStatus() != AssignmentStatus.AUCTION_REQUEST_FOR_UNASSIGN) {
             throw new IllegalArgumentException("Assignment not in request status");
         }
+        Assignment assignment = existingAssignment.get();
         LockStatusHelper.assertIsSupervisedWithMessage(assignment, "withdraw leave request");
         // change back to signed-up state
         assignment.setStatus(AssignmentStatus.ACCEPTED);
@@ -215,8 +216,11 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
         // no security check necessary, because user is already assigned to position,
         //  if not, assignment would not be found
-        if (assignment.getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
+        if (assignment == null || assignment.getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
             throw new IllegalStateException("auction not possible, not assigned to slot");
+        }
+        if (AssignmentStatus.ACTIVE_AUCTION_STATES.contains(assignment.getStatus())) {
+            throw new IllegalStateException("position is already up for auction");
         }
 
         // check for signup phase
@@ -237,7 +241,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                                       @NonNull PositionSlotRequestDto requestDto) {
         // get auction-assignment
         Assignment auction = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
-        if (!AssignmentStatus.ACTIVE_AUCTION_STATES.contains(auction.getStatus())) {
+        if (auction == null || !AssignmentStatus.ACTIVE_AUCTION_STATES.contains(auction.getStatus())) {
             throw new BadRequestException("Assignment is not up for auction");
         }
         // check if current user is volunteer in plan

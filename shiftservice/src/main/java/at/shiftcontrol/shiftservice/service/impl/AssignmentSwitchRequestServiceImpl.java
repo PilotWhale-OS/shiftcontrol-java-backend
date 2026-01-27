@@ -8,6 +8,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentKey;
 import at.shiftcontrol.lib.entity.AssignmentPair;
@@ -39,10 +45,6 @@ import at.shiftcontrol.shiftservice.service.AssignmentSwitchRequestService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.util.LockStatusHelper;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -112,13 +114,8 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     private boolean isTradePossibleForUser(PositionSlot offeredPositionSlot, PositionSlot requestedPositionSlot, Volunteer volunteer) {
-        // check if assignable
-        boolean eligible = eligibilityService.isEligibleAndNotSignedUp(offeredPositionSlot, volunteer);
-        // check for conflicts
-        Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingShift(
-            volunteer.getId(), offeredPositionSlot, requestedPositionSlot.getShift().getId());
-
-        return eligible && conflicts.isEmpty();
+        // check if assignable and has no conflicts
+        return eligibilityService.isEligibleAndNotSignedUp(offeredPositionSlot, volunteer);
     }
 
     private Collection<TradeCandidatesDto> removeExistingTrades(Collection<TradeCandidatesDto> slotsToOffer, long requestedPositionSlotId,
@@ -369,11 +366,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
         // check if volunteer has access to shift plan
         securityHelper.assertVolunteerIsVolunteer(slotToBeTaken, volunteer);
 
-        // check if user is eligible for the requested position slot
+        // check if user is eligible for the requested position slot and has no conflicts
         eligibilityService.validateIsEligibleAndNotSignedUp(slotToBeTaken, volunteer);
-
-        // check if any current assignments overlap with requested position slot
-        eligibilityService.validateHasConflictingAssignmentsExcludingShift(
-            volunteer.getId(), slotToBeTaken, ownedSlot.getShift().getId());
     }
 }

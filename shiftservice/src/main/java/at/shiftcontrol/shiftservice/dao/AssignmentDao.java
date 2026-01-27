@@ -23,6 +23,8 @@ public interface AssignmentDao extends BasicDao<Assignment, Long> {
 
     Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
 
+    Optional<Assignment> findAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
+
     Collection<Assignment> getAssignmentForPositionSlotAndUsers(long positionSlotId, Collection<String> userIds);
 
     Collection<Assignment> findAssignmentsForShiftPlanAndUser(long shiftPlanId, String userId);

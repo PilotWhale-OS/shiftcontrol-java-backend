@@ -22,4 +22,7 @@ public enum AssignmentStatus {
 
     public static final EnumSet<AssignmentStatus> ACTIVE_AUCTION_STATES =
         EnumSet.of(AUCTION, AUCTION_REQUEST_FOR_UNASSIGN);
+
+    public static final EnumSet<AssignmentStatus> REQUEST_STATES =
+        EnumSet.of(REQUEST_FOR_ASSIGNMENT, AUCTION_REQUEST_FOR_UNASSIGN);
 }

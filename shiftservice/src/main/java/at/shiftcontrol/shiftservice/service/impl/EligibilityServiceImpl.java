@@ -3,6 +3,10 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -19,8 +23,6 @@ import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotJoinErrorDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -104,10 +106,10 @@ public class EligibilityServiceImpl implements EligibilityService {
     public void validateSignUpStateForJoin(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         switch (signupState) {
-            case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION:
+            case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT:
                 // simply joining is not possible
                 throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
-            case NOT_ELIGIBLE, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT:
+            case NOT_ELIGIBLE:
                 if (!userProvider.currentUserHasAuthority(Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS)) {
                     throw new ConflictException(new PositionSlotJoinErrorDto(signupState));
                 }
