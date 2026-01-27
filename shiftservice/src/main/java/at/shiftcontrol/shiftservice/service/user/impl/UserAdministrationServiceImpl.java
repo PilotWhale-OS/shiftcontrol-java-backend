@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.user.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,14 +83,17 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         securityHelper.assertUserIsPlanner(shiftPlanId);
         var allUsers = keycloakUserService.getAllUsers();
         var volunteersInPlanId = volunteerDao.findAllIdsByShiftPlan(shiftPlanId);
-        var usersForPlan =  allUsers.stream().filter(u -> volunteersInPlanId.contains(u.getId())).toList();
+        var usersForPlan =  allUsers.stream()
+            .filter(u -> volunteersInPlanId.contains(u.getId()))
+            .sorted(Comparator.comparing(UserRepresentation::getLastName))
+            .toList();
         var users = filterUsers(searchDto, usersForPlan);
         var paginatedUsers = paginateUsers(users, page, size);
         var volunteers = volunteerDao.findAllByVolunteerIds(
             paginatedUsers.stream().map(AbstractUserRepresentation::getId).toList()
         );
 
-        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId));
+        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserPlanDto(volunteers, paginatedUsers, shiftPlanId));
     }
 
     private List<UserRepresentation> paginateUsers(List<UserRepresentation> users, int page, int size) {
@@ -316,7 +320,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
 
     private @NonNull Collection<UserEventDto> getUserEventDtos(Collection<Volunteer> volunteers) {
         var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
-        return UserAssemblingMapper.toUserEventDto(volunteers, users);
+        return UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users);
     }
 
     private void addPlans(Volunteer volunteer, Set<Long> volunteerToAdd, Set<Long> planningToAdd) {
