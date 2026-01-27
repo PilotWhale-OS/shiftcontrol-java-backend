@@ -65,9 +65,13 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @AdminOnly
     public PaginationDto<UserEventDto> getAllUsers(int page, int size, UserSearchDto searchDto) {
-        var volunteers = volunteerDao.findAllPaginated(page, size);
-        var users = keycloakUserService.getAllAssigned();
-        users = filterUsers(searchDto, users);
+        var allUsers = keycloakUserService.getAllUsers();
+        var users = filterUsers(searchDto, allUsers);
+        var paginatedUsers = paginateUsers(users, page, size);
+        var volunteers = volunteerDao.findAllByVolunteerIds(
+            paginatedUsers.stream().map(AbstractUserRepresentation::getId).toList()
+        );
+
         return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users));
     }
 
