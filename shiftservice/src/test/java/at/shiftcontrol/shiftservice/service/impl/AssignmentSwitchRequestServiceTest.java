@@ -3,25 +3,6 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.List;
 
-import at.shiftcontrol.lib.type.TradeStatus;
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
-import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
-import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
-import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
-import at.shiftcontrol.shiftservice.dao.AssignmentDao;
-import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
-import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
-import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
-import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
-import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import at.shiftcontrol.shiftservice.util.TestEntityFactory;
-import config.TestSecurityConfig;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
@@ -32,6 +13,27 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import config.TestSecurityConfig;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import at.shiftcontrol.lib.type.TradeStatus;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
+import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
+import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
+import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
+import at.shiftcontrol.shiftservice.dao.AssignmentDao;
+import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
+import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
+import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
+import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
+import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,6 +48,8 @@ public class AssignmentSwitchRequestServiceTest {
     AssignmentSwitchRequestServiceImpl assignmentSwitchRequestService;
     @Autowired
     AssignmentDao assignmentDao;
+    @Autowired
+    AssignmentSwitchRequestRepository assignmentSwitchRequestRepository;
     @Autowired
     TestEntityFactory testEntityFactory;
 
@@ -112,10 +116,12 @@ public class AssignmentSwitchRequestServiceTest {
 
     @Test
     void testCreateTrade() {
-        String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
-        String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
-        String offeredPosition = "3";
-        String requestedPosition = "1";
+        assignmentSwitchRequestRepository.deleteById(1L);
+        assignmentSwitchRequestRepository.flush();
+        String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
+        String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
+        String offeredPosition = "1";
+        String requestedPosition = "2";
         Mockito.when(keycloakUserService.getUserById(currentUserId))
             .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
         Mockito.when(keycloakUserService.getUserById(otherUserId))
