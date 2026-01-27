@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.stereotype.Service;
 
@@ -54,6 +55,9 @@ public class UserAssemblingMapper {
         if (volunteer == null) {
             return UserEventDto.builder()
                 .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
+                .volunteeringPlans(Collections.emptySet())
+                .planningPlans(Collections.emptySet())
+                .lockedPlans(Collections.emptySet())
                 .email(user.getEmail())
                 .build();
         }
