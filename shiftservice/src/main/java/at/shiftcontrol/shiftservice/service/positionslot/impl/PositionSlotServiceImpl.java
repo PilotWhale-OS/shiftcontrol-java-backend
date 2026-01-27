@@ -202,7 +202,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsPlanner(positionSlot);
-        securityHelper.assertUserIsInPlan(positionSlot);
         return assignmentAssemblingMapper.assemble(positionSlot.getAssignments());
     }
 
