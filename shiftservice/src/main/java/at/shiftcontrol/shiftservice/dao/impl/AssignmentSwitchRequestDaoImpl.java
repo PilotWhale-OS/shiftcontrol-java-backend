@@ -5,8 +5,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.AssignmentPair;
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.type.TradeStatus;
+import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
+import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -15,13 +19,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
-import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.entity.AssignmentPair;
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.type.TradeStatus;
-import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
-import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -67,7 +65,8 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
 
     @Override
     public void cancelTradesForAssignment(Assignment assignment) {
-        assignmentSwitchRequestRepository.cancelTradesForAssignment(assignment.getPositionSlot().getId(), assignment.getAssignedVolunteer().getId(), TradeStatus.CANCELED);
+        assignmentSwitchRequestRepository.cancelTradesForAssignment(assignment.getPositionSlot().getId(), assignment.getAssignedVolunteer().getId(),
+            TradeStatus.CANCELED);
     }
 
     @Override
@@ -116,5 +115,10 @@ public class AssignmentSwitchRequestDaoImpl implements AssignmentSwitchRequestDa
         cq.where(cb.or(orPredicates.toArray(new Predicate[0])));
 
         return entityManager.createQuery(cq).getResultList();
+    }
+
+    @Override
+    public Collection<AssignmentSwitchRequest> findOpenTradesForOfferingPositionAndRequestedOwner(long positionSlotId, String userId) {
+        return assignmentSwitchRequestRepository.findOpenTradesForOfferingPositionAndRequestedOwner(positionSlotId, userId, TradeStatus.OPEN);
     }
 }

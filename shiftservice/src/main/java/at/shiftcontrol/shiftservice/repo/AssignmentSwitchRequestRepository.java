@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
+import at.shiftcontrol.lib.type.TradeStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
-import at.shiftcontrol.lib.type.TradeStatus;
 
 @Repository
 public interface AssignmentSwitchRequestRepository extends JpaRepository<AssignmentSwitchRequest, Long> {
@@ -85,4 +85,17 @@ public interface AssignmentSwitchRequestRepository extends JpaRepository<Assignm
             )
         """)
     void cancelTradesForOfferedPositionAndRequestedUser(long positionSlotId, String userId, TradeStatus status);
+
+    @Query("""
+        select r
+        from AssignmentSwitchRequest r
+        where r.status = :status
+          and r.offeringAssignment.positionSlot.id = :slotId
+          and r.requestedAssignment.assignedVolunteer.id = :userId
+        """)
+    Collection<AssignmentSwitchRequest> findOpenTradesForOfferingPositionAndRequestedOwner(
+        @Param("slotId") long positionSlotId,
+        @Param("userId") String userId,
+        @Param("status") TradeStatus status
+    );
 }
