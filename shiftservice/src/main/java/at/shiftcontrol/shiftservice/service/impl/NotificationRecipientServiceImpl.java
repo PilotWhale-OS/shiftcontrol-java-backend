@@ -45,14 +45,24 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
         validateFilter(filter);
         // filter from cheapest and most narrowing query first
         Collection<String> recipientIds = null;
-        // if admin access level, all other filters are automatically true: in all plans and events
-        if (filter.getReceiverAccessLevel() == ReceiverAccessLevel.ADMIN) {
-            recipientIds = filterAdminsById(filter, recipientIds);
-        } else {
+
+        /* if not only admins are target, filter by event/plan/volunteer specs*/
+        if (filter.getReceiverAccessLevel() != ReceiverAccessLevel.ADMIN){
+
             // filter by eventId, shiftId and volunteerIds if present
             recipientIds = filterByShiftPlanAndVolunteerIds(filter, recipientIds);
             recipientIds = filterByEventAndVolunteerIds(filter, recipientIds);
             recipientIds = filterByVolunteerIds(filter, recipientIds);
+        }
+
+        /* if target level is admin or planner (admin equals a planner matching all filters), append all admins to recipients */
+        if (filter.getReceiverAccessLevel() == ReceiverAccessLevel.ADMIN || filter.getReceiverAccessLevel() == ReceiverAccessLevel.PLANNER) {
+            var adminIds = filterAdminsById(filter, null);
+            if (recipientIds != null) {
+                recipientIds.addAll(adminIds);
+            } else {
+                recipientIds = adminIds;
+            }
         }
 
         if (recipientIds != null) {
