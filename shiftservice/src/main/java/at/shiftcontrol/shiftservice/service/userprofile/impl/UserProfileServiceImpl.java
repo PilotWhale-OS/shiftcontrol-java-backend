@@ -3,10 +3,6 @@ package at.shiftcontrol.shiftservice.service.userprofile.impl;
 import java.util.Collections;
 import java.util.Set;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.type.NotificationType;
@@ -19,6 +15,9 @@ import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +51,8 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
 
         // volunteer data might not yet exist
-        var volunteer = volunteerDao.findById(userId).orElseGet(() -> {
+        Volunteer volunteer = volunteerDao.findById(userId).orElse(null);
+        if (volunteer == null) {
             var newVolunteer = Volunteer.builder()
                 .id(userId)
                 .planningPlans(Collections.emptySet())
@@ -60,8 +60,13 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .roles(Collections.emptySet())
                 .notificationSettings(Collections.emptySet())
                 .build();
-            return volunteerDao.save(newVolunteer);
-        });
+            try {
+                volunteer = volunteerDao.save(newVolunteer);
+            } catch (DataIntegrityViolationException e) {
+                // another concurrent request created the same volunteer in the meantime
+                volunteer = volunteerDao.getById(userId);
+            }
+        }
 
         return UserProfileMapper.toUserProfileDto(user, notifications, volunteer);
     }

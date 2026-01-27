@@ -5,13 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -52,6 +45,12 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
 import static at.shiftcontrol.lib.type.LockStatus.SELF_SIGNUP;
 
 @Service
@@ -343,7 +342,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
         ShiftPlan shiftPlan = shiftPlanDao.getById(invite.getShiftPlan().getId());
 
         // volunteer data might not yet exist
-        Volunteer volunteer = volunteerDao.findById(userId).orElseGet(() -> {
+        Volunteer volunteer = volunteerDao.findById(userId).orElse(null);
+        if (volunteer == null) {
             var newVolunteer = Volunteer.builder()
                 .id(userId)
                 .planningPlans(Collections.emptySet())
@@ -351,8 +351,13 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
                 .roles(Collections.emptySet())
                 .notificationSettings(Collections.emptySet())
                 .build();
-            return volunteerDao.save(newVolunteer);
-        });
+            try {
+                volunteer = volunteerDao.save(newVolunteer);
+            } catch (DataIntegrityViolationException e) {
+                // another concurrent request created the same volunteer in the meantime
+                volunteer = volunteerDao.getById(userId);
+            }
+        }
 
         boolean joinedNow = addUserToShiftPlanIfAbsent(invite.getType(), shiftPlan, volunteer);
 
