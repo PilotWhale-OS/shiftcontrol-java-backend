@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,7 @@ public class UserAssemblingMapper {
                         .orElseThrow(NotFoundException::new),
                     planId)
             )
+            .sorted(UserPlanDto.lastNameComparator())
             .toList();
     }
 
@@ -54,6 +56,9 @@ public class UserAssemblingMapper {
         if (volunteer == null) {
             return UserEventDto.builder()
                 .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
+                .volunteeringPlans(Collections.emptySet())
+                .planningPlans(Collections.emptySet())
+                .lockedPlans(Collections.emptySet())
                 .email(user.getEmail())
                 .build();
         }
@@ -75,16 +80,6 @@ public class UserAssemblingMapper {
             .build();
     }
 
-    public static Collection<UserEventDto> toUserEventDto(Collection<Volunteer> volunteers, Collection<UserRepresentation> users) {
-        return volunteers.stream()
-            .map(v ->
-                toUserEventDto(v, users.stream()
-                    .filter(u -> u.getId().equals(v.getId()))
-                    .findFirst()
-                    .orElseThrow(NotFoundException::new)))
-            .toList();
-    }
-
     public static Collection<UserEventDto> toUserEventDtoForUsers(Collection<Volunteer> volunteers, Collection<UserRepresentation> users) {
         return users.stream()
             .map(u ->
@@ -93,6 +88,7 @@ public class UserAssemblingMapper {
                     .findFirst()
                     .orElse(null), u)
             )
+            .sorted(UserEventDto.lastNameComparator())
             .toList();
     }
 

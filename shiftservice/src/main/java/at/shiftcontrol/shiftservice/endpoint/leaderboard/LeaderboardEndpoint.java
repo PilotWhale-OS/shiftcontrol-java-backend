@@ -1,9 +1,5 @@
 package at.shiftcontrol.shiftservice.endpoint.leaderboard;
 
-import java.util.Collection;
-
-import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.util.ConvertUtil;
+import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
 import at.shiftcontrol.shiftservice.service.LeaderboardService;
 
@@ -29,7 +26,6 @@ public class LeaderboardEndpoint {
     private final ApplicationUserProvider userProvider;
 
     @GetMapping()
-    // TODO Security
     @Operation(
         operationId = "getLeaderboardForEvent",
         description = "Get the leaderboard for a specific event"

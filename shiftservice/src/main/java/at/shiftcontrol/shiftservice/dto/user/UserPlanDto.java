@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.dto.user;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -29,4 +30,11 @@ public class UserPlanDto {
 
     @NotNull
     private Collection<RoleDto> roles;
+
+    public static Comparator<UserPlanDto> lastNameComparator() {
+        return Comparator.comparing(
+            (UserPlanDto udp ) -> udp.getVolunteer().getLastName(),
+            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
+        );
+    }
 }
