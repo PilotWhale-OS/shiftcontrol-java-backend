@@ -37,8 +37,12 @@ public class Volunteer {
     )
     private Collection<Role> roles;
 
-    @OneToMany(mappedBy = "volunteerNotificationAssignmentId.volunteerId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<VolunteerNotificationAssignment> notificationAssignments;
+    @OneToMany(
+        mappedBy = "user",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private Collection<NotificationSettings> notificationSettings;
 
     @ManyToMany
     @JoinTable(
@@ -70,7 +74,7 @@ public class Volunteer {
             .formatted(
                 id,
                 roles,
-                notificationAssignments,
+                notificationSettings,
                 volunteeringPlans.stream().map(ShiftPlan::getId).toList(),
                 planningPlans.stream().map(ShiftPlan::getId).toList(),
                 lockedPlans.stream().map(ShiftPlan::getId).toList()

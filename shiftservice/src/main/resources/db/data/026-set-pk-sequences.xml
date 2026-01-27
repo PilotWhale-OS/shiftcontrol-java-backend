@@ -25,6 +25,9 @@
     <sql>ALTER TABLE trust_alert
       ALTER COLUMN id RESTART WITH 100;</sql>
 
+    <sql>ALTER TABLE notification_settings
+      ALTER COLUMN id RESTART WITH 100;</sql>
+
   </changeSet>
 
 </databaseChangeLog>

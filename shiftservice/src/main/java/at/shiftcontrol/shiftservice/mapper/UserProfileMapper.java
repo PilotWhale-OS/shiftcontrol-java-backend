@@ -1,6 +1,6 @@
 package at.shiftcontrol.shiftservice.mapper;
 
-import java.util.Set;
+import java.util.Collection;
 
 import at.shiftcontrol.lib.entity.Event;
 
@@ -18,8 +18,7 @@ import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 @RequiredArgsConstructor
 @Service
 public class UserProfileMapper {
-    public static UserProfileDto toUserProfileDto(UserRepresentation user, Set<NotificationSettingsDto> notificationSettings, Volunteer volunteer) {
-
+    public static UserProfileDto toUserProfileDto(UserRepresentation user, Collection<NotificationSettingsDto> notificationSettings, Volunteer volunteer) {
         return UserProfileDto.builder()
             .account(AccountInfoMapper.toDto(user))
             .notifications(notificationSettings)

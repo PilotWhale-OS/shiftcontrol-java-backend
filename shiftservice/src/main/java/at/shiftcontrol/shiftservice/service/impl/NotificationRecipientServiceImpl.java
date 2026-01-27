@@ -12,25 +12,25 @@ import org.keycloak.representations.idm.AbstractUserRepresentation;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.lib.type.NotificationChannel;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.shiftservice.dao.NotificationSettingsDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsDto;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsFilterDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.mapper.AccountInfoMapper;
-import at.shiftcontrol.shiftservice.repo.userprofile.NotificationRepository;
 import at.shiftcontrol.shiftservice.service.NotificationRecipientService;
 import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationRecipientServiceImpl implements NotificationRecipientService {
-
-    private final NotificationRepository notificationRepository;
     private final VolunteerDao volunteerDao;
     private final KeycloakUserService keycloakUserService;
+    private final NotificationSettingsDao notificationSettingsDao;
 
     @AdminOnly
     @Override
@@ -42,161 +42,144 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
     @Override
     @AdminOnly
     public RecipientsDto getRecipientsForNotification(RecipientsFilterDto filter) {
-
         validateFilter(filter);
-
-        // TODO: default notification settings should be handled if no settings are found for a user
-
         // filter from cheapest and most narrowing query first
         Collection<String> recipientIds = null;
-
-        /* if admin access level, all other filters are automatically true: in all plans and events */
+        // if admin access level, all other filters are automatically true: in all plans and events
         if (filter.getReceiverAccessLevel() == ReceiverAccessLevel.ADMIN) {
-            var admins = keycloakUserService.getAllAdmins();
-
-            if (filter.getRelatedVolunteerIds() != null) {
-                recipientIds = admins.stream()
-                    .map(AbstractUserRepresentation::getId)
-                    .filter(id -> filter.getRelatedVolunteerIds().contains(id))
-                    .collect(Collectors.toSet());
-            } else {
-                recipientIds = admins.stream()
-                    .map(AbstractUserRepresentation::getId)
-                    .collect(Collectors.toSet());
-            }
-        }
-
-        // if specific volunteers are requested, only query those
-        else if (filter.getRelatedVolunteerIds() != null) {
-
-            /* filter volunteers on plan level */
-            if (filter.getRelatedShiftPlanId() != null) {
-
-                /* depending on access type */
-                recipientIds = (switch (filter.getReceiverAccessLevel()) {
-                    case VOLUNTEER -> volunteerDao.findAllByShiftPlanAndVolunteerIds(
-                        ConvertUtil.idToLong(filter.getRelatedShiftPlanId()),
-                        filter.getRelatedVolunteerIds()
-                    );
-                    case PLANNER -> volunteerDao.findAllByShiftPlanAndPlannerIds(
-                        ConvertUtil.idToLong(filter.getRelatedShiftPlanId()),
-                        filter.getRelatedVolunteerIds()
-                    );
-                    case ADMIN -> throw new NotImplementedException(); // should be handled at root
-                }).stream().map(Volunteer::getId).collect(Collectors.toSet());
-            }
-
-            /* filter on event level */
-            else if (filter.getRelatedEventId() != null) {
-
-                /* depending on access type */
-                recipientIds = (switch (filter.getReceiverAccessLevel()) {
-                    case VOLUNTEER -> volunteerDao.findAllByEventAndVolunteerIds(
-                        ConvertUtil.idToLong(filter.getRelatedEventId()),
-                        filter.getRelatedVolunteerIds()
-                    );
-                    case PLANNER -> volunteerDao.findAllByEventAndPlannerIds(
-                        ConvertUtil.idToLong(filter.getRelatedEventId()),
-                        filter.getRelatedVolunteerIds()
-                    );
-                    case ADMIN -> throw new NotImplementedException(); // should be handled at root
-                }).stream().map(Volunteer::getId).collect(Collectors.toSet());
-            }
-
-            /* get all that are recognized regardless of association */
-            else {
-                recipientIds = (switch (filter.getReceiverAccessLevel()) {
-                    case VOLUNTEER -> volunteerDao.findAllByVolunteerIds(
-                        filter.getRelatedVolunteerIds()
-                    );
-                    case PLANNER -> volunteerDao.findAllByPlannerIds(
-                        filter.getRelatedVolunteerIds()
-                    );
-                    case ADMIN -> throw new NotImplementedException(); // should be handled at root
-                }).stream().map(Volunteer::getId).collect(Collectors.toSet());
-            }
-        }
-
-        // query all volunteers by event or shiftplan
-        else {
-
-            /* filter by shift plan */
-            if (filter.getRelatedShiftPlanId() != null) {
-
-                /* depending on access type */
-                recipientIds = (switch (filter.getReceiverAccessLevel()) {
-                    case VOLUNTEER -> volunteerDao.findAllByShiftPlan(
-                        ConvertUtil.idToLong(filter.getRelatedShiftPlanId())
-                    );
-                    case PLANNER -> volunteerDao.findAllPlannersByShiftPlan(
-                        ConvertUtil.idToLong(filter.getRelatedShiftPlanId())
-                    );
-                    case ADMIN -> throw new NotImplementedException(); // should be handled at root
-                }).stream().map(Volunteer::getId).collect(Collectors.toSet());
-            }
-
-            /* filter by event */
-            else if (filter.getRelatedEventId() != null) {
-
-                /* depending on access level */
-                recipientIds = (switch (filter.getReceiverAccessLevel()) {
-                    case VOLUNTEER -> volunteerDao.findAllByEvent(
-                        ConvertUtil.idToLong(filter.getRelatedEventId())
-                    );
-                    case PLANNER -> volunteerDao.findAllPlannersByEvent(
-                        ConvertUtil.idToLong(filter.getRelatedEventId())
-                    );
-                    case ADMIN -> throw new NotImplementedException(); // should be handled at root
-                }).stream().map(Volunteer::getId).collect(Collectors.toSet());
-            }
+            recipientIds = filterAdminsById(filter, recipientIds);
+        } else {
+            // filter by eventId, shiftId and volunteerIds if present
+            recipientIds = filterByShiftPlanAndVolunteerIds(filter, recipientIds);
+            recipientIds = filterByEventAndVolunteerIds(filter, recipientIds);
+            recipientIds = filterByVolunteerIds(filter, recipientIds);
         }
 
         if (recipientIds != null) {
-
-            // if preselection made: filter by notification type and channel
-            recipientIds = notificationRepository.findAllByVolunteerIdAndNotificationTypeAndChannelEnabled(
-                filter.getNotificationType(),
-                filter.getNotificationChannel(),
-                recipientIds);
+            if (filter.getNotificationChannel() == NotificationChannel.EMAIL) {
+                // EMAIL default OFF --> include only explicit settings
+                recipientIds = notificationSettingsDao.findAllByNotificationTypeAndChannelAndUserIds(
+                        filter.getNotificationType(),
+                        NotificationChannel.EMAIL,
+                        recipientIds
+                    );
+            } else {
+                // other channels are default ON --> remove those who have the type and channel DISABLED
+                Collection<String> nonRecipients = notificationSettingsDao.findAllByNotificationTypeAndChannelDisabled(
+                    filter.getNotificationType(),
+                    filter.getNotificationChannel(),
+                    recipientIds);
+                recipientIds.removeAll(nonRecipients);
+            }
         } else {
-
             // else get all that have the notification type and channel enabled
-            recipientIds = notificationRepository.findAllByNotificationTypeAndChannelEnabled(
+                // this should never be called imo, since all planner & volunteer events always should have a filter enabled
+                // only admin notifications should have no filter, but that's handled at the top
+            recipientIds = notificationSettingsDao.findAllByNotificationTypeAndChannel(
                 filter.getNotificationType(),
                 filter.getNotificationChannel()
             );
         }
 
-        /* no recipients; just return empty  */
+        // get users and build response
         if (recipientIds.isEmpty()) {
             return RecipientsDto.builder().recipients(Set.of()).build();
-        }
-
-        /* only one recipient found; get by id from keycloak  */
-        else if (recipientIds.size() == 1) {
-            var recipientId = recipientIds.iterator().next();
-            var user = keycloakUserService.getUserById(recipientId);
-            var accountInfo = AccountInfoMapper.toDto(user);
-
+        } else {
+            var users = keycloakUserService.getUserByIds(recipientIds);
+            var recipients = users.stream().map(AccountInfoMapper::toDto).collect(Collectors.toSet());
             return RecipientsDto.builder()
-                .recipients(Set.of(accountInfo))
+                .recipients(recipients)
                 .build();
         }
+    }
 
-        /* many recipients found: getting all keycloak users and then filtering is probably more performant than doing many single calls */
-        else {
-            var users = keycloakUserService.getAllUsers();
-            var finalRecipientIds = recipientIds;
-            var relevantUsers = users.stream()
-                .filter(u -> finalRecipientIds.stream().anyMatch(r -> r.equals(u.getId())))
+    private Collection<String> filterByEventAndVolunteerIds(RecipientsFilterDto filter, Collection<String> recipientIds) {
+        if (filter.getRelatedEventId() == null) {
+            return recipientIds;
+        }
+        if (filter.getRelatedVolunteerIds() != null) {
+            return (switch (filter.getReceiverAccessLevel()) {
+                case VOLUNTEER -> volunteerDao.findAllByEventAndVolunteerIds(
+                    ConvertUtil.idToLong(filter.getRelatedEventId()),
+                    filter.getRelatedVolunteerIds()
+                );
+                case PLANNER -> volunteerDao.findAllByEventAndPlannerIds(
+                    ConvertUtil.idToLong(filter.getRelatedEventId()),
+                    filter.getRelatedVolunteerIds()
+                );
+                case ADMIN -> throw new NotImplementedException(); // should be handled at root
+            }).stream().map(Volunteer::getId).collect(Collectors.toSet());
+        } else {
+            return (switch (filter.getReceiverAccessLevel()) {
+                case VOLUNTEER -> volunteerDao.findAllByEvent(
+                    ConvertUtil.idToLong(filter.getRelatedEventId())
+                );
+                case PLANNER -> volunteerDao.findAllPlannersByEvent(
+                    ConvertUtil.idToLong(filter.getRelatedEventId())
+                );
+                case ADMIN -> throw new NotImplementedException(); // should be handled at root
+            }).stream().map(Volunteer::getId).collect(Collectors.toSet());
+        }
+    }
+
+    private Collection<String> filterByShiftPlanAndVolunteerIds(RecipientsFilterDto filter, Collection<String> recipientIds) {
+        if (filter.getRelatedShiftPlanId() == null) {
+            return recipientIds;
+        }
+        if (filter.getRelatedVolunteerIds() != null) {
+            return (switch (filter.getReceiverAccessLevel()) {
+                case VOLUNTEER -> volunteerDao.findAllByShiftPlanAndVolunteerIds(
+                    ConvertUtil.idToLong(filter.getRelatedShiftPlanId()),
+                    filter.getRelatedVolunteerIds()
+                );
+                case PLANNER -> volunteerDao.findAllByShiftPlanAndPlannerIds(
+                    ConvertUtil.idToLong(filter.getRelatedShiftPlanId()),
+                    filter.getRelatedVolunteerIds()
+                );
+                case ADMIN -> throw new NotImplementedException(); // should be handled at root
+            }).stream().map(Volunteer::getId).collect(Collectors.toSet());
+        } else {
+            return (switch (filter.getReceiverAccessLevel()) {
+                case VOLUNTEER -> volunteerDao.findAllByShiftPlan(
+                    ConvertUtil.idToLong(filter.getRelatedShiftPlanId())
+                );
+                case PLANNER -> volunteerDao.findAllPlannersByShiftPlan(
+                    ConvertUtil.idToLong(filter.getRelatedShiftPlanId())
+                );
+                case ADMIN -> throw new NotImplementedException(); // should be handled at root
+            }).stream().map(Volunteer::getId).collect(Collectors.toSet());
+        }
+    }
+
+    private Collection<String> filterByVolunteerIds(RecipientsFilterDto filter, Collection<String> recipientIds) {
+        if (filter.getRelatedVolunteerIds() != null) {
+            return (switch (filter.getReceiverAccessLevel()) {
+                case VOLUNTEER -> volunteerDao.findAllByVolunteerIds(
+                    filter.getRelatedVolunteerIds()
+                );
+                case PLANNER -> volunteerDao.findAllByPlannerIds(
+                    filter.getRelatedVolunteerIds()
+                );
+                case ADMIN -> throw new NotImplementedException(); // should be handled at root
+            }).stream().map(Volunteer::getId).collect(Collectors.toSet());
+        } else {
+            return recipientIds;
+        }
+    }
+
+    private Collection<String> filterAdminsById(RecipientsFilterDto filter, Collection<String> recipientIds) {
+        var admins = keycloakUserService.getAllAdmins();
+        if (filter.getRelatedVolunteerIds() != null) {
+            recipientIds = admins.stream()
+                .map(AbstractUserRepresentation::getId)
+                .filter(id -> filter.getRelatedVolunteerIds().contains(id))
                 .collect(Collectors.toSet());
-
-            var recipientDtos = relevantUsers.stream().map(AccountInfoMapper::toDto).collect(Collectors.toSet());
-
-            return RecipientsDto.builder()
-                .recipients(recipientDtos)
-                .build();
+        } else {
+            recipientIds = admins.stream()
+                .map(AbstractUserRepresentation::getId)
+                .collect(Collectors.toSet());
         }
+        return recipientIds;
     }
 
     private void validateFilter(RecipientsFilterDto filter) {
