@@ -5,11 +5,12 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import at.shiftcontrol.lib.entity.Assignment;
-import at.shiftcontrol.lib.type.AssignmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
@@ -57,6 +58,15 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
         AND a.positionSlot.shift.startTime < :endTime
         """)
     Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId);
+
+    @Query("""
+        SELECT a FROM Assignment a
+        WHERE a.assignedVolunteer.id = :volunteerId
+        AND a.positionSlot.id <> :slotId
+        AND a.positionSlot.shift.endTime > :startTime
+        AND a.positionSlot.shift.startTime < :endTime
+        """)
+    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long slotId);
 
     @Query("""
         SELECT a FROM Assignment a

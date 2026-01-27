@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
 
 public interface AssignmentDao extends BasicDao<Assignment, Long> {
     Optional<Assignment> findBySlotAndUser(long positionSlotId, String assignedUser);
@@ -17,9 +18,15 @@ public interface AssignmentDao extends BasicDao<Assignment, Long> {
 
     Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime);
 
+    Collection<Assignment> getConflictingAssignments(String volunteerId, PositionSlot slot);
+
     Collection<Assignment> getActiveAssignmentsOfSlot(long positionSlotId);
 
     Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId);
+
+    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long slotId);
+
+    Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot slot);
 
     Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
 

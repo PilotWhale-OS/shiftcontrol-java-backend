@@ -52,6 +52,11 @@ public class EligibilityServiceImpl implements EligibilityService {
 
     @Override
     public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Volunteer volunteer) { // todo fix testdata
+        return getSignupStateForPositionSlotExcludingSlot(positionSlot, volunteer, null);
+    }
+
+    @Override
+    public PositionSignupState getSignupStateForPositionSlotExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude) {
         if (isSignedUp(positionSlot, volunteer)) {
             return PositionSignupState.SIGNED_UP;
         }
@@ -67,12 +72,14 @@ public class EligibilityServiceImpl implements EligibilityService {
             return PositionSignupState.TIME_CONFLICT_TIME_CONSTRAINT;
         }
 
-        var conflictingAssignments = assignmentDao.getConflictingAssignmentsExcludingShift(
-            volunteer.getId(),
-            positionSlot.getShift().getStartTime(),
-            positionSlot.getShift().getEndTime(),
-            positionSlot.getShift().getId()
-        );
+        Collection<Assignment> conflictingAssignments;
+        if (slotToExclude != null) {
+            conflictingAssignments = assignmentDao.getConflictingAssignmentsExcludingSlot(
+                volunteer.getId(), slotToExclude
+            );
+        } else {
+            conflictingAssignments = assignmentDao.getConflictingAssignments(volunteer.getId(), positionSlot);
+        }
         if (!conflictingAssignments.isEmpty()) {
             return PositionSignupState.TIME_CONFLICT_ASSIGNMENT;
         }
@@ -148,8 +155,22 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
+    public boolean isEligibleAndNotSignedUpExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude) {
+        PositionSignupState signupState = this.getSignupStateForPositionSlotExcludingSlot(positionSlot, volunteer, slotToExclude);
+        return !PositionSignupState.SIGNED_UP.equals(signupState)
+            && !PositionSignupState.isConflicts(signupState);
+    }
+
+    @Override
     public void validateIsEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
         if (!isEligibleAndNotSignedUp(positionSlot, volunteer)) {
+            throw new ConflictException("position slot can not be assigned to volunteer");
+        }
+    }
+
+    @Override
+    public void validateIsEligibleAndNotSignedUpExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude) {
+        if (!isEligibleAndNotSignedUpExcludingSlot(positionSlot, volunteer, slotToExclude)) {
             throw new ConflictException("position slot can not be assigned to volunteer");
         }
     }

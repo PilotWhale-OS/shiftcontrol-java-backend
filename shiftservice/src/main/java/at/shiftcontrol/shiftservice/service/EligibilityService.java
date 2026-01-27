@@ -25,6 +25,20 @@ public interface EligibilityService {
 
     /**
      * Determines the signup state of a volunteer for a given position slot.
+     * Excludes the other slot when checking for conflicts (used for trade)
+     *
+     * <p>
+     * <b>This does not check if the given user has privileges for sign-up</b>
+     *
+     * @param positionSlot The position slot to check
+     * @param volunteer    The volunteer to check
+     * @param slotToExclude The position slot to exclude when checking for conflicts
+     * @return The signup state of the volunteer for the position slot
+     */
+    PositionSignupState getSignupStateForPositionSlotExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude);
+
+    /**
+     * Determines the signup state of a volunteer for a given position slot.
      *
      * <p>
      * <b>This does not check if the given user has privileges for sign-up</b>
@@ -77,12 +91,34 @@ public interface EligibilityService {
 
     /**
      * Checks if the volunteer is eligible and not signed up to the given position slot.
+     * Excludes the other slot when checking for conflicts (used for trade)
+     *
+     * @param positionSlot to check for
+     * @param volunteer    to assign
+     * @param slotToExclude The position slot to exclude when checking for conflicts
+     * @return true if the user is not signed up and eligible
+     */
+    boolean isEligibleAndNotSignedUpExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude);
+
+    /**
+     * Checks if the volunteer is eligible and not signed up to the given position slot.
      *
      * @param positionSlot to check for
      * @param volunteer    to assign
      * @throws ConflictException if the user is not assignable to the slot
      */
     void validateIsEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer);
+
+    /**
+     * Checks if the volunteer is eligible and not signed up to the given position slot.
+     * Excludes the other slot when checking for conflicts (used for trade)
+     *
+     * @param positionSlot to check for
+     * @param volunteer    to assign
+     * @param slotToExclude The position slot to exclude when checking for conflicts
+     * @throws ConflictException if the user is not assignable to the slot
+     */
+    void validateIsEligibleAndNotSignedUpExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude);
 
     /**
      * returns all conflicting assignments within a given time for a specific user.

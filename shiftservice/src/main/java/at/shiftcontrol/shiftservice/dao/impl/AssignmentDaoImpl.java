@@ -10,6 +10,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
+import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
@@ -70,6 +71,11 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
+    public Collection<Assignment> getConflictingAssignments(String volunteerId, PositionSlot slot) {
+        return getConflictingAssignments(volunteerId, slot.getShift().getStartTime(), slot.getShift().getEndTime());
+    }
+
+    @Override
     public Collection<Assignment> getActiveAssignmentsOfSlot(long positionSlotId) {
         return assignmentRepository.getAssignmentsOfSlotNotInState(positionSlotId, AssignmentStatus.REQUEST_FOR_ASSIGNMENT);
     }
@@ -77,6 +83,16 @@ public class AssignmentDaoImpl implements AssignmentDao {
     @Override
     public Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId) {
         return assignmentRepository.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, shiftId);
+    }
+
+    @Override
+    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, Instant startTime, Instant endTime, long slotId) {
+        return assignmentRepository.getConflictingAssignmentsExcludingSlot(volunteerId, startTime, endTime, slotId);
+    }
+
+    @Override
+    public Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot slot) {
+        return getConflictingAssignmentsExcludingSlot(volunteerId, slot.getShift().getStartTime(), slot.getShift().getEndTime(), slot.getId());
     }
 
     @Override
