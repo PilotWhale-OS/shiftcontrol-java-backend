@@ -45,6 +45,7 @@ public class ShiftAssemblingMapper {
     }
 
     public static ShiftContextDto toContextDto(Shift shift) {
+        var location = shift.getLocation();
         return new ShiftContextDto(
             String.valueOf(shift.getId()),
             shift.getName(),
@@ -52,7 +53,7 @@ public class ShiftAssemblingMapper {
             shift.getLongDescription(),
             shift.getStartTime(),
             shift.getEndTime(),
-            LocationMapper.toLocationDto(shift.getLocation()),
+            location == null ? null : LocationMapper.toLocationDto(location),
             shift.getBonusRewardPoints()
         );
     }
