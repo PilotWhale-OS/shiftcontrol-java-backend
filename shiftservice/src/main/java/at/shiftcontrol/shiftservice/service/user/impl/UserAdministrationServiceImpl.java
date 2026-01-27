@@ -45,6 +45,7 @@ import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
+import at.shiftcontrol.shiftservice.service.user.VolunteerService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
@@ -61,6 +62,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     private final AssignmentService assignmentService;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
     private final AssignmentRepository assignmentRepository;
+    private final VolunteerService volunteerService;
 
     @Override
     @AdminOnly
@@ -117,6 +119,11 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     public UserEventDto getUser(String userId) {
         var volunteer = volunteerDao.getById(userId);
         return userAssemblingMapper.toUserEventDto(volunteer);
+    }
+
+    @Override
+    public UserEventDto createVolunteer(String userId) {
+        return userAssemblingMapper.toUserEventDto(volunteerService.createVolunteer(userId));
     }
 
     @Override
