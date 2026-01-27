@@ -114,8 +114,15 @@ public class StatisticServiceImpl implements StatisticService {
                     .count();
                 if (assignedCount < slot.getDesiredVolunteerCount() &&
                     eligibilityService.isEligibleAndNotSignedUp(slot, volunteer)) {
-                    shiftWithUnassignedSlots.add(shift);
-                    break;
+                    var conflictingAssignments = eligibilityService.getConflictingAssignments(
+                        volunteer.getId(),
+                        slot.getShift().getStartTime(),
+                        slot.getShift().getEndTime());
+
+                    if (conflictingAssignments.isEmpty()) {
+                        shiftWithUnassignedSlots.add(shift);
+                        break;
+                    }
                 }
             }
         }
