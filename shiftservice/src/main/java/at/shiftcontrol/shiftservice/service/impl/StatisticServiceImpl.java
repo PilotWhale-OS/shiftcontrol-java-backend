@@ -4,11 +4,16 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
+import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.dao.ShiftDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
@@ -16,8 +21,6 @@ import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleStatisticsDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -99,7 +102,8 @@ public class StatisticServiceImpl implements StatisticService {
 
         var assignedSlotCount = slots.stream()
             .mapToInt(s -> (int) s.getAssignments().stream()
-                .filter(a -> a.getAssignedVolunteer() != null)
+                .filter(a -> a.getAssignedVolunteer() != null
+                    && a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
                 .count())
             .sum();
 
@@ -110,10 +114,11 @@ public class StatisticServiceImpl implements StatisticService {
         for (var shift : shifts) {
             for (var slot : shift.getSlots()) {
                 var assignedCount = slot.getAssignments().stream()
-                    .filter(a -> a.getAssignedVolunteer() != null)
+                    .filter(a -> a.getAssignedVolunteer() != null
+                        && a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
                     .count();
-                if (assignedCount < slot.getDesiredVolunteerCount() &&
-                    eligibilityService.isEligibleAndNotSignedUp(slot, volunteer)) {
+                if (assignedCount < slot.getDesiredVolunteerCount()
+                    && eligibilityService.isEligibleAndNotSignedUp(slot, volunteer)) {
                     var conflictingAssignments = eligibilityService.getConflictingAssignments(
                         volunteer.getId(),
                         slot.getShift().getStartTime(),
