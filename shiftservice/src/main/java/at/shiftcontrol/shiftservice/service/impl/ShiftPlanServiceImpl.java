@@ -425,6 +425,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     @Override
     public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) {
         var shiftPlan = shiftPlanDao.getById(shiftPlanId);
+        securityHelper.assertUserIsPlanner(shiftPlan);
         if (shiftPlan.getLockStatus().equals(lockStatus)) {
             throw new BadRequestException("Lock status already in requested state");
         }

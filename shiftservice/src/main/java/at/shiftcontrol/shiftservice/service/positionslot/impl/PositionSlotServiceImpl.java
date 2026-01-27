@@ -201,19 +201,23 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     @Override
     public Collection<AssignmentDto> getAssignments(@NonNull Long positionSlotId) {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
+        securityHelper.assertUserIsPlanner(positionSlot);
         securityHelper.assertUserIsInPlan(positionSlot);
         return assignmentAssemblingMapper.assemble(positionSlot.getAssignments());
     }
 
     @Override
     public AssignmentDto getUserAssignment(@NonNull Long positionSlotId, @NonNull String volunteerId) {
-        return assignmentAssemblingMapper.assemble(assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId));
+        Assignment ass = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
+        securityHelper.assertVolunteerIsNotLockedInPlan(ass);
+        return assignmentAssemblingMapper.assemble(ass);
     }
 
     @Override
     @IsNotAdmin
     public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
+        securityHelper.assertVolunteerIsNotLockedInPlan(assignment);
         // no security check necessary, because user is already assigned to position,
         //  if not, assignment would not be found
         if (assignment == null || assignment.getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
@@ -244,6 +248,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         if (auction == null || !AssignmentStatus.ACTIVE_AUCTION_STATES.contains(auction.getStatus())) {
             throw new BadRequestException("Assignment is not up for auction");
         }
+        securityHelper.assertVolunteerIsNotLockedInPlan(auction);
         // check if current user is volunteer in plan
         securityHelper.assertUserIsVolunteer(auction.getPositionSlot(), true);
         // get current user (volunteer)
