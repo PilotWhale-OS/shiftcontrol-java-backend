@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
-import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
@@ -23,7 +22,6 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
-import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
@@ -52,7 +50,6 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
     private final AssignmentPlannerInfoAssemblingMapper assignmentRequestAssemblingMapper;
-    private final TimeConstraintDao timeConstraintDao;
 
     @Override
     public Collection<AssignmentPlannerInfoDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) {
@@ -133,12 +130,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingShift(
             volunteer.getId(), positionSlot, positionSlot.getShift().getId());
 
-        Collection<TimeConstraint> constraints = timeConstraintDao.findByPositionSlotIdAndVolunteerId(
-            positionSlot.getId(),
-            volunteer.getId()
-        );
-
-        return eligible && conflicts.isEmpty() && constraints.isEmpty();
+        return eligible && conflicts.isEmpty();
     }
 
     @Override

@@ -144,7 +144,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     public boolean isEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         return !PositionSignupState.SIGNED_UP.equals(signupState)
-            && !PositionSignupState.NOT_ELIGIBLE.equals(signupState);
+            && !PositionSignupState.isConflicts(signupState);
     }
 
     @Override

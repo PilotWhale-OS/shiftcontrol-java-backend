@@ -1,5 +1,8 @@
 package at.shiftcontrol.lib.type;
 
+import java.util.Collection;
+import java.util.Set;
+
 import lombok.Getter;
 
 public enum PositionSignupState {
@@ -19,6 +22,14 @@ public enum PositionSignupState {
 
     PositionSignupState(String message) {
         this.message = message;
+    }
+
+    public static Collection<PositionSignupState> conflicts() {
+        return Set.of(NOT_ELIGIBLE, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT);
+    }
+
+    public static boolean isConflicts(PositionSignupState state) {
+        return conflicts().contains(state);
     }
 }
 
