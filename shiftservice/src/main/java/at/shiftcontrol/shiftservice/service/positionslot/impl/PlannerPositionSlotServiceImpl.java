@@ -4,8 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
+import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.PositionSlotVolunteerEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
@@ -16,6 +23,7 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
+import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
@@ -29,10 +37,6 @@ import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +52,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
     private final AssignmentPlannerInfoAssemblingMapper assignmentRequestAssemblingMapper;
+    private final TimeConstraintDao timeConstraintDao;
 
     @Override
     public Collection<AssignmentPlannerInfoDto> getSlots(long shiftPlanId, AssignmentFilterDto filterDto) {
@@ -128,7 +133,12 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         Collection<Assignment> conflicts = eligibilityService.getConflictingAssignmentsExcludingShift(
             volunteer.getId(), positionSlot, positionSlot.getShift().getId());
 
-        return eligible && conflicts.isEmpty();
+        Collection<TimeConstraint> constraints = timeConstraintDao.findByPositionSlotIdAndVolunteerId(
+            positionSlot.getId(),
+            volunteer.getId()
+        );
+
+        return eligible && conflicts.isEmpty() && constraints.isEmpty();
     }
 
     @Override
