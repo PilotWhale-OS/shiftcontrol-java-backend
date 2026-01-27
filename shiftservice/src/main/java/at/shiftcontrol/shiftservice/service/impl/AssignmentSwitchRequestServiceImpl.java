@@ -99,7 +99,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
             var conflictingAssignments =
                 eligibilityService.getConflictingAssignmentsExcludingShift(currentUserId, requestedPositionSlot, requestedPositionSlot.getShift().getId());
             timeConflictingAssignments = assignments.stream()
-                .filter(a -> conflictingAssignments.stream().anyMatch(ca -> ca.getId() == a.getPositionSlot().getId()))
+                .filter(a -> conflictingAssignments.stream().anyMatch(ca -> ca.getId() == a.getId()))
                 .toList();
         }
 
@@ -112,7 +112,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                 Collection<Volunteer> usersToTradeWith = assignedVolunteers.stream()
                     .filter(v -> {
                         var signupStateOffered = eligibilityService.getSignupStateForPositionSlot(a.getPositionSlot(), v.getId());
-                        return signupStateOffered != PositionSignupState.SIGNUP_POSSIBLE && signupStateOffered != PositionSignupState.NOT_ELIGIBLE
+                        return signupStateOffered != PositionSignupState.SIGNED_UP && signupStateOffered != PositionSignupState.NOT_ELIGIBLE
                             && signupStateOffered != PositionSignupState.TIME_CONFLICT_TIME_CONSTRAINT;
                     })
                     .toList();
