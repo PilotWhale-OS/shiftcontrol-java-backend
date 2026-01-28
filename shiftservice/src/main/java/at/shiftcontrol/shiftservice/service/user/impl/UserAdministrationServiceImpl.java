@@ -122,7 +122,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @AdminOnly
     public UserEventDto getUser(String userId) {
-        var volunteer = volunteerDao.getById(userId);
+        var volunteer = volunteerService.getOrCreate(userId);
         return userAssemblingMapper.toUserEventDto(volunteer);
     }
 
