@@ -67,9 +67,9 @@ public class ShiftServiceImpl implements ShiftService {
 
         var shifts = shiftDao.findAllInShiftPlan(shiftPlanId)
             .stream()
-            .filter(shift -> shift.getSlots()
+            .filter(shift -> shift.getSlots() != null && shift.getSlots()
                 .stream()
-                .anyMatch(slot -> slot.getAssignments()
+                .anyMatch(slot ->slot.getAssignments() != null && slot.getAssignments()
                     .stream()
                     .filter(ass -> !AssignmentStatus.REQUEST_STATES.contains(ass.getStatus()))
                     .count() != slot.getDesiredVolunteerCount()
