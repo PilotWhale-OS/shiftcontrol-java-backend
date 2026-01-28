@@ -71,7 +71,7 @@ public class ShiftServiceImpl implements ShiftService {
                 .stream()
                 .anyMatch(slot ->slot.getAssignments() != null && slot.getAssignments()
                     .stream()
-                    .filter(ass -> !AssignmentStatus.REQUEST_STATES.contains(ass.getStatus()))
+                    .filter(ass -> ass.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT)
                     .count() != slot.getDesiredVolunteerCount()
                 )
             )
