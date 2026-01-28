@@ -1,5 +1,10 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
+
+import at.shiftcontrol.lib.type.AssignmentStatus;
+import at.shiftcontrol.shiftservice.mapper.PaginationMapper;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +29,9 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.ShiftService;
 import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
+
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +59,36 @@ public class ShiftServiceImpl implements ShiftService {
             .shiftPlan(ShiftPlanMapper.toShiftPlanDto(plan))
             .preference(userPref)
             .build();
+    }
+
+    @Override
+    public PaginationDto<ShiftDto> getAllOpenShiftsOfPlanPaginated(long shiftPlanId, int page, int size) {
+        securityHelper.assertUserIsPlanner(shiftPlanId);
+
+        var shifts = shiftDao.findAllInShiftPlan(shiftPlanId)
+            .stream()
+            .filter(shift -> shift.getSlots()
+                .stream()
+                .anyMatch(slot -> slot.getAssignments()
+                    .stream()
+                    .filter(ass -> !AssignmentStatus.REQUEST_STATES.contains(ass.getStatus()))
+                    .count() != slot.getDesiredVolunteerCount()
+                )
+            )
+            .sorted(Comparator.comparingLong(Shift::getId))
+            .toList();
+
+        var shiftsPage = shifts
+            .stream()
+            .skip((long) page * size)
+            .limit(size)
+            .map(shiftAssemblingMapper::assemble)
+            .toList();
+
+
+        var sizeTotal = shifts.size();
+
+        return PaginationMapper.toPaginationDto(size, page, sizeTotal,shiftsPage);
     }
 
     @Override

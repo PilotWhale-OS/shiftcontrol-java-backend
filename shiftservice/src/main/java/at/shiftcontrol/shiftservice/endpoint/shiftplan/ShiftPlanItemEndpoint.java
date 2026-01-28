@@ -34,7 +34,6 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @RequiredArgsConstructor
 public class ShiftPlanItemEndpoint {
     private final ShiftPlanService shiftPlanService;
-    private final DashboardService dashboardService;
 
     @GetMapping()
     @Operation(

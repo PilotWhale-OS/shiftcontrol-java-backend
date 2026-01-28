@@ -2,12 +2,20 @@ package at.shiftcontrol.shiftservice.endpoint.plannerdashboard;
 
 import java.util.Collection;
 
+import at.shiftcontrol.lib.dto.PaginationDto;
+
+import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
+
+import at.shiftcontrol.shiftservice.service.ShiftPlanService;
+import at.shiftcontrol.shiftservice.service.ShiftService;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +37,17 @@ import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotServ
 @RequiredArgsConstructor
 public class SignupEndpoint {
     private final PlannerPositionSlotService positionSlotService;
+    private final ShiftPlanService shiftPlanService;
+    private final ShiftService shiftService;
+
+    @GetMapping("/open-shifts")
+    @Operation(
+        operationId = "getAllOpenShifts",
+        description = "Get all shifts for the shiftplan where positions exist that are not fully filled"
+    )
+    public PaginationDto<ShiftDto> getAllOpenShifts(@PathVariable String shiftPlanId, @RequestParam int page,  @RequestParam int size) {
+        return shiftService.getAllOpenShiftsOfPlanPaginated(ConvertUtil.idToLong(shiftPlanId), page, size);
+    }
 
     @GetMapping("/requests")
     @Operation(
