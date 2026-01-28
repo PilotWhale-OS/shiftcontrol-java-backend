@@ -22,6 +22,7 @@ public class VolunteerServiceImpl implements VolunteerService {
             .id(userId)
             .planningPlans(Collections.emptySet())
             .volunteeringPlans(Collections.emptySet())
+            .lockedPlans(Collections.emptySet())
             .roles(Collections.emptySet())
             .notificationSettings(Collections.emptySet())
             .build();
