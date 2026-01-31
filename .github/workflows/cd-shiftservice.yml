@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/build-shiftservice.yml'
+      - '.github/workflows/cd-shiftservice.yml'
       - 'shiftservice/**'
       - 'shiftcontrol-lib/**'
 
