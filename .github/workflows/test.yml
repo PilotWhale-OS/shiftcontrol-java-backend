@@ -1,0 +1,94 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-backend:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+
+      - name: Run unit tests
+        run: mvn --no-transfer-progress -B clean test
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: backend/target/surefire-reports/*.xml
+
+  test-backend-integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: shiftcontrol
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: shiftservice
+        options: >-
+          --health-cmd="pg_isready -U shiftcontrol"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/shiftservice
+      SPRING_DATASOURCE_USERNAME: shiftcontrol
+      SPRING_DATASOURCE_PASSWORD: password
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..60}; do
+            pg_isready -h localhost -p 5432 -U shiftcontrol && break
+            echo "Waiting for postgres..."
+            sleep 1
+          done
+
+      - name: Run integration tests
+        run: mvn --no-transfer-progress -B clean verify -DskipUnitTests=true
+
+      - name: Upload integration test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-reports
+          path: |
+            backend/**/target/surefire-reports/*.xml
+            backend/**/target/failsafe-reports/*.xml
