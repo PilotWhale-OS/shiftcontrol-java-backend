@@ -1,4 +1,4 @@
-name: Build and Publish Shiftservice to GitHub Container Registry
+name: CD Shiftservice
 permissions: write-all
 
 on:
