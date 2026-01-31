@@ -1,4 +1,5 @@
 name: Build and Publish Shiftservice to GitHub Container Registry
+permissions: write-all
 
 on:
   push:
