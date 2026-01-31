@@ -1,17 +1,13 @@
-name: test-shiftservice
+name: CI
 
 on:
   push:
   pull_request:
 
 jobs:
-  test-shiftservice-unit:
-    name: ShiftService Unit Tests
+  test:
+    name: Unit Tests
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: .
 
     steps:
       - name: Checkout
@@ -24,18 +20,19 @@ jobs:
           java-version: 25
           cache: maven
 
-      - name: Run unit tests
-        run: mvn --no-transfer-progress -B clean test -pl shiftservice
+      - name: Run unit tests (all modules)
+        run: mvn --no-transfer-progress -B clean test
 
-      - name: Upload test reports
+      - name: Upload unit test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-reports
-          path: target/surefire-reports/*.xml
+          path: |
+            **/target/surefire-reports/*.xml
 
-  test-shiftservice-integration:
-    name: ShiftService Integration Tests
+  integration-tests:
+    name: Integration Tests
     runs-on: ubuntu-latest
 
     services:
@@ -58,10 +55,6 @@ jobs:
       SPRING_DATASOURCE_USERNAME: shiftcontrol
       SPRING_DATASOURCE_PASSWORD: password
 
-    defaults:
-      run:
-        working-directory: .
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,8 +74,8 @@ jobs:
             sleep 1
           done
 
-      - name: Run integration tests
-        run: mvn --no-transfer-progress -B clean verify -DskipUnitTests=true -pl shiftservice
+      - name: Run integration tests (all modules)
+        run: mvn --no-transfer-progress -B clean verify -DskipUnitTests=true
 
       - name: Upload integration test reports
         if: always()
@@ -90,5 +83,5 @@ jobs:
         with:
           name: integration-test-reports
           path: |
-            target/surefire-reports/*.xml
-            target/failsafe-reports/*.xml
+            **/target/surefire-reports/*.xml
+            **/target/failsafe-reports/*.xml
