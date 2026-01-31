@@ -1,12 +1,15 @@
 name: Release
 
+permissions:
+  contents: write
+
 on:
   push:
   pull_request:
 
 jobs:
   test:
-    name: Unit Tests
+    name: Create Release with OpenAPI specs
     runs-on: ubuntu-latest
 
     steps:
