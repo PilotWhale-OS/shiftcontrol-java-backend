@@ -103,47 +103,6 @@
               </execution>
             </executions>
           </plugin>
-
-          <!-- 2) Install Node/NPM + run quicktype OS-agnostically -->
-          <!--<plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>1.15.1</version>
-            <executions>
-              <execution>
-                <id>install-node-and-npm</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>install-node-and-npm</goal>
-                </goals>
-                <configuration>
-                  <nodeVersion>${codegen.node.version}</nodeVersion>
-                  <npmVersion>${codegen.npm.version}</npmVersion>
-
-                  &lt;!&ndash; all local to target/, works on Windows/Linux/macOS &ndash;&gt;
-                  <installDirectory>${project.build.directory}</installDirectory>
-                  <workingDirectory>${project.build.directory}</workingDirectory>
-                </configuration>
-              </execution>
-
-              &lt;!&ndash; Run quicktype via npm exec (no hardcoded node.exe, no exec-maven-plugin) &ndash;&gt;
-              <execution>
-                <id>quicktype-csharp</id>
-                <phase>compile</phase>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <configuration>
-                  <workingDirectory>${project.build.directory}</workingDirectory>
-                  <arguments>
-                    exec &#45;&#45;package=quicktype@${codegen.quicktype.version} &#45;&#45;yes &#45;&#45; quicktype
-                    &#45;&#45;src-lang schema &#45;&#45;lang csharp &#45;&#45;out "${codegen.csharp.out}" &#45;&#45;namespace
-                    "ShiftControl.Events" "./"
-                  </arguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>-->
         </plugins>
       </build>
     </profile>

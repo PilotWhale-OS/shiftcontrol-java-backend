@@ -39,7 +39,7 @@ jobs:
           set -e
           mkdir release-artifacts
           cp shiftservice/target/openapi.json release-artifacts/shiftservice-openapi.json
-          cp auditlog/target/openapi.json release-artifacts/auditlog-openapi.json
+          cp auditlog/target/openapi.json release-artifacts/auditservice-openapi.json
 
       - name: Build JSON schema events
         run: >
@@ -63,7 +63,7 @@ jobs:
           name: shiftcontrol-java-backend-${{ env.COMMIT_SHORT_SHA }}
           files: |
             release-artifacts/shiftservice-openapi.json
-            release-artifacts/auditlog-openapi.json
+            release-artifacts/auditservice-openapi.json
             release-artifacts/json-event-schemas.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
