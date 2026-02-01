@@ -11,7 +11,7 @@ on:
       - 'shiftcontrol-lib/**'
 
 env:
-  IMAGE_NAME: trustservice
+  IMAGE_NAME: shiftcontrol/trustservice
   DOCKERFILE_PATH: ./trustservice/Dockerfile
 
 jobs:

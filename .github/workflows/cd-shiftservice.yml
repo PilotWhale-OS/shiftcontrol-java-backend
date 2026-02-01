@@ -11,7 +11,7 @@ on:
       - 'shiftcontrol-lib/**'
 
 env:
-  IMAGE_NAME: shiftservice
+  IMAGE_NAME: shiftcontrol/shiftservice
   DOCKERFILE_PATH: ./shiftservice/Dockerfile
 
 jobs:

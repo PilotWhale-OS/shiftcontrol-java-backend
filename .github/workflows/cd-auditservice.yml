@@ -11,7 +11,7 @@ on:
       - 'shiftcontrol-lib/**'
 
 env:
-  IMAGE_NAME: auditservice
+  IMAGE_NAME: shiftcontrol/auditservice
   DOCKERFILE_PATH: ./auditlog/Dockerfile
 
 jobs:
