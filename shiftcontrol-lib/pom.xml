@@ -105,7 +105,7 @@
           </plugin>
 
           <!-- 2) Install Node/NPM + run quicktype OS-agnostically -->
-          <plugin>
+          <!--<plugin>
             <groupId>com.github.eirslett</groupId>
             <artifactId>frontend-maven-plugin</artifactId>
             <version>1.15.1</version>
@@ -120,13 +120,13 @@
                   <nodeVersion>${codegen.node.version}</nodeVersion>
                   <npmVersion>${codegen.npm.version}</npmVersion>
 
-                  <!-- all local to target/, works on Windows/Linux/macOS -->
+                  &lt;!&ndash; all local to target/, works on Windows/Linux/macOS &ndash;&gt;
                   <installDirectory>${project.build.directory}</installDirectory>
                   <workingDirectory>${project.build.directory}</workingDirectory>
                 </configuration>
               </execution>
 
-              <!-- Run quicktype via npm exec (no hardcoded node.exe, no exec-maven-plugin) -->
+              &lt;!&ndash; Run quicktype via npm exec (no hardcoded node.exe, no exec-maven-plugin) &ndash;&gt;
               <execution>
                 <id>quicktype-csharp</id>
                 <phase>compile</phase>
@@ -136,14 +136,14 @@
                 <configuration>
                   <workingDirectory>${project.build.directory}</workingDirectory>
                   <arguments>
-                    exec --package=quicktype@${codegen.quicktype.version} --yes -- quicktype
-                    --src-lang schema --lang csharp --out "${codegen.csharp.out}" --namespace
+                    exec &#45;&#45;package=quicktype@${codegen.quicktype.version} &#45;&#45;yes &#45;&#45; quicktype
+                    &#45;&#45;src-lang schema &#45;&#45;lang csharp &#45;&#45;out "${codegen.csharp.out}" &#45;&#45;namespace
                     "ShiftControl.Events" "./"
                   </arguments>
                 </configuration>
               </execution>
             </executions>
-          </plugin>
+          </plugin>-->
         </plugins>
       </build>
     </profile>

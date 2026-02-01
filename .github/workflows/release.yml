@@ -34,12 +34,27 @@ jobs:
           -pl shiftservice,auditlog
           -am
 
-      - name: Prepare artifacts
+      - name: Prepare OpenAPI artifacts
         run: |
           set -e
-          cp shiftservice/target/openapi.json shiftservice-openapi.json
-          cp auditlog/target/openapi.json auditlog-openapi.json
-          ls -lah *.json
+          mkdir release-artifacts
+          cp shiftservice/target/openapi.json release-artifacts/shiftservice-openapi.json
+          cp auditlog/target/openapi.json release-artifacts/auditlog-openapi.json
+
+      - name: Build JSON schema events
+        run: >
+          mvn --no-transfer-progress -B clean verify
+          -Pcodegen
+          -DskipTests
+          -pl shiftcontrol-lib
+          -am
+
+      - name: Prepare JSON Schema artifacts
+        run: |
+          set -e
+          mkdir -p release-artifacts/json-event-schemas
+          cp shiftcontrol-lib/target/*.schema release-artifacts/json-event-schemas/
+          tar -czf release-artifacts/json-event-schemas.tar.gz -C release-artifacts json-event-schemas
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
@@ -47,7 +62,8 @@ jobs:
           tag_name: ${{ env.COMMIT_SHORT_SHA }}
           name: shiftcontrol-java-backend-${{ env.COMMIT_SHORT_SHA }}
           files: |
-            shiftservice-openapi.json
-            auditlog-openapi.json
+            release-artifacts/shiftservice-openapi.json
+            release-artifacts/auditlog-openapi.json
+            release-artifacts/json-event-schemas.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
