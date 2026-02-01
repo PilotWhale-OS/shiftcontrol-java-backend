@@ -1,59 +1,53 @@
-name: Release
+name: Release OpenAPI Specs
+
+on:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
 
-on:
-  push:
-  pull_request:
-
 jobs:
-  test:
-    name: Create Release with OpenAPI specs
+  release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set short git commit SHA
-        run: |
-          calculatedSha=$(git rev-parse --short ${{ github.sha }})
-          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+      - name: Set short SHA
+        run: echo "COMMIT_SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Set up JDK 25
+      - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 25
           cache: maven
 
-      - name: Build audit and shiftservice OpenAPI specs
-        run: mvn --no-transfer-progress -B clean verify -Popenapi -DskipTests -pl shiftservice,auditlog -am
+      - name: Build OpenAPI specs
+        run: >
+          mvn --no-transfer-progress -B clean verify
+          -Popenapi
+          -DskipTests
+          -pl shiftservice,auditlog
+          -am
 
-      - name: Prepare OpenAPI artifacts
+      - name: Prepare artifacts
         run: |
+          set -e
           cp shiftservice/target/openapi.json shiftservice-openapi.json
           cp auditlog/target/openapi.json auditlog-openapi.json
+          ls -lah *.json
 
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.COMMIT_SHORT_SHA }}
-          release_name: shiftcontrol-java-backend
-          draft: false
-          prerelease: false
-      - name: Upload OpenAPI files
-        uses: xresloader/upload-to-github-release@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: |
+          name: shiftcontrol-java-backend-${{ env.COMMIT_SHORT_SHA }}
+          files: |
             shiftservice-openapi.json
             auditlog-openapi.json
-          release_id: ${{ steps.create_release.outputs.id }}
-          overwrite: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
