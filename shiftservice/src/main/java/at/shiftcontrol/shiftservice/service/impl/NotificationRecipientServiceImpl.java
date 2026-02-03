@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -34,14 +35,14 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
 
     @AdminOnly
     @Override
-    public AccountInfoDto getRecipientInformation(String recipientid) {
+    public @NonNull AccountInfoDto getRecipientInformation(@NonNull String recipientid) {
         var user = keycloakUserService.getUserById(recipientid);
         return AccountInfoMapper.toDto(user);
     }
 
     @Override
     @AdminOnly
-    public RecipientsDto getRecipientsForNotification(RecipientsFilterDto filter) {
+    public @NonNull RecipientsDto getRecipientsForNotification(@NonNull RecipientsFilterDto filter) {
         validateFilter(filter);
         // filter from cheapest and most narrowing query first
         Collection<String> recipientIds = null;

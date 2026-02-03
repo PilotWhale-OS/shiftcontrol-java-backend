@@ -7,6 +7,8 @@ import jakarta.ws.rs.NotFoundException;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
 
+import lombok.NonNull;
+
 public interface LeaderboardService {
-    LeaderBoardDto getLeaderBoard(long eventId, String currentUserId) throws NotFoundException, ForbiddenException;
+    @NonNull LeaderBoardDto getLeaderBoard(long eventId, @NonNull String currentUserId) throws NotFoundException, ForbiddenException;
 }

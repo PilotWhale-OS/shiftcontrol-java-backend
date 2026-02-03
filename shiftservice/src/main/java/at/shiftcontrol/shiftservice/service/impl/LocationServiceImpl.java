@@ -29,7 +29,7 @@ public class LocationServiceImpl implements LocationService {
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public LocationDto getLocation(long locationId) {
+    public @org.jspecify.annotations.NonNull LocationDto getLocation(long locationId) {
         var location = locationDao.getById(locationId);
 
         securityHelper.assertUserIsAllowedToAccessEvent(location.getEvent());
@@ -37,7 +37,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public Collection<LocationDto> getAllLocationsForEvent(long eventId) {
+    public @org.jspecify.annotations.NonNull Collection<LocationDto> getAllLocationsForEvent(long eventId) {
         securityHelper.assertUserIsAllowedToAccessEvent(eventDao.getById(eventId));
         var locations = locationDao.findAllByEventId(eventId);
 
@@ -46,7 +46,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @AdminOnly
-    public LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto) {
+    public @org.jspecify.annotations.NonNull LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
 
         validateNameUniquenessInEvent(eventId, modificationDto.getName(), null);
@@ -68,7 +68,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @AdminOnly
-    public LocationDto updateLocation(long locationId, @NonNull LocationModificationDto modificationDto) {
+    public @org.jspecify.annotations.NonNull LocationDto updateLocation(long locationId, @NonNull LocationModificationDto modificationDto) {
         var location = locationDao.getById(locationId);
 
         if (location.isReadOnly()) {

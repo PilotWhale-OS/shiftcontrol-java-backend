@@ -36,14 +36,14 @@ public class ActivityServiceImpl implements ActivityService {
     private final SecurityHelper securityHelper;
 
     @Override
-    public ActivityDto getActivity(long activityId) {
+    public @org.jspecify.annotations.NonNull ActivityDto getActivity(long activityId) {
         var activity = activityDao.getById(activityId);
 
         return ActivityMapper.toActivityDto(activity);
     }
 
     @Override
-    public Collection<ActivityDto> getActivitiesForEvent(long eventId) {
+    public @org.jspecify.annotations.NonNull Collection<ActivityDto> getActivitiesForEvent(long eventId) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 
@@ -56,7 +56,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @AdminOnly
-    public ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) {
+    public @org.jspecify.annotations.NonNull ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
 
         var newActivity = Activity.builder()
@@ -77,7 +77,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @AdminOnly
-    public ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) {
+    public @org.jspecify.annotations.NonNull ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto) {
         var activity = activityDao.getById(activityId);
 
         //VALIDATION
@@ -141,7 +141,7 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, @org.jspecify.annotations.NonNull ActivitySuggestionDto suggestionDto) {
+    public @org.jspecify.annotations.NonNull Collection<ActivityDto> suggestActivitiesForShift(long eventId, @org.jspecify.annotations.NonNull ActivitySuggestionDto suggestionDto) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 

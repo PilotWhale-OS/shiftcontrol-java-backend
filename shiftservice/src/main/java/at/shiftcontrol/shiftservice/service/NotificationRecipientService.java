@@ -5,9 +5,12 @@ import at.shiftcontrol.shiftservice.dto.notifications.RecipientsDto;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsFilterDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 
+import lombok.NonNull;
+
 public interface NotificationRecipientService {
     @AdminOnly
-    AccountInfoDto getRecipientInformation(String recipientid);
+    @NonNull
+    AccountInfoDto getRecipientInformation(@NonNull String recipientid);
 
-    RecipientsDto getRecipientsForNotification(RecipientsFilterDto filter);
+    @NonNull RecipientsDto getRecipientsForNotification(@NonNull RecipientsFilterDto filter);
 }

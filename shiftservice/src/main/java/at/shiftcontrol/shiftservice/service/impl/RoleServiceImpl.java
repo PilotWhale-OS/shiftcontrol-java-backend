@@ -39,19 +39,19 @@ public class RoleServiceImpl implements RoleService {
     private final VolunteerAssemblingMapper volunteerAssemblingMapper;
 
     @Override
-    public Collection<RoleDto> getRoles(Long shiftPlanId) {
+    public @org.jspecify.annotations.NonNull Collection<RoleDto> getRoles(long shiftPlanId) {
         return RoleMapper.toRoleDto(roleDao.findAllByShiftPlanId(shiftPlanId));
     }
 
     @Override
-    public RoleDto getRole(Long roleId) {
+    public @org.jspecify.annotations.NonNull RoleDto getRole(long roleId) {
         Role role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         return RoleMapper.toRoleDto(role);
     }
 
     @Override
-    public RoleDto createRole(Long shiftPlanId, @NonNull RoleModificationDto roleDto) {
+    public @org.jspecify.annotations.NonNull RoleDto createRole(long shiftPlanId, @NonNull RoleModificationDto roleDto) {
         securityHelper.assertUserIsPlanner(shiftPlanId);
         var shiftPlan = shiftPlanDao.getById(shiftPlanId);
         validateUniqueNameInShiftPlan(roleDto.getName(), shiftPlanId, null);
@@ -64,7 +64,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto updateRole(Long roleId, @NonNull RoleModificationDto roleDto) {
+    public @org.jspecify.annotations.NonNull RoleDto updateRole(long roleId, @NonNull RoleModificationDto roleDto) {
         var role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
         validateUniqueNameInShiftPlan(roleDto.getName(), role.getShiftPlan().getId(), roleId);
@@ -91,7 +91,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteRole(Long roleId) {
+    public void deleteRole(long roleId) {
         Role role = roleDao.getById(roleId);
         securityHelper.assertUserIsPlanner(role.getShiftPlan().getId());
 
@@ -101,7 +101,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public VolunteerDto createUserRoleAssignment(String userId, UserRoleAssignmentAssignDto assignDto) {
+    public @org.jspecify.annotations.NonNull VolunteerDto createUserRoleAssignment(String userId, @org.jspecify.annotations.NonNull UserRoleAssignmentAssignDto assignDto) {
         Role role = roleDao.getById(Long.valueOf(assignDto.getRoleId()));
         Volunteer volunteer = volunteerDao.getById(userId);
         if (!role.isSelfAssignable()) {
@@ -121,7 +121,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteUserRoleAssignment(String userId, Long roleId) {
+    public void deleteUserRoleAssignment(String userId, long roleId) {
         Role role = roleDao.getById(roleId);
         Volunteer volunteer = volunteerDao.getById(userId);
         if (!role.isSelfAssignable()) {

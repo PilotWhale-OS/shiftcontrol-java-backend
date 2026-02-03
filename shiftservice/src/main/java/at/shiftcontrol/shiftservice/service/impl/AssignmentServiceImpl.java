@@ -39,7 +39,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public Assignment claimAuction(Assignment auction, Volunteer newVolunteer, PositionSlotRequestDto requestDto) {
+    public @org.jspecify.annotations.NonNull Assignment claimAuction(@org.jspecify.annotations.NonNull Assignment auction, @org.jspecify.annotations.NonNull Volunteer newVolunteer, @org.jspecify.annotations.NonNull PositionSlotRequestDto requestDto) {
         String oldVolunteerId = auction.getAssignedVolunteer().getId();
         Assignment oldAuction = AssignmentAssemblingMapper.shallowCopy(auction);
         // execute auction
@@ -53,7 +53,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest trade) {
+    public @org.jspecify.annotations.NonNull AssignmentSwitchRequest executeTrade(@org.jspecify.annotations.NonNull AssignmentSwitchRequest trade) {
         // delete inverse trade if exists
         List<AssignmentSwitchRequest> inverse = assignmentSwitchRequestDao.findInverseTrade(trade)
             .stream()
@@ -84,7 +84,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void cancelOtherTrades(AssignmentSwitchRequest trade) {
+    public void cancelOtherTrades(@org.jspecify.annotations.NonNull AssignmentSwitchRequest trade) {
         // this trade does not need to be excluded because it will be set to ACCEPTED in the next step
         assignmentSwitchRequestDao.cancelTradesForAssignment(trade.getRequestedAssignment());
         assignmentSwitchRequestDao.cancelTradesForAssignment(trade.getOfferingAssignment());
@@ -107,7 +107,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public Assignment accept(Assignment assignment) {
+    public @org.jspecify.annotations.NonNull Assignment accept(@org.jspecify.annotations.NonNull Assignment assignment) {
         if (assignment.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
             throw new IllegalArgumentException("Assignment must be an assignment request");
         }
@@ -123,7 +123,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public Assignment assign(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer, @NonNull PositionSlotRequestDto requestDto) {
+    public @org.jspecify.annotations.NonNull Assignment assign(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer, @NonNull PositionSlotRequestDto requestDto) {
         // create assignment
         Assignment assignment = Assignment.of(positionSlot, volunteer, AssignmentStatus.ACCEPTED);
 
@@ -143,7 +143,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     @Transactional
-    public void unassignInternal(Assignment assignment) {
+    public void unassignInternal(@org.jspecify.annotations.NonNull Assignment assignment) {
         //ACT: update reward points
         rewardPointsService.onAssignmentRemoved(
             assignment
@@ -159,7 +159,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     @Transactional
-    public void unassignAllAuctions(ShiftPlan shiftPlan) {
+    public void unassignAllAuctions(@org.jspecify.annotations.NonNull ShiftPlan shiftPlan) {
         Collection<Assignment> auctions = assignmentDao.findAuctionsByShiftPlanId(shiftPlan.getId());
 
         auctions.forEach(auction -> {
@@ -177,7 +177,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     @Transactional
-    public void declineAllSignupRequests(ShiftPlan shiftPlan) {
+    public void declineAllSignupRequests(@org.jspecify.annotations.NonNull ShiftPlan shiftPlan) {
         Collection<Assignment> requests = assignmentDao.findSignupRequestsByShiftPlanId(shiftPlan.getId());
 
         // publish events
@@ -188,7 +188,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public Collection<Assignment> getAllAssignmentsForUser(ShiftPlan plan, Volunteer volunteer) {
+    public @org.jspecify.annotations.NonNull Collection<Assignment> getAllAssignmentsForUser(@org.jspecify.annotations.NonNull ShiftPlan plan, @org.jspecify.annotations.NonNull Volunteer volunteer) {
         return assignmentDao.findAssignmentsForShiftPlanAndUser(plan.getId(), volunteer.getId());
     }
 }

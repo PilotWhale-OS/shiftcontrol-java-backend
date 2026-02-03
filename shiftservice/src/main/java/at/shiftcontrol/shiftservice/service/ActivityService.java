@@ -15,7 +15,7 @@ public interface ActivityService {
      * @return the activity dto
      * @throws at.shiftcontrol.lib.exception.NotFoundException if the activity does not exist
      */
-    ActivityDto getActivity(long activityId);
+    @NonNull ActivityDto getActivity(long activityId);
 
     /**
      * Get all activities for an event
@@ -24,7 +24,7 @@ public interface ActivityService {
      * @throws at.shiftcontrol.lib.exception.NotFoundException if the event does not exist
      * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not a planner in any plan of the event
      */
-    Collection<ActivityDto> getActivitiesForEvent(long eventId);
+    @NonNull Collection<ActivityDto> getActivitiesForEvent(long eventId);
 
     /**
      * Create a new activity for an event
@@ -35,7 +35,7 @@ public interface ActivityService {
      * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not an admin of the event
      * @throws at.shiftcontrol.lib.exception.BadRequestException if the activity name is not unique within the event
      */
-    ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto);
+    @NonNull ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto);
 
     /**
      * Update an existing activity
@@ -46,7 +46,7 @@ public interface ActivityService {
      * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not an admin of the event
      * @throws at.shiftcontrol.lib.exception.BadRequestException if the activity name is not unique within the event
      */
-    ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto);
+    @NonNull ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto);
 
     /**
      * Delete an activity
@@ -64,5 +64,5 @@ public interface ActivityService {
      * @throws at.shiftcontrol.lib.exception.NotFoundException if the event does not exist
      * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not a planner in any plan of the event
      */
-    Collection<ActivityDto> suggestActivitiesForShift(long eventId, @NonNull ActivitySuggestionDto suggestionDto);
+    @NonNull Collection<ActivityDto> suggestActivitiesForShift(long eventId, @NonNull ActivitySuggestionDto suggestionDto);
 }

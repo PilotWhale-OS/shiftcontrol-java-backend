@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,13 +65,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final ShiftDao shiftDao;
 
     @Override
-    public TradeDto getTradeById(long id) {
+    public @NonNull TradeDto getTradeById(long id) {
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         return tradeMapper.toDto(trade);
     }
 
     @Override
-    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId) {
+    public @NonNull Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, @NonNull String currentUserId) {
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.getById(requestedPositionSlotId);
 
@@ -200,7 +201,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     @Transactional
     @IsNotAdmin
-    public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) {
+    public @NonNull Collection<TradeDto> createTrade(@NonNull TradeCreateDto tradeCreateDto, @NonNull String currentUserId) {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.getById(currentUserId);
 
@@ -306,7 +307,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     @Transactional
     @IsNotAdmin
-    public TradeDto acceptTrade(long id, String currentUserId) {
+    public @NonNull TradeDto acceptTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
@@ -348,7 +349,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @IsNotAdmin
-    public TradeDto declineTrade(long id, String currentUserId) {
+    public @NonNull TradeDto declineTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         securityHelper.assertVolunteerIsNotLockedInPlan(trade.getOfferingAssignment());
@@ -371,7 +372,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @IsNotAdmin
-    public TradeDto cancelTrade(long id, String currentUserId) {
+    public @NonNull TradeDto cancelTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         securityHelper.assertVolunteerIsNotLockedInPlan(trade.getOfferingAssignment());

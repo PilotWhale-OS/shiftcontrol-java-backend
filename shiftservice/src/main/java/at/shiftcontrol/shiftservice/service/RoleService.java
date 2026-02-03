@@ -7,18 +7,20 @@ import at.shiftcontrol.shiftservice.dto.role.RoleModificationDto;
 import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 
+import lombok.NonNull;
+
 public interface RoleService {
-    Collection<RoleDto> getRoles(Long shiftPlanId);
+    @NonNull Collection<RoleDto> getRoles(long shiftPlanId);
 
-    RoleDto getRole(Long roleId);
+    @NonNull RoleDto getRole(long roleId);
 
-    RoleDto createRole(Long shiftPlanId, RoleModificationDto roleDto);
+    @NonNull RoleDto createRole(long shiftPlanId, @NonNull RoleModificationDto roleDto);
 
-    RoleDto updateRole(Long roleId, RoleModificationDto roleDto);
+    @NonNull RoleDto updateRole(long roleId, @NonNull RoleModificationDto roleDto);
 
-    void deleteRole(Long roleId);
+    void deleteRole(long roleId);
 
-    VolunteerDto createUserRoleAssignment(String userId, UserRoleAssignmentAssignDto assignDto);
+    @NonNull VolunteerDto createUserRoleAssignment(String userId, @NonNull UserRoleAssignmentAssignDto assignDto);
 
-    void deleteUserRoleAssignment(String userId, Long roleId);
+    void deleteUserRoleAssignment(String userId, long roleId);
 }

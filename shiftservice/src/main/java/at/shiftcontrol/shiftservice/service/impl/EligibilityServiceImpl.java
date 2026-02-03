@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.Collection;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     private final ApplicationUserProvider userProvider;
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(Long positionSlotId, String userId) {
+    public @NonNull PositionSignupState getSignupStateForPositionSlot(@NonNull Long positionSlotId, @NonNull String userId) {
         return getSignupStateForPositionSlot(
             positionSlotDao.getById(positionSlotId),
             volunteerDao.getById(userId)
@@ -43,7 +44,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, String userId) {
+    public @NonNull PositionSignupState getSignupStateForPositionSlot(@NonNull PositionSlot positionSlot, @NonNull String userId) {
         return getSignupStateForPositionSlot(
             positionSlot,
             volunteerDao.getById(userId)
@@ -51,12 +52,12 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlot(PositionSlot positionSlot, Volunteer volunteer) { // todo fix testdata
+    public @NonNull PositionSignupState getSignupStateForPositionSlot(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer) { // todo fix testdata
         return getSignupStateForPositionSlotExcludingSlot(positionSlot, volunteer, null);
     }
 
     @Override
-    public PositionSignupState getSignupStateForPositionSlotExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude) {
+    public @NonNull PositionSignupState getSignupStateForPositionSlotExcludingSlot(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer, @NonNull PositionSlot slotToExclude) {
         if (isSignedUp(positionSlot, volunteer)) {
             return PositionSignupState.SIGNED_UP;
         }
@@ -110,7 +111,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateSignUpStateForJoin(PositionSlot positionSlot, Volunteer volunteer) {
+    public void validateSignUpStateForJoin(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         switch (signupState) {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_VIA_AUCTION, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT:
@@ -129,7 +130,7 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateSignUpStateForAuction(PositionSlot positionSlot, Volunteer volunteer) {
+    public void validateSignUpStateForAuction(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         switch (signupState) {
             case SIGNED_UP, FULL, SIGNUP_VIA_TRADE, SIGNUP_POSSIBLE, SIGNUP_OR_TRADE, TIME_CONFLICT_ASSIGNMENT, TIME_CONFLICT_TIME_CONSTRAINT:
@@ -148,56 +149,56 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public boolean isEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
+    public boolean isEligibleAndNotSignedUp(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer) {
         PositionSignupState signupState = this.getSignupStateForPositionSlot(positionSlot, volunteer);
         return !PositionSignupState.SIGNED_UP.equals(signupState)
             && !PositionSignupState.isConflicts(signupState);
     }
 
     @Override
-    public boolean isEligibleAndNotSignedUpExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude) {
+    public boolean isEligibleAndNotSignedUpExcludingSlot(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer, @NonNull PositionSlot slotToExclude) {
         PositionSignupState signupState = this.getSignupStateForPositionSlotExcludingSlot(positionSlot, volunteer, slotToExclude);
         return !PositionSignupState.SIGNED_UP.equals(signupState)
             && !PositionSignupState.isConflicts(signupState);
     }
 
     @Override
-    public void validateIsEligibleAndNotSignedUp(PositionSlot positionSlot, Volunteer volunteer) {
+    public void validateIsEligibleAndNotSignedUp(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer) {
         if (!isEligibleAndNotSignedUp(positionSlot, volunteer)) {
             throw new ConflictException("position slot can not be assigned to volunteer");
         }
     }
 
     @Override
-    public void validateIsEligibleAndNotSignedUpExcludingSlot(PositionSlot positionSlot, Volunteer volunteer, PositionSlot slotToExclude) {
+    public void validateIsEligibleAndNotSignedUpExcludingSlot(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer, @NonNull PositionSlot slotToExclude) {
         if (!isEligibleAndNotSignedUpExcludingSlot(positionSlot, volunteer, slotToExclude)) {
             throw new ConflictException("position slot can not be assigned to volunteer");
         }
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignments(String volunteerId, Instant startTime, Instant endTime) {
+    public @NonNull Collection<Assignment> getConflictingAssignments(@NonNull String volunteerId, @NonNull Instant startTime, @NonNull Instant endTime) {
         return assignmentDao.getConflictingAssignments(volunteerId, startTime, endTime);
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignments(String volunteerId, PositionSlot positionSlot) {
+    public @NonNull Collection<Assignment> getConflictingAssignments(@NonNull String volunteerId, @NonNull PositionSlot positionSlot) {
         return getConflictingAssignments(volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime());
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftIdToExclude) {
+    public @NonNull Collection<Assignment> getConflictingAssignmentsExcludingShift(@NonNull String volunteerId, @NonNull Instant startTime, @NonNull Instant endTime, long shiftIdToExclude) {
         return assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, shiftIdToExclude);
     }
 
     @Override
-    public Collection<Assignment> getConflictingAssignmentsExcludingShift(String volunteerId, PositionSlot positionSlot, long shiftIdToExclude) {
+    public @NonNull Collection<Assignment> getConflictingAssignmentsExcludingShift(@NonNull String volunteerId, @NonNull PositionSlot positionSlot, long shiftIdToExclude) {
         return getConflictingAssignmentsExcludingShift(
             volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), shiftIdToExclude);
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingShift(String volunteerId, Instant startTime, Instant endTime, long shiftId) {
+    public void validateHasConflictingAssignmentsExcludingShift(@NonNull String volunteerId, @NonNull Instant startTime, @NonNull Instant endTime, long shiftId) {
         var a = assignmentDao.getConflictingAssignmentsExcludingShift(volunteerId, startTime, endTime, shiftId);
         if (a.isEmpty()) {
             return;
@@ -206,13 +207,13 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public void validateHasConflictingAssignmentsExcludingShift(String volunteerId, PositionSlot positionSlot, long shiftToExclude) {
+    public void validateHasConflictingAssignmentsExcludingShift(@NonNull String volunteerId, @NonNull PositionSlot positionSlot, long shiftToExclude) {
         validateHasConflictingAssignmentsExcludingShift(
             volunteerId, positionSlot.getShift().getStartTime(), positionSlot.getShift().getEndTime(), shiftToExclude);
     }
 
     @Override
-    public boolean hasCapacity(PositionSlot positionSlot) {
+    public boolean hasCapacity(@NonNull PositionSlot positionSlot) {
         if (positionSlot.getAssignments() != null) {
             return positionSlot.getAssignments().stream()
                 .filter(a -> a.getStatus() != AssignmentStatus.REQUEST_FOR_ASSIGNMENT).toList()
