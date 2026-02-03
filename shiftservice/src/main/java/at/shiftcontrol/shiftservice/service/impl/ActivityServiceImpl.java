@@ -23,6 +23,7 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -141,7 +142,7 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public @org.jspecify.annotations.NonNull Collection<ActivityDto> suggestActivitiesForShift(long eventId, @org.jspecify.annotations.NonNull ActivitySuggestionDto suggestionDto) {
+    public @NonNull Collection<ActivityDto> suggestActivitiesForShift(long eventId, @Nullable ActivitySuggestionDto suggestionDto) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 
@@ -153,9 +154,7 @@ public class ActivityServiceImpl implements ActivityService {
                 .toList();
         }
 
-        var filteredStream = getActivityStream(suggestionDto, activitiesOfEvent);
-
-        return filteredStream
+        return getActivityStream(suggestionDto, activitiesOfEvent)
             .map(ActivityMapper::toActivityDto)
             .toList();
     }

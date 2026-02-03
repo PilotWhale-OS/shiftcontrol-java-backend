@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -52,12 +53,12 @@ public class EligibilityServiceImpl implements EligibilityService {
     }
 
     @Override
-    public @NonNull PositionSignupState getSignupStateForPositionSlot(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer) { // todo fix testdata
+    public @NonNull PositionSignupState getSignupStateForPositionSlot(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer) {
         return getSignupStateForPositionSlotExcludingSlot(positionSlot, volunteer, null);
     }
 
     @Override
-    public @NonNull PositionSignupState getSignupStateForPositionSlotExcludingSlot(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer, @NonNull PositionSlot slotToExclude) {
+    public @NonNull PositionSignupState getSignupStateForPositionSlotExcludingSlot(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer, @Nullable PositionSlot slotToExclude) {
         if (isSignedUp(positionSlot, volunteer)) {
             return PositionSignupState.SIGNED_UP;
         }

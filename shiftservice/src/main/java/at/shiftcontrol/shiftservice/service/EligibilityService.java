@@ -11,6 +11,7 @@ import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.type.PositionSignupState;
 
 import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public interface EligibilityService {
     /**
@@ -38,7 +39,7 @@ public interface EligibilityService {
      * @return The signup state of the volunteer for the position slot
      */
     @NonNull PositionSignupState getSignupStateForPositionSlotExcludingSlot(@NonNull PositionSlot positionSlot,
-                                                                            @NonNull Volunteer volunteer, @NonNull PositionSlot slotToExclude);
+                                                                            @NonNull Volunteer volunteer, @Nullable PositionSlot slotToExclude);
 
     /**
      * Determines the signup state of a volunteer for a given position slot.

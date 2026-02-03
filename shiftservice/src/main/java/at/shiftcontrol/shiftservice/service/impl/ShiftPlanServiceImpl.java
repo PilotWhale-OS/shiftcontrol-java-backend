@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -334,11 +335,8 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @Transactional
-    public void joinShiftPlan(@NonNull ShiftPlanJoinRequestDto requestDto) {
+    public void joinShiftPlan(@NonNull @Valid ShiftPlanJoinRequestDto requestDto) {
         String userId = userProvider.getCurrentUser().getUserId();
-        if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
-            throw new BadRequestException("Invite code is null or empty");
-        }
         String inviteCode = requestDto.getInviteCode().trim();
         ShiftPlanInvite invite = shiftPlanInviteDao.getByCode(inviteCode);
         validateInvite(invite);

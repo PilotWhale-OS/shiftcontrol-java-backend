@@ -7,6 +7,7 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 
 import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public interface ActivityService {
     /**
@@ -64,5 +65,5 @@ public interface ActivityService {
      * @throws at.shiftcontrol.lib.exception.NotFoundException if the event does not exist
      * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not a planner in any plan of the event
      */
-    @NonNull Collection<ActivityDto> suggestActivitiesForShift(long eventId, @NonNull ActivitySuggestionDto suggestionDto);
+    @NonNull Collection<ActivityDto> suggestActivitiesForShift(long eventId, @Nullable ActivitySuggestionDto suggestionDto);
 }

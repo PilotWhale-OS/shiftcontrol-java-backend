@@ -51,6 +51,7 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 @Service
 @RequiredArgsConstructor
 public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchRequestService {
+    private final AssignmentSwitchRequestServiceImpl self;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
     private final AssignmentDao assignmentDao;
     private final PositionSlotDao positionSlotDao;
@@ -282,7 +283,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                 throw new IllegalStateException("more than one inverse trade is open" + inverse);
             }
             if (!inverse.isEmpty()) {
-                return List.of(acceptTrade(inverse.get(0).getId(), currentUserId));
+                return List.of(self.acceptTrade(inverse.get(0).getId(), currentUserId));
             }
         }
 

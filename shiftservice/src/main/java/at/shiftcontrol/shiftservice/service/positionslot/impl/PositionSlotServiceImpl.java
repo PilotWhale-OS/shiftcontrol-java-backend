@@ -219,7 +219,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
         securityHelper.assertVolunteerIsNotLockedInPlan(assignment);
         // no security check necessary, because user is already assigned to position,
         //  if not, assignment would not be found
-        if (assignment == null || assignment.getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
+        if (assignment.getStatus() == AssignmentStatus.REQUEST_FOR_ASSIGNMENT) {
             throw new IllegalStateException("auction not possible, not assigned to slot");
         }
         if (AssignmentStatus.ACTIVE_AUCTION_STATES.contains(assignment.getStatus())) {
@@ -244,7 +244,7 @@ public class PositionSlotServiceImpl implements PositionSlotService {
                                       @NonNull PositionSlotRequestDto requestDto) {
         // get auction-assignment
         Assignment auction = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, offeringUserId);
-        if (auction == null || !AssignmentStatus.ACTIVE_AUCTION_STATES.contains(auction.getStatus())) {
+        if (!AssignmentStatus.ACTIVE_AUCTION_STATES.contains(auction.getStatus())) {
             throw new BadRequestException("Assignment is not up for auction");
         }
         securityHelper.assertVolunteerIsNotLockedInPlan(auction);
