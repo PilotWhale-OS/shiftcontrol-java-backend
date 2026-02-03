@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
+package at.shiftcontrol.shiftservice.service.rewardpoints.impl;
 
 import java.time.Instant;
 import java.util.Collection;

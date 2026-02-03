@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.user.impl;
+package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collections;
 
@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.service.user.VolunteerService;
+import at.shiftcontrol.shiftservice.service.VolunteerService;
 
 @Service
 @RequiredArgsConstructor

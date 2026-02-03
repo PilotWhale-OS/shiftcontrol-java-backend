@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.impl.event;
+package at.shiftcontrol.shiftservice.service.event.impl;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -18,7 +18,6 @@ import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.lib.type.ShiftRelevance;
-import at.shiftcontrol.lib.util.TimeUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.dao.ActivityDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;

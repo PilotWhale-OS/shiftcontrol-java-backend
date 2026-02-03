@@ -19,7 +19,7 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.user.LockResetUserDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventUpdateDto;
-import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
+import at.shiftcontrol.shiftservice.service.UserAdministrationService;
 
 @Tag(
     name = "user-event-endpoint"

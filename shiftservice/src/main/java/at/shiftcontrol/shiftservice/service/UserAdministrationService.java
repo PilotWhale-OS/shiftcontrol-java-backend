@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.user;
+package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
 

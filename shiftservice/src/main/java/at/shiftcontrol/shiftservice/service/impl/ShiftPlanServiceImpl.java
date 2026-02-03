@@ -50,7 +50,7 @@ import at.shiftcontrol.shiftservice.mapper.InviteMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.ShiftPlanService;
-import at.shiftcontrol.shiftservice.service.user.VolunteerService;
+import at.shiftcontrol.shiftservice.service.VolunteerService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import static at.shiftcontrol.lib.type.LockStatus.SELF_SIGNUP;
 

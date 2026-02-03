@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.role.impl;
+package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,7 +25,7 @@ import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerAssemblingMapper;
-import at.shiftcontrol.shiftservice.service.role.RoleService;
+import at.shiftcontrol.shiftservice.service.RoleService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service

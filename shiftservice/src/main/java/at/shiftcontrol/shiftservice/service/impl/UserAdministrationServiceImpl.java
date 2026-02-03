@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.user.impl;
+package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -45,8 +45,8 @@ import at.shiftcontrol.shiftservice.mapper.PaginationMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
-import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
-import at.shiftcontrol.shiftservice.service.user.VolunteerService;
+import at.shiftcontrol.shiftservice.service.UserAdministrationService;
+import at.shiftcontrol.shiftservice.service.VolunteerService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service

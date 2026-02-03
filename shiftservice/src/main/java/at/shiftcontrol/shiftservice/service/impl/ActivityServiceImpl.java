@@ -141,7 +141,7 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto) {
+    public Collection<ActivityDto> suggestActivitiesForShift(long eventId, @org.jspecify.annotations.NonNull ActivitySuggestionDto suggestionDto) {
         var event = eventDao.getById(eventId);
         securityHelper.assertUserIsPlannerInAnyPlanOfEvent(event);
 
