@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -80,25 +81,25 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     private final VolunteerService volunteerService;
 
     @Override
-    public Collection<ShiftPlanDto> getAllOfEvent(long eventId) {
+    public @NonNull Collection<ShiftPlanDto> getAllOfEvent(long eventId) {
         eventDao.getById(eventId);
         return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findByEventId(eventId));
     }
 
     @Override
     @AdminOnly
-    public Collection<ShiftPlanDto> getAll() {
+    public @NonNull Collection<ShiftPlanDto> getAll() {
         return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.findAll());
     }
 
     @Override
-    public ShiftPlanDto get(long shiftPlanId) {
+    public @NonNull ShiftPlanDto get(long shiftPlanId) {
         return ShiftPlanMapper.toShiftPlanDto(shiftPlanDao.getById(shiftPlanId));
     }
 
     @Override
     @AdminOnly
-    public ShiftPlanCreateDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto) {
+    public @NonNull ShiftPlanCreateDto createShiftPlan(long eventId, @NonNull ShiftPlanModificationDto modificationDto) {
         var event = eventDao.getById(eventId);
         validateUniqueNameInEvent(eventId, modificationDto.getName(), null);
 
@@ -140,7 +141,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @AdminOnly
-    public ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto) {
+    public @NonNull ShiftPlanDto update(long shiftPlanId, @NonNull ShiftPlanModificationDto modificationDto) {
         var plan = shiftPlanDao.getById(shiftPlanId);
         validateUniqueNameInEvent(plan.getEvent().getId(), modificationDto.getName(), shiftPlanId);
 
@@ -179,7 +180,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto) {
+    public @NonNull ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, @NonNull ShiftPlanInviteCreateRequestDto requestDto) {
         var currentUser = userProvider.getCurrentUser();
         validatePermission(shiftPlanId, requestDto.getType(), currentUser);
         final var shiftPlan = shiftPlanDao.getById(shiftPlanId);
@@ -271,7 +272,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(String inviteCode) {
+    public @NonNull ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(@NonNull String inviteCode) {
         String userId;
         try {
             userId = userProvider.getCurrentUser().getUserId();
@@ -321,7 +322,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) {
+    public @NonNull Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId) {
         // both planners and admins can list invites
         securityHelper.assertUserIsPlanner(shiftPlanId);
         var shiftPlan = shiftPlanDao.getById(shiftPlanId);
@@ -333,7 +334,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
 
     @Override
     @Transactional
-    public void joinShiftPlan(ShiftPlanJoinRequestDto requestDto) {
+    public void joinShiftPlan(@NonNull ShiftPlanJoinRequestDto requestDto) {
         String userId = userProvider.getCurrentUser().getUserId();
         if (requestDto == null || requestDto.getInviteCode() == null || requestDto.getInviteCode().isBlank()) {
             throw new BadRequestException("Invite code is null or empty");
@@ -423,7 +424,7 @@ public class ShiftPlanServiceImpl implements ShiftPlanService {
     }
 
     @Override
-    public void updateLockStatus(long shiftPlanId, LockStatus lockStatus) {
+    public void updateLockStatus(long shiftPlanId, @NonNull LockStatus lockStatus) {
         var shiftPlan = shiftPlanDao.getById(shiftPlanId);
         securityHelper.assertUserIsPlanner(shiftPlan);
         if (shiftPlan.getLockStatus().equals(lockStatus)) {

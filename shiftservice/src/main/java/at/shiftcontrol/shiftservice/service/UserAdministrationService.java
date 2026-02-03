@@ -13,32 +13,34 @@ import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
 import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 
+import lombok.NonNull;
+
 public interface UserAdministrationService {
-    PaginationDto<UserEventDto> getAllUsers(int page, int size, UserSearchDto searchDt);
+    @NonNull PaginationDto<UserEventDto> getAllUsers(int page, int size, @NonNull UserSearchDto searchDt);
 
-    PaginationDto<UserPlanDto> getAllPlanUsers(Long shiftPlanId, int page, int size, UserSearchDto searchDto);
+    @NonNull PaginationDto<UserPlanDto> getAllPlanUsers(@NonNull Long shiftPlanId, int page, int size, @NonNull UserSearchDto searchDto);
 
-    UserEventDto getUser(String userId);
+    @NonNull UserEventDto getUser(@NonNull String userId);
 
-    UserEventDto createVolunteer(String userId);
+    @NonNull UserEventDto createVolunteer(@NonNull String userId);
 
-    UserPlanDto getPlanUser(Long shiftPlanId, String userId);
+    @NonNull UserPlanDto getPlanUser(@NonNull Long shiftPlanId, @NonNull String userId);
 
-    UserEventDto updateEventUser(String userId, UserEventUpdateDto updateDto);
+    @NonNull UserEventDto updateEventUser(@NonNull String userId, @NonNull UserEventUpdateDto updateDto);
 
-    UserPlanDto updatePlanUser(Long shiftPlanId, String userId, UserPlanUpdateDto updateDto);
+    @NonNull UserPlanDto updatePlanUser(@NonNull Long shiftPlanId, @NonNull String userId, @NonNull UserPlanUpdateDto updateDto);
 
-    UserEventDto lockUser(String userId, Collection<Long> shiftPlanId);
+    @NonNull UserEventDto lockUser(@NonNull String userId, @NonNull Collection<Long> shiftPlanId);
 
-    UserEventDto unLockUser(String userId, Collection<Long> shiftPlanId);
+    @NonNull UserEventDto unLockUser(@NonNull String userId, @NonNull Collection<Long> shiftPlanId);
 
-    UserEventDto resetUser(String userId, Collection<Long> shiftPlanId);
+    @NonNull UserEventDto resetUser(@NonNull String userId, @NonNull Collection<Long> shiftPlanId);
 
-    Collection<UserPlanDto> bulkAddRoles(long shiftPlanId, @Valid UserPlanBulkDto updateDto);
+    @NonNull Collection<UserPlanDto> bulkAddRoles(long shiftPlanId, @Valid UserPlanBulkDto updateDto);
 
-    Collection<UserPlanDto> bulkRemoveRoles(long shiftPlanId, @Valid UserPlanBulkDto updateDto);
+    @NonNull Collection<UserPlanDto> bulkRemoveRoles(long shiftPlanId, @Valid UserPlanBulkDto updateDto);
 
-    Collection<UserEventDto> bulkAddVolunteeringPlans(@Valid UserEventBulkDto updateDto);
+    @NonNull Collection<UserEventDto> bulkAddVolunteeringPlans(@Valid UserEventBulkDto updateDto);
 
-    Collection<UserEventDto> bulkRemoveVolunteeringPlans(@Valid UserEventBulkDto updateDto);
+    @NonNull Collection<UserEventDto> bulkRemoveVolunteeringPlans(@Valid UserEventBulkDto updateDto);
 }

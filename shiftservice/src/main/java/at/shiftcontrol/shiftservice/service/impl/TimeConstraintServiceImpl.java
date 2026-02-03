@@ -47,14 +47,14 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     private static final long SECONDS_PER_DAY = Duration.ofDays(1).getSeconds();
 
     @Override
-    public Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId) {
+    public @org.jspecify.annotations.NonNull Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId) {
         return TimeConstraintMapper.toDto(timeConstraintDao.searchByVolunteerAndEvent(userId, eventId));
     }
 
     @Override
     @IsNotAdmin
     @Transactional
-    public TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId) {
+    public @org.jspecify.annotations.NonNull TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId) {
         //VALIDATION: Validate date range
         Instant from = createDto.getFrom();
         Instant to = createDto.getTo();

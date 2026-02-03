@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class TrustAlertServiceImpl implements TrustAlertService {
 
     @Override
     @AdminOnly
-    public PaginationDto<TrustAlertDisplayDto> getAllPaginated(int page, int size) {
+    public @NonNull PaginationDto<TrustAlertDisplayDto> getAllPaginated(int page, int size) {
         var items = trustAlertAssemblingMapper.toDto(trustAlertDao.getAllPaginated(page, size));
         long totalItems = trustAlertDao.findAllSize();
         return PaginationMapper.toPaginationDto(size, page, totalItems, items);
@@ -33,7 +34,7 @@ public class TrustAlertServiceImpl implements TrustAlertService {
 
     @Override
     @AdminOnly
-    public TrustAlertDisplayDto save(TrustAlertDto alert) {
+    public @NonNull TrustAlertDisplayDto save(@NonNull TrustAlertDto alert) {
         TrustAlert entity = trustAlertAssemblingMapper.toEntity(alert);
         entity = trustAlertDao.save(entity);
 

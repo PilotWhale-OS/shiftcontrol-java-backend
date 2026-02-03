@@ -31,7 +31,6 @@ import at.shiftcontrol.shiftservice.service.UserPreferenceService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +45,7 @@ public class ShiftServiceImpl implements ShiftService {
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public ShiftDetailsDto getShiftDetails(long shiftId, String userId) {
+    public @org.jspecify.annotations.NonNull ShiftDetailsDto getShiftDetails(long shiftId, @org.jspecify.annotations.NonNull String userId) {
         var shift = shiftDao.getById(shiftId);
         var plan = shift.getShiftPlan();
         var event = plan.getEvent();
@@ -62,7 +61,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public PaginationDto<ShiftDto> getAllOpenShiftsOfPlanPaginated(long shiftPlanId, int page, int size) {
+    public @org.jspecify.annotations.NonNull PaginationDto<ShiftDto> getAllOpenShiftsOfPlanPaginated(long shiftPlanId, int page, int size) {
         securityHelper.assertUserIsPlanner(shiftPlanId);
 
         var shifts = shiftDao.findAllInShiftPlan(shiftPlanId)
@@ -92,7 +91,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public ShiftDto createShift(long shiftPlanId, @NonNull ShiftModificationDto modificationDto) {
+    public @org.jspecify.annotations.NonNull ShiftDto createShift(long shiftPlanId, @NonNull ShiftModificationDto modificationDto) {
         securityHelper.assertUserIsPlanner(shiftPlanId);
 
         var shiftPlan = shiftPlanDao.getById(shiftPlanId);
@@ -108,7 +107,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public ShiftDto updateShift(long shiftId, @NonNull ShiftModificationDto modificationDto) {
+    public @org.jspecify.annotations.NonNull ShiftDto updateShift(long shiftId, @NonNull ShiftModificationDto modificationDto) {
         var shift = shiftDao.getById(shiftId);
         securityHelper.assertUserIsPlanner(shift);
 

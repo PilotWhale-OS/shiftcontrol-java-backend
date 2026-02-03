@@ -2,9 +2,12 @@ package at.shiftcontrol.shiftservice.service;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 
+import lombok.NonNull;
+
 public interface VolunteerService {
 
-    Volunteer createVolunteer(String userId);
+    @NonNull
+    Volunteer createVolunteer(@NonNull String userId);
 
-    Volunteer getOrCreate(String userId);
+    @NonNull Volunteer getOrCreate(@NonNull String userId);
 }
