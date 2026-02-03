@@ -51,7 +51,7 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 @Service
 @RequiredArgsConstructor
 public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchRequestService {
-    private final AssignmentSwitchRequestServiceImpl self;
+    private final AssignmentSwitchRequestService self;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
     private final AssignmentDao assignmentDao;
     private final PositionSlotDao positionSlotDao;
