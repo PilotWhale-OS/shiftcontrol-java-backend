@@ -51,7 +51,7 @@ jobs:
           --health-retries=5
 
     env:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/shiftservice
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/shiftcontrol
       SPRING_DATASOURCE_USERNAME: shiftcontrol
       SPRING_DATASOURCE_PASSWORD: password
 
