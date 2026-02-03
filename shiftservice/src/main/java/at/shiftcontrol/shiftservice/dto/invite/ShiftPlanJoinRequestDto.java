@@ -1,5 +1,6 @@
 package at.shiftcontrol.shiftservice.dto.invite;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -7,6 +8,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ShiftPlanJoinRequestDto {
-    @NotNull
+    @NotBlank
     private String inviteCode;
 }

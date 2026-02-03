@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
+package at.shiftcontrol.shiftservice.service.rewardpoints.impl;
 
 import java.io.*;
 import java.time.Instant;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import at.shiftcontrol.lib.common.UniqueCodeGenerator;
+import at.shiftcontrol.lib.exception.FileExportException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.EventDao;
@@ -41,7 +42,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl implements RewardPointsExportService {
-
     public RewardPointsExportServiceImpl(RewardPointsCalculator calculator,
                                          RewardPointsLedgerService ledgerService,
                                          RewardPointsShareTokenDao rewardPointsShareTokenDao,
@@ -86,7 +86,7 @@ public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl imple
                 .build();
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to export reward points", e);
+            throw new FileExportException("Failed to export reward points", e);
         }
     }
 
@@ -136,7 +136,7 @@ public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl imple
                 createTextCell(row, c++, vp.getLastName(), textStyle);
                 createTextCell(row, c++, vp.getEmail(), textStyle);
 
-                Cell pointsCell = row.createCell(c++);
+                Cell pointsCell = row.createCell(c);
                 pointsCell.setCellValue(vp.getRewardPoints());
                 pointsCell.setCellStyle(intStyle);
             }
@@ -166,7 +166,7 @@ public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl imple
 
         class VolRow {
             String volunteerId, firstName, lastName, email;
-            Map<String, Integer> pointsByEventId = new HashMap<>();
+            final Map<String, Integer> pointsByEventId = new HashMap<>();
             int totalFinished = 0;
             int totalAll = 0;
         }

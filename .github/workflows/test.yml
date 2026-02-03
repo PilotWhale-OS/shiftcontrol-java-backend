@@ -43,7 +43,7 @@ jobs:
         env:
           POSTGRES_USER: shiftcontrol
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: shiftservice
+          POSTGRES_DB: shiftcontrol
         options: >-
           --health-cmd="pg_isready -U shiftcontrol"
           --health-interval=5s
@@ -51,7 +51,7 @@ jobs:
           --health-retries=5
 
     env:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/shiftservice
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/shiftcontrol
       SPRING_DATASOURCE_USERNAME: shiftcontrol
       SPRING_DATASOURCE_PASSWORD: password
 

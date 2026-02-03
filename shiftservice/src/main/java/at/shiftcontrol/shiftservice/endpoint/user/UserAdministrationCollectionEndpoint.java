@@ -22,7 +22,7 @@ import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
-import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
+import at.shiftcontrol.shiftservice.service.UserAdministrationService;
 
 @Tag(
     name = "user-plan-endpoint"

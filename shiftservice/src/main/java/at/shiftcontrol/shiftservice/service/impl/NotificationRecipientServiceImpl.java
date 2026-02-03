@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -34,14 +35,14 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
 
     @AdminOnly
     @Override
-    public AccountInfoDto getRecipientInformation(String recipientid) {
+    public @NonNull AccountInfoDto getRecipientInformation(@NonNull String recipientid) {
         var user = keycloakUserService.getUserById(recipientid);
         return AccountInfoMapper.toDto(user);
     }
 
     @Override
     @AdminOnly
-    public RecipientsDto getRecipientsForNotification(RecipientsFilterDto filter) {
+    public @NonNull RecipientsDto getRecipientsForNotification(@NonNull RecipientsFilterDto filter) {
         validateFilter(filter);
         // filter from cheapest and most narrowing query first
         Collection<String> recipientIds = null;
@@ -57,7 +58,7 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
 
         /* if target level is admin or planner (admin equals a planner matching all filters), append all admins to recipients */
         if (filter.getReceiverAccessLevel() == ReceiverAccessLevel.ADMIN || filter.getReceiverAccessLevel() == ReceiverAccessLevel.PLANNER) {
-            var adminIds = filterAdminsById(filter, null);
+            var adminIds = filterAdminsById(filter);
             if (recipientIds != null) {
                 recipientIds.addAll(adminIds);
             } else {
@@ -177,19 +178,18 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
         }
     }
 
-    private Collection<String> filterAdminsById(RecipientsFilterDto filter, Collection<String> recipientIds) {
+    private Collection<String> filterAdminsById(RecipientsFilterDto filter) {
         var admins = keycloakUserService.getAllAdmins();
         if (filter.getRelatedVolunteerIds() != null) {
-            recipientIds = admins.stream()
+            return admins.stream()
                 .map(AbstractUserRepresentation::getId)
                 .filter(id -> filter.getRelatedVolunteerIds().contains(id))
                 .collect(Collectors.toSet());
         } else {
-            recipientIds = admins.stream()
+            return admins.stream()
                 .map(AbstractUserRepresentation::getId)
                 .collect(Collectors.toSet());
         }
-        return recipientIds;
     }
 
     private void validateFilter(RecipientsFilterDto filter) {

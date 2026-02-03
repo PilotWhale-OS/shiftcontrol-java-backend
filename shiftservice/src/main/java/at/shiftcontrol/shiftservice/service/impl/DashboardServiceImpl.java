@@ -26,6 +26,7 @@ import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,7 +48,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
 
     @Override
-    public EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(String eventId, String userId) {
+    public @NonNull EventsDashboardOverviewDto getDashboardOverviewsOfAllShiftPlans(@NonNull String eventId, @NonNull String userId) {
         var userShiftPlans = shiftPlanDao.findAllUserRelatedShiftPlansInEvent(userId, eventId);
 
         var shiftPlanDashboards = userShiftPlans.stream().map(shiftPlan -> {

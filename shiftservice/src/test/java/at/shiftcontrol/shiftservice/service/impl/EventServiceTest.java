@@ -18,7 +18,7 @@ import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
-import at.shiftcontrol.shiftservice.service.impl.event.EventServiceImpl;
+import at.shiftcontrol.shiftservice.service.event.impl.EventServiceImpl;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

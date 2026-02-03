@@ -5,14 +5,16 @@ import java.util.Collection;
 import at.shiftcontrol.shiftservice.dto.location.LocationDto;
 import at.shiftcontrol.shiftservice.dto.location.LocationModificationDto;
 
+import lombok.NonNull;
+
 public interface LocationService {
-    Collection<LocationDto> getAllLocationsForEvent(long eventId);
+    @NonNull Collection<LocationDto> getAllLocationsForEvent(long eventId);
 
-    LocationDto createLocation(long eventId, LocationModificationDto modificationDto);
+    @NonNull LocationDto createLocation(long eventId, @NonNull LocationModificationDto modificationDto);
 
-    LocationDto getLocation(long locationId);
+    @NonNull LocationDto getLocation(long locationId);
 
-    LocationDto updateLocation(long locationId, LocationModificationDto modificationDto);
+    @NonNull LocationDto updateLocation(long locationId, @NonNull LocationModificationDto modificationDto);
 
     void deleteLocation(long locationId);
 }

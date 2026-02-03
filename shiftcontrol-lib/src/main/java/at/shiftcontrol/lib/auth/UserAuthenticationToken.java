@@ -1,5 +1,6 @@
 package at.shiftcontrol.lib.auth;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -8,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import javax.security.auth.Subject;
 import java.util.Collection;
 
+@EqualsAndHashCode(callSuper = true)
 @Getter
 public class UserAuthenticationToken extends AbstractAuthenticationToken {
     private final ApplicationUser principal;
@@ -20,10 +22,5 @@ public class UserAuthenticationToken extends AbstractAuthenticationToken {
         this.principal = principal;
         this.credentials = credentials;
         super.setAuthenticated(true);  // must use super, as we override
-    }
-
-    @Override
-    public boolean implies(Subject subject) {
-        return super.implies(subject);
     }
 }

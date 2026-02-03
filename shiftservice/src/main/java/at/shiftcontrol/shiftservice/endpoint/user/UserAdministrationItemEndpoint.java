@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
-import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
+import at.shiftcontrol.shiftservice.service.UserAdministrationService;
 
 @Tag(
     name = "user-plan-endpoint"

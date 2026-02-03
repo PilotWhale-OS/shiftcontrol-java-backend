@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.role.UserRoleAssignmentAssignDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
-import at.shiftcontrol.shiftservice.service.role.RoleService;
+import at.shiftcontrol.shiftservice.service.RoleService;
 
 @Slf4j
 @RestController

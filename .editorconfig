@@ -1,0 +1,69 @@
+# Root EditorConfig file
+root = true
+
+# -------------------------------------------------------
+# Global defaults
+# -------------------------------------------------------
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+max_line_length = 160
+
+# -------------------------------------------------------
+# Java files
+# -------------------------------------------------------
+[*.java]
+tab_width = 4
+ij_java_line_comment_add_space = true
+
+# Ensure imports are ordered consistently
+ij_java_imports_layout = java.**,javax.**,org.springframework.**,*, @*,|,at.shiftcontrol.**,|,$*
+ij_java_class_count_to_use_import_on_demand = 9999
+ij_java_names_count_to_use_import_on_demand = 9999
+
+# Make sure there is no newline at end/start of class
+ij_java_blank_lines_after_class_header = 0
+ij_java_blank_lines_before_class_end = 0
+ij_java_keep_blank_lines_in_declarations = 1
+ij_java_keep_blank_lines_in_code = 0
+ij_java_keep_blank_lines_before_right_brace = 0
+ij_java_if_brace_force = always
+ij_java_binary_operation_wrap = normal
+ij_java_binary_operation_sign_on_next_line = true
+
+# -------------------------------------------------------
+# YAML / properties (Spring configs)
+# -------------------------------------------------------
+[*.yml]
+indent_size = 2
+
+[*.yaml]
+indent_size = 2
+
+# -------------------------------------------------------
+# JSON files
+# -------------------------------------------------------
+[*.json]
+indent_size = 2
+
+# -------------------------------------------------------
+# Markdown docs
+# -------------------------------------------------------
+[*.md]
+trim_trailing_whitespace = false   # keep Markdown formatting intact
+
+# -------------------------------------------------------
+# XML files (config, pom.xml, applicationContext, ...)
+# -------------------------------------------------------
+[*.xml]
+indent_size = 2
+
+# -------------------------------------------------------
+# Git ignore files
+# -------------------------------------------------------
+[.gitignore]
+trim_trailing_whitespace = false
