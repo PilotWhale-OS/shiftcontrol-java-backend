@@ -4,11 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import at.shiftcontrol.lib.exception.BadRequestException;
 
 @Slf4j
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class ConvertUtil {
     public static long idToLong(String value) throws BadRequestException {
         if (value == null || value.isEmpty()) {
