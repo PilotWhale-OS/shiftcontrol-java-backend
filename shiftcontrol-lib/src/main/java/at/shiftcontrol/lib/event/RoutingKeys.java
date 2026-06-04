@@ -4,10 +4,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class RoutingKeys {
     private static final Pattern PLACEHOLDER = Pattern.compile("\\{([^}]+)}");
 

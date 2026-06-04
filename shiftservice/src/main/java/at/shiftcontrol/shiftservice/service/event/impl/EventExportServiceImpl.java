@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.impl.event;
+package at.shiftcontrol.shiftservice.service.event.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

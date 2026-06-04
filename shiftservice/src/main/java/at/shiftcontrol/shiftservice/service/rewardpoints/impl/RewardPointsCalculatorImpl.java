@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.service.impl.rewardpoints;
+package at.shiftcontrol.shiftservice.service.rewardpoints.impl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,9 +21,6 @@ import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 @Service
 @RequiredArgsConstructor
 public class RewardPointsCalculatorImpl implements RewardPointsCalculator {
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Override
     public RewardPointsSnapshotDto calculateForAssignment(@NonNull PositionSlot slot) {
         var shift = slot.getShift();

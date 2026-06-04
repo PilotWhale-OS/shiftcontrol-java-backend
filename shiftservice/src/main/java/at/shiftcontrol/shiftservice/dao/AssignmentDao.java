@@ -7,6 +7,8 @@ import java.util.Optional;
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 
+import lombok.NonNull;
+
 public interface AssignmentDao extends BasicDao<Assignment, Long> {
     Optional<Assignment> findBySlotAndUser(long positionSlotId, String assignedUser);
 
@@ -28,7 +30,7 @@ public interface AssignmentDao extends BasicDao<Assignment, Long> {
 
     Collection<Assignment> getConflictingAssignmentsExcludingSlot(String volunteerId, PositionSlot slot);
 
-    Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
+    @NonNull Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
 
     Optional<Assignment> findAssignmentForPositionSlotAndUser(long positionSlotId, String userId);
 

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class StatisticServiceImpl implements StatisticService {
     private final EligibilityService eligibilityService;
 
     @Override
-    public OwnStatisticsDto getOwnStatisticsOfShifts(List<Shift> userShifts) {
+    public @NonNull OwnStatisticsDto getOwnStatisticsOfShifts(@NonNull List<Shift> userShifts) {
         var busyDays = calculateBusyDaysInShifts(userShifts);
         var totalShifts = calculateTotalShiftCountInShifts(userShifts);
         var totalHours = calculateTotalHoursInShifts(userShifts);
@@ -43,7 +44,7 @@ public class StatisticServiceImpl implements StatisticService {
 
 
     @Override
-    public OverallStatisticsDto getOverallShiftPlanStatistics(ShiftPlan shiftPlan) {
+    public @NonNull OverallStatisticsDto getOverallShiftPlanStatistics(@NonNull ShiftPlan shiftPlan) {
         var totalShifts = shiftPlan.getShifts().size();
         var totalHours = calculateTotalHoursInShifts(shiftPlan.getShifts().stream().toList());
         var volunteerCount = calculateVolunteerCountInShiftPlan(shiftPlan);
@@ -56,7 +57,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public OverallStatisticsDto getOverallEventStatistics(Event event) {
+    public @NonNull OverallStatisticsDto getOverallEventStatistics(@NonNull Event event) {
         var totalHours = event.getShiftPlans().stream()
             .mapToDouble(shiftPlan ->
                 calculateTotalHoursInShifts(shiftPlan.getShifts().stream().toList()))
@@ -77,7 +78,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public OwnStatisticsDto getOwnStatisticsOfShiftPlans(List<ShiftPlan> shiftPlans, String userId) {
+    public @NonNull OwnStatisticsDto getOwnStatisticsOfShiftPlans(@NonNull List<ShiftPlan> shiftPlans, @NonNull String userId) {
         var userShiftsSet = new HashSet<Shift>();
         for (var shiftPlan : shiftPlans) {
             var relevantShiftsOfPlan = shiftDao.searchUserRelatedShiftsInShiftPlan(shiftPlan.getId(), userId);
@@ -88,7 +89,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public ScheduleStatisticsDto getShiftPlanScheduleStatistics(List<Shift> shifts, Volunteer volunteer) {
+    public @NonNull ScheduleStatisticsDto getShiftPlanScheduleStatistics(@NonNull List<Shift> shifts, @NonNull Volunteer volunteer) {
         double totalHours = shifts.stream()
             .mapToDouble(s -> TimeUtil.calculateDurationInMinutes(s.getStartTime(), s.getEndTime()))
             .sum() / 60.0;

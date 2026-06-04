@@ -40,7 +40,7 @@ public class Activity {
     @Column(nullable = false, length = 255)
     private String name;
     @Size(max = 1024)
-    @Column(nullable = true, length = 1024)
+    @Column(length = 1024)
     private String description;
     @NotNull
     @Column(nullable = false)

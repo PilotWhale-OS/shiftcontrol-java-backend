@@ -1,7 +1,8 @@
-package at.shiftcontrol.shiftservice.service.user.impl;
+package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collections;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.service.user.VolunteerService;
+import at.shiftcontrol.shiftservice.service.VolunteerService;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class VolunteerServiceImpl implements VolunteerService {
     private final VolunteerDao volunteerDao;
 
     @Override
-    public Volunteer createVolunteer(String userId) {
+    public @NonNull Volunteer createVolunteer(@NonNull String userId) {
         var newVolunteer = Volunteer.builder()
             .id(userId)
             .planningPlans(Collections.emptySet())
@@ -35,7 +36,7 @@ public class VolunteerServiceImpl implements VolunteerService {
     }
 
     @Override
-    public Volunteer getOrCreate(String userId) {
+    public @NonNull Volunteer getOrCreate(@NonNull String userId) {
         return volunteerDao.findById(userId).orElseGet(() -> createVolunteer(userId));
     }
 }

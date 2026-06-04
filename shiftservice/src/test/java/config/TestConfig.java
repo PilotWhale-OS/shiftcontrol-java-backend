@@ -6,7 +6,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import at.shiftcontrol.shiftservice.service.impl.rewardpoints.RewardPointsCalculatorImpl;
+import at.shiftcontrol.shiftservice.service.rewardpoints.impl.RewardPointsCalculatorImpl;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 

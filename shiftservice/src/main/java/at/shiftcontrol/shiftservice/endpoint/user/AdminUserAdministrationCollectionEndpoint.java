@@ -20,7 +20,7 @@ import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventBulkDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
-import at.shiftcontrol.shiftservice.service.user.UserAdministrationService;
+import at.shiftcontrol.shiftservice.service.UserAdministrationService;
 
 @Tag(
     name = "user-event-endpoint"

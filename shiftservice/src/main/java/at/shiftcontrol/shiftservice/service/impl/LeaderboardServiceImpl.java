@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import jakarta.ws.rs.NotFoundException;
@@ -32,7 +33,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     private final KeycloakUserService keycloakService;
 
     @Override
-    public LeaderBoardDto getLeaderBoard(long eventId, String currentUserId) throws NotFoundException, ForbiddenException {
+    public @NonNull LeaderBoardDto getLeaderBoard(long eventId, @NonNull String currentUserId) throws NotFoundException, ForbiddenException {
         var event = eventDao.findById(eventId).orElseThrow(NotFoundException::new);
         securityHelper.assertUserIsAllowedToAccessEvent(event);
 

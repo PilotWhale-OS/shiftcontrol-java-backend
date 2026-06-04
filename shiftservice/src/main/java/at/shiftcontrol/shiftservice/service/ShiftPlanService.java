@@ -12,33 +12,34 @@ import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanCreateDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanDto;
 import at.shiftcontrol.shiftservice.dto.shiftplan.ShiftPlanModificationDto;
 
+import lombok.NonNull;
+
 public interface ShiftPlanService {
-    Collection<ShiftPlanDto> getAllOfEvent(long eventId);
+    @NonNull Collection<ShiftPlanDto> getAllOfEvent(long eventId);
 
-    Collection<ShiftPlanDto> getAll();
+    @NonNull Collection<ShiftPlanDto> getAll();
 
-    ShiftPlanDto get(long shiftPlanId);
+    @NonNull ShiftPlanDto get(long shiftPlanId);
 
-    ShiftPlanCreateDto createShiftPlan(long eventId, ShiftPlanModificationDto modificationDto);
+    @NonNull ShiftPlanCreateDto createShiftPlan(long eventId, @NonNull ShiftPlanModificationDto modificationDto);
 
-    ShiftPlanDto update(long shiftPlanId, ShiftPlanModificationDto modificationDto);
+    @NonNull ShiftPlanDto update(long shiftPlanId, @NonNull ShiftPlanModificationDto modificationDto);
 
     void delete(long shiftPlanId);
 
-    ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, ShiftPlanInviteCreateRequestDto requestDto)
-        ;
+    @NonNull ShiftPlanInviteCreateResponseDto createShiftPlanInviteCode(long shiftPlanId, @NonNull ShiftPlanInviteCreateRequestDto requestDto);
 
     void revokeShiftPlanInvite(long inviteId);
 
     void deleteShiftPlanInvite(long inviteId);
 
-    ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(String inviteCode);
+    @NonNull ShiftPlanInviteDetailsDto getShiftPlanInviteDetails(@NonNull String inviteCode);
 
-    Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId);
+    @NonNull Collection<ShiftPlanInviteDto> getAllShiftPlanInvites(long shiftPlanId);
 
-    void joinShiftPlan(ShiftPlanJoinRequestDto requestDto);
+    void joinShiftPlan(@NonNull ShiftPlanJoinRequestDto requestDto);
 
-    void updateLockStatus(long shiftPlanId, LockStatus lockStatus);
+    void updateLockStatus(long shiftPlanId, @NonNull LockStatus lockStatus);
 
     void leavePlan(long shiftPlanId);
 }

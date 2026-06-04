@@ -6,6 +6,8 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import at.shiftcontrol.lib.exception.IllegalStateException;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +40,10 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationSettingsDto updateNotificationSetting(@NonNull String userId, @NonNull NotificationSettingsDto settingsDto) {
         Collection<NotificationSettings> existingOrDefault = getSettingsOrDefault(userId);
         // find setting for type
-        NotificationSettings toUpdate = existingOrDefault.stream()
+        var toUpdate = existingOrDefault.stream()
             .filter(ns -> ns.getType() == settingsDto.getType())
-            .findFirst().get();
+            .findFirst().orElseThrow(() -> new IllegalStateException("Could not find notification setting for type " + settingsDto.getType()));
+
         // update setting
         toUpdate.setChannels(
             settingsDto.getChannels().isEmpty()

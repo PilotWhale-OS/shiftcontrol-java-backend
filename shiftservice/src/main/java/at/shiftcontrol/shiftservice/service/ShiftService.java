@@ -5,14 +5,16 @@ import at.shiftcontrol.shiftservice.dto.shift.ShiftDetailsDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftDto;
 import at.shiftcontrol.shiftservice.dto.shift.ShiftModificationDto;
 
+import lombok.NonNull;
+
 public interface ShiftService {
-    ShiftDetailsDto getShiftDetails(long shiftId, String userId);
+    @NonNull ShiftDetailsDto getShiftDetails(long shiftId, @NonNull String userId);
 
-    PaginationDto<ShiftDto> getAllOpenShiftsOfPlanPaginated(long planId, int page, int size);
+    @NonNull PaginationDto<ShiftDto> getAllOpenShiftsOfPlanPaginated(long planId, int page, int size);
 
-    ShiftDto createShift(long shiftPlanId, ShiftModificationDto modificationDto);
+    @NonNull ShiftDto createShift(long shiftPlanId, @NonNull ShiftModificationDto modificationDto);
 
-    ShiftDto updateShift(long shiftId, ShiftModificationDto modificationDto);
+    @NonNull ShiftDto updateShift(long shiftId, @NonNull ShiftModificationDto modificationDto);
 
     void deleteShift(long shiftId);
 }

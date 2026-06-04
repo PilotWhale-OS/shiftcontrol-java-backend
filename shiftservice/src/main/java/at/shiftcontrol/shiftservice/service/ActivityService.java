@@ -6,16 +6,64 @@ import at.shiftcontrol.shiftservice.dto.activity.ActivityDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivityModificationDto;
 import at.shiftcontrol.shiftservice.dto.activity.ActivitySuggestionDto;
 
+import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public interface ActivityService {
-    ActivityDto getActivity(long activityId);
+    /**
+     * Get activity by id
+     * @param activityId the id of the activity
+     * @return the activity dto
+     * @throws at.shiftcontrol.lib.exception.NotFoundException if the activity does not exist
+     */
+    @NonNull ActivityDto getActivity(long activityId);
 
-    Collection<ActivityDto> getActivitiesForEvent(long eventId);
+    /**
+     * Get all activities for an event
+     * @param eventId the id of the event
+     * @return collection of activity dtos
+     * @throws at.shiftcontrol.lib.exception.NotFoundException if the event does not exist
+     * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not a planner in any plan of the event
+     */
+    @NonNull Collection<ActivityDto> getActivitiesForEvent(long eventId);
 
-    ActivityDto createActivity(long eventId, ActivityModificationDto modificationDto);
+    /**
+     * Create a new activity for an event
+     * @param eventId the id of the event
+     * @param modificationDto the modification dto
+     * @return the created activity dto
+     * @throws at.shiftcontrol.lib.exception.NotFoundException if the event does not exist
+     * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not an admin of the event
+     * @throws at.shiftcontrol.lib.exception.BadRequestException if the activity name is not unique within the event
+     */
+    @NonNull ActivityDto createActivity(long eventId, @NonNull ActivityModificationDto modificationDto);
 
-    ActivityDto updateActivity(long activityId, ActivityModificationDto modificationDto);
+    /**
+     * Update an existing activity
+     * @param activityId the id of the activity
+     * @param modificationDto the modification dto
+     * @return the updated activity dto
+     * @throws at.shiftcontrol.lib.exception.NotFoundException if the activity does not exist
+     * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not an admin of the event
+     * @throws at.shiftcontrol.lib.exception.BadRequestException if the activity name is not unique within the event
+     */
+    @NonNull ActivityDto updateActivity(long activityId, @NonNull ActivityModificationDto modificationDto);
 
+    /**
+     * Delete an activity
+     * @param activityId the id of the activity
+     * @throws at.shiftcontrol.lib.exception.NotFoundException if the activity does not exist
+     * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not an admin of the event
+     */
     void deleteActivity(long activityId);
 
-    Collection<ActivityDto> suggestActivitiesForShift(long eventId, ActivitySuggestionDto suggestionDto);
+    /**
+     * Suggest activities for a shift based on the given criteria
+     * @param eventId the id of the event
+     * @param suggestionDto the suggestion criteria
+     * @return collection of suggested activity dtos
+     * @throws at.shiftcontrol.lib.exception.NotFoundException if the event does not exist
+     * @throws at.shiftcontrol.lib.exception.ForbiddenException if the user is not a planner in any plan of the event
+     */
+    @NonNull Collection<ActivityDto> suggestActivitiesForShift(long eventId, @Nullable ActivitySuggestionDto suggestionDto);
 }

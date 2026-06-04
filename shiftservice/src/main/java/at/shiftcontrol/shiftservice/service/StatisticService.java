@@ -10,14 +10,16 @@ import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.event.schedule.ScheduleStatisticsDto;
 
+import lombok.NonNull;
+
 public interface StatisticService {
-    OwnStatisticsDto getOwnStatisticsOfShifts(List<Shift> userShifts);
+    @NonNull OwnStatisticsDto getOwnStatisticsOfShifts(@NonNull List<Shift> userShifts);
 
-    OverallStatisticsDto getOverallShiftPlanStatistics(ShiftPlan shiftPlan);
+    @NonNull OverallStatisticsDto getOverallShiftPlanStatistics(@NonNull ShiftPlan shiftPlan);
 
-    OverallStatisticsDto getOverallEventStatistics(Event event);
+    @NonNull OverallStatisticsDto getOverallEventStatistics(@NonNull Event event);
 
-    OwnStatisticsDto getOwnStatisticsOfShiftPlans(List<ShiftPlan> shiftPlans, String userId);
+    @NonNull OwnStatisticsDto getOwnStatisticsOfShiftPlans(@NonNull List<ShiftPlan> shiftPlans, @NonNull String userId);
 
-    ScheduleStatisticsDto getShiftPlanScheduleStatistics(List<Shift> shifts, Volunteer volunteer);
+    @NonNull ScheduleStatisticsDto getShiftPlanScheduleStatistics(@NonNull List<Shift> shifts, @NonNull Volunteer volunteer);
 }

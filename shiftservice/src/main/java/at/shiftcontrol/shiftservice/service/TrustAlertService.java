@@ -4,10 +4,12 @@ import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.dto.TrustAlertDto;
 import at.shiftcontrol.shiftservice.dto.TrustAlertDisplayDto;
 
-public interface TrustAlertService {
-    PaginationDto<TrustAlertDisplayDto> getAllPaginated(int  page, int size);
+import lombok.NonNull;
 
-    TrustAlertDisplayDto save(TrustAlertDto alert);
+public interface TrustAlertService {
+    @NonNull PaginationDto<TrustAlertDisplayDto> getAllPaginated(int  page, int size);
+
+    @NonNull TrustAlertDisplayDto save(@NonNull TrustAlertDto alert);
 
     void delete(long id);
 }

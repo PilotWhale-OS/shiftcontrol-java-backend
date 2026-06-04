@@ -9,6 +9,8 @@ import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 
+import lombok.NonNull;
+
 public interface AssignmentService {
     /**
      * reassigns the auction to the given volunteer.
@@ -19,7 +21,7 @@ public interface AssignmentService {
      * @param requestDto contains reward points hash
      * @return reassigned and accepted auction
      */
-    Assignment claimAuction(Assignment auction, Volunteer newVolunteer, PositionSlotRequestDto requestDto);
+    @NonNull Assignment claimAuction(@NonNull Assignment auction, @NonNull Volunteer newVolunteer, @NonNull PositionSlotRequestDto requestDto);
 
     /**
      * swapps the volunteers of the given switch request.
@@ -30,9 +32,9 @@ public interface AssignmentService {
      * @param oldTrade trade to execute
      * @return executed trade, where volunteers are swapped
      */
-    AssignmentSwitchRequest executeTrade(AssignmentSwitchRequest oldTrade);
+    @NonNull AssignmentSwitchRequest executeTrade(@NonNull AssignmentSwitchRequest oldTrade);
 
-    void cancelOtherTrades(AssignmentSwitchRequest trade);
+    void cancelOtherTrades(@NonNull AssignmentSwitchRequest trade);
 
     /**
      * accepts an already existing assignment.
@@ -42,7 +44,7 @@ public interface AssignmentService {
      * @param assignment to accept
      * @return the accepted assignment
      */
-    Assignment accept(Assignment assignment);
+    @NonNull Assignment accept(@NonNull Assignment assignment);
 
     /**
      * assigns the volunteer to the position slot.
@@ -54,7 +56,7 @@ public interface AssignmentService {
      * @param volunteer to assign to the position slot
      * @return the newly created assignment
      */
-    Assignment assign(PositionSlot positionSlot, Volunteer volunteer, PositionSlotRequestDto requestDto);
+    @NonNull Assignment assign(@NonNull PositionSlot positionSlot, @NonNull Volunteer volunteer, @NonNull PositionSlotRequestDto requestDto);
 
     /**
      * <b>NO VALIDATION!</b><br/>
@@ -64,7 +66,7 @@ public interface AssignmentService {
      *
      * @param assignment to dissolve
      */
-    void unassignInternal(Assignment assignment);
+    void unassignInternal(@NonNull Assignment assignment);
 
     /**
      * unassign all volunteers from auctions and declines join requests for a given shift plan.
@@ -73,21 +75,21 @@ public interface AssignmentService {
      *
      * @param shiftPlan to unassign all auctions
      */
-    void unassignAllAuctions(ShiftPlan shiftPlan);
+    void unassignAllAuctions(@NonNull ShiftPlan shiftPlan);
 
     /**
      * declines all signuprequests for a given shiftplan.
      *
      * @param shiftPlan to decline all signup requests
      */
-    void declineAllSignupRequests(ShiftPlan shiftPlan);
+    void declineAllSignupRequests(@NonNull ShiftPlan shiftPlan);
 
     /**
      * get all assignments for a user
      *
      * @param plan to fetch the assignments from
      * @param volunteer to assignments belong to
-     * @return
+     * @return all assignments of the user in the given shift plan
      */
-    Collection<Assignment> getAllAssignmentsForUser(ShiftPlan plan, Volunteer volunteer);
+    @NonNull Collection<Assignment> getAllAssignmentsForUser(@NonNull ShiftPlan plan, @NonNull Volunteer volunteer);
 }

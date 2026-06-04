@@ -1,7 +1,7 @@
-package at.shiftcontrol.shiftservice.service.impl.event;
+package at.shiftcontrol.shiftservice.service.event.impl;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -245,7 +243,7 @@ public class EventServiceImpl implements EventService {
         String url = modificationDto.getRewardPointsRedeemUrl();
         if (StringUtils.isNotBlank(url)) {
             try {
-                new URL(url);
+                URI.create(url).toURL();
             } catch (MalformedURLException e) {
                 throw new ValidationException("Reward points redeem URL is not a valid URL");
             }

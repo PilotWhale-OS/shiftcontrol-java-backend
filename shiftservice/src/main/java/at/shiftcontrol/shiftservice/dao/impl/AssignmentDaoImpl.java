@@ -96,7 +96,7 @@ public class AssignmentDaoImpl implements AssignmentDao {
     }
 
     @Override
-    public Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId) {
+    public @org.jspecify.annotations.NonNull Assignment getAssignmentForPositionSlotAndUser(long positionSlotId, String userId) {
         return assignmentRepository.findAssignmentForPositionSlotAndUser(positionSlotId, userId)
             .orElseThrow(() -> new NotFoundException("Not assigned to position slot."));
     }

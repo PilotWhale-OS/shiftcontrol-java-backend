@@ -6,16 +6,18 @@ import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCreateDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
 
+import lombok.NonNull;
+
 public interface AssignmentSwitchRequestService {
-    TradeDto getTradeById(long id);
+    @NonNull TradeDto getTradeById(long id);
 
-    Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId);
+    @NonNull Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, @NonNull String currentUserId);
 
-    Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId);
+    @NonNull Collection<TradeDto> createTrade(@NonNull TradeCreateDto tradeCreateDto, @NonNull String currentUserId);
 
-    TradeDto acceptTrade(long id, String currentUserId);
+    @NonNull TradeDto acceptTrade(long id, @NonNull String currentUserId);
 
-    TradeDto declineTrade(long id, String currentUserId);
+    @NonNull TradeDto declineTrade(long id, @NonNull String currentUserId);
 
-    TradeDto cancelTrade(long id, String currentUserId);
+    @NonNull TradeDto cancelTrade(long id, @NonNull String currentUserId);
 }

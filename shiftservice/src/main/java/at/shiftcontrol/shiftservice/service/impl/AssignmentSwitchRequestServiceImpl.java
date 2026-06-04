@@ -8,7 +8,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +53,9 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 @Service
 @RequiredArgsConstructor
 public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchRequestService {
+    @Lazy
+    @Autowired(required = false)
+    private AssignmentSwitchRequestService self;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
     private final AssignmentDao assignmentDao;
     private final PositionSlotDao positionSlotDao;
@@ -64,13 +70,13 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     private final ShiftDao shiftDao;
 
     @Override
-    public TradeDto getTradeById(long id) {
+    public @NonNull TradeDto getTradeById(long id) {
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         return tradeMapper.toDto(trade);
     }
 
     @Override
-    public Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, String currentUserId) {
+    public @NonNull Collection<TradeCandidatesDto> getPositionSlotsToOffer(long requestedPositionSlotId, @NonNull String currentUserId) {
         // get requested PositionSlot
         PositionSlot requestedPositionSlot = positionSlotDao.getById(requestedPositionSlotId);
 
@@ -200,7 +206,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     @Transactional
     @IsNotAdmin
-    public Collection<TradeDto> createTrade(TradeCreateDto tradeCreateDto, String currentUserId) {
+    public @NonNull Collection<TradeDto> createTrade(@NonNull TradeCreateDto tradeCreateDto, @NonNull String currentUserId) {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.getById(currentUserId);
 
@@ -281,7 +287,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
                 throw new IllegalStateException("more than one inverse trade is open" + inverse);
             }
             if (!inverse.isEmpty()) {
-                return List.of(acceptTrade(inverse.get(0).getId(), currentUserId));
+                return List.of(self.acceptTrade(inverse.get(0).getId(), currentUserId));
             }
         }
 
@@ -306,7 +312,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     @Override
     @Transactional
     @IsNotAdmin
-    public TradeDto acceptTrade(long id, String currentUserId) {
+    public @NonNull TradeDto acceptTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
 
@@ -348,7 +354,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @IsNotAdmin
-    public TradeDto declineTrade(long id, String currentUserId) {
+    public @NonNull TradeDto declineTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         securityHelper.assertVolunteerIsNotLockedInPlan(trade.getOfferingAssignment());
@@ -371,7 +377,7 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @IsNotAdmin
-    public TradeDto cancelTrade(long id, String currentUserId) {
+    public @NonNull TradeDto cancelTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
         securityHelper.assertVolunteerIsNotLockedInPlan(trade.getOfferingAssignment());

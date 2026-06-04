@@ -8,9 +8,9 @@ import at.shiftcontrol.shiftservice.dto.TimeConstraintCreateDto;
 import at.shiftcontrol.shiftservice.dto.TimeConstraintDto;
 
 public interface TimeConstraintService {
-    Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId);
+    @NonNull Collection<TimeConstraintDto> getTimeConstraints(@NonNull String userId, long eventId);
 
-    TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId);
+    @NonNull TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId);
 
     void delete(long timeConstraintId);
 }

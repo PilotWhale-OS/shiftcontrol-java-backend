@@ -14,14 +14,14 @@ import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
-import at.shiftcontrol.shiftservice.service.user.VolunteerService;
+import at.shiftcontrol.shiftservice.service.VolunteerService;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
-public class UserProfileServiceImpl implements UserProfileService {
+public class KeycloakUserProfileService implements UserProfileService {
     private final KeycloakUserService kcService;
     private final NotificationService notificationService;
     private final ApplicationUserProvider userProvider;
