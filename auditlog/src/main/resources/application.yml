@@ -3,6 +3,9 @@ server:
 spring:
     application:
         name: auditlog-service
+    mvc:
+      servlet:
+        path: ${AUDITLOG_REST_PATH_PREFIX:}
     rabbitmq:
       addresses: rabbitmq:5672
       username: shiftcontrol
