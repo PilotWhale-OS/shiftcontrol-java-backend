@@ -1,15 +1,31 @@
 spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   rabbitmq:
     addresses: rabbitmq:5672
     username: shiftcontrol
     password: password
   jackson:
     default-property-inclusion: non_null
+  mvc:
+    servlet:
+      path: ${SHIFTSERVICE_REST_PATH_PREFIX:}
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://keycloak.127.0.0.1.nip.io/realms/dev
+  liquibase:
+    change-log: classpath:db/changelog-master.xml
+    enabled: true
+    contexts: ${SPRING_LIQUIBASE_CONTEXTS:dev}
 keycloak:
     auth-server-url: http://keycloak.127.0.0.1.nip.io/
     auth-realm: dev
