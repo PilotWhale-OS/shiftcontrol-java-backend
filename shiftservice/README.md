@@ -11,7 +11,7 @@
 Optional service-specific variables:
 
 - `SHIFTSERVICE_REST_PATH_PREFIX`
-  - Empty by default.
+  - Defaults to `/`, which keeps endpoints at `/api/v1/...` with no extra prefix.
   - Example: set `/shiftservice` to expose endpoints as `/shiftservice/api/v1/...`.
 - `SPRING_LIQUIBASE_CONTEXTS`
   - Defaults to `dev`.

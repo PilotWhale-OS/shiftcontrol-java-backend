@@ -9,7 +9,7 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   mvc:
     servlet:
-      path: ${AUDITLOG_REST_PATH_PREFIX:}
+      path: ${AUDITLOG_REST_PATH_PREFIX:/}
   rabbitmq:
     addresses: rabbitmq:5672
     username: shiftcontrol
