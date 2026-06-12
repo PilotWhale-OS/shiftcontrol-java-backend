@@ -127,6 +127,12 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>unit-tests</id>
+            <properties>
+                <skipITs>true</skipITs>
+            </properties>
+        </profile>
 
         <profile>
             <id>openapi</id>
