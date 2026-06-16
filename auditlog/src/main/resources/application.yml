@@ -1,17 +1,24 @@
 server:
   port: 8089
 spring:
-    application:
-        name: auditlog-service
-    rabbitmq:
-      addresses: rabbitmq:5672
-      username: shiftcontrol
-      password: password
-    jpa:
-      properties:
-        hibernate:
-          type:
-            json_format_mapper: jsonb
+  application:
+    name: auditlog-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  mvc:
+    servlet:
+      path: ${AUDITLOG_REST_PATH_PREFIX:/}
+  rabbitmq:
+    addresses: rabbitmq:5672
+    username: shiftcontrol
+    password: password
+  jpa:
+    properties:
+      hibernate:
+        type:
+          json_format_mapper: jsonb
 keycloak:
   auth-server-url: http://keycloak.127.0.0.1.nip.io/
   auth-realm: dev
