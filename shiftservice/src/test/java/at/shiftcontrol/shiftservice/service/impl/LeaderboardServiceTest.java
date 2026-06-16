@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,8 +57,10 @@ class LeaderboardServiceTest {
         event.setShiftPlans(List.of(plan));
 
         when(eventDao.findById(9L)).thenReturn(Optional.of(event));
-        when(userDirectoryService.getUserById("user-1")).thenReturn(directoryUser("user-1", "Alice", "Admin"));
-        when(userDirectoryService.getUserById("user-2")).thenReturn(directoryUser("user-2", "Bob", "Builder"));
+        when(userDirectoryService.getUserByIds(Set.of("user-1", "user-2"))).thenReturn(List.of(
+            directoryUser("user-1", "Alice", "Admin"),
+            directoryUser("user-2", "Bob", "Builder")
+        ));
 
         var result = leaderboardService.getLeaderBoard(9L, "user-1");
 

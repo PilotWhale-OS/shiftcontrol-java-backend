@@ -14,12 +14,14 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.auth.NonDevTestCondition;
 import at.shiftcontrol.lib.auth.UserAuthenticationToken;
 import at.shiftcontrol.shiftservice.auth.config.props.KeycloakProps;
+import at.shiftcontrol.shiftservice.userdirectory.current.CurrentUserProfileSyncService;
 
 @Conditional(NonDevTestCondition.class)
 @EnableWebSecurity
@@ -28,6 +30,7 @@ import at.shiftcontrol.shiftservice.auth.config.props.KeycloakProps;
 @RequiredArgsConstructor
 public class JwtSecurityConfig {
     private final ApplicationUserManager applicationUserManager;
+    private final CurrentUserProfileSyncService currentUserProfileSyncService;
 
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> {
@@ -69,6 +72,7 @@ public class JwtSecurityConfig {
                 .permitAll() // Permit all OPTIONS requests (preflight))
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+        http.addFilterAfter(new CurrentUserProfileSyncFilter(currentUserProfileSyncService), BearerTokenAuthenticationFilter.class);
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }

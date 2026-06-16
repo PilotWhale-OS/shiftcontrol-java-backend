@@ -1,6 +1,8 @@
 package at.shiftcontrol.shiftservice.userdirectory.current;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,8 @@ import at.shiftcontrol.shiftservice.repo.userdirectory.UserAccountRepository;
 @Service
 @RequiredArgsConstructor
 public class CurrentUserProfileSyncService {
+    private static final Duration PROFILE_SYNC_TTL = Duration.ofMinutes(5);
+
     private final CurrentSubjectProfileResolver currentSubjectProfileResolver;
     private final UserAccountRepository userAccountRepository;
     private final ExternalIdentityRepository externalIdentityRepository;
@@ -24,8 +28,26 @@ public class CurrentUserProfileSyncService {
     @Transactional
     public CurrentSubjectProfileSyncResult syncCurrentSubject() {
         CurrentSubjectProfile currentSubjectProfile = currentSubjectProfileResolver.resolveCurrentSubject();
-        Instant now = Instant.now();
+        return syncCurrentSubject(currentSubjectProfile, Instant.now());
+    }
 
+    @Transactional
+    public CurrentSubjectProfileSyncResult syncCurrentSubjectIfStale() {
+        CurrentSubjectProfile currentSubjectProfile = currentSubjectProfileResolver.resolveCurrentSubject();
+        Instant now = Instant.now();
+        ExternalIdentity existingExternalIdentity = externalIdentityRepository.findByIssuerAndSubject(
+            currentSubjectProfile.issuer(),
+            currentSubjectProfile.subject()
+        ).orElse(null);
+
+        if (existingExternalIdentity != null && !shouldRefresh(existingExternalIdentity.getUserAccount(), currentSubjectProfile, now)) {
+            return new CurrentSubjectProfileSyncResult(currentSubjectProfile, existingExternalIdentity.getUserAccount());
+        }
+
+        return syncCurrentSubject(currentSubjectProfile, now);
+    }
+
+    private CurrentSubjectProfileSyncResult syncCurrentSubject(CurrentSubjectProfile currentSubjectProfile, Instant now) {
         ExternalIdentity existingExternalIdentity = externalIdentityRepository.findByIssuerAndSubject(
             currentSubjectProfile.issuer(),
             currentSubjectProfile.subject()
@@ -55,6 +77,21 @@ public class CurrentUserProfileSyncService {
         }
 
         return new CurrentSubjectProfileSyncResult(currentSubjectProfile, userAccount);
+    }
+
+    private boolean shouldRefresh(UserAccount userAccount, CurrentSubjectProfile currentSubjectProfile, Instant now) {
+        if (userAccount.getLastProfileSyncAt() == null) {
+            return true;
+        }
+        if (userAccount.getLastProfileSyncAt().isBefore(now.minus(PROFILE_SYNC_TTL))) {
+            return true;
+        }
+
+        return valueChanged(currentSubjectProfile.preferredUsername(), userAccount.getPreferredUsername())
+            || valueChanged(currentSubjectProfile.firstName(), userAccount.getFirstName())
+            || valueChanged(currentSubjectProfile.lastName(), userAccount.getLastName())
+            || valueChanged(currentSubjectProfile.email(), userAccount.getEmail())
+            || (currentSubjectProfile.emailVerified() != null && currentSubjectProfile.emailVerified() != userAccount.isEmailVerified());
     }
 
     private void applyCurrentProfile(UserAccount userAccount, CurrentSubjectProfile currentSubjectProfile, Instant now) {
@@ -114,5 +151,13 @@ public class CurrentUserProfileSyncService {
         }
 
         return null;
+    }
+
+    private boolean valueChanged(String currentValue, String persistedValue) {
+        if (currentValue == null || currentValue.isBlank()) {
+            return false;
+        }
+
+        return !Objects.equals(currentValue, persistedValue);
     }
 }

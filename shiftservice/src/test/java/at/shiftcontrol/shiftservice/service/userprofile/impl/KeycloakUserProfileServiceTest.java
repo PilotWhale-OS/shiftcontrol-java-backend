@@ -86,7 +86,7 @@ class KeycloakUserProfileServiceTest {
             .emailVerified(true)
             .lastProfileSyncSource(UserProfileSource.TOKEN_CLAIMS)
             .build();
-        when(currentUserProfileSyncService.syncCurrentSubject()).thenReturn(new CurrentSubjectProfileSyncResult(
+        when(currentUserProfileSyncService.syncCurrentSubjectIfStale()).thenReturn(new CurrentSubjectProfileSyncResult(
             new CurrentSubjectProfile(
                 "https://id.example.test/realms/shiftcontrol",
                 "user-1",
@@ -127,7 +127,7 @@ class KeycloakUserProfileServiceTest {
             .extracting(NotificationSettingsDto::getType)
             .containsExactlyInAnyOrder(NotificationType.values());
 
-        verify(currentUserProfileSyncService).syncCurrentSubject();
+        verify(currentUserProfileSyncService).syncCurrentSubjectIfStale();
         verify(volunteerService).getOrCreate("user-1");
         verify(notificationService).getNotificationsForUser("user-1");
     }

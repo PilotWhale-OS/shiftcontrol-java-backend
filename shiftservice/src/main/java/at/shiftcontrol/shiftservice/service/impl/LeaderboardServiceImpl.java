@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
 import at.shiftcontrol.shiftservice.dto.leaderboard.RankDto;
 import at.shiftcontrol.shiftservice.service.LeaderboardService;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
 import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
@@ -56,9 +58,14 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             .map(Map.Entry::getKey)
             .toList();
 
+        var userIdsToResolve = new LinkedHashSet<>(topVolunteerIds);
+        userIdsToResolve.add(currentUserId);
+        Map<String, DirectoryUser> usersById = userDirectoryService.getUserByIds(userIdsToResolve).stream()
+            .collect(java.util.stream.Collectors.toMap(DirectoryUser::id, user -> user));
+
         RankDto ownRank = null;
         if (minutesByVolunteer.containsKey(currentUserId)) {
-            var user = userDirectoryService.getUserById(currentUserId);
+            var user = usersById.get(currentUserId);
             ownRank = RankDto.builder()
                 .rank(topVolunteerIds.indexOf(currentUserId) + 1)
                 .hours(minutesByVolunteer.get(currentUserId) / 60)
@@ -81,7 +88,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
                 prevMinutes = minutes;
             }
 
-            var user = userDirectoryService.getUserById(volunteerId);
+            var user = usersById.get(volunteerId);
             long hours = minutes / 60;
 
             var dto = RankDto.builder()

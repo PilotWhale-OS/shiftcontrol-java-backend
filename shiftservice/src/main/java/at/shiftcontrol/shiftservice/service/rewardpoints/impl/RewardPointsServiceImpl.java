@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,6 +19,7 @@ import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.RewardPointsShareToken;
+import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.event.events.RewardPointsShareTokenEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
@@ -37,6 +39,7 @@ import at.shiftcontrol.shiftservice.mapper.RewardPointsMapper;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsService;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
 import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
 @Service
@@ -310,11 +313,14 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             exportDto.setEventFinished(isEventFinished);
 
             var volunteersOfEvent = volunteerDao.findAllByEvent(event.getId());
+            Map<String, DirectoryUser> usersById = userDirectoryService.getUserByIds(
+                volunteersOfEvent.stream().map(Volunteer::getId).toList()
+            ).stream().collect(java.util.stream.Collectors.toMap(DirectoryUser::id, Function.identity()));
             var volunteerPointsDtos = new ArrayList<VolunteerPointsDto>();
             for (var volunteer : volunteersOfEvent) {
                 var volunteerPointsDto = new VolunteerPointsDto();
                 volunteerPointsDto.setVolunteerId(volunteer.getId());
-                var directoryUser = userDirectoryService.getUserById(volunteer.getId());
+                var directoryUser = usersById.get(volunteer.getId());
                 volunteerPointsDto.setFirstName(directoryUser.firstName());
                 volunteerPointsDto.setLastName(directoryUser.lastName());
                 volunteerPointsDto.setEmail(directoryUser.email());
@@ -378,5 +384,3 @@ public class RewardPointsServiceImpl implements RewardPointsService {
         publisher.publishEvent(rewardPointsShareTokenEvent);
     }
 }
-
-

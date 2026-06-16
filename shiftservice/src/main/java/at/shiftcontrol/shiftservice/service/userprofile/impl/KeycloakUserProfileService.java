@@ -38,7 +38,7 @@ public class KeycloakUserProfileService implements UserProfileService {
 
         DirectoryUser user;
         if (userId.equals(currentUser.getUserId())) {
-            var syncResult = currentUserProfileSyncService.syncCurrentSubject();
+            var syncResult = currentUserProfileSyncService.syncCurrentSubjectIfStale();
             user = new DirectoryUser(
                 syncResult.currentSubjectProfile().subject(),
                 firstNonBlank(syncResult.userAccount().getPreferredUsername(), currentUser.getUsername(), syncResult.currentSubjectProfile().subject()),

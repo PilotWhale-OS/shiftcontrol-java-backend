@@ -70,7 +70,9 @@ class RewardPointsServiceImplTest {
 
         when(eventDao.findAll()).thenReturn(List.of(event));
         when(volunteerDao.findAllByEvent(12L)).thenReturn(List.of(volunteer));
-        when(userDirectoryService.getUserById("user-1")).thenReturn(directoryUser("user-1", "Casey", "Coordinator"));
+        when(userDirectoryService.getUserByIds(List.of("user-1"))).thenReturn(List.of(
+            directoryUser("user-1", "Casey", "Coordinator")
+        ));
         when(rewardPointsTransactionDao.sumPointsByVolunteerAndEvent("user-1", 12L)).thenReturn(42L);
 
         var result = rewardPointsService.getRewardPointsForAllUsersOverAllEvents();
