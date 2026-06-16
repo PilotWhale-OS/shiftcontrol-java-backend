@@ -9,9 +9,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import at.shiftcontrol.lib.entity.UserAccount;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.type.NotificationType;
+import at.shiftcontrol.lib.type.UserAccountStatus;
+import at.shiftcontrol.lib.type.UserProfileSource;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
@@ -20,6 +23,9 @@ import at.shiftcontrol.shiftservice.service.VolunteerService;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
 import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
+import at.shiftcontrol.shiftservice.userdirectory.current.CurrentSubjectProfile;
+import at.shiftcontrol.shiftservice.userdirectory.current.CurrentSubjectProfileSyncResult;
+import at.shiftcontrol.shiftservice.userdirectory.current.CurrentUserProfileSyncService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +44,9 @@ class KeycloakUserProfileServiceTest {
 
     @Mock
     private ApplicationUserProvider userProvider;
+
+    @Mock
+    private CurrentUserProfileSyncService currentUserProfileSyncService;
 
     @Mock
     private SecurityHelper securityHelper;
@@ -66,15 +75,31 @@ class KeycloakUserProfileServiceTest {
         when(currentUser.getUserId()).thenReturn("user-1");
         when(userProvider.getCurrentUser()).thenReturn(currentUser);
 
-        var directoryUser = new DirectoryUser(
-            "user-1",
-            "user.one",
-            "User",
-            "One",
-            "user.one@example.com",
-            UserType.ASSIGNED
-        );
-        when(userDirectoryService.getUserById("user-1")).thenReturn(directoryUser);
+        var userAccount = UserAccount.builder()
+            .id(1L)
+            .status(UserAccountStatus.ACTIVE)
+            .preferredUsername("user.one")
+            .firstName("User")
+            .lastName("One")
+            .displayName("User One")
+            .email("user.one@example.com")
+            .emailVerified(true)
+            .lastProfileSyncSource(UserProfileSource.TOKEN_CLAIMS)
+            .build();
+        when(currentUserProfileSyncService.syncCurrentSubject()).thenReturn(new CurrentSubjectProfileSyncResult(
+            new CurrentSubjectProfile(
+                "https://id.example.test/realms/shiftcontrol",
+                "user-1",
+                "user.one",
+                "User",
+                "One",
+                "user.one@example.com",
+                true,
+                "token-value",
+                UserType.ASSIGNED
+            ),
+            userAccount
+        ));
 
         Volunteer volunteer = Volunteer.builder()
             .id("user-1")
@@ -102,8 +127,42 @@ class KeycloakUserProfileServiceTest {
             .extracting(NotificationSettingsDto::getType)
             .containsExactlyInAnyOrder(NotificationType.values());
 
-        verify(userDirectoryService).getUserById("user-1");
+        verify(currentUserProfileSyncService).syncCurrentSubject();
         verify(volunteerService).getOrCreate("user-1");
         verify(notificationService).getNotificationsForUser("user-1");
+    }
+
+    @Test
+    void getUserProfile_forAdminViewingAnotherUserStillUsesDirectoryService() {
+        var currentUser = mock(ShiftControlUser.class);
+        when(currentUser.getUserId()).thenReturn("admin-user");
+        when(userProvider.getCurrentUser()).thenReturn(currentUser);
+        when(securityHelper.isNotUserAdmin()).thenReturn(false);
+
+        var directoryUser = new DirectoryUser(
+            "other-user",
+            "other.user",
+            "Other",
+            "User",
+            "other.user@example.com",
+            UserType.ASSIGNED
+        );
+        when(userDirectoryService.getUserById("other-user")).thenReturn(directoryUser);
+
+        Volunteer volunteer = Volunteer.builder()
+            .id("other-user")
+            .roles(Set.of())
+            .volunteeringPlans(Set.of())
+            .planningPlans(Set.of())
+            .lockedPlans(Set.of())
+            .notificationSettings(Set.of())
+            .build();
+        when(volunteerService.getOrCreate("other-user")).thenReturn(volunteer);
+        when(notificationService.getNotificationsForUser("other-user")).thenReturn(new ArrayList<>());
+
+        var result = userProfileService.getUserProfile("other-user");
+
+        assertThat(result.getAccount().getVolunteer().getId()).isEqualTo("other-user");
+        verify(userDirectoryService).getUserById("other-user");
     }
 }

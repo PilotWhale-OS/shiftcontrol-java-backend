@@ -1,8 +1,11 @@
 package at.shiftcontrol.shiftservice.auth;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import at.shiftcontrol.lib.auth.impl.UserProviderImpl;
+import at.shiftcontrol.lib.exception.UnauthorizedException;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 
 @Component
@@ -14,5 +17,31 @@ public class ApplicationUserProvider extends UserProviderImpl {
     public boolean currentUserHasAuthority(String authority) {
         return getCurrentUser().getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
+    }
+
+    public Jwt getCurrentJwt() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new UnauthorizedException("No authentication found");
+        }
+
+        if (!(authentication.getDetails() instanceof Jwt jwt)) {
+            throw new UnauthorizedException("Authentication does not expose a decoded JWT");
+        }
+
+        return jwt;
+    }
+
+    public String getCurrentAccessToken() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new UnauthorizedException("No authentication found");
+        }
+
+        if (!(authentication.getCredentials() instanceof String accessToken)) {
+            throw new UnauthorizedException("Authentication does not expose an access token");
+        }
+
+        return accessToken;
     }
 }

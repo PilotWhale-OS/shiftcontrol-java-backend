@@ -1,9 +1,7 @@
 package at.shiftcontrol.shiftservice.service.userprofile.impl;
 
 import java.util.Set;
-
 import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Volunteer;
@@ -16,13 +14,16 @@ import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
 import at.shiftcontrol.shiftservice.service.VolunteerService;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
 import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
+import at.shiftcontrol.shiftservice.userdirectory.current.CurrentUserProfileSyncService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
 public class KeycloakUserProfileService implements UserProfileService {
     private final UserDirectoryService userDirectoryService;
+    private final CurrentUserProfileSyncService currentUserProfileSyncService;
     private final NotificationService notificationService;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
@@ -35,7 +36,20 @@ public class KeycloakUserProfileService implements UserProfileService {
             throw new ForbiddenException("Access denied: cannot access other user's profile");
         }
 
-        var user = userDirectoryService.getUserById(userId);
+        DirectoryUser user;
+        if (userId.equals(currentUser.getUserId())) {
+            var syncResult = currentUserProfileSyncService.syncCurrentSubject();
+            user = new DirectoryUser(
+                syncResult.currentSubjectProfile().subject(),
+                firstNonBlank(syncResult.userAccount().getPreferredUsername(), currentUser.getUsername(), syncResult.currentSubjectProfile().subject()),
+                firstNonBlank(syncResult.userAccount().getFirstName(), ""),
+                firstNonBlank(syncResult.userAccount().getLastName(), ""),
+                firstNonBlank(syncResult.userAccount().getEmail(), ""),
+                syncResult.currentSubjectProfile().userType()
+            );
+        } else {
+            user = userDirectoryService.getUserById(userId);
+        }
 
         // volunteer data might not yet exist
         Volunteer volunteer = volunteerService.getOrCreate(userId);
@@ -54,5 +68,15 @@ public class KeycloakUserProfileService implements UserProfileService {
         }
 
         return UserProfileMapper.toUserProfileDto(user, notifications, volunteer);
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+
+        return null;
     }
 }

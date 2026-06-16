@@ -1,9 +1,5 @@
 package at.shiftcontrol.shiftservice.auth;
 
-import at.shiftcontrol.lib.auth.NonDevTestCondition;
-import at.shiftcontrol.lib.auth.UserAuthenticationToken;
-import at.shiftcontrol.shiftservice.auth.config.props.KeycloakProps;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +15,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.auth.NonDevTestCondition;
+import at.shiftcontrol.lib.auth.UserAuthenticationToken;
+import at.shiftcontrol.shiftservice.auth.config.props.KeycloakProps;
 
 @Conditional(NonDevTestCondition.class)
 @EnableWebSecurity
@@ -31,7 +32,9 @@ public class JwtSecurityConfig {
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> {
             var applicationUser = applicationUserManager.getOrCreateUser(jwt);
-            return new UserAuthenticationToken(applicationUser, jwt.getTokenValue(), applicationUser.getAuthorities());
+            var token = new UserAuthenticationToken(applicationUser, jwt.getTokenValue(), applicationUser.getAuthorities());
+            token.setDetails(jwt);
+            return token;
         };
     }
 
