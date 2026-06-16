@@ -15,10 +15,10 @@ import org.mockito.Mockito;
 
 import at.shiftcontrol.lib.type.NotificationChannel;
 import at.shiftcontrol.lib.type.NotificationType;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.lib.type.ReceiverAccessLevel;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsDto;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsFilterDto;
-import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -26,14 +26,14 @@ import static org.mockito.ArgumentMatchers.any;
 @AutoConfigureTestDatabase
 @Transactional
 @WithMockUser(authorities = "ADMIN")
-public class NotificationRecipientServiceTest {
+class NotificationRecipientServiceTest {
 
     @Autowired
     NotificationRecipientServiceImpl notificationRecipientService;
     @Autowired
     TestEntityFactory testEntityFactory;
     @MockitoBean
-    KeycloakUserService keycloakUserService;
+    UserDirectoryService userDirectoryService;
 
     @Test
     void testGetRecipientsForNotificationAdminTest() {
@@ -44,10 +44,10 @@ public class NotificationRecipientServiceTest {
             .receiverAccessLevel(ReceiverAccessLevel.ADMIN)
             .relatedShiftPlanId("4")
             .build();
-        Mockito.when(keycloakUserService.getAllAdmins())
-            .thenReturn(List.of(testEntityFactory.getUserRepresentationWithId(userId)));
-        Mockito.when(keycloakUserService.getUserByIds(any()))
-            .thenReturn(List.of(testEntityFactory.getUserRepresentationWithId(userId)));
+        Mockito.when(userDirectoryService.getAllAdmins())
+            .thenReturn(List.of(testEntityFactory.getAdminDirectoryUserWithId(userId)));
+        Mockito.when(userDirectoryService.getUserByIds(any()))
+            .thenReturn(List.of(testEntityFactory.getAdminDirectoryUserWithId(userId)));
 
         RecipientsDto recipientsDto = notificationRecipientService.getRecipientsForNotification(filter);
 
@@ -63,10 +63,10 @@ public class NotificationRecipientServiceTest {
             .notificationChannel(NotificationChannel.PUSH)
             .receiverAccessLevel(ReceiverAccessLevel.ADMIN)
             .build();
-        Mockito.when(keycloakUserService.getAllAdmins())
-            .thenReturn(List.of(testEntityFactory.getUserRepresentationWithId(userId)));
-        Mockito.when(keycloakUserService.getUserByIds(any()))
-            .thenReturn(List.of(testEntityFactory.getUserRepresentationWithId(userId)));
+        Mockito.when(userDirectoryService.getAllAdmins())
+            .thenReturn(List.of(testEntityFactory.getAdminDirectoryUserWithId(userId)));
+        Mockito.when(userDirectoryService.getUserByIds(any()))
+            .thenReturn(List.of(testEntityFactory.getAdminDirectoryUserWithId(userId)));
 
         RecipientsDto recipientsDto = notificationRecipientService.getRecipientsForNotification(filter);
 
@@ -83,8 +83,8 @@ public class NotificationRecipientServiceTest {
             .receiverAccessLevel(ReceiverAccessLevel.VOLUNTEER)
             .relatedShiftPlanId("2")
             .build();
-        Mockito.when(keycloakUserService.getUserByIds(any()))
-            .thenReturn(List.of(testEntityFactory.getUserRepresentationWithId(userId)));
+        Mockito.when(userDirectoryService.getUserByIds(any()))
+            .thenReturn(List.of(testEntityFactory.getDirectoryUserWithId(userId)));
 
         RecipientsDto recipientsDto = notificationRecipientService.getRecipientsForNotification(filter);
 

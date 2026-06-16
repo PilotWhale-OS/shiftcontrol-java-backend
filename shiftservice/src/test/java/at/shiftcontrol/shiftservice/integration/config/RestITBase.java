@@ -1,10 +1,8 @@
 package at.shiftcontrol.shiftservice.integration.config;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +12,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,12 +26,14 @@ import io.restassured.http.Method;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mockito;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.shiftservice.auth.UserType;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -51,7 +50,7 @@ public abstract class RestITBase {
     RabbitTemplate rabbitTemplate;
 
     @MockitoBean
-    protected KeycloakUserService keycloakUserService;
+    protected UserDirectoryService userDirectoryService;
 
     protected static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -135,30 +134,21 @@ public abstract class RestITBase {
     }
 
     @BeforeEach
-    public void setKcTestVariables() {
-        UserRepresentation userRep = new UserRepresentation();
-        userRep.setId("11111");
-        userRep.setFirstName("Kerbert");
-        userRep.setLastName("Huttelwascher");
-        Mockito.when(keycloakUserService.getUserById("11111"))
+    public void setupUsers() {
+        DirectoryUser userRep = new DirectoryUser("11111", "assigned-11111", "Kerbert", "Huttelwascher", "11111@example.com", UserType.ASSIGNED);
+        Mockito.when(userDirectoryService.getUserById("11111"))
             .thenReturn(userRep);
 
-        UserRepresentation userRep2 = new UserRepresentation();
-        userRep2.setId("22222");
-        userRep2.setFirstName("Kerbert");
-        userRep2.setLastName("Huttelwascher");
-        Mockito.when(keycloakUserService.getUserById("22222"))
+        DirectoryUser userRep2 = new DirectoryUser("22222", "assigned-22222", "Kerbert", "Huttelwascher", "22222@example.com", UserType.ASSIGNED);
+        Mockito.when(userDirectoryService.getUserById("22222"))
             .thenReturn(userRep2);
 
-        UserRepresentation userRep3 = new UserRepresentation();
-        userRep3.setId("33333");
-        userRep3.setFirstName("Kerbert");
-        userRep3.setLastName("Huttelwascher");
-        Mockito.when(keycloakUserService.getUserById("33333"))
+        DirectoryUser userRep3 = new DirectoryUser("33333", "assigned-33333", "Kerbert", "Huttelwascher", "33333@example.com", UserType.ASSIGNED);
+        Mockito.when(userDirectoryService.getUserById("33333"))
             .thenReturn(userRep3);
 
 
-        Mockito.when(keycloakUserService.getUserByIds(Collections.singleton(any())))
+        Mockito.when(userDirectoryService.getUserByIds(any()))
             .thenReturn(List.of(userRep2));
     }
 

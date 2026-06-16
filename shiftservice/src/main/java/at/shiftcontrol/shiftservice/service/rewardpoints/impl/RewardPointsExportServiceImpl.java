@@ -1,6 +1,9 @@
 package at.shiftcontrol.shiftservice.service.rewardpoints.impl;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -8,21 +11,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import at.shiftcontrol.lib.common.UniqueCodeGenerator;
-import at.shiftcontrol.lib.exception.FileExportException;
-import at.shiftcontrol.shiftservice.annotation.AdminOnly;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
-import at.shiftcontrol.shiftservice.dao.EventDao;
-import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
-import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
-import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
-import at.shiftcontrol.shiftservice.dto.event.EventExportDto;
-import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsExportDto;
-import at.shiftcontrol.shiftservice.dto.rewardpoints.VolunteerPointsDto;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsExportService;
-import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -36,9 +27,21 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+
+import at.shiftcontrol.lib.common.UniqueCodeGenerator;
+import at.shiftcontrol.lib.exception.FileExportException;
+import at.shiftcontrol.shiftservice.annotation.AdminOnly;
+import at.shiftcontrol.shiftservice.dao.EventDao;
+import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
+import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
+import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
+import at.shiftcontrol.shiftservice.dto.event.EventExportDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsExportDto;
+import at.shiftcontrol.shiftservice.dto.rewardpoints.VolunteerPointsDto;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsExportService;
+import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
 @Service
 public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl implements RewardPointsExportService {
@@ -47,10 +50,10 @@ public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl imple
                                          RewardPointsShareTokenDao rewardPointsShareTokenDao,
                                          EventDao eventDao, VolunteerDao volunteerDao,
                                          RewardPointsTransactionDao rewardPointsTransactionDao,
-                                         KeycloakUserService keycloakService,
+                                         UserDirectoryService userDirectoryService,
                                          ApplicationEventPublisher publisher,
                                          UniqueCodeGenerator uniqueCodeGenerator) {
-        super(calculator, ledgerService, rewardPointsShareTokenDao, eventDao, volunteerDao, rewardPointsTransactionDao, keycloakService, publisher,
+        super(calculator, ledgerService, rewardPointsShareTokenDao, eventDao, volunteerDao, rewardPointsTransactionDao, userDirectoryService, publisher,
             uniqueCodeGenerator);
     }
 
@@ -310,6 +313,5 @@ public class RewardPointsExportServiceImpl extends RewardPointsServiceImpl imple
         return style;
     }
 }
-
 
 

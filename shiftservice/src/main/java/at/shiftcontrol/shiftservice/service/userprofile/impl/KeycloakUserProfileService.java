@@ -10,19 +10,19 @@ import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.type.NotificationType;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
 import at.shiftcontrol.shiftservice.mapper.UserProfileMapper;
 import at.shiftcontrol.shiftservice.service.VolunteerService;
 import at.shiftcontrol.shiftservice.service.userprofile.NotificationService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
 public class KeycloakUserProfileService implements UserProfileService {
-    private final KeycloakUserService kcService;
+    private final UserDirectoryService userDirectoryService;
     private final NotificationService notificationService;
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
@@ -35,7 +35,7 @@ public class KeycloakUserProfileService implements UserProfileService {
             throw new ForbiddenException("Access denied: cannot access other user's profile");
         }
 
-        var user = kcService.getUserById(userId);
+        var user = userDirectoryService.getUserById(userId);
 
         // volunteer data might not yet exist
         Volunteer volunteer = volunteerService.getOrCreate(userId);

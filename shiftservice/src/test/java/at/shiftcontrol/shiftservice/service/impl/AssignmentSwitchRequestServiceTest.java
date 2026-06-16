@@ -21,7 +21,6 @@ import org.mockito.Mockito;
 
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
@@ -32,6 +31,7 @@ import at.shiftcontrol.shiftservice.dto.trade.TradeDto;
 import at.shiftcontrol.shiftservice.repo.AssignmentSwitchRequestRepository;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsLedgerService;
 import at.shiftcontrol.shiftservice.service.userprofile.UserProfileService;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 @AutoConfigureTestDatabase
 @Transactional
 @WithMockUser(authorities = "USER")
-public class AssignmentSwitchRequestServiceTest {
+class AssignmentSwitchRequestServiceTest {
 
     @Autowired
     AssignmentSwitchRequestServiceImpl assignmentSwitchRequestService;
@@ -63,7 +63,7 @@ public class AssignmentSwitchRequestServiceTest {
     SecurityHelper securityHelper;
 
     @MockitoBean
-    KeycloakUserService keycloakUserService;
+    UserDirectoryService userDirectoryService;
 
     @MockitoBean
     UserProfileService userProfileService;
@@ -103,10 +103,10 @@ public class AssignmentSwitchRequestServiceTest {
         var currentUser = mock(ShiftControlUser.class);
         when(applicationUserProvider.getCurrentUser()).thenReturn(currentUser);
         when(currentUser.getUserId()).thenReturn(currentUserId);
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
-        Mockito.when(keycloakUserService.getUserByIds(any()))
-            .thenReturn(List.of(testEntityFactory.getUserRepresentationWithId("28c02050-4f90-4f3a-b1df-3c7d27a166e7")));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(currentUserId));
+        Mockito.when(userDirectoryService.getUserByIds(any()))
+            .thenReturn(List.of(testEntityFactory.getDirectoryUserWithId("28c02050-4f90-4f3a-b1df-3c7d27a166e7")));
 
         Collection<TradeCandidatesDto> result = assignmentSwitchRequestService.getPositionSlotsToOffer(positionSlotId, currentUserId);
 
@@ -122,10 +122,10 @@ public class AssignmentSwitchRequestServiceTest {
         String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
         String offeredPosition = "1";
         String requestedPosition = "2";
-        Mockito.when(keycloakUserService.getUserById(currentUserId))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
-        Mockito.when(keycloakUserService.getUserById(otherUserId))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(otherUserId));
+        Mockito.when(userDirectoryService.getUserById(currentUserId))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(currentUserId));
+        Mockito.when(userDirectoryService.getUserById(otherUserId))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(otherUserId));
 
         TradeCreateDto createDto = TradeCreateDto.builder()
             .offeredPositionSlotId(offeredPosition)
@@ -151,8 +151,8 @@ public class AssignmentSwitchRequestServiceTest {
         String otherUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long offeredSlotId = 1L;
         long requestedSlotId = 2L;
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(currentUserId));
 
         var pointsOtherUserBeforeTrade = rewardPointsLedgerService.getTotalPoints(otherUserId).getTotalPoints();
         var pointsCurrentUserBeforeTrade = rewardPointsLedgerService.getTotalPoints(currentUserId).getTotalPoints();
@@ -192,8 +192,8 @@ public class AssignmentSwitchRequestServiceTest {
     @Test
     void testDeclineTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(currentUserId));
 
         TradeDto dto = assignmentSwitchRequestService.declineTrade(1, currentUserId);
 
@@ -206,8 +206,8 @@ public class AssignmentSwitchRequestServiceTest {
     @Test
     void testCancelTrade() {
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(currentUserId));
 
         TradeDto dto = assignmentSwitchRequestService.cancelTrade(1, currentUserId);
 

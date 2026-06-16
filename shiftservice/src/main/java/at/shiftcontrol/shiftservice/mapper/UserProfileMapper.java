@@ -1,24 +1,21 @@
 package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Event;
-
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
-
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
 
 @RequiredArgsConstructor
 @Service
 public class UserProfileMapper {
-    public static UserProfileDto toUserProfileDto(UserRepresentation user, Collection<NotificationSettingsDto> notificationSettings, Volunteer volunteer) {
+    public static UserProfileDto toUserProfileDto(DirectoryUser user, Collection<NotificationSettingsDto> notificationSettings, Volunteer volunteer) {
         return UserProfileDto.builder()
             .account(AccountInfoMapper.toDto(user))
             .notifications(notificationSettings)

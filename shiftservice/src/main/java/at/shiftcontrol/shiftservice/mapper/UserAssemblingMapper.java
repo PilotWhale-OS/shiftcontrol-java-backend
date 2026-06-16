@@ -6,39 +6,39 @@ import java.util.Collections;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.NotFoundException;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
 @RequiredArgsConstructor
 @Service
 public class UserAssemblingMapper {
-    private final KeycloakUserService keycloakUserService;
+    private final UserDirectoryService userDirectoryService;
 
     public UserPlanDto toUserPlanDto(Volunteer volunteer, Long planId) {
-        var user = keycloakUserService.getUserById(volunteer.getId());
+        var user = userDirectoryService.getUserById(volunteer.getId());
         return UserAssemblingMapper.toUserPlanDto(volunteer, user, planId);
     }
 
-    public static UserPlanDto toUserPlanDto(Volunteer volunteer, UserRepresentation user, Long planId) {
+    public static UserPlanDto toUserPlanDto(Volunteer volunteer, DirectoryUser user, Long planId) {
         return UserPlanDto.builder()
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
-            .email(user.getEmail())
+            .email(user.email())
             .roles(volunteer == null ? null : RoleMapper.toRoleDto(volunteer.getRoles(), planId))
             .isLocked(volunteer == null ? null : volunteer.getLockedPlans().stream().anyMatch(x -> planId.equals(x.getId())))
             .build();
     }
 
-    public static Collection<UserPlanDto> toUserPlanDto(Collection<Volunteer> volunteers, Collection<UserRepresentation> users, Long planId) {
+    public static Collection<UserPlanDto> toUserPlanDto(Collection<Volunteer> volunteers, Collection<DirectoryUser> users, Long planId) {
         return volunteers.stream()
             .map(v ->
                 toUserPlanDto(v, users.stream()
-                        .filter(u -> u.getId().equals(v.getId()))
+                        .filter(u -> u.id().equals(v.getId()))
                         .findFirst()
                         .orElseThrow(NotFoundException::new),
                     planId)
@@ -48,23 +48,23 @@ public class UserAssemblingMapper {
     }
 
     public UserEventDto toUserEventDto(Volunteer volunteer) {
-        var user = keycloakUserService.getUserById(volunteer.getId());
+        var user = userDirectoryService.getUserById(volunteer.getId());
         return UserAssemblingMapper.toUserEventDto(volunteer, user);
     }
 
-    public static UserEventDto toUserEventDto(Volunteer volunteer, UserRepresentation user) {
+    public static UserEventDto toUserEventDto(Volunteer volunteer, DirectoryUser user) {
         if (volunteer == null) {
             return UserEventDto.builder()
                 .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
                 .volunteeringPlans(Collections.emptySet())
                 .planningPlans(Collections.emptySet())
                 .lockedPlans(Collections.emptySet())
-                .email(user.getEmail())
+                .email(user.email())
                 .build();
         }
         return UserEventDto.builder()
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
-            .email(user.getEmail())
+            .email(user.email())
             .volunteeringPlans(volunteer.getVolunteeringPlans()
                 .stream()
                 .map(shiftPlan -> String.valueOf(shiftPlan.getId()))
@@ -80,11 +80,11 @@ public class UserAssemblingMapper {
             .build();
     }
 
-    public static Collection<UserEventDto> toUserEventDtoForUsers(Collection<Volunteer> volunteers, Collection<UserRepresentation> users) {
+    public static Collection<UserEventDto> toUserEventDtoForUsers(Collection<Volunteer> volunteers, Collection<DirectoryUser> users) {
         return users.stream()
             .map(u ->
                 toUserEventDto(volunteers.stream()
-                    .filter(v -> v.getId().equals(u.getId()))
+                    .filter(v -> v.getId().equals(u.id()))
                     .findFirst()
                     .orElse(null), u)
             )
@@ -92,12 +92,12 @@ public class UserAssemblingMapper {
             .toList();
     }
 
-    public static ContactInfoDto toContactInfoDto(UserRepresentation user) {
+    public static ContactInfoDto toContactInfoDto(DirectoryUser user) {
         return ContactInfoDto.builder()
-            .userId(user.getId())
-            .firstName(user.getFirstName())
-            .lastName(user.getLastName())
-            .email(user.getEmail())
+            .userId(user.id())
+            .firstName(user.firstName())
+            .lastName(user.lastName())
+            .email(user.email())
             .build();
     }
 }

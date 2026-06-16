@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.type.NotificationChannel;
 import at.shiftcontrol.lib.type.NotificationType;
-import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
+import at.shiftcontrol.lib.type.ReceiverAccessLevel;
 
 @Data
 @RequiredArgsConstructor
