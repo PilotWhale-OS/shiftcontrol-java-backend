@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import at.shiftcontrol.shiftservice.auth.user.ServiceUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.userdirectory.current.CurrentUserProfileSyncService;
 
@@ -52,6 +53,30 @@ class CurrentUserProfileSyncFilterTest {
             "plain-user",
             "secret"
         ));
+
+        ReflectionTestUtils.invokeMethod(filter, "doFilterInternal", request, response, (jakarta.servlet.FilterChain) (req, res) -> {});
+
+        verify(currentUserProfileSyncService, never()).syncCurrentSubjectIfStale();
+    }
+
+    @Test
+    void doFilterInternal_skipsJwtBackedServiceUsers() throws Exception {
+        var filter = new CurrentUserProfileSyncFilter(currentUserProfileSyncService);
+        var request = new MockHttpServletRequest("GET", "/api/internal/users");
+        var response = new MockHttpServletResponse();
+
+        var serviceUser = new ServiceUser(List.of(), "usersync", "service-account-usersync");
+        var authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+            serviceUser,
+            "token-value",
+            serviceUser.getAuthorities()
+        );
+        authentication.setDetails(Jwt.withTokenValue("token-value")
+            .header("alg", "none")
+            .claim("sub", "service-account-usersync")
+            .claim("scope", "shiftservice.users.read")
+            .build());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ReflectionTestUtils.invokeMethod(filter, "doFilterInternal", request, response, (jakarta.servlet.FilterChain) (req, res) -> {});
 

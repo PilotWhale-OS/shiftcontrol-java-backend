@@ -42,8 +42,8 @@ public class AdminUserAdministrationItemEndpoint {
 
     @PostMapping
     @Operation(
-        operationId = "createVolunteerForKeyCloakUser",
-        description = "Create a volunteer for an existing keycloak user"
+        operationId = "createVolunteerForKnownUser",
+        description = "Create a volunteer entry for an existing known local user identifier"
     )
     public UserEventDto createVolunteer(@PathVariable String userId) {
         return service.createVolunteer(userId);

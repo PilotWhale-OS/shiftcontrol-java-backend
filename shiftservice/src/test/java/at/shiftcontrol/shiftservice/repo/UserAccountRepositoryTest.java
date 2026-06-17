@@ -17,7 +17,7 @@ import at.shiftcontrol.shiftservice.repo.userdirectory.UserAccountRepository;
 
 @DataJpaTest
 @Import({TestConfig.class})
-public class UserAccountRepositoryTest {
+class UserAccountRepositoryTest {
     @Autowired
     private UserAccountRepository userAccountRepository;
 
@@ -59,6 +59,44 @@ public class UserAccountRepositoryTest {
             () -> Assertions.assertEquals(savedUserAccount.getId(), externalIdentity.getUserAccount().getId()),
             () -> Assertions.assertEquals(UserProfileSource.TOKEN_CLAIMS, resolvedByEmail.getLastProfileSyncSource()),
             () -> Assertions.assertEquals(1, externalIdentityRepository.findAllByUserAccountId(savedUserAccount.getId()).size())
+        );
+    }
+
+    @Test
+    void findAllPlatformAdminsWithExternalIdentities_returnsOnlyMarkedAdmins() {
+        UserAccount admin = UserAccount.builder()
+            .status(UserAccountStatus.ACTIVE)
+            .preferredUsername("admin.user")
+            .displayName("Admin User")
+            .platformAdmin(true)
+            .build();
+        admin.addExternalIdentity(ExternalIdentity.builder()
+            .issuer("https://id.example.test/realms/shiftcontrol")
+            .subject("admin-1")
+            .lastSeenAt(Instant.parse("2026-06-16T09:05:00Z"))
+            .build());
+
+        UserAccount assigned = UserAccount.builder()
+            .status(UserAccountStatus.ACTIVE)
+            .preferredUsername("assigned.user")
+            .displayName("Assigned User")
+            .platformAdmin(false)
+            .build();
+        assigned.addExternalIdentity(ExternalIdentity.builder()
+            .issuer("https://id.example.test/realms/shiftcontrol")
+            .subject("user-1")
+            .lastSeenAt(Instant.parse("2026-06-16T09:05:00Z"))
+            .build());
+
+        userAccountRepository.save(admin);
+        userAccountRepository.save(assigned);
+
+        var admins = userAccountRepository.findAllPlatformAdminsWithExternalIdentities();
+
+        Assertions.assertAll(
+            () -> Assertions.assertEquals(1, admins.size()),
+            () -> Assertions.assertTrue(admins.get(0).isPlatformAdmin()),
+            () -> Assertions.assertEquals("admin.user", admins.get(0).getPreferredUsername())
         );
     }
 }

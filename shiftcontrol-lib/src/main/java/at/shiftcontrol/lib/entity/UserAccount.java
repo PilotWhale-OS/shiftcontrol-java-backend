@@ -65,6 +65,9 @@ public class UserAccount {
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified;
 
+    @Column(name = "platform_admin", nullable = false)
+    private boolean platformAdmin;
+
     @Column(name = "last_login_at")
     private Instant lastLoginAt;
 

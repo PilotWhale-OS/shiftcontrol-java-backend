@@ -55,11 +55,14 @@ public class CurrentUserProfileSyncService {
 
         UserAccount userAccount;
         if (existingExternalIdentity == null) {
-            userAccount = UserAccount.builder()
-                .status(UserAccountStatus.ACTIVE)
-                .createdAt(now)
-                .updatedAt(now)
-                .build();
+            userAccount = findExistingUserAccountBySubject(currentSubjectProfile.subject());
+            if (userAccount == null) {
+                userAccount = UserAccount.builder()
+                    .status(UserAccountStatus.ACTIVE)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            }
             applyCurrentProfile(userAccount, currentSubjectProfile, now);
             userAccount.addExternalIdentity(ExternalIdentity.builder()
                 .issuer(currentSubjectProfile.issuer())
@@ -112,10 +115,19 @@ public class CurrentUserProfileSyncService {
         if (userAccount.getStatus() == UserAccountStatus.PENDING_INVITE) {
             userAccount.setStatus(UserAccountStatus.ACTIVE);
         }
+        userAccount.setPlatformAdmin(currentSubjectProfile.userType() == at.shiftcontrol.shiftservice.auth.UserType.ADMIN);
         userAccount.setLastLoginAt(now);
         userAccount.setLastProfileSyncAt(now);
         userAccount.setLastProfileSyncSource(UserProfileSource.TOKEN_CLAIMS);
         userAccount.setUpdatedAt(now);
+    }
+
+    private UserAccount findExistingUserAccountBySubject(String subject) {
+        return externalIdentityRepository.findAllBySubject(subject).stream()
+            .map(ExternalIdentity::getUserAccount)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
     }
 
     private String buildDisplayName(String firstName, String lastName, String preferredUsername, String email, String subject) {

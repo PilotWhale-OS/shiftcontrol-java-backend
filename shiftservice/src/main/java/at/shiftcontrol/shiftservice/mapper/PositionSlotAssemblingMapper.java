@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Stream;
+import org.springframework.stereotype.Service;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.AssignmentSwitchRequest;
@@ -21,9 +24,7 @@ import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotDto;
 import at.shiftcontrol.shiftservice.dto.rewardpoints.RewardPointsDto;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
 @RequiredArgsConstructor
 @Service
@@ -36,7 +37,7 @@ public class PositionSlotAssemblingMapper {
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
     private final RewardPointsAssemblingMapper rewardPointsAssemblingMapper;
     private final TradeMapper tradeMapper;
-    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
+    private final UserDirectoryService userDirectoryService;
     private final AssignmentSwitchRequestDao assignmentSwitchRequestDao;
 
     public PositionSlotDto assemble(@NonNull PositionSlot positionSlot) {
@@ -152,11 +153,12 @@ public class PositionSlotAssemblingMapper {
 
     public TradeCandidatesDto tradeCandidatesDto(@NonNull PositionSlot positionSlot, Collection<Volunteer> volunteers) {
         var shift = positionSlot.getShift();
+        var users = userDirectoryService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
         return new TradeCandidatesDto(
             assemble(positionSlot),
             shift.getName(),
             shift.getStartTime(),
-            volunteerAssemblingMapper.toDto(volunteers)
+            VolunteerAssemblingMapper.toDtoFromUser(users)
         );
     }
 }

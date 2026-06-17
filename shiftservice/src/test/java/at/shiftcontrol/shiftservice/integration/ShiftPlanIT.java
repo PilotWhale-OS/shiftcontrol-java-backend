@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
@@ -46,8 +47,6 @@ import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -331,7 +330,7 @@ class ShiftPlanIT extends RestITBase {
             Method.POST,
             SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
             modificationDto,
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "Access Denied",
             volunteerNotJoined.getId()
         );
@@ -348,7 +347,7 @@ class ShiftPlanIT extends RestITBase {
             Method.POST,
             SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
             modificationDto,
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "Access Denied",
             volunteerJoinedAsVolunteerOnly.getId()
         );
@@ -365,7 +364,7 @@ class ShiftPlanIT extends RestITBase {
             Method.POST,
             SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
             modificationDto,
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "Access Denied",
             volunteerJoinedAsPlannerOnly.getId()
         );
@@ -411,7 +410,7 @@ class ShiftPlanIT extends RestITBase {
             Method.POST,
             INVITE_PATH.formatted(shiftPlanA.getId()),
             requestDto,
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "User is not a planner in shift plan.",
             volunteerNotJoined.getId()
         );
@@ -426,7 +425,7 @@ class ShiftPlanIT extends RestITBase {
             Method.POST,
             INVITE_PATH.formatted(shiftPlanA.getId()),
             requestDto,
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "Only admins can create planner join invite codes.",
             volunteerNotJoined.getId()
         );
@@ -441,7 +440,7 @@ class ShiftPlanIT extends RestITBase {
             Method.POST,
             INVITE_PATH.formatted(shiftPlanA.getId()),
             requestDto,
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "User is not a planner in shift plan.",
             volunteerJoinedAsVolunteerOnly.getId()
         );
@@ -456,7 +455,7 @@ class ShiftPlanIT extends RestITBase {
             Method.POST,
             INVITE_PATH.formatted(shiftPlanA.getId()),
             requestDto,
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "Only admins can create planner join invite codes.",
             volunteerJoinedAsVolunteerOnly.getId()
         );
@@ -492,7 +491,7 @@ class ShiftPlanIT extends RestITBase {
             Method.POST,
             INVITE_PATH.formatted(shiftPlanA.getId()),
             requestDto,
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "Only admins can create planner join invite codes.",
             volunteerJoinedAsPlannerOnly.getId()
         );
@@ -796,7 +795,7 @@ class ShiftPlanIT extends RestITBase {
             SHIFTPLAN_COLLECTION_PATH.formatted(eventA.getId()),
             modificationDto,
             ShiftPlanCreateDto.class,
-            BAD_REQUEST.getStatusCode()
+            HttpStatus.BAD_REQUEST.value()
         );
     }
 }

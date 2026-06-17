@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
@@ -27,7 +28,6 @@ import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -224,7 +224,7 @@ class EventIT extends RestITBase {
         assignmentRepository.save(assignmentA);
 
         assertAll(
-            () -> assertThat(assignmentA.getId()).isNotNull(),
+            () -> assertThat(assignmentA.getId()).isNotZero(),
             () -> assertThat(assignmentA.getPositionSlot()).isEqualTo(positionSlotA),
             () -> assertThat(assignmentA.getAssignedVolunteer()).isEqualTo(volunteerA),
             () -> assertThat(assignmentA.getStatus()).isEqualTo(AssignmentStatus.ACCEPTED)
@@ -247,7 +247,7 @@ class EventIT extends RestITBase {
             Method.POST,
             EVENT_CLONE_PATH.formatted(eventA.getId()),
             "",
-            FORBIDDEN.getStatusCode(),
+            HttpStatus.FORBIDDEN.value(),
             "Access Denied",
             true,
             volunteerA.getId()

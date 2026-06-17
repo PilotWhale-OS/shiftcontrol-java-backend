@@ -56,7 +56,6 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     private final UserDirectoryService userDirectoryService;
     private final UserAttributeProvider userAttributeProvider;
     private final SecurityHelper securityHelper;
-    private final UserAssemblingMapper userAssemblingMapper;
     private final RoleDao roleDao;
     private final ApplicationEventPublisher publisher;
     private final AssignmentService assignmentService;
@@ -80,10 +79,8 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     public @NonNull PaginationDto<UserPlanDto> getAllPlanUsers(@NonNull Long shiftPlanId, int page, int size, @NonNull UserSearchDto searchDto) {
         securityHelper.assertUserIsPlanner(shiftPlanId);
-        var allUsers = userDirectoryService.getAllUsers();
         var volunteersInPlanId = volunteerDao.findAllIdsByShiftPlan(shiftPlanId);
-        var usersForPlan =  allUsers.stream()
-            .filter(u -> volunteersInPlanId.contains(u.id()))
+        var usersForPlan = userDirectoryService.getUserByIds(volunteersInPlanId).stream()
             .sorted(Comparator.comparing(user -> user.lastName() == null ? "" : user.lastName()))
             .toList();
         var users = filterUsers(searchDto, usersForPlan);
@@ -122,12 +119,12 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @AdminOnly
     public @NonNull UserEventDto getUser(@NonNull String userId) {
         var volunteer = volunteerService.getOrCreate(userId);
-        return userAssemblingMapper.toUserEventDto(volunteer);
+        return toUserEventDto(volunteer);
     }
 
     @Override
     public @NonNull UserEventDto createVolunteer(@NonNull String userId) {
-        return userAssemblingMapper.toUserEventDto(volunteerService.createVolunteer(userId));
+        return toUserEventDto(volunteerService.createVolunteer(userId));
     }
 
     @Override
@@ -135,7 +132,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var volunteer = volunteerDao.getById(userId);
         securityHelper.assertUserIsPlanner(shiftPlanId);
         securityHelper.assertVolunteerIsVolunteer(shiftPlanDao.getById(shiftPlanId), volunteer, false);
-        return userAssemblingMapper.toUserPlanDto(volunteer, shiftPlanId);
+        return toUserPlanDto(volunteer, shiftPlanId);
     }
 
     @Override
@@ -210,7 +207,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.lock(volunteer, plans));
-        return userAssemblingMapper.toUserEventDto(volunteer);
+        return toUserEventDto(volunteer);
     }
 
     @Override
@@ -226,7 +223,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.unlock(volunteer, plans));
-        return userAssemblingMapper.toUserEventDto(volunteer);
+        return toUserEventDto(volunteer);
     }
 
     @Override
@@ -245,7 +242,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.reset(volunteer, plans));
-        return userAssemblingMapper.toUserEventDto(volunteer);
+        return toUserEventDto(volunteer);
     }
 
     @Override
@@ -320,6 +317,18 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     private @NonNull Collection<UserEventDto> getUserEventDtos(Collection<Volunteer> volunteers) {
         var users = userDirectoryService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
         return UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users);
+    }
+
+    private @NonNull UserEventDto toUserEventDto(@NonNull Volunteer volunteer) {
+        return UserAssemblingMapper.toUserEventDto(volunteer, getDirectoryUser(volunteer.getId()));
+    }
+
+    private @NonNull UserPlanDto toUserPlanDto(@NonNull Volunteer volunteer, long shiftPlanId) {
+        return UserAssemblingMapper.toUserPlanDto(volunteer, getDirectoryUser(volunteer.getId()), shiftPlanId);
+    }
+
+    private DirectoryUser getDirectoryUser(String userId) {
+        return userDirectoryService.getUserById(userId);
     }
 
     private static String safeLower(String value) {

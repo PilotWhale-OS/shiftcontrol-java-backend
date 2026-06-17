@@ -9,6 +9,7 @@ import config.TestConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import at.shiftcontrol.lib.entity.UserAccount;
 import at.shiftcontrol.lib.type.UserAccountStatus;
 import at.shiftcontrol.lib.type.UserProfileSource;
 import at.shiftcontrol.shiftservice.auth.UserType;
@@ -59,6 +60,7 @@ class CurrentUserProfileSyncServiceTest {
             () -> Assertions.assertEquals("Current User", persistedUserAccount.getDisplayName()),
             () -> Assertions.assertEquals("current.user@example.com", persistedUserAccount.getEmail()),
             () -> Assertions.assertTrue(persistedUserAccount.isEmailVerified()),
+            () -> Assertions.assertFalse(persistedUserAccount.isPlatformAdmin()),
             () -> Assertions.assertEquals(UserProfileSource.TOKEN_CLAIMS, persistedUserAccount.getLastProfileSyncSource()),
             () -> Assertions.assertNotNull(persistedUserAccount.getLastLoginAt()),
             () -> Assertions.assertNotNull(persistedUserAccount.getLastProfileSyncAt()),
@@ -100,6 +102,43 @@ class CurrentUserProfileSyncServiceTest {
             () -> Assertions.assertTrue(updatedResult.userAccount().getLastProfileSyncAt().isAfter(firstSyncAt)
                 || updatedResult.userAccount().getLastProfileSyncAt().equals(firstSyncAt)),
             () -> Assertions.assertEquals(1, externalIdentityRepository.findAllByUserAccountId(updatedResult.userAccount().getId()).size())
+        );
+    }
+
+    @Test
+    void syncCurrentSubject_marksAdminUsersAndReusesExistingPlaceholderAccount() {
+        UserAccount placeholderAccount = UserAccount.builder()
+            .status(UserAccountStatus.ACTIVE)
+            .preferredUsername("legacy-user")
+            .displayName("legacy-user")
+            .lastProfileSyncSource(UserProfileSource.MIGRATION)
+            .build();
+        placeholderAccount.addExternalIdentity(at.shiftcontrol.lib.entity.ExternalIdentity.builder()
+            .issuer(at.shiftcontrol.shiftservice.userdirectory.LocalUserDirectoryProvisioningService.LEGACY_VOLUNTEER_ISSUER)
+            .subject("subject-999")
+            .createdAt(Instant.parse("2026-06-16T09:00:00Z"))
+            .lastSeenAt(Instant.parse("2026-06-16T09:00:00Z"))
+            .build());
+        UserAccount savedPlaceholder = userAccountRepository.save(placeholderAccount);
+
+        when(currentSubjectProfileResolver.resolveCurrentSubject()).thenReturn(new CurrentSubjectProfile(
+            "https://id.example.test/realms/shiftcontrol",
+            "subject-999",
+            "admin.user",
+            "Admin",
+            "User",
+            "admin.user@example.com",
+            true,
+            "token-value",
+            UserType.ADMIN
+        ));
+
+        CurrentSubjectProfileSyncResult result = currentUserProfileSyncService.syncCurrentSubject();
+
+        Assertions.assertAll(
+            () -> Assertions.assertEquals(savedPlaceholder.getId(), result.userAccount().getId()),
+            () -> Assertions.assertTrue(result.userAccount().isPlatformAdmin()),
+            () -> Assertions.assertEquals(2, externalIdentityRepository.findAllByUserAccountId(result.userAccount().getId()).size())
         );
     }
 

@@ -2,10 +2,12 @@ package at.shiftcontrol.shiftservice.mapper;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.NotFoundException;
@@ -13,18 +15,9 @@ import at.shiftcontrol.shiftservice.dto.user.ContactInfoDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
-import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
-@RequiredArgsConstructor
-@Service
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserAssemblingMapper {
-    private final UserDirectoryService userDirectoryService;
-
-    public UserPlanDto toUserPlanDto(Volunteer volunteer, Long planId) {
-        var user = userDirectoryService.getUserById(volunteer.getId());
-        return UserAssemblingMapper.toUserPlanDto(volunteer, user, planId);
-    }
-
     public static UserPlanDto toUserPlanDto(Volunteer volunteer, DirectoryUser user, Long planId) {
         return UserPlanDto.builder()
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
@@ -35,21 +28,13 @@ public class UserAssemblingMapper {
     }
 
     public static Collection<UserPlanDto> toUserPlanDto(Collection<Volunteer> volunteers, Collection<DirectoryUser> users, Long planId) {
+        Map<String, DirectoryUser> usersById = users.stream()
+            .collect(Collectors.toMap(DirectoryUser::id, Function.identity()));
+
         return volunteers.stream()
-            .map(v ->
-                toUserPlanDto(v, users.stream()
-                        .filter(u -> u.id().equals(v.getId()))
-                        .findFirst()
-                        .orElseThrow(NotFoundException::new),
-                    planId)
-            )
+            .map(v -> toUserPlanDto(v, getRequiredUser(usersById, v.getId()), planId))
             .sorted(UserPlanDto.lastNameComparator())
             .toList();
-    }
-
-    public UserEventDto toUserEventDto(Volunteer volunteer) {
-        var user = userDirectoryService.getUserById(volunteer.getId());
-        return UserAssemblingMapper.toUserEventDto(volunteer, user);
     }
 
     public static UserEventDto toUserEventDto(Volunteer volunteer, DirectoryUser user) {
@@ -81,13 +66,11 @@ public class UserAssemblingMapper {
     }
 
     public static Collection<UserEventDto> toUserEventDtoForUsers(Collection<Volunteer> volunteers, Collection<DirectoryUser> users) {
+        Map<String, Volunteer> volunteersById = volunteers.stream()
+            .collect(Collectors.toMap(Volunteer::getId, Function.identity()));
+
         return users.stream()
-            .map(u ->
-                toUserEventDto(volunteers.stream()
-                    .filter(v -> v.getId().equals(u.id()))
-                    .findFirst()
-                    .orElse(null), u)
-            )
+            .map(u -> toUserEventDto(volunteersById.get(u.id()), u))
             .sorted(UserEventDto.lastNameComparator())
             .toList();
     }
@@ -99,5 +82,14 @@ public class UserAssemblingMapper {
             .lastName(user.lastName())
             .email(user.email())
             .build();
+    }
+
+    private static DirectoryUser getRequiredUser(Map<String, DirectoryUser> usersById, String userId) {
+        DirectoryUser user = usersById.get(userId);
+        if (user == null) {
+            throw new NotFoundException();
+        }
+
+        return user;
     }
 }

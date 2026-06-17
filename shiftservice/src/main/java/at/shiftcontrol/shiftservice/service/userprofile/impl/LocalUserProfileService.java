@@ -21,7 +21,7 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
 @RequiredArgsConstructor
-public class KeycloakUserProfileService implements UserProfileService {
+public class LocalUserProfileService implements UserProfileService {
     private final UserDirectoryService userDirectoryService;
     private final CurrentUserProfileSyncService currentUserProfileSyncService;
     private final NotificationService notificationService;

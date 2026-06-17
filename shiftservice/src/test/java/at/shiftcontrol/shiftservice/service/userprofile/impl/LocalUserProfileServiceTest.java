@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class KeycloakUserProfileServiceTest {
+class LocalUserProfileServiceTest {
     @Mock
     private UserDirectoryService userDirectoryService;
 
@@ -55,7 +55,7 @@ class KeycloakUserProfileServiceTest {
     private VolunteerService volunteerService;
 
     @InjectMocks
-    private KeycloakUserProfileService userProfileService;
+    private LocalUserProfileService userProfileService;
 
     @Test
     void getUserProfile_rejectsAccessToOtherUsersForNonAdmins() {

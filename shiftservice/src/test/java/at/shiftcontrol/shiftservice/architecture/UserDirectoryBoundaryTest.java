@@ -9,25 +9,15 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 @AnalyzeClasses(packages = "at.shiftcontrol.shiftservice")
 class UserDirectoryBoundaryTest {
     @ArchTest
-    static final ArchRule keycloak_adapter_is_not_used_directly_outside_auth =
+    static final ArchRule keycloak_admin_client_is_not_used =
         noClasses()
-            .that()
-            .resideOutsideOfPackages(
-                "..auth..",
-                "..architecture.."
-            )
             .should()
             .dependOnClassesThat()
-            .haveSimpleName("KeycloakUserService");
+            .resideInAnyPackage("org.keycloak.admin.client..");
 
     @ArchTest
-    static final ArchRule keycloak_user_representation_is_confined_to_auth_adapter =
+    static final ArchRule keycloak_user_representation_is_not_used =
         noClasses()
-            .that()
-            .resideOutsideOfPackages(
-                "..auth..",
-                "..architecture.."
-            )
             .should()
             .dependOnClassesThat()
             .haveFullyQualifiedName("org.keycloak.representations.idm.UserRepresentation");

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import at.shiftcontrol.lib.auth.ApplicationUser;
+import at.shiftcontrol.shiftservice.auth.user.ServiceUser;
 import at.shiftcontrol.shiftservice.userdirectory.current.CurrentUserProfileSyncService;
 
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class CurrentUserProfileSyncFilter extends OncePerRequestFilter {
             var authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null
                 && authentication.getPrincipal() instanceof ApplicationUser
+                && !(authentication.getPrincipal() instanceof ServiceUser)
                 && authentication.getDetails() instanceof Jwt) {
                 currentUserProfileSyncService.syncCurrentSubjectIfStale();
             }

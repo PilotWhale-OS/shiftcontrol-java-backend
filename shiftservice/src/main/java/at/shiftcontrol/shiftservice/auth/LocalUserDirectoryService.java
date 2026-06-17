@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,18 +20,25 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.entity.ExternalIdentity;
+import at.shiftcontrol.lib.entity.UserAccount;
+import at.shiftcontrol.lib.exception.BadRequestException;
+import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.userdirectory.ExternalIdentityRepository;
+import at.shiftcontrol.shiftservice.repo.userdirectory.UserAccountRepository;
 import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
+import at.shiftcontrol.shiftservice.userdirectory.LocalUserDirectoryProvisioningService;
 import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
 @Service
 @Primary
 @RequiredArgsConstructor
-public class LocalFirstUserDirectoryService implements UserDirectoryService {
+public class LocalUserDirectoryService implements UserDirectoryService {
     private static final String ADMIN_CACHE_KEY = "all-admins";
 
     private final ExternalIdentityRepository externalIdentityRepository;
-    private final KeycloakUserService keycloakUserService;
+    private final UserAccountRepository userAccountRepository;
+    private final VolunteerRepository volunteerRepository;
+    private final LocalUserDirectoryProvisioningService provisioningService;
 
     private Cache<String, DirectoryUser> userCache;
     private Cache<String, List<DirectoryUser>> listCache;
@@ -55,8 +63,12 @@ public class LocalFirstUserDirectoryService implements UserDirectoryService {
         }
 
         DirectoryUser resolvedUser = resolveLocalUsers(Set.of(userId)).get(userId);
+        if (resolvedUser == null && volunteerRepository.existsById(userId)) {
+            provisioningService.ensureUserAccountForVolunteerId(userId);
+            resolvedUser = resolveLocalUsers(Set.of(userId)).get(userId);
+        }
         if (resolvedUser == null) {
-            resolvedUser = keycloakUserService.getUserById(userId);
+            throw new BadRequestException("User not found: " + userId);
         }
 
         userCache.put(userId, resolvedUser);
@@ -65,7 +77,13 @@ public class LocalFirstUserDirectoryService implements UserDirectoryService {
 
     @Override
     public Collection<DirectoryUser> getUserByIds(Collection<String> userIds) {
-        Set<String> requestedIds = new LinkedHashSet<>(userIds);
+        Set<String> requestedIds = userIds.stream()
+            .filter(Objects::nonNull)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (requestedIds.isEmpty()) {
+            return List.of();
+        }
+
         Map<String, DirectoryUser> resolvedUsers = new LinkedHashMap<>();
         Set<String> missingIds = new LinkedHashSet<>();
 
@@ -86,22 +104,33 @@ public class LocalFirstUserDirectoryService implements UserDirectoryService {
         }
 
         if (!missingIds.isEmpty()) {
-            Collection<DirectoryUser> fallbackUsers = keycloakUserService.getUserByIds(missingIds);
-            fallbackUsers.forEach(user -> {
-                userCache.put(user.id(), user);
-                resolvedUsers.put(user.id(), user);
-            });
+            provisioningService.ensureUserAccountsForVolunteerIds(missingIds);
+            Map<String, DirectoryUser> provisionedUsers = resolveLocalUsers(missingIds);
+            provisionedUsers.values().forEach(user -> userCache.put(user.id(), user));
+            resolvedUsers.putAll(provisionedUsers);
         }
 
         return requestedIds.stream()
             .map(resolvedUsers::get)
-            .filter(java.util.Objects::nonNull)
+            .filter(Objects::nonNull)
             .toList();
     }
 
     @Override
     public List<DirectoryUser> getAllUsers() {
-        return keycloakUserService.getAllUsers();
+        provisioningService.ensureUserAccountsForVolunteerIds(
+            volunteerRepository.findAll().stream().map(at.shiftcontrol.lib.entity.Volunteer::getId).toList()
+        );
+
+        List<DirectoryUser> users = userAccountRepository.findAllWithExternalIdentities().stream()
+            .map(this::toDirectoryUser)
+            .sorted(Comparator
+                .comparing((DirectoryUser user) -> firstNonBlankOrEmpty(user.lastName(), ""))
+                .thenComparing(user -> firstNonBlankOrEmpty(user.firstName(), ""))
+                .thenComparing(user -> firstNonBlankOrEmpty(user.username(), user.id())))
+            .toList();
+        users.forEach(user -> userCache.put(user.id(), user));
+        return users;
     }
 
     @Override
@@ -111,7 +140,13 @@ public class LocalFirstUserDirectoryService implements UserDirectoryService {
             return cachedAdmins;
         }
 
-        List<DirectoryUser> admins = keycloakUserService.getAllAdmins();
+        List<DirectoryUser> admins = userAccountRepository.findAllPlatformAdminsWithExternalIdentities().stream()
+            .map(this::toDirectoryUser)
+            .sorted(Comparator
+                .comparing((DirectoryUser user) -> firstNonBlankOrEmpty(user.lastName(), ""))
+                .thenComparing(user -> firstNonBlankOrEmpty(user.firstName(), ""))
+                .thenComparing(user -> firstNonBlankOrEmpty(user.username(), user.id())))
+            .toList();
         listCache.put(ADMIN_CACHE_KEY, admins);
         admins.forEach(admin -> userCache.put(admin.id(), admin));
         return admins;
@@ -126,19 +161,34 @@ public class LocalFirstUserDirectoryService implements UserDirectoryService {
             ));
     }
 
-    private DirectoryUser toPreferredDirectoryUser(List<ExternalIdentity> externalIdentities) {
-        ExternalIdentity preferredExternalIdentity = externalIdentities.stream()
+    private DirectoryUser toDirectoryUser(UserAccount userAccount) {
+        ExternalIdentity preferredExternalIdentity = userAccount.getExternalIdentities().stream()
             .max(Comparator.comparing(ExternalIdentity::getLastSeenAt, Comparator.nullsLast(Comparator.naturalOrder())))
-            .orElse(externalIdentities.get(0));
+            .orElseThrow(() -> new IllegalStateException("User account has no external identities: " + userAccount.getId()));
 
-        var userAccount = preferredExternalIdentity.getUserAccount();
         return new DirectoryUser(
             preferredExternalIdentity.getSubject(),
             firstNonBlank(userAccount.getPreferredUsername(), preferredExternalIdentity.getSubject()),
             firstNonBlank(userAccount.getFirstName(), ""),
             firstNonBlank(userAccount.getLastName(), ""),
             firstNonBlank(userAccount.getEmail(), ""),
-            UserType.ASSIGNED
+            userAccount.isPlatformAdmin() ? UserType.ADMIN : UserType.ASSIGNED
+        );
+    }
+
+    private DirectoryUser toPreferredDirectoryUser(List<ExternalIdentity> externalIdentities) {
+        ExternalIdentity preferredExternalIdentity = externalIdentities.stream()
+            .max(Comparator.comparing(ExternalIdentity::getLastSeenAt, Comparator.nullsLast(Comparator.naturalOrder())))
+            .orElse(externalIdentities.get(0));
+
+        UserAccount userAccount = preferredExternalIdentity.getUserAccount();
+        return new DirectoryUser(
+            preferredExternalIdentity.getSubject(),
+            firstNonBlank(userAccount.getPreferredUsername(), preferredExternalIdentity.getSubject()),
+            firstNonBlank(userAccount.getFirstName(), ""),
+            firstNonBlank(userAccount.getLastName(), ""),
+            firstNonBlank(userAccount.getEmail(), ""),
+            userAccount.isPlatformAdmin() ? UserType.ADMIN : UserType.ASSIGNED
         );
     }
 
@@ -150,5 +200,10 @@ public class LocalFirstUserDirectoryService implements UserDirectoryService {
         }
 
         return null;
+    }
+
+    private String firstNonBlankOrEmpty(String... values) {
+        String value = firstNonBlank(values);
+        return value != null ? value : "";
     }
 }

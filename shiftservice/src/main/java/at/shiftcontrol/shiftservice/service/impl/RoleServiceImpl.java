@@ -26,6 +26,7 @@ import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.mapper.RoleMapper;
 import at.shiftcontrol.shiftservice.mapper.VolunteerAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.RoleService;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
@@ -36,7 +37,7 @@ public class RoleServiceImpl implements RoleService {
     private final VolunteerDao volunteerDao;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
-    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
+    private final UserDirectoryService userDirectoryService;
 
     @Override
     public @org.jspecify.annotations.NonNull Collection<RoleDto> getRoles(long shiftPlanId) {
@@ -117,7 +118,7 @@ public class RoleServiceImpl implements RoleService {
         volunteerDao.save(volunteer);
 
         publisher.publishEvent(RoleVolunteerEvent.roleAssigned(role, volunteer.getId()));
-        return volunteerAssemblingMapper.toDto(volunteer);
+        return VolunteerAssemblingMapper.toDtoFromUser(userDirectoryService.getUserById(volunteer.getId()));
     }
 
     @Override

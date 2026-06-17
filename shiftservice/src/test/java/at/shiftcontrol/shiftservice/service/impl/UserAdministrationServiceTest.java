@@ -15,7 +15,6 @@ import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
-import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.VolunteerService;
@@ -42,9 +41,6 @@ class UserAdministrationServiceTest {
 
     @Mock
     private SecurityHelper securityHelper;
-
-    @Mock
-    private UserAssemblingMapper userAssemblingMapper;
 
     @Mock
     private RoleDao roleDao;

@@ -8,6 +8,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record KeycloakProps(
     String authServerUrl,
     String authRealm,
-    Set<String> allowedIssuers,
-    KeycloakAdminProps client
+    Set<String> allowedIssuers
 ) {}

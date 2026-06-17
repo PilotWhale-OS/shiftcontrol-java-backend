@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
@@ -25,8 +26,6 @@ import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.LocationRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
-import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -185,7 +184,7 @@ class LocationIT extends RestITBase {
 
     @Test
     void findEventByNonExistingIdReturnsNotFound() {
-        doRequestAsAssignedAndAssertMessage(Method.GET, LOCATION_PATH + "/999", "", NOT_FOUND.getStatusCode(), "Location not found.", true, "123abc");
+        doRequestAsAssignedAndAssertMessage(Method.GET, LOCATION_PATH + "/999", "", HttpStatus.NOT_FOUND.value(), "Location not found.", true, "123abc");
     }
 
     @Test
@@ -215,7 +214,7 @@ class LocationIT extends RestITBase {
 
     @Test
     void getAllLocationsForNonExistingEventReturnsNotFound() {
-        doRequestAsAssignedAndAssertMessage(Method.GET, EVENT_LOCATION_PATH.formatted(999), "", NOT_FOUND.getStatusCode(), "Event not found.", true, "123abc");
+        doRequestAsAssignedAndAssertMessage(Method.GET, EVENT_LOCATION_PATH.formatted(999), "", HttpStatus.NOT_FOUND.value(), "Event not found.", true, "123abc");
     }
 
     @Test
@@ -226,7 +225,7 @@ class LocationIT extends RestITBase {
             .url("http://newlocation.com")
             .build();
 
-        doRequestAndAssertAndAssertStausCode(Method.POST, EVENT_LOCATION_PATH.formatted(eventA.getId()), newLocationModificationDto, FORBIDDEN.getStatusCode());
+        doRequestAndAssertAndAssertStausCode(Method.POST, EVENT_LOCATION_PATH.formatted(eventA.getId()), newLocationModificationDto, HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -237,7 +236,7 @@ class LocationIT extends RestITBase {
             .url("http://newlocation.com")
             .build();
 
-        doRequestAsAdminAndAssertMessage(Method.POST, EVENT_LOCATION_PATH.formatted(999), newLocationModificationDto, NOT_FOUND.getStatusCode(),
+        doRequestAsAdminAndAssertMessage(Method.POST, EVENT_LOCATION_PATH.formatted(999), newLocationModificationDto, HttpStatus.NOT_FOUND.value(),
             "Event not found.", true);
     }
 
@@ -281,7 +280,7 @@ class LocationIT extends RestITBase {
             .url("http://updatedlocation.com")
             .build();
 
-        doRequestAndAssertAndAssertStausCode(Method.PUT, LOCATION_PATH + "/" + locationA.getId(), updateLocationModificationDto, FORBIDDEN.getStatusCode());
+        doRequestAndAssertAndAssertStausCode(Method.PUT, LOCATION_PATH + "/" + locationA.getId(), updateLocationModificationDto, HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -292,7 +291,7 @@ class LocationIT extends RestITBase {
             .url("http://updatedlocation.com")
             .build();
 
-        doRequestAsAdminAndAssertMessage(Method.PUT, LOCATION_PATH + "/999", updateLocationModificationDto, NOT_FOUND.getStatusCode(),
+        doRequestAsAdminAndAssertMessage(Method.PUT, LOCATION_PATH + "/999", updateLocationModificationDto, HttpStatus.NOT_FOUND.value(),
             "Location not found.", true);
     }
 
@@ -330,12 +329,12 @@ class LocationIT extends RestITBase {
 
     @Test
     void deleteLocationAsNonAdminReturnsForbidden() {
-        doRequestAndAssertAndAssertStausCode(Method.DELETE, LOCATION_PATH + "/" + locationA.getId(), "", FORBIDDEN.getStatusCode());
+        doRequestAndAssertAndAssertStausCode(Method.DELETE, LOCATION_PATH + "/" + locationA.getId(), "", HttpStatus.FORBIDDEN.value());
     }
 
     @Test
     void deleteNonExistingLocationAsAdminReturnsNotFound() {
-        doRequestAsAdminAndAssertMessage(Method.DELETE, LOCATION_PATH + "/999", "", NOT_FOUND.getStatusCode(),
+        doRequestAsAdminAndAssertMessage(Method.DELETE, LOCATION_PATH + "/999", "", HttpStatus.NOT_FOUND.value(),
             "Location not found.", true);
     }
 

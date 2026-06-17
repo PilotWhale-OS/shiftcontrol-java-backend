@@ -136,20 +136,46 @@ public abstract class RestITBase {
     @BeforeEach
     public void setupUsers() {
         DirectoryUser userRep = new DirectoryUser("11111", "assigned-11111", "Kerbert", "Huttelwascher", "11111@example.com", UserType.ASSIGNED);
+        DirectoryUser userRep2 = new DirectoryUser("22222", "assigned-22222", "Kerbert", "Huttelwascher", "22222@example.com", UserType.ASSIGNED);
+        DirectoryUser userRep3 = new DirectoryUser("33333", "assigned-33333", "Kerbert", "Huttelwascher", "33333@example.com", UserType.ASSIGNED);
+        Map<String, DirectoryUser> usersById = Map.of(
+            userRep.id(), userRep,
+            userRep2.id(), userRep2,
+            userRep3.id(), userRep3
+        );
+
         Mockito.when(userDirectoryService.getUserById("11111"))
             .thenReturn(userRep);
-
-        DirectoryUser userRep2 = new DirectoryUser("22222", "assigned-22222", "Kerbert", "Huttelwascher", "22222@example.com", UserType.ASSIGNED);
         Mockito.when(userDirectoryService.getUserById("22222"))
             .thenReturn(userRep2);
-
-        DirectoryUser userRep3 = new DirectoryUser("33333", "assigned-33333", "Kerbert", "Huttelwascher", "33333@example.com", UserType.ASSIGNED);
         Mockito.when(userDirectoryService.getUserById("33333"))
             .thenReturn(userRep3);
 
-
         Mockito.when(userDirectoryService.getUserByIds(any()))
-            .thenReturn(List.of(userRep2));
+            .thenAnswer(invocation -> {
+                Object argument = invocation.getArgument(0);
+                if (!(argument instanceof Iterable<?> ids)) {
+                    return List.of();
+                }
+
+                return usersById.entrySet().stream()
+                    .filter(entry -> contains(ids, entry.getKey()))
+                    .map(Map.Entry::getValue)
+                    .toList();
+            });
+        Mockito.when(userDirectoryService.getAllUsers())
+            .thenReturn(List.of(userRep, userRep2, userRep3));
+        Mockito.when(userDirectoryService.getAllAdmins())
+            .thenReturn(List.of());
+    }
+
+    private static boolean contains(Iterable<?> ids, String expectedId) {
+        for (Object id : ids) {
+            if (expectedId.equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getBasePath() {
