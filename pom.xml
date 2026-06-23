@@ -81,6 +81,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version>
                 <configuration>
+                    <!-- Mockito's inline mock maker needs to be attached as an agent on newer JDKs. -->
+                    <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
+
                     <!-- allow CI to skip only unit tests -->
                     <skipTests>${skipUnitTests}</skipTests>
 
@@ -95,6 +98,8 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.5.2</version>
                 <configuration>
+                    <!-- Keep integration tests aligned with the same Mockito agent setup. -->
+                    <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                     <skipITs>${skipITs}</skipITs>
                     <!-- run only integration-tagged tests -->
                     <groups>integration</groups>

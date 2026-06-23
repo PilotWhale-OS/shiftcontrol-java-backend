@@ -20,12 +20,12 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.shiftservice.auth.Authorities;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
 import at.shiftcontrol.shiftservice.dto.assignment.AssignmentDto;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.positionslot.impl.PositionSlotServiceImpl;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.TestEntityFactory;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @WithMockUser(authorities = { "USER", Authorities.CAN_JOIN_UNELIGIBLE_POSITIONS })
-public class PositionSlotServiceTest {
+class PositionSlotServiceTest {
 
     @Autowired
     private PositionSlotServiceImpl positionSlotService;
@@ -45,7 +45,7 @@ public class PositionSlotServiceTest {
     private TimeConstraintDao timeConstraintDao;
 
     @MockitoBean
-    KeycloakUserService keycloakUserService;
+    UserDirectoryService userDirectoryService;
 
     @MockitoBean
     RabbitTemplate rabbitTemplate;
@@ -57,8 +57,8 @@ public class PositionSlotServiceTest {
     void testCreateAuction() {
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long positionSlotId = 11L;
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(userId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(userId));
 
         Assignment assignment = assignmentRepository.findAssignmentForPositionSlotAndUser(positionSlotId, userId).get();
         AssignmentDto dto = positionSlotService.createAuction(assignment.getPositionSlot().getId(), userId);
@@ -75,8 +75,8 @@ public class PositionSlotServiceTest {
         String auctionUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e8";
         String currentUserId = "28c02050-4f90-4f3a-b1df-3c7d27a166e7";
         long positionSlotId = 5L;
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(currentUserId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(currentUserId));
 
         Assignment auction = assignmentRepository.findAssignmentForPositionSlotAndUser(positionSlotId, auctionUserId).get();
         PositionSlotRequestDto dto = testEntityFactory.getPositionSlotRequestDto(positionSlotId);
@@ -93,8 +93,8 @@ public class PositionSlotServiceTest {
     void testCancelAuction() {
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
         long positionSlotId = 11L;
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(userId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(userId));
 
         Assignment auction = assignmentRepository.findAssignmentForPositionSlotAndUser(positionSlotId, userId).get();
         AssignmentDto assignmentDto = positionSlotService.cancelAuction(auction.getPositionSlot().getId(), userId);
@@ -109,8 +109,8 @@ public class PositionSlotServiceTest {
     void testLeave() throws ForbiddenException, NotFoundException {
         long positionSlotId = 1L;
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(userId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(userId));
 
         positionSlotService.leave(positionSlotId, userId);
 
@@ -122,8 +122,8 @@ public class PositionSlotServiceTest {
     void testJoin() throws ForbiddenException, NotFoundException {
         long positionSlotId = 1L;
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(userId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(userId));
 
         //Prepare db... .-.
         timeConstraintDao.delete(TimeConstraint.builder().id(1L).build());
@@ -141,8 +141,8 @@ public class PositionSlotServiceTest {
     void testJoinRequest() throws ForbiddenException, NotFoundException {
         long positionSlotId = 9L;
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e6";
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(userId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(userId));
 
         AssignmentDto assignment = positionSlotService.joinRequest(positionSlotId, userId);
 
@@ -157,8 +157,8 @@ public class PositionSlotServiceTest {
     void testLeaveRequest() throws ForbiddenException, NotFoundException {
         long positionSlotId = 9L;
         String userId = "28c02050-4f90-4f3a-b1df-3c7d27a166e5";
-        Mockito.when(keycloakUserService.getUserById(any()))
-            .thenReturn(testEntityFactory.getUserRepresentationWithId(userId));
+        Mockito.when(userDirectoryService.getUserById(any()))
+            .thenReturn(testEntityFactory.getDirectoryUserWithId(userId));
 
         positionSlotService.leaveRequest(positionSlotId, userId);
 

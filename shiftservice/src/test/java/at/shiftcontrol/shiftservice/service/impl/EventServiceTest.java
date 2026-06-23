@@ -2,6 +2,13 @@ package at.shiftcontrol.shiftservice.service.impl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import org.springframework.context.ApplicationEventPublisher;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -15,16 +22,14 @@ import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.OverallStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.OwnStatisticsDto;
 import at.shiftcontrol.shiftservice.dto.event.EventSearchDto;
+import at.shiftcontrol.shiftservice.dto.rows.PlanVolunteerIdRow;
 import at.shiftcontrol.shiftservice.mapper.EventMapper;
 import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.impl.EventServiceImpl;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,6 +59,12 @@ class EventServiceTest {
 
     @Mock
     private SecurityHelper securityHelper;
+
+    @Mock
+    private ApplicationEventPublisher publisher;
+
+    @Mock
+    private UserDirectoryService userDirectoryService;
 
     @InjectMocks
     private EventServiceImpl eventService;
@@ -107,7 +118,6 @@ class EventServiceTest {
         String userId = "420696742";
 
         when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);
-        ;
 
         assertThatThrownBy(() -> eventService.getUserRelatedShiftPlansOfEvent(eventId, userId))
             .isInstanceOf(NotFoundException.class);
@@ -187,12 +197,49 @@ class EventServiceTest {
         String userId = "420696742";
 
         when(eventDao.getById(eventId)).thenThrow(NotFoundException.class);
-        ;
 
         assertThatThrownBy(() -> eventService.getEventShiftPlansOverview(eventId, userId))
             .isInstanceOf(NotFoundException.class);
 
         verify(eventDao).getById(eventId);
         verifyNoInteractions(volunteerDao, statisticService);
+    }
+
+    @Test
+    void getPlannerContactInfo_enrichesPlannerRowsFromUserDirectory() {
+        long eventId = 7L;
+        String userId = "volunteer-1";
+
+        Event event = new Event();
+        event.setId(eventId);
+        event.setShiftPlans(List.of(new ShiftPlan()));
+
+        when(eventDao.getById(eventId)).thenReturn(event);
+
+        var rows = List.of(
+            new PlanVolunteerIdRow(1L, "Main Desk", "planner-1"),
+            new PlanVolunteerIdRow(1L, "Main Desk", "planner-2"),
+            new PlanVolunteerIdRow(2L, "Backstage", "planner-2")
+        );
+        when(eventDao.getPlannersForEventAndUser(eventId, userId)).thenReturn(rows);
+        when(userDirectoryService.getUserByIds(Set.of("planner-1", "planner-2"))).thenReturn(List.of(
+            new DirectoryUser("planner-1", "planner1", "Alice", "Admin", "alice@example.com", "https://cdn.example.test/profiles/planner-1.png", null),
+            new DirectoryUser("planner-2", "planner2", "Bob", "Builder", "bob@example.com", "https://cdn.example.test/profiles/planner-2.png", null)
+        ));
+
+        var result = List.copyOf(eventService.getPlannerContactInfo(eventId, userId));
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting("planId").containsExactly("1", "2");
+        assertThat(result.get(0).getContacts()).hasSize(2);
+        assertThat(result.get(0).getContacts())
+            .extracting("userId", "email")
+            .containsExactly(
+                org.assertj.core.groups.Tuple.tuple("planner-1", "alice@example.com"),
+                org.assertj.core.groups.Tuple.tuple("planner-2", "bob@example.com")
+            );
+        assertThat(result.get(1).getContacts())
+            .extracting("userId")
+            .containsExactly("planner-2");
     }
 }

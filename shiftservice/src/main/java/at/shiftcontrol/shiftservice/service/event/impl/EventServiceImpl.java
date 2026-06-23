@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.ShiftPlan;
@@ -25,7 +24,6 @@ import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -45,6 +43,8 @@ import at.shiftcontrol.shiftservice.mapper.ShiftPlanMapper;
 import at.shiftcontrol.shiftservice.mapper.UserAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.StatisticService;
 import at.shiftcontrol.shiftservice.service.event.EventService;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 import at.shiftcontrol.shiftservice.util.SocialLinksParser;
 
@@ -58,7 +58,7 @@ public class EventServiceImpl implements EventService {
     private final ApplicationUserProvider userProvider;
     private final SecurityHelper securityHelper;
     private final ApplicationEventPublisher publisher;
-    private final KeycloakUserService keycloakUserService;
+    private final UserDirectoryService userDirectoryService;
 
     @Override
     public EventDto getEvent(long eventId) {
@@ -116,12 +116,12 @@ public class EventServiceImpl implements EventService {
         // get planner IDs of users plans
         Collection<PlanVolunteerIdRow> rows = eventDao.getPlannersForEventAndUser(eventId, userId);
 
-        // get all planners from keycloak
+        // Resolve all planner contacts from Shiftservice's local user directory.
         Set<String> allPlannerIds =
             rows.stream()
                 .map(PlanVolunteerIdRow::getVolunteerId)
                 .collect(Collectors.toSet());
-        Collection<UserRepresentation> planners = keycloakUserService.getUserByIds(allPlannerIds);
+        var planners = userDirectoryService.getUserByIds(allPlannerIds);
 
         // create maps to lookup userIds per plan, planNames and planner-userRepresentations
         Map<Long, List<String>> volunteerIdsByPlan =
@@ -144,7 +144,7 @@ public class EventServiceImpl implements EventService {
         Map<String, ContactInfoDto> contactInfoById =
             planners.stream()
                 .collect(Collectors.toMap(
-                    UserRepresentation::getId,
+                    DirectoryUser::id,
                     UserAssemblingMapper::toContactInfoDto
                 ));
 

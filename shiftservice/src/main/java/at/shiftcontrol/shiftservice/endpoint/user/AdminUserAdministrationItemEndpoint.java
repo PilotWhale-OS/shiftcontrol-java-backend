@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,10 +42,13 @@ public class AdminUserAdministrationItemEndpoint {
     }
 
     @PostMapping
+    @Hidden
     @Operation(
-        operationId = "createVolunteerForKeyCloakUser",
-        description = "Create a volunteer for an existing keycloak user"
+        operationId = "createVolunteerForKnownUser",
+        deprecated = true,
+        description = "Legacy compatibility fallback: create a volunteer entry for an existing known local user identifier. Prefer invite-driven onboarding and login-time auto-provisioning instead."
     )
+    @Deprecated
     public UserEventDto createVolunteer(@PathVariable String userId) {
         return service.createVolunteer(userId);
     }

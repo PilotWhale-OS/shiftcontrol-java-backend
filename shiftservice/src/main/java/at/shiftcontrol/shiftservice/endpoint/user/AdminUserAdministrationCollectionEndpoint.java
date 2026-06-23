@@ -35,7 +35,7 @@ public class AdminUserAdministrationCollectionEndpoint {
     @GetMapping()
     @Operation(
         operationId = "getAllUsers",
-        description = "Find all users filtered by name. (The filter is searched for in first, last and username)"
+        description = "Find app-relevant local users filtered by name. Pending invitees are managed separately via /api/v1/users/invites."
     )
     public PaginationDto<UserEventDto> getAllUsers(@RequestParam int page, @RequestParam int size, @Valid UserSearchDto searchDto) {
         return service.getAllUsers(page, size, searchDto);

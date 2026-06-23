@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.entity.Activity;
 import at.shiftcontrol.lib.entity.Assignment;
@@ -39,6 +38,7 @@ import at.shiftcontrol.shiftservice.repo.TimeConstraintRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.role.RoleRepository;
 import at.shiftcontrol.shiftservice.service.rewardpoints.RewardPointsCalculator;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
 
 @Component
 public class TestEntityFactory {
@@ -146,18 +146,35 @@ public class TestEntityFactory {
             volunteer,
             "Test Username",
             "mail@mail.com",
+            "https://cdn.example.test/profiles/" + userId + ".png",
             UserType.ASSIGNED
         );
         profile.setAccount(info);
         return profile;
     }
 
-    public UserRepresentation getUserRepresentationWithId(String id) {
-        UserRepresentation userRep = new UserRepresentation();
-        userRep.setId(id);
-        userRep.setFirstName("Kerbert");
-        userRep.setLastName("Huttelwascher");
-        return userRep;
+    public DirectoryUser getDirectoryUserWithId(String id) {
+        return new DirectoryUser(
+            id,
+            "assigned-" + id,
+            "Kerbert",
+            "Huttelwascher",
+            id + "@example.com",
+            "https://cdn.example.test/profiles/" + id + ".png",
+            UserType.ASSIGNED
+        );
+    }
+
+    public DirectoryUser getAdminDirectoryUserWithId(String id) {
+        return new DirectoryUser(
+            id,
+            "admin-" + id,
+            "Admin",
+            "User",
+            id + "@example.com",
+            "https://cdn.example.test/profiles/" + id + ".png",
+            UserType.ADMIN
+        );
     }
 
     public PositionSlotRequestDto getPositionSlotRequestDto(long positionSlotId) {

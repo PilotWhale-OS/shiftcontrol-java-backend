@@ -34,6 +34,7 @@ import at.shiftcontrol.shiftservice.mapper.VolunteerAssemblingMapper;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.EligibilityService;
 import at.shiftcontrol.shiftservice.service.positionslot.PlannerPositionSlotService;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
@@ -47,7 +48,7 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
     private final VolunteerDao volunteerDao;
     private final ApplicationEventPublisher publisher;
     private final EligibilityService eligibilityService;
-    private final VolunteerAssemblingMapper volunteerAssemblingMapper;
+    private final UserDirectoryService userDirectoryService;
     private final AssignmentAssemblingMapper assignmentAssemblingMapper;
     private final AssignmentPlannerInfoAssemblingMapper assignmentRequestAssemblingMapper;
 
@@ -120,7 +121,8 @@ public class PlannerPositionSlotServiceImpl implements PlannerPositionSlotServic
         // check if not already signed up, eligible and no conflicts
         volunteers = volunteers.stream().filter(v -> isAssignable(positionSlot, v)).toList();
 
-        return volunteerAssemblingMapper.toDto(volunteers);
+        var users = userDirectoryService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
+        return VolunteerAssemblingMapper.toDtoFromUser(users);
     }
 
     private boolean isAssignable(PositionSlot positionSlot, Volunteer volunteer) {

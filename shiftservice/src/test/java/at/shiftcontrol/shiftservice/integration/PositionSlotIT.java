@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import io.restassured.http.Method;
 import org.junit.jupiter.api.AfterEach;
@@ -34,7 +35,6 @@ import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -278,7 +278,7 @@ class PositionSlotIT extends RestITBase {
         assignmentRepository.save(assignmentA);
 
         assertAll(
-            () -> assertThat(assignmentA.getId()).isNotNull(),
+            () -> assertThat(assignmentA.getId()).isNotZero(),
             () -> assertThat(assignmentA.getPositionSlot()).isEqualTo(positionSlotA),
             () -> assertThat(assignmentA.getAssignedVolunteer()).isEqualTo(volunteerA),
             () -> assertThat(assignmentA.getStatus()).isEqualTo(AssignmentStatus.ACCEPTED)
@@ -298,7 +298,7 @@ class PositionSlotIT extends RestITBase {
 
     @Test
     void findEventByNonExistingIdReturnsNotFound() {
-        doRequestAsAssignedAndAssertMessage(Method.GET, POSITIONSLOT_PATH + "/999", "", NOT_FOUND.getStatusCode(), "PositionSlot not found.", true,
+        doRequestAsAssignedAndAssertMessage(Method.GET, POSITIONSLOT_PATH + "/999", "", HttpStatus.NOT_FOUND.value(), "PositionSlot not found.", true,
             volunteerA.getId());
     }
 

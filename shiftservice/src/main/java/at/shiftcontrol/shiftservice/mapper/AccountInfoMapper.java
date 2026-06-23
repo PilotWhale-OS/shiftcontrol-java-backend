@@ -1,21 +1,19 @@
 package at.shiftcontrol.shiftservice.mapper;
 
 import lombok.NoArgsConstructor;
-import org.keycloak.representations.idm.UserRepresentation;
 
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class AccountInfoMapper {
-    public static AccountInfoDto toDto(UserRepresentation user) {
-        var userTypeAttr = user.firstAttribute("userType");
-        var userType = userTypeAttr == null ? UserType.ASSIGNED : UserType.valueOf(userTypeAttr);
+    public static AccountInfoDto toDto(DirectoryUser user) {
         return AccountInfoDto.builder()
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .userType(userType)
+            .username(user.username())
+            .email(user.email())
+            .profile(user.profile())
+            .userType(user.userType())
             .build();
     }
 }

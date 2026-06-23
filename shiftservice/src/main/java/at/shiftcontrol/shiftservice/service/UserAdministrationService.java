@@ -1,8 +1,8 @@
 package at.shiftcontrol.shiftservice.service;
 
 import java.util.Collection;
-
 import jakarta.validation.Valid;
+import lombok.NonNull;
 
 import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.shiftservice.dto.user.UserEventBulkDto;
@@ -13,8 +13,6 @@ import at.shiftcontrol.shiftservice.dto.user.UserPlanDto;
 import at.shiftcontrol.shiftservice.dto.user.UserPlanUpdateDto;
 import at.shiftcontrol.shiftservice.dto.user.UserSearchDto;
 
-import lombok.NonNull;
-
 public interface UserAdministrationService {
     @NonNull PaginationDto<UserEventDto> getAllUsers(int page, int size, @NonNull UserSearchDto searchDt);
 
@@ -22,6 +20,7 @@ public interface UserAdministrationService {
 
     @NonNull UserEventDto getUser(@NonNull String userId);
 
+    @Deprecated
     @NonNull UserEventDto createVolunteer(@NonNull String userId);
 
     @NonNull UserPlanDto getPlanUser(@NonNull Long shiftPlanId, @NonNull String userId);

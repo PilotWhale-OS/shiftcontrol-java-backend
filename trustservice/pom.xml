@@ -48,12 +48,6 @@
       <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-admin-client</artifactId>
-      <version>26.0.7</version>
-    </dependency>
-
-    <dependency>
       <groupId>at.shiftcontrol</groupId>
       <artifactId>shiftcontrol-lib</artifactId>
       <version>0.0.1-SNAPSHOT</version>

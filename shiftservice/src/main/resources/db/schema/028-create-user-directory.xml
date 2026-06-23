@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="028-create-user-directory" author="codex">
+        <createTable tableName="user_account">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="preferred_username" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="display_name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(320)"/>
+            <column name="email_verified" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_login_at" type="TIMESTAMP"/>
+            <column name="last_profile_sync_at" type="TIMESTAMP"/>
+            <column name="last_profile_sync_source" type="VARCHAR(32)"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="user_account" indexName="idx_user_account_status">
+            <column name="status"/>
+        </createIndex>
+
+        <createIndex tableName="user_account" indexName="idx_user_account_email">
+            <column name="email"/>
+        </createIndex>
+
+        <createTable tableName="external_identity">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_account_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issuer" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subject" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_seen_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="external_identity"
+                baseColumnNames="user_account_id"
+                referencedTableName="user_account"
+                referencedColumnNames="id"
+                constraintName="fk_external_identity_user_account"
+                onDelete="CASCADE"/>
+
+        <addUniqueConstraint
+                tableName="external_identity"
+                columnNames="issuer,subject"
+                constraintName="uk_external_identity_issuer_subject"/>
+
+        <createIndex tableName="external_identity" indexName="idx_external_identity_user_account_id">
+            <column name="user_account_id"/>
+        </createIndex>
+
+        <createTable tableName="user_invite">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email" type="VARCHAR(320)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="preferred_username" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="display_name" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="claimed_user_account_id" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP"/>
+            <column name="claimed_at" type="TIMESTAMP"/>
+            <column name="revoked_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="user_invite"
+                baseColumnNames="claimed_user_account_id"
+                referencedTableName="user_account"
+                referencedColumnNames="id"
+                constraintName="fk_user_invite_claimed_user_account"/>
+
+        <createIndex tableName="user_invite" indexName="idx_user_invite_email">
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex tableName="user_invite" indexName="idx_user_invite_status">
+            <column name="status"/>
+        </createIndex>
+
+        <createIndex tableName="user_invite" indexName="idx_user_invite_claimed_user_account_id">
+            <column name="claimed_user_account_id"/>
+        </createIndex>
+
+        <createTable tableName="user_invite_role">
+            <column name="invite_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                tableName="user_invite_role"
+                columnNames="invite_id,role_id"
+                constraintName="pk_user_invite_role"/>
+
+        <addForeignKeyConstraint
+                baseTableName="user_invite_role"
+                baseColumnNames="invite_id"
+                referencedTableName="user_invite"
+                referencedColumnNames="id"
+                constraintName="fk_user_invite_role_invite"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="user_invite_role"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fk_user_invite_role_role"
+                onDelete="CASCADE"/>
+
+        <createIndex tableName="user_invite_role" indexName="idx_user_invite_role_invite_id">
+            <column name="invite_id"/>
+        </createIndex>
+
+        <createIndex tableName="user_invite_role" indexName="idx_user_invite_role_role_id">
+            <column name="role_id"/>
+        </createIndex>
+
+        <createTable tableName="user_invite_shift_plan_access">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="invite_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shift_plan_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access_type" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="user_invite_shift_plan_access"
+                baseColumnNames="invite_id"
+                referencedTableName="user_invite"
+                referencedColumnNames="id"
+                constraintName="fk_user_invite_shift_plan_access_invite"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="user_invite_shift_plan_access"
+                baseColumnNames="shift_plan_id"
+                referencedTableName="shift_plan"
+                referencedColumnNames="id"
+                constraintName="fk_user_invite_shift_plan_access_shift_plan"
+                onDelete="CASCADE"/>
+
+        <addUniqueConstraint
+                tableName="user_invite_shift_plan_access"
+                columnNames="invite_id,shift_plan_id,access_type"
+                constraintName="uk_user_invite_shift_plan_access"/>
+
+        <createIndex tableName="user_invite_shift_plan_access" indexName="idx_user_invite_shift_plan_access_invite_id">
+            <column name="invite_id"/>
+        </createIndex>
+
+        <createIndex tableName="user_invite_shift_plan_access" indexName="idx_user_invite_shift_plan_access_shift_plan_id">
+            <column name="shift_plan_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

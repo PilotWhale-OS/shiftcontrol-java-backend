@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import org.keycloak.representations.idm.AbstractUserRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
 
 import at.shiftcontrol.lib.dto.PaginationDto;
 import at.shiftcontrol.lib.entity.Role;
@@ -28,7 +26,6 @@ import at.shiftcontrol.lib.event.events.UserPlanBulkEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -47,6 +44,8 @@ import at.shiftcontrol.shiftservice.repo.AssignmentRepository;
 import at.shiftcontrol.shiftservice.service.AssignmentService;
 import at.shiftcontrol.shiftservice.service.UserAdministrationService;
 import at.shiftcontrol.shiftservice.service.VolunteerService;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
@@ -54,10 +53,9 @@ import at.shiftcontrol.shiftservice.util.SecurityHelper;
 public class UserAdministrationServiceImpl implements UserAdministrationService {
     private final VolunteerDao volunteerDao;
     private final ShiftPlanDao shiftPlanDao;
-    private final KeycloakUserService keycloakUserService;
+    private final UserDirectoryService userDirectoryService;
     private final UserAttributeProvider userAttributeProvider;
     private final SecurityHelper securityHelper;
-    private final UserAssemblingMapper userAssemblingMapper;
     private final RoleDao roleDao;
     private final ApplicationEventPublisher publisher;
     private final AssignmentService assignmentService;
@@ -68,35 +66,31 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @AdminOnly
     public @NonNull PaginationDto<UserEventDto> getAllUsers(int page, int size, @NonNull UserSearchDto searchDto) {
-        var allUsers = keycloakUserService.getAllUsers();
-        var users = filterUsers(searchDto, allUsers);
-        var paginatedUsers = paginateUsers(users, page, size);
+        var users = userDirectoryService.searchUsers(page, size, searchDto);
         var volunteers = volunteerDao.findAllByVolunteerIds(
-            paginatedUsers.stream().map(AbstractUserRepresentation::getId).toList()
+            users.getItems().stream().map(DirectoryUser::id).toList()
         );
 
-        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, paginatedUsers));
+        return PaginationMapper.toPaginationDto(size, page, users.getTotal(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users.getItems()));
     }
 
     @Override
     public @NonNull PaginationDto<UserPlanDto> getAllPlanUsers(@NonNull Long shiftPlanId, int page, int size, @NonNull UserSearchDto searchDto) {
         securityHelper.assertUserIsPlanner(shiftPlanId);
-        var allUsers = keycloakUserService.getAllUsers();
         var volunteersInPlanId = volunteerDao.findAllIdsByShiftPlan(shiftPlanId);
-        var usersForPlan =  allUsers.stream()
-            .filter(u -> volunteersInPlanId.contains(u.getId()))
-            .sorted(Comparator.comparing(UserRepresentation::getLastName))
+        var usersForPlan = userDirectoryService.getUserByIds(volunteersInPlanId).stream()
+            .sorted(Comparator.comparing(user -> user.lastName() == null ? "" : user.lastName()))
             .toList();
         var users = filterUsers(searchDto, usersForPlan);
         var paginatedUsers = paginateUsers(users, page, size);
         var volunteers = volunteerDao.findAllByVolunteerIds(
-            paginatedUsers.stream().map(AbstractUserRepresentation::getId).toList()
+            paginatedUsers.stream().map(DirectoryUser::id).toList()
         );
 
         return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserPlanDto(volunteers, paginatedUsers, shiftPlanId));
     }
 
-    private List<UserRepresentation> paginateUsers(List<UserRepresentation> users, int page, int size) {
+    private List<DirectoryUser> paginateUsers(List<DirectoryUser> users, int page, int size) {
         int fromIndex = page * size;
         if (fromIndex >= users.size()) {
             return List.of();
@@ -106,15 +100,15 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         return users.subList(fromIndex, toIndex);
     }
 
-    private static List<UserRepresentation> filterUsers(UserSearchDto searchDto, List<UserRepresentation> users) {
+    private static List<DirectoryUser> filterUsers(UserSearchDto searchDto, List<DirectoryUser> users) {
         if (searchDto.getName() == null || searchDto.getName().isEmpty()) {
             return users;
         }
         var nameLower = searchDto.getName().toLowerCase().trim();
         return users.stream().filter(x ->
-                x.getUsername().toLowerCase().contains(nameLower)
-                    || x.getFirstName().toLowerCase().contains(nameLower)
-                    || x.getLastName().toLowerCase().contains(nameLower)
+                safeLower(x.username()).contains(nameLower)
+                    || safeLower(x.firstName()).contains(nameLower)
+                    || safeLower(x.lastName()).contains(nameLower)
             )
             .toList();
     }
@@ -122,13 +116,17 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @AdminOnly
     public @NonNull UserEventDto getUser(@NonNull String userId) {
-        var volunteer = volunteerService.getOrCreate(userId);
-        return userAssemblingMapper.toUserEventDto(volunteer);
+        var volunteer = volunteerDao.findById(userId).orElse(null);
+        var user = userDirectoryService.getUserById(userId);
+        return UserAssemblingMapper.toUserEventDto(volunteer, user);
     }
 
     @Override
+    @Deprecated
     public @NonNull UserEventDto createVolunteer(@NonNull String userId) {
-        return userAssemblingMapper.toUserEventDto(volunteerService.createVolunteer(userId));
+        // Legacy compatibility path: only allow materializing volunteer state for users already known to Shiftservice.
+        userDirectoryService.getUserById(userId);
+        return toUserEventDto(volunteerService.createVolunteer(userId));
     }
 
     @Override
@@ -136,7 +134,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var volunteer = volunteerDao.getById(userId);
         securityHelper.assertUserIsPlanner(shiftPlanId);
         securityHelper.assertVolunteerIsVolunteer(shiftPlanDao.getById(shiftPlanId), volunteer, false);
-        return userAssemblingMapper.toUserPlanDto(volunteer, shiftPlanId);
+        return toUserPlanDto(volunteer, shiftPlanId);
     }
 
     @Override
@@ -154,7 +152,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var planningToRemove = toRemovePlans(updateDto.getPlanningPlans(), volunteer.getPlanningPlans());
         removePlans(volunteer, volunteerToRemove, planningToRemove);
 
-        var user = keycloakUserService.getUserById(volunteer.getId());
+        var user = userDirectoryService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
         var allPlans = shiftPlanDao.getByIds(Stream.concat(
             updateDto.getPlanningPlans().stream(), updateDto.getVolunteeringPlans().stream())
@@ -189,7 +187,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         var rolesToRemove = toRemove(updateDto.getRoles(), currentRoles);
         removeRoles(volunteer, rolesToRemove);
 
-        var user = keycloakUserService.getUserById(volunteer.getId());
+        var user = userDirectoryService.getUserById(volunteer.getId());
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.planUpdate(volunteer, shiftPlanDao.getById(shiftPlanId)));
         return UserAssemblingMapper.toUserPlanDto(volunteer, user, shiftPlanId);
@@ -211,7 +209,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.lock(volunteer, plans));
-        return userAssemblingMapper.toUserEventDto(volunteer);
+        return toUserEventDto(volunteer);
     }
 
     @Override
@@ -227,7 +225,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.unlock(volunteer, plans));
-        return userAssemblingMapper.toUserEventDto(volunteer);
+        return toUserEventDto(volunteer);
     }
 
     @Override
@@ -246,7 +244,7 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
         }
         userAttributeProvider.invalidateUserCache(userId);
         publisher.publishEvent(UserEvent.reset(volunteer, plans));
-        return userAssemblingMapper.toUserEventDto(volunteer);
+        return toUserEventDto(volunteer);
     }
 
     @Override
@@ -313,14 +311,30 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     }
 
     private @NonNull Collection<UserPlanDto> getUserPlanDtos(long shiftPlanId, Collection<Volunteer> volunteers) {
-        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
-        userAttributeProvider.invalidateUserCaches(users.stream().map(UserRepresentation::getId).toList());
+        var users = userDirectoryService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
+        userAttributeProvider.invalidateUserCaches(users.stream().map(DirectoryUser::id).toList());
         return UserAssemblingMapper.toUserPlanDto(volunteers, users, shiftPlanId);
     }
 
     private @NonNull Collection<UserEventDto> getUserEventDtos(Collection<Volunteer> volunteers) {
-        var users = keycloakUserService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
+        var users = userDirectoryService.getUserByIds(volunteers.stream().map(Volunteer::getId).toList());
         return UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users);
+    }
+
+    private @NonNull UserEventDto toUserEventDto(@NonNull Volunteer volunteer) {
+        return UserAssemblingMapper.toUserEventDto(volunteer, getDirectoryUser(volunteer.getId()));
+    }
+
+    private @NonNull UserPlanDto toUserPlanDto(@NonNull Volunteer volunteer, long shiftPlanId) {
+        return UserAssemblingMapper.toUserPlanDto(volunteer, getDirectoryUser(volunteer.getId()), shiftPlanId);
+    }
+
+    private DirectoryUser getDirectoryUser(String userId) {
+        return userDirectoryService.getUserById(userId);
+    }
+
+    private static String safeLower(String value) {
+        return value == null ? "" : value.toLowerCase();
     }
 
     private void addPlans(Volunteer volunteer, Set<Long> volunteerToAdd, Set<Long> planningToAdd) {

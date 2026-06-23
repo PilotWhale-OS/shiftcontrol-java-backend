@@ -3,20 +3,17 @@ package at.shiftcontrol.shiftservice.service.impl;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
-import org.keycloak.representations.idm.AbstractUserRepresentation;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.type.NotificationChannel;
+import at.shiftcontrol.lib.type.ReceiverAccessLevel;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
 import at.shiftcontrol.shiftservice.dao.NotificationSettingsDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.notifications.RecipientsDto;
@@ -24,19 +21,20 @@ import at.shiftcontrol.shiftservice.dto.notifications.RecipientsFilterDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.mapper.AccountInfoMapper;
 import at.shiftcontrol.shiftservice.service.NotificationRecipientService;
-import at.shiftcontrol.shiftservice.type.ReceiverAccessLevel;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationRecipientServiceImpl implements NotificationRecipientService {
     private final VolunteerDao volunteerDao;
-    private final KeycloakUserService keycloakUserService;
+    private final UserDirectoryService userDirectoryService;
     private final NotificationSettingsDao notificationSettingsDao;
 
     @AdminOnly
     @Override
     public @NonNull AccountInfoDto getRecipientInformation(@NonNull String recipientid) {
-        var user = keycloakUserService.getUserById(recipientid);
+        var user = userDirectoryService.getUserById(recipientid);
         return AccountInfoMapper.toDto(user);
     }
 
@@ -96,7 +94,7 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
         if (recipientIds.isEmpty()) {
             return RecipientsDto.builder().recipients(Set.of()).build();
         } else {
-            var users = keycloakUserService.getUserByIds(recipientIds);
+            var users = userDirectoryService.getUserByIds(recipientIds);
             var recipients = users.stream().map(AccountInfoMapper::toDto).collect(Collectors.toSet());
             return RecipientsDto.builder()
                 .recipients(recipients)
@@ -179,15 +177,15 @@ public class NotificationRecipientServiceImpl implements NotificationRecipientSe
     }
 
     private Collection<String> filterAdminsById(RecipientsFilterDto filter) {
-        var admins = keycloakUserService.getAllAdmins();
+        var admins = userDirectoryService.getAllAdmins();
         if (filter.getRelatedVolunteerIds() != null) {
             return admins.stream()
-                .map(AbstractUserRepresentation::getId)
+                .map(DirectoryUser::id)
                 .filter(id -> filter.getRelatedVolunteerIds().contains(id))
                 .collect(Collectors.toSet());
         } else {
             return admins.stream()
-                .map(AbstractUserRepresentation::getId)
+                .map(DirectoryUser::id)
                 .collect(Collectors.toSet());
         }
     }

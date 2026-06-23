@@ -1,4 +1,4 @@
-package at.shiftcontrol.shiftservice.type;
+package at.shiftcontrol.lib.type;
 
 public enum ReceiverAccessLevel {
     PLANNER,

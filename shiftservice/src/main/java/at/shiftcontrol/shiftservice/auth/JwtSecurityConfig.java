@@ -1,9 +1,5 @@
 package at.shiftcontrol.shiftservice.auth;
 
-import at.shiftcontrol.lib.auth.NonDevTestCondition;
-import at.shiftcontrol.lib.auth.UserAuthenticationToken;
-import at.shiftcontrol.shiftservice.auth.config.props.KeycloakProps;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +14,14 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import lombok.RequiredArgsConstructor;
+
+import at.shiftcontrol.lib.auth.NonDevTestCondition;
+import at.shiftcontrol.lib.auth.UserAuthenticationToken;
+import at.shiftcontrol.shiftservice.auth.config.props.OidcProviderProps;
+import at.shiftcontrol.shiftservice.userdirectory.current.CurrentUserProfileSyncService;
 
 @Conditional(NonDevTestCondition.class)
 @EnableWebSecurity
@@ -27,20 +30,23 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class JwtSecurityConfig {
     private final ApplicationUserManager applicationUserManager;
+    private final CurrentUserProfileSyncService currentUserProfileSyncService;
 
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> {
             var applicationUser = applicationUserManager.getOrCreateUser(jwt);
-            return new UserAuthenticationToken(applicationUser, jwt.getTokenValue(), applicationUser.getAuthorities());
+            var token = new UserAuthenticationToken(applicationUser, jwt.getTokenValue(), applicationUser.getAuthorities());
+            token.setDetails(jwt);
+            return token;
         };
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(KeycloakProps keycloakProps) {
-        String jwkSetUri = keycloakProps.authServerUrl() + "realms/" + keycloakProps.authRealm() + "/protocol/openid-connect/certs";
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    public JwtDecoder jwtDecoder(OidcProviderProps oidcProviderProps) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(oidcProviderProps.jwkSetUri()).build();
         decoder.setJwtValidator(token -> {
-            if (!keycloakProps.allowedIssuers().contains(token.getIssuer().toString())) {
+            String issuer = token.getIssuer() == null ? null : token.getIssuer().toString();
+            if (issuer == null || !oidcProviderProps.allowedIssuers().contains(issuer)) {
                 return OAuth2TokenValidatorResult.failure(new OAuth2Error(
                     "invalid_token",
                     "The iss claim is not valid: " + token.getIssuer(),
@@ -66,6 +72,7 @@ public class JwtSecurityConfig {
                 .permitAll() // Permit all OPTIONS requests (preflight))
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+        http.addFilterAfter(new CurrentUserProfileSyncFilter(currentUserProfileSyncService), BearerTokenAuthenticationFilter.class);
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }

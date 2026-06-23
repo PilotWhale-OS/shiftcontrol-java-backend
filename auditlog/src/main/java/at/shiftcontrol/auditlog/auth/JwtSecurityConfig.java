@@ -1,6 +1,11 @@
 package at.shiftcontrol.auditlog.auth;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -44,11 +49,11 @@ public class JwtSecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(KeycloakProps keycloakProps) {
-        String jwkSetUri = keycloakProps.authServerUrl() + "realms/" + keycloakProps.authRealm() + "/protocol/openid-connect/certs";
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    public JwtDecoder jwtDecoder(OidcProviderProps oidcProviderProps) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(oidcProviderProps.jwkSetUri()).build();
         decoder.setJwtValidator(token -> {
-            if (!keycloakProps.allowedIssuers().contains(token.getIssuer().toString())) {
+            String issuer = token.getIssuer() == null ? null : token.getIssuer().toString();
+            if (issuer == null || !oidcProviderProps.allowedIssuers().contains(issuer)) {
                 return OAuth2TokenValidatorResult.failure(new OAuth2Error(
                     "invalid_token",
                     "The iss claim is not valid: " + token.getIssuer(),
@@ -60,20 +65,70 @@ public class JwtSecurityConfig {
     }
 
     private ApplicationUser createUser(Jwt jwt) {
-        var userTypeString = jwt.getClaimAsString("userType");
         var username = jwt.getClaimAsString("preferred_username");
         var userId = jwt.getClaimAsString("sub");
-        log.debug("Creating ApplicationUser of type {} for username {} and userId {}", userTypeString, username, userId);
+        log.debug("Creating ApplicationUser for username {} and userId {}", username, userId);
 
         if (userId == null) {
             throw new IllegalArgumentException("User token does not contain 'sub' claim");
         }
 
         var authorities = new ArrayList<GrantedAuthority>();
-        if (userTypeString != null && userTypeString.equals("ADMIN")) {
+        Set<String> tokenAuthorities = extractAuthorities(jwt);
+        if (tokenAuthorities.stream().anyMatch(this::isPlatformAdminAuthority)) {
             authorities.add(new SimpleGrantedAuthority("ADMIN"));
         }
         return new ApplicationUser(authorities, username) {};
+    }
+
+    private Set<String> extractAuthorities(Jwt jwt) {
+        LinkedHashSet<String> authorities = new LinkedHashSet<>();
+        addClaimValues(authorities, jwt.getClaimAsString("scope"));
+        addClaimValues(authorities, jwt.getClaims().get("scp"));
+        addClaimValues(authorities, jwt.getClaims().get("roles"));
+        addNestedRoleValues(authorities, jwt.getClaims().get("realm_access"));
+        addResourceAccessRoles(authorities, jwt.getClaims().get("resource_access"));
+
+        return authorities;
+    }
+
+    private void addClaimValues(LinkedHashSet<String> authorities, Object claimValue) {
+        if (claimValue instanceof Collection<?> values) {
+            values.stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .forEach(authorities::add);
+            return;
+        }
+
+        if (claimValue instanceof String stringValue && !stringValue.isBlank()) {
+            Arrays.stream(stringValue.split("\\s+"))
+                .filter(value -> !value.isBlank())
+                .forEach(authorities::add);
+        }
+    }
+
+    private void addNestedRoleValues(LinkedHashSet<String> authorities, Object accessClaim) {
+        if (accessClaim instanceof Map<?, ?> accessMap) {
+            addClaimValues(authorities, accessMap.get("roles"));
+        }
+    }
+
+    private void addResourceAccessRoles(LinkedHashSet<String> authorities, Object resourceAccessClaim) {
+        if (!(resourceAccessClaim instanceof Map<?, ?> resourceAccessMap)) {
+            return;
+        }
+
+        resourceAccessMap.values().stream()
+            .filter(Map.class::isInstance)
+            .map(Map.class::cast)
+            .forEach(accessEntry -> addClaimValues(authorities, accessEntry.get("roles")));
+    }
+
+    private boolean isPlatformAdminAuthority(String authority) {
+        return "ADMIN".equalsIgnoreCase(authority)
+            || "admin".equalsIgnoreCase(authority)
+            || "shiftcontrol.admin".equals(authority);
     }
 
     @Bean

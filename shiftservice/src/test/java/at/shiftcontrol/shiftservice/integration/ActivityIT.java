@@ -4,6 +4,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import io.restassured.http.Method;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.Event;
@@ -22,13 +28,7 @@ import at.shiftcontrol.shiftservice.repo.PositionSlotRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
-import io.restassured.http.Method;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -227,7 +227,7 @@ class ActivityIT extends RestITBase {
         assignmentRepository.save(assignmentA);
 
         assertAll(
-            () -> assertThat(assignmentA.getId()).isNotNull(),
+            () -> assertThat(assignmentA.getId()).isNotZero(),
             () -> assertThat(assignmentA.getPositionSlot()).isEqualTo(positionSlotA),
             () -> assertThat(assignmentA.getAssignedVolunteer()).isEqualTo(volunteerA),
             () -> assertThat(assignmentA.getStatus()).isEqualTo(AssignmentStatus.ACCEPTED)
@@ -276,7 +276,7 @@ class ActivityIT extends RestITBase {
             Method.POST,
             String.format(ACTIVITY_COLLECTION_PATH, eventA.getId()),
             modificationDto,
-            BAD_REQUEST.getStatusCode(),
+            HttpStatus.BAD_REQUEST.value(),
             "Activity time range must be within event time range",
             true
         );

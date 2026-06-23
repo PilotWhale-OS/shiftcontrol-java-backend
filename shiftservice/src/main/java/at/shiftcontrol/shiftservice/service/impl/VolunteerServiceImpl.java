@@ -1,21 +1,21 @@
 package at.shiftcontrol.shiftservice.service.impl;
 
 import java.util.Collections;
-
-import org.jspecify.annotations.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.service.VolunteerService;
+import at.shiftcontrol.shiftservice.userdirectory.LocalUserDirectoryProvisioningService;
 
 @Service
 @RequiredArgsConstructor
 public class VolunteerServiceImpl implements VolunteerService {
     private final VolunteerDao volunteerDao;
+    private final LocalUserDirectoryProvisioningService localUserDirectoryProvisioningService;
 
     @Override
     public @NonNull Volunteer createVolunteer(@NonNull String userId) {
@@ -28,10 +28,14 @@ public class VolunteerServiceImpl implements VolunteerService {
             .notificationSettings(Collections.emptySet())
             .build();
         try {
-            return volunteerDao.save(newVolunteer);
+            Volunteer volunteer = volunteerDao.save(newVolunteer);
+            localUserDirectoryProvisioningService.ensureUserAccountForVolunteerId(userId);
+            return volunteer;
         } catch (DataIntegrityViolationException e) {
             // another concurrent request created the same volunteer in the meantime
-            return volunteerDao.getById(userId);
+            Volunteer volunteer = volunteerDao.getById(userId);
+            localUserDirectoryProvisioningService.ensureUserAccountForVolunteerId(userId);
+            return volunteer;
         }
     }
 

@@ -4,23 +4,24 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
-
-import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import at.shiftcontrol.lib.entity.Assignment;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.exception.ForbiddenException;
-import at.shiftcontrol.shiftservice.auth.KeycloakUserService;
+import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dto.leaderboard.LeaderBoardDto;
 import at.shiftcontrol.shiftservice.dto.leaderboard.RankDto;
 import at.shiftcontrol.shiftservice.service.LeaderboardService;
+import at.shiftcontrol.shiftservice.userdirectory.DirectoryUser;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 import at.shiftcontrol.shiftservice.util.SecurityHelper;
 
 @Service
@@ -30,7 +31,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
 
     private final EventDao eventDao;
     private final SecurityHelper securityHelper;
-    private final KeycloakUserService keycloakService;
+    private final UserDirectoryService userDirectoryService;
 
     @Override
     public @NonNull LeaderBoardDto getLeaderBoard(long eventId, @NonNull String currentUserId) throws NotFoundException, ForbiddenException {
@@ -58,14 +59,19 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             .map(Map.Entry::getKey)
             .toList();
 
+        var userIdsToResolve = new LinkedHashSet<>(topVolunteerIds);
+        userIdsToResolve.add(currentUserId);
+        Map<String, DirectoryUser> usersById = userDirectoryService.getUserByIds(userIdsToResolve).stream()
+            .collect(java.util.stream.Collectors.toMap(DirectoryUser::id, user -> user));
+
         RankDto ownRank = null;
         if (minutesByVolunteer.containsKey(currentUserId)) {
-            var user = keycloakService.getUserById(currentUserId);
+            var user = usersById.get(currentUserId);
             ownRank = RankDto.builder()
                 .rank(topVolunteerIds.indexOf(currentUserId) + 1)
                 .hours(minutesByVolunteer.get(currentUserId) / 60)
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .firstName(user.firstName())
+                .lastName(user.lastName())
                 .build();
         }
 
@@ -83,14 +89,14 @@ public class LeaderboardServiceImpl implements LeaderboardService {
                 prevMinutes = minutes;
             }
 
-            var user = keycloakService.getUserById(volunteerId);
+            var user = usersById.get(volunteerId);
             long hours = minutes / 60;
 
             var dto = RankDto.builder()
                 .rank(displayRank)
                 .hours(hours)
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .firstName(user.firstName())
+                .lastName(user.lastName())
                 .build();
 
             if (volunteerId.equals(currentUserId)) {
