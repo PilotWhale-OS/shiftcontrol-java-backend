@@ -2,6 +2,7 @@ package at.shiftcontrol.shiftservice.service.userdirectory;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -143,6 +144,6 @@ public class UserInviteClaimService {
         }
 
         String normalizedEmail = email.trim();
-        return normalizedEmail.isBlank() ? null : normalizedEmail;
+        return normalizedEmail.isBlank() ? null : normalizedEmail.toLowerCase(Locale.ROOT);
     }
 }

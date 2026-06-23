@@ -28,6 +28,9 @@ public class OidcProviderConfig {
         Set<String> allowedIssuers = binder.bind("oidc.provider.allowed-issuers", Bindable.setOf(String.class))
             .orElseGet(() -> binder.bind("keycloak.allowed-issuers", Bindable.setOf(String.class))
                 .orElse(Set.of()));
+        if (allowedIssuers.isEmpty() && issuerUri != null) {
+            allowedIssuers = Set.of(issuerUri);
+        }
 
         return new OidcProviderProps(issuerUri, jwkSetUri, allowedIssuers);
     }

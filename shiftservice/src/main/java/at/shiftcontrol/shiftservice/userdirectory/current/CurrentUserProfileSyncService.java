@@ -17,6 +17,7 @@ import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.userdirectory.ExternalIdentityRepository;
 import at.shiftcontrol.shiftservice.repo.userdirectory.UserAccountRepository;
 import at.shiftcontrol.shiftservice.service.userdirectory.UserInviteClaimService;
+import at.shiftcontrol.shiftservice.userdirectory.LocalUserDirectoryProvisioningService;
 import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
 @Service
@@ -80,7 +81,7 @@ public class CurrentUserProfileSyncService {
 
         UserAccount userAccount;
         if (existingExternalIdentity == null) {
-            userAccount = findExistingUserAccountBySubject(currentSubjectProfile.subject());
+            userAccount = findExistingPlaceholderUserAccount(currentSubjectProfile.subject());
             if (userAccount == null) {
                 userAccount = UserAccount.builder()
                     .status(UserAccountStatus.ACTIVE)
@@ -184,11 +185,10 @@ public class CurrentUserProfileSyncService {
         userAccount.setUpdatedAt(now);
     }
 
-    private UserAccount findExistingUserAccountBySubject(String subject) {
-        return externalIdentityRepository.findAllBySubject(subject).stream()
+    private UserAccount findExistingPlaceholderUserAccount(String subject) {
+        return externalIdentityRepository.findByIssuerAndSubject(LocalUserDirectoryProvisioningService.LEGACY_VOLUNTEER_ISSUER, subject)
             .map(ExternalIdentity::getUserAccount)
             .filter(Objects::nonNull)
-            .findFirst()
             .orElse(null);
     }
 

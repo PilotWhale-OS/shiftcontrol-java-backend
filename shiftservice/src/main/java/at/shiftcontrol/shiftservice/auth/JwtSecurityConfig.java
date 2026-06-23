@@ -45,7 +45,8 @@ public class JwtSecurityConfig {
     public JwtDecoder jwtDecoder(OidcProviderProps oidcProviderProps) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(oidcProviderProps.jwkSetUri()).build();
         decoder.setJwtValidator(token -> {
-            if (!oidcProviderProps.allowedIssuers().contains(token.getIssuer().toString())) {
+            String issuer = token.getIssuer() == null ? null : token.getIssuer().toString();
+            if (issuer == null || !oidcProviderProps.allowedIssuers().contains(issuer)) {
                 return OAuth2TokenValidatorResult.failure(new OAuth2Error(
                     "invalid_token",
                     "The iss claim is not valid: " + token.getIssuer(),

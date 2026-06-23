@@ -38,4 +38,14 @@ class OidcProviderConfigTest {
         assertThat(props.jwkSetUri()).isEqualTo("https://legacy.example.test/realms/audit/protocol/openid-connect/certs");
         assertThat(props.allowedIssuers()).isEqualTo(Set.of("https://legacy.example.test/realms/audit"));
     }
+
+    @Test
+    void oidcProviderProps_defaultsAllowedIssuersToIssuerUri() {
+        MockEnvironment environment = new MockEnvironment()
+            .withProperty("oidc.provider.issuer-uri", "https://id.example.test/realms/audit");
+
+        OidcProviderProps props = config.oidcProviderProps(environment);
+
+        assertThat(props.allowedIssuers()).containsExactly("https://id.example.test/realms/audit");
+    }
 }

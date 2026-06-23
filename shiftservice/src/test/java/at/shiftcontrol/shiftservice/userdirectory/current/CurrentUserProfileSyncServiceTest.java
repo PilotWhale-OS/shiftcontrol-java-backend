@@ -225,6 +225,48 @@ class CurrentUserProfileSyncServiceTest {
     }
 
     @Test
+    void syncCurrentSubject_doesNotLinkAcrossDifferentTrustedIssuersBySubjectAlone() {
+        UserAccount existingForeignAccount = UserAccount.builder()
+            .status(UserAccountStatus.ACTIVE)
+            .preferredUsername("foreign-user")
+            .displayName("Foreign User")
+            .lastProfileSyncSource(UserProfileSource.TOKEN_CLAIMS)
+            .build();
+        existingForeignAccount.addExternalIdentity(at.shiftcontrol.lib.entity.ExternalIdentity.builder()
+            .issuer("https://other-id.example.test/realms/shiftcontrol")
+            .subject("subject-777")
+            .createdAt(Instant.parse("2026-06-16T09:00:00Z"))
+            .lastSeenAt(Instant.parse("2026-06-16T09:00:00Z"))
+            .build());
+        UserAccount savedForeignAccount = userAccountRepository.save(existingForeignAccount);
+        volunteerRepository.save(emptyVolunteer("subject-777"));
+
+        when(currentSubjectProfileResolver.resolveCurrentSubject()).thenReturn(new CurrentSubjectProfile(
+            "https://id.example.test/realms/shiftcontrol",
+            "subject-777",
+            "local.user",
+            "Local",
+            "User",
+            "local.user@example.com",
+            "https://cdn.example.test/profiles/local-user.png",
+            true,
+            "token-value",
+            UserType.ASSIGNED
+        ));
+
+        CurrentSubjectProfileSyncResult result = currentUserProfileSyncService.syncCurrentSubject();
+
+        Assertions.assertAll(
+            () -> Assertions.assertNotEquals(savedForeignAccount.getId(), result.userAccount().getId()),
+            () -> Assertions.assertEquals(2, userAccountRepository.count()),
+            () -> Assertions.assertTrue(externalIdentityRepository.findByIssuerAndSubject(
+                "https://id.example.test/realms/shiftcontrol",
+                "subject-777"
+            ).isPresent())
+        );
+    }
+
+    @Test
     void syncCurrentSubject_claimsPendingInviteAndMaterializesPlanAccessAndRoles() {
         Event event = eventRepository.save(Event.builder()
             .name("Invite claim event")

@@ -143,4 +143,16 @@ class UserInviteClaimServiceTest {
             .findAllByEmailIgnoreCaseAndStatus("missing@example.com", UserInviteStatus.PENDING);
         verify(volunteerRepository, never()).findById("user-1");
     }
+
+    @Test
+    void hasPendingInviteForEmail_normalizesCaseBeforeCaching() {
+        when(userInviteRepository.findAllByEmailIgnoreCaseAndStatus("user@example.com", UserInviteStatus.PENDING))
+            .thenReturn(List.of());
+
+        assertThat(service.hasPendingInviteForEmail("User@Example.com")).isFalse();
+        assertThat(service.hasPendingInviteForEmail("user@example.com")).isFalse();
+
+        verify(userInviteRepository, times(1))
+            .findAllByEmailIgnoreCaseAndStatus("user@example.com", UserInviteStatus.PENDING);
+    }
 }
