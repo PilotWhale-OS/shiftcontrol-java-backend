@@ -72,6 +72,7 @@ class RoleServiceImplTest {
             "Alice",
             "Admin",
             "alice@example.com",
+            "https://cdn.example.test/profiles/user-1.png",
             UserType.ASSIGNED
         ));
 

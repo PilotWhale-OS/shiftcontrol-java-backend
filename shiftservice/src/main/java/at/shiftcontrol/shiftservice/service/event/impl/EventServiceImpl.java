@@ -116,7 +116,7 @@ public class EventServiceImpl implements EventService {
         // get planner IDs of users plans
         Collection<PlanVolunteerIdRow> rows = eventDao.getPlannersForEventAndUser(eventId, userId);
 
-        // get all planners from keycloak
+        // Resolve all planner contacts from Shiftservice's local user directory.
         Set<String> allPlannerIds =
             rows.stream()
                 .map(PlanVolunteerIdRow::getVolunteerId)

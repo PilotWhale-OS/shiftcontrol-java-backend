@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.auth.NonDevTestCondition;
 import at.shiftcontrol.lib.auth.UserAuthenticationToken;
-import at.shiftcontrol.shiftservice.auth.config.props.KeycloakProps;
+import at.shiftcontrol.shiftservice.auth.config.props.OidcProviderProps;
 import at.shiftcontrol.shiftservice.userdirectory.current.CurrentUserProfileSyncService;
 
 @Conditional(NonDevTestCondition.class)
@@ -42,11 +42,10 @@ public class JwtSecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(KeycloakProps keycloakProps) {
-        String jwkSetUri = keycloakProps.authServerUrl() + "realms/" + keycloakProps.authRealm() + "/protocol/openid-connect/certs";
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    public JwtDecoder jwtDecoder(OidcProviderProps oidcProviderProps) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(oidcProviderProps.jwkSetUri()).build();
         decoder.setJwtValidator(token -> {
-            if (!keycloakProps.allowedIssuers().contains(token.getIssuer().toString())) {
+            if (!oidcProviderProps.allowedIssuers().contains(token.getIssuer().toString())) {
                 return OAuth2TokenValidatorResult.failure(new OAuth2Error(
                     "invalid_token",
                     "The iss claim is not valid: " + token.getIssuer(),

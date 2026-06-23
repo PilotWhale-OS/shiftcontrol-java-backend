@@ -38,7 +38,7 @@ public class AssignmentAssemblingMapper {
         Map<String, DirectoryUser> usersById = userDirectoryService.getUserByIds(
             assignments.stream()
                 .map(Assignment::getAssignedVolunteer)
-                .map(Volunteer::getId)
+                .map(volunteer -> volunteer.getId())
                 .distinct()
                 .toList()
         ).stream().collect(Collectors.toMap(DirectoryUser::id, Function.identity()));
@@ -94,6 +94,6 @@ public class AssignmentAssemblingMapper {
     }
 
     private DirectoryUser fallbackDirectoryUser(String userId) {
-        return new DirectoryUser(userId, userId, "", "", "", at.shiftcontrol.shiftservice.auth.UserType.ASSIGNED);
+        return new DirectoryUser(userId, userId, "", "", "", null, at.shiftcontrol.shiftservice.auth.UserType.ASSIGNED);
     }
 }

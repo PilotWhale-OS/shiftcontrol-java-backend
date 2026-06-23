@@ -12,6 +12,7 @@ public class AccountInfoMapper {
             .volunteer(VolunteerAssemblingMapper.toDtoFromUser(user))
             .username(user.username())
             .email(user.email())
+            .profile(user.profile())
             .userType(user.userType())
             .build();
     }

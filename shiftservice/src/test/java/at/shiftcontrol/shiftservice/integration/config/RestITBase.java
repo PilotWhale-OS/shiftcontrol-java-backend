@@ -135,9 +135,9 @@ public abstract class RestITBase {
 
     @BeforeEach
     public void setupUsers() {
-        DirectoryUser userRep = new DirectoryUser("11111", "assigned-11111", "Kerbert", "Huttelwascher", "11111@example.com", UserType.ASSIGNED);
-        DirectoryUser userRep2 = new DirectoryUser("22222", "assigned-22222", "Kerbert", "Huttelwascher", "22222@example.com", UserType.ASSIGNED);
-        DirectoryUser userRep3 = new DirectoryUser("33333", "assigned-33333", "Kerbert", "Huttelwascher", "33333@example.com", UserType.ASSIGNED);
+        DirectoryUser userRep = new DirectoryUser("11111", "assigned-11111", "Kerbert", "Huttelwascher", "11111@example.com", "https://cdn.example.test/profiles/11111.png", UserType.ASSIGNED);
+        DirectoryUser userRep2 = new DirectoryUser("22222", "assigned-22222", "Kerbert", "Huttelwascher", "22222@example.com", "https://cdn.example.test/profiles/22222.png", UserType.ASSIGNED);
+        DirectoryUser userRep3 = new DirectoryUser("33333", "assigned-33333", "Kerbert", "Huttelwascher", "33333@example.com", "https://cdn.example.test/profiles/33333.png", UserType.ASSIGNED);
         Map<String, DirectoryUser> usersById = Map.of(
             userRep.id(), userRep,
             userRep2.id(), userRep2,

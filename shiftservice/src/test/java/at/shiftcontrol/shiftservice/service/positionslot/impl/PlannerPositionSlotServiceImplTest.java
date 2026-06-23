@@ -90,7 +90,7 @@ class PlannerPositionSlotServiceImplTest {
         when(eligibilityService.isEligibleAndNotSignedUp(positionSlot, ineligibleVolunteer)).thenReturn(false);
         when(eligibilityService.getConflictingAssignmentsExcludingShift("user-1", positionSlot, 4L)).thenReturn(List.of());
         when(userDirectoryService.getUserByIds(List.of("user-1"))).thenReturn(List.of(
-            new DirectoryUser("user-1", "alice", "Alice", "Admin", "alice@example.com", UserType.ASSIGNED)
+            new DirectoryUser("user-1", "alice", "Alice", "Admin", "alice@example.com", "https://cdn.example.test/profiles/user-1.png", UserType.ASSIGNED)
         ));
 
         var result = plannerPositionSlotService.getAssignableUsers("5");

@@ -7,10 +7,10 @@ import lombok.Data;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "trust.keycloak")
-public class KeycloakSettings {
-    private String baseUrl;
-    private String realm;
+@ConfigurationProperties(prefix = "trust.oauth2.client")
+public class OAuthClientCredentialsSettings {
+    private String tokenUrl;
     private String clientId;
     private String clientSecret;
+    private String scope;
 }

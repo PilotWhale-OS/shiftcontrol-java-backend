@@ -8,6 +8,7 @@ public record DirectoryUser(
     String firstName,
     String lastName,
     String email,
+    String profile,
     UserType userType
 ) {
 }

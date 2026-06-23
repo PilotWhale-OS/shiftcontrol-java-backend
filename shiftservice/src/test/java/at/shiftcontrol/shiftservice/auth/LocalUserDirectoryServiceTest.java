@@ -3,6 +3,8 @@ package at.shiftcontrol.shiftservice.auth;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -79,8 +81,8 @@ class LocalUserDirectoryServiceTest {
         var admins = localUserDirectoryService.getAllAdmins();
 
         assertThat(admins)
-            .extracting(DirectoryUser::id, DirectoryUser::userType)
-            .containsExactly(org.assertj.core.groups.Tuple.tuple("admin-1", UserType.ADMIN));
+            .extracting(DirectoryUser::id, DirectoryUser::profile, DirectoryUser::userType)
+            .containsExactly(org.assertj.core.groups.Tuple.tuple("admin-1", "https://cdn.example.test/profiles/admin-1.png", UserType.ADMIN));
     }
 
     @Test
@@ -98,6 +100,22 @@ class LocalUserDirectoryServiceTest {
             .containsExactly("user-1", "user-3");
     }
 
+    @Test
+    void searchUsers_pagesThroughRepositoryBackedDirectorySearch() {
+        localUserDirectoryService.init();
+        UserAccount alice = externalIdentity("user-1", "Alice", "Anderson", "alice@example.com").getUserAccount();
+        when(userAccountRepository.searchRelevantUserIds("%ali%", PageRequest.of(0, 10)))
+            .thenReturn(new PageImpl<>(List.of(alice.getId()), PageRequest.of(0, 10), 1));
+        when(userAccountRepository.findAllWithExternalIdentitiesByIdIn(List.of(alice.getId()))).thenReturn(List.of(alice));
+
+        var result = localUserDirectoryService.searchUsers(0, 10, at.shiftcontrol.shiftservice.dto.user.UserSearchDto.builder().name("ali").build());
+
+        assertThat(result.getTotal()).isEqualTo(1);
+        assertThat(result.getItems())
+            .extracting(DirectoryUser::id, DirectoryUser::firstName)
+            .containsExactly(org.assertj.core.groups.Tuple.tuple("user-1", "Alice"));
+    }
+
     private ExternalIdentity externalIdentity(String subject, String firstName, String lastName, String email) {
         UserAccount userAccount = UserAccount.builder()
             .id(1L)
@@ -106,6 +124,7 @@ class LocalUserDirectoryServiceTest {
             .firstName(firstName)
             .lastName(lastName)
             .email(email)
+            .profile("https://cdn.example.test/profiles/" + subject + ".png")
             .platformAdmin(subject.startsWith("admin"))
             .build();
 

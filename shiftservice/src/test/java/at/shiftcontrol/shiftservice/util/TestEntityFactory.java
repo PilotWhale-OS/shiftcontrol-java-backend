@@ -146,6 +146,7 @@ public class TestEntityFactory {
             volunteer,
             "Test Username",
             "mail@mail.com",
+            "https://cdn.example.test/profiles/" + userId + ".png",
             UserType.ASSIGNED
         );
         profile.setAccount(info);
@@ -159,6 +160,7 @@ public class TestEntityFactory {
             "Kerbert",
             "Huttelwascher",
             id + "@example.com",
+            "https://cdn.example.test/profiles/" + id + ".png",
             UserType.ASSIGNED
         );
     }
@@ -170,6 +172,7 @@ public class TestEntityFactory {
             "Admin",
             "User",
             id + "@example.com",
+            "https://cdn.example.test/profiles/" + id + ".png",
             UserType.ADMIN
         );
     }

@@ -24,6 +24,8 @@ public class AccountInfoDto {
     @NotNull
     private String email;
 
+    private String profile;
+
     @NotNull
     private UserType userType;
 }

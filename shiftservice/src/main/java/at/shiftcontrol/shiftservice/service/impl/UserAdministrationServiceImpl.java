@@ -66,14 +66,12 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @AdminOnly
     public @NonNull PaginationDto<UserEventDto> getAllUsers(int page, int size, @NonNull UserSearchDto searchDto) {
-        var allUsers = userDirectoryService.getAllUsers();
-        var users = filterUsers(searchDto, allUsers);
-        var paginatedUsers = paginateUsers(users, page, size);
+        var users = userDirectoryService.searchUsers(page, size, searchDto);
         var volunteers = volunteerDao.findAllByVolunteerIds(
-            paginatedUsers.stream().map(DirectoryUser::id).toList()
+            users.getItems().stream().map(DirectoryUser::id).toList()
         );
 
-        return PaginationMapper.toPaginationDto(size, page, users.size(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, paginatedUsers));
+        return PaginationMapper.toPaginationDto(size, page, users.getTotal(), UserAssemblingMapper.toUserEventDtoForUsers(volunteers, users.getItems()));
     }
 
     @Override
@@ -118,12 +116,16 @@ public class UserAdministrationServiceImpl implements UserAdministrationService 
     @Override
     @AdminOnly
     public @NonNull UserEventDto getUser(@NonNull String userId) {
-        var volunteer = volunteerService.getOrCreate(userId);
-        return toUserEventDto(volunteer);
+        var volunteer = volunteerDao.findById(userId).orElse(null);
+        var user = userDirectoryService.getUserById(userId);
+        return UserAssemblingMapper.toUserEventDto(volunteer, user);
     }
 
     @Override
+    @Deprecated
     public @NonNull UserEventDto createVolunteer(@NonNull String userId) {
+        // Legacy compatibility path: only allow materializing volunteer state for users already known to Shiftservice.
+        userDirectoryService.getUserById(userId);
         return toUserEventDto(volunteerService.createVolunteer(userId));
     }
 

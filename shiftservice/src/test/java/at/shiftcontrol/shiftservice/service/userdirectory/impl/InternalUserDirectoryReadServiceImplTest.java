@@ -26,11 +26,16 @@ class InternalUserDirectoryReadServiceImplTest {
 
     @Test
     void searchUsers_filtersAndPaginatesLocalDirectoryUsers() {
-        when(userDirectoryService.getAllUsers()).thenReturn(List.of(
-            user("1", "alice", "Alice", "Anderson"),
-            user("2", "bobby", "Bob", "Builder"),
-            user("3", "johnny", "John", "Jones")
-        ));
+        when(userDirectoryService.searchUsers(0, 2, UserSearchDto.builder().name("o").build()))
+            .thenReturn(at.shiftcontrol.lib.dto.PaginationDto.<DirectoryUser>builder()
+                .page(0)
+                .pages(2)
+                .total(3)
+                .items(List.of(
+                    user("1", "alice", "Alice", "Anderson"),
+                    user("2", "bobby", "Bob", "Builder")
+                ))
+                .build());
 
         var result = service.searchUsers(0, 2, UserSearchDto.builder().name("o").build());
 
@@ -58,6 +63,6 @@ class InternalUserDirectoryReadServiceImplTest {
     }
 
     private static DirectoryUser user(String id, String username, String firstName, String lastName) {
-        return new DirectoryUser(id, username, firstName, lastName, username + "@example.com", UserType.ASSIGNED);
+        return new DirectoryUser(id, username, firstName, lastName, username + "@example.com", "https://cdn.example.test/profiles/" + id + ".png", UserType.ASSIGNED);
     }
 }

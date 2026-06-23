@@ -13,8 +13,11 @@ import at.shiftcontrol.lib.entity.ExternalIdentity;
 import at.shiftcontrol.lib.entity.UserAccount;
 import at.shiftcontrol.lib.type.UserAccountStatus;
 import at.shiftcontrol.lib.type.UserProfileSource;
+import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
 import at.shiftcontrol.shiftservice.repo.userdirectory.ExternalIdentityRepository;
 import at.shiftcontrol.shiftservice.repo.userdirectory.UserAccountRepository;
+import at.shiftcontrol.shiftservice.service.userdirectory.UserInviteClaimService;
+import at.shiftcontrol.shiftservice.userdirectory.UserDirectoryService;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +27,23 @@ public class CurrentUserProfileSyncService {
     private final CurrentSubjectProfileResolver currentSubjectProfileResolver;
     private final UserAccountRepository userAccountRepository;
     private final ExternalIdentityRepository externalIdentityRepository;
+    private final VolunteerRepository volunteerRepository;
+    private final UserInviteClaimService userInviteClaimService;
+    private final UserDirectoryService userDirectoryService;
 
     @Transactional
     public CurrentSubjectProfileSyncResult syncCurrentSubject() {
         CurrentSubjectProfile currentSubjectProfile = currentSubjectProfileResolver.resolveCurrentSubject();
-        return syncCurrentSubject(currentSubjectProfile, Instant.now());
+        Instant now = Instant.now();
+        ExternalIdentity existingExternalIdentity = externalIdentityRepository.findByIssuerAndSubject(
+            currentSubjectProfile.issuer(),
+            currentSubjectProfile.subject()
+        ).orElse(null);
+        if (existingExternalIdentity == null && !shouldPersistLocalState(currentSubjectProfile)) {
+            return new CurrentSubjectProfileSyncResult(currentSubjectProfile, buildTransientUserAccount(currentSubjectProfile, now));
+        }
+
+        return syncCurrentSubject(currentSubjectProfile, now);
     }
 
     @Transactional
@@ -40,7 +55,17 @@ public class CurrentUserProfileSyncService {
             currentSubjectProfile.subject()
         ).orElse(null);
 
+        if (existingExternalIdentity == null && !shouldPersistLocalState(currentSubjectProfile)) {
+            return new CurrentSubjectProfileSyncResult(currentSubjectProfile, buildTransientUserAccount(currentSubjectProfile, now));
+        }
+
         if (existingExternalIdentity != null && !shouldRefresh(existingExternalIdentity.getUserAccount(), currentSubjectProfile, now)) {
+            userInviteClaimService.claimPendingInvites(
+                existingExternalIdentity.getUserAccount(),
+                currentSubjectProfile.subject(),
+                currentSubjectProfile.email(),
+                now
+            );
             return new CurrentSubjectProfileSyncResult(currentSubjectProfile, existingExternalIdentity.getUserAccount());
         }
 
@@ -79,7 +104,42 @@ public class CurrentUserProfileSyncService {
             externalIdentityRepository.save(existingExternalIdentity);
         }
 
+        userInviteClaimService.claimPendingInvites(
+            userAccount,
+            currentSubjectProfile.subject(),
+            currentSubjectProfile.email(),
+            now
+        );
+        userDirectoryService.invalidateCachedUser(currentSubjectProfile.subject());
         return new CurrentSubjectProfileSyncResult(currentSubjectProfile, userAccount);
+    }
+
+    private boolean shouldPersistLocalState(CurrentSubjectProfile currentSubjectProfile) {
+        if (currentSubjectProfile.userType() == at.shiftcontrol.shiftservice.auth.UserType.ADMIN) {
+            return true;
+        }
+        if (volunteerRepository.existsById(currentSubjectProfile.subject())) {
+            return true;
+        }
+
+        String email = currentSubjectProfile.email();
+        return email != null
+            && !email.isBlank()
+            && userInviteClaimService.hasPendingInviteForEmail(email);
+    }
+
+    private UserAccount buildTransientUserAccount(CurrentSubjectProfile currentSubjectProfile, Instant now) {
+        UserAccount userAccount = UserAccount.builder()
+            .status(UserAccountStatus.ACTIVE)
+            .platformAdmin(currentSubjectProfile.userType() == at.shiftcontrol.shiftservice.auth.UserType.ADMIN)
+            .lastLoginAt(now)
+            .lastProfileSyncAt(now)
+            .lastProfileSyncSource(UserProfileSource.TOKEN_CLAIMS)
+            .createdAt(now)
+            .updatedAt(now)
+            .build();
+        applyCurrentProfile(userAccount, currentSubjectProfile, now);
+        return userAccount;
     }
 
     private boolean shouldRefresh(UserAccount userAccount, CurrentSubjectProfile currentSubjectProfile, Instant now) {
@@ -94,6 +154,7 @@ public class CurrentUserProfileSyncService {
             || valueChanged(currentSubjectProfile.firstName(), userAccount.getFirstName())
             || valueChanged(currentSubjectProfile.lastName(), userAccount.getLastName())
             || valueChanged(currentSubjectProfile.email(), userAccount.getEmail())
+            || valueChanged(currentSubjectProfile.profile(), userAccount.getProfile())
             || (currentSubjectProfile.emailVerified() != null && currentSubjectProfile.emailVerified() != userAccount.isEmailVerified());
     }
 
@@ -102,6 +163,7 @@ public class CurrentUserProfileSyncService {
         userAccount.setFirstName(firstNonBlank(currentSubjectProfile.firstName(), userAccount.getFirstName()));
         userAccount.setLastName(firstNonBlank(currentSubjectProfile.lastName(), userAccount.getLastName()));
         userAccount.setEmail(firstNonBlank(currentSubjectProfile.email(), userAccount.getEmail()));
+        userAccount.setProfile(firstNonBlank(currentSubjectProfile.profile(), userAccount.getProfile()));
         userAccount.setDisplayName(buildDisplayName(
             userAccount.getFirstName(),
             userAccount.getLastName(),

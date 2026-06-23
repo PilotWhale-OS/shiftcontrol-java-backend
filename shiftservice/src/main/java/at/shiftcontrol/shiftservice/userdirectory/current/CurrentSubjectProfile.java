@@ -9,6 +9,7 @@ public record CurrentSubjectProfile(
     String firstName,
     String lastName,
     String email,
+    String profile,
     Boolean emailVerified,
     String accessToken,
     UserType userType

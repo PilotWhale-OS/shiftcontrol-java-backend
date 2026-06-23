@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import config.TestConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -92,6 +93,37 @@ public class UserInviteRepositoryTest {
             ),
             () -> Assertions.assertTrue(
                 userInviteRepository.findFirstByEmailIgnoreCaseAndStatus("FUTURE.PLANNER@example.com", UserInviteStatus.PENDING).isPresent()
+            )
+        );
+    }
+
+    @Test
+    void searchInviteIds_filtersByStatusAndName() {
+        userInviteRepository.save(UserInvite.builder()
+            .code("invite-code-pending")
+            .email("alice.future@example.com")
+            .firstName("Alice")
+            .lastName("Future")
+            .status(UserInviteStatus.PENDING)
+            .createdAt(Instant.parse("2026-07-02T08:00:00Z"))
+            .build());
+        userInviteRepository.save(UserInvite.builder()
+            .code("invite-code-claimed")
+            .email("bob.future@example.com")
+            .firstName("Bob")
+            .lastName("Future")
+            .status(UserInviteStatus.CLAIMED)
+            .createdAt(Instant.parse("2026-07-01T08:00:00Z"))
+            .build());
+
+        var result = userInviteRepository.searchInviteIds(UserInviteStatus.PENDING, "%ali%", PageRequest.of(0, 10));
+
+        Assertions.assertAll(
+            () -> Assertions.assertEquals(1, result.getTotalElements()),
+            () -> Assertions.assertEquals(1, result.getContent().size()),
+            () -> Assertions.assertEquals(
+                "alice.future@example.com",
+                userInviteRepository.findAllDetailedByIdIn(result.getContent()).get(0).getEmail()
             )
         );
     }

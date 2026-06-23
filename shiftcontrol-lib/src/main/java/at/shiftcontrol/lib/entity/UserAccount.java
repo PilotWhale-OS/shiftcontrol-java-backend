@@ -62,6 +62,10 @@ public class UserAccount {
     @Column(name = "email", length = 320)
     private String email;
 
+    @Size(max = 2048)
+    @Column(name = "profile", length = 2048)
+    private String profile;
+
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified;
 

@@ -31,6 +31,7 @@ public class CurrentSubjectProfileResolver {
             jwt.getClaimAsString("given_name"),
             jwt.getClaimAsString("family_name"),
             jwt.getClaimAsString("email"),
+            firstNonBlank(jwt.getClaimAsString("picture"), jwt.getClaimAsString("profile")),
             jwt.getClaims().containsKey("email_verified") ? jwt.getClaimAsBoolean("email_verified") : null,
             applicationUserProvider.getCurrentAccessToken(),
             applicationUserProvider.currentUserHasAuthority("ADMIN") ? UserType.ADMIN : UserType.ASSIGNED

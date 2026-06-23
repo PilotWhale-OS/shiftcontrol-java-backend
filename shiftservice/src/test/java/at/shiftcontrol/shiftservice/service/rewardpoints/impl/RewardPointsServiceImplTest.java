@@ -90,6 +90,6 @@ class RewardPointsServiceImplTest {
     }
 
     private static DirectoryUser directoryUser(String id, String firstName, String lastName) {
-        return new DirectoryUser(id, id, firstName, lastName, id + "@example.com", UserType.ASSIGNED);
+        return new DirectoryUser(id, id, firstName, lastName, id + "@example.com", "https://cdn.example.test/profiles/" + id + ".png", UserType.ASSIGNED);
     }
 }

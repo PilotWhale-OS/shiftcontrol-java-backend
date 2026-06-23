@@ -11,16 +11,11 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/dev
+          issuer-uri: ${oidc.provider.issuer-uri}
 
-keycloak:
-  auth-server-url: http://keycloak:8080/
-  auth-realm: dev
-  allowed-issuers:
-    - http://keycloak.127.0.0.1.nip.io/realms/dev
-    - http://keycloak:8080/realms/dev
-  client:
-    id: admin-cli
-    realm: master
-    username: admin
-    password: admin
+oidc:
+  provider:
+    issuer-uri: http://keycloak:8080/realms/dev
+    allowed-issuers:
+      - http://keycloak.127.0.0.1.nip.io/realms/dev
+      - http://keycloak:8080/realms/dev
