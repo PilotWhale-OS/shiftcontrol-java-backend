@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.lib.dto.PaginationDto;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.VolunteerDto;
 import at.shiftcontrol.shiftservice.service.userdirectory.InternalUserDirectoryReadService;
@@ -47,7 +46,7 @@ class InternalUserDirectoryEndpointTest {
             .volunteer(new VolunteerDto("user-1", "Alice", "Anderson"))
             .username("alice")
             .email("alice@example.com")
-            .userType(UserType.ASSIGNED)
+            .isPlatformAdmin(false)
             .build();
         when(service.getUser("user-1")).thenReturn(account);
 
@@ -70,7 +69,7 @@ class InternalUserDirectoryEndpointTest {
                 .volunteer(new VolunteerDto("user-1", "Alice", "Anderson"))
                 .username("alice")
                 .email("alice@example.com")
-                .userType(UserType.ASSIGNED)
+                .isPlatformAdmin(false)
                 .build()))
             .build();
         when(service.searchUsers(0, 10, at.shiftcontrol.shiftservice.dto.user.UserSearchDto.builder().name("ali").build()))

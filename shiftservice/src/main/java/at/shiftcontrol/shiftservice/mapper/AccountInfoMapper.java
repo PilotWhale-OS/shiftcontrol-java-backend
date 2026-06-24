@@ -13,7 +13,7 @@ public class AccountInfoMapper {
             .username(user.username())
             .email(user.email())
             .profile(user.profile())
-            .userType(user.userType())
+            .isPlatformAdmin(user.isPlatformAdmin())
             .build();
     }
 }

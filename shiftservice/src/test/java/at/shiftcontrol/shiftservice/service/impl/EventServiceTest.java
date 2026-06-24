@@ -15,7 +15,6 @@ import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
 import at.shiftcontrol.lib.exception.NotFoundException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -87,7 +86,7 @@ class EventServiceTest {
         Event nonRelevantEvent = new Event();
         nonRelevantEvent.setShiftPlans(List.of(spIrrelevant));
 
-        var assignedUser = mock(AssignedUser.class);
+        var assignedUser = mock(at.shiftcontrol.shiftservice.auth.user.ShiftControlUser.class);
         when(assignedUser.getUserId()).thenReturn("420696742");
         when(userProvider.getCurrentUser()).thenReturn(assignedUser);
 
@@ -223,8 +222,8 @@ class EventServiceTest {
         );
         when(eventDao.getPlannersForEventAndUser(eventId, userId)).thenReturn(rows);
         when(userDirectoryService.getUserByIds(Set.of("planner-1", "planner-2"))).thenReturn(List.of(
-            new DirectoryUser("planner-1", "planner1", "Alice", "Admin", "alice@example.com", "https://cdn.example.test/profiles/planner-1.png", null),
-            new DirectoryUser("planner-2", "planner2", "Bob", "Builder", "bob@example.com", "https://cdn.example.test/profiles/planner-2.png", null)
+            new DirectoryUser("planner-1", "planner1", "Alice", "Admin", "alice@example.com", "https://cdn.example.test/profiles/planner-1.png", false),
+            new DirectoryUser("planner-2", "planner2", "Bob", "Builder", "bob@example.com", "https://cdn.example.test/profiles/planner-2.png", false)
         ));
 
         var result = List.copyOf(eventService.getPlannerContactInfo(eventId, userId));

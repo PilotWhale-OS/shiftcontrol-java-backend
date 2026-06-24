@@ -116,7 +116,7 @@ public class CurrentUserProfileSyncService {
     }
 
     private boolean shouldPersistLocalState(CurrentSubjectProfile currentSubjectProfile) {
-        if (currentSubjectProfile.userType() == at.shiftcontrol.shiftservice.auth.UserType.ADMIN) {
+        if (currentSubjectProfile.isPlatformAdmin()) {
             return true;
         }
         if (volunteerRepository.existsById(currentSubjectProfile.subject())) {
@@ -132,7 +132,7 @@ public class CurrentUserProfileSyncService {
     private UserAccount buildTransientUserAccount(CurrentSubjectProfile currentSubjectProfile, Instant now) {
         UserAccount userAccount = UserAccount.builder()
             .status(UserAccountStatus.ACTIVE)
-            .platformAdmin(currentSubjectProfile.userType() == at.shiftcontrol.shiftservice.auth.UserType.ADMIN)
+            .platformAdmin(currentSubjectProfile.isPlatformAdmin())
             .lastLoginAt(now)
             .lastProfileSyncAt(now)
             .lastProfileSyncSource(UserProfileSource.TOKEN_CLAIMS)
@@ -178,7 +178,7 @@ public class CurrentUserProfileSyncService {
         if (userAccount.getStatus() == UserAccountStatus.PENDING_INVITE) {
             userAccount.setStatus(UserAccountStatus.ACTIVE);
         }
-        userAccount.setPlatformAdmin(currentSubjectProfile.userType() == at.shiftcontrol.shiftservice.auth.UserType.ADMIN);
+        userAccount.setPlatformAdmin(currentSubjectProfile.isPlatformAdmin());
         userAccount.setLastLoginAt(now);
         userAccount.setLastProfileSyncAt(now);
         userAccount.setLastProfileSyncSource(UserProfileSource.TOKEN_CLAIMS);

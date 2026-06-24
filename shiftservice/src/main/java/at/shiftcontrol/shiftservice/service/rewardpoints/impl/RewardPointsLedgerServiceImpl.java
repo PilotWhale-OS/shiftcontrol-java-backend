@@ -15,7 +15,6 @@ import at.shiftcontrol.lib.entity.RewardPointsTransaction;
 import at.shiftcontrol.lib.event.events.RewardPointTransactionEvent;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.type.RewardPointTransactionType;
-import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -131,7 +130,6 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
 
     @Override
     @Transactional(readOnly = true)
-    @IsNotAdmin
     public TotalPointsDto getTotalPoints(String userId) {
         var totalPoints = dao.sumPointsByVolunteer(userId);
 
@@ -142,7 +140,6 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
 
     @Override
     @Transactional(readOnly = true)
-    @IsNotAdmin
     public EventPointsDto getPointsForEvent(String userId, long eventId) {
         var evenPoints = dao.sumPointsByVolunteerAndEvent(userId, eventId);
 
@@ -154,7 +151,6 @@ public class RewardPointsLedgerServiceImpl implements RewardPointsLedgerService 
 
     @Override
     @Transactional(readOnly = true)
-    @IsNotAdmin
     public Collection<EventPointsDto> getPointsGroupedByEvent(String userId) {
         return dao.sumPointsForUserGroupedByEvent(userId);
     }

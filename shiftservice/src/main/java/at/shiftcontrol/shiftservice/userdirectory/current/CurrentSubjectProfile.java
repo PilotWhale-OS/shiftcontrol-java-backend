@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.userdirectory.current;
 
-import at.shiftcontrol.shiftservice.auth.UserType;
-
 public record CurrentSubjectProfile(
     String issuer,
     String subject,
@@ -12,5 +10,5 @@ public record CurrentSubjectProfile(
     String profile,
     Boolean emailVerified,
     String accessToken,
-    UserType userType
+    boolean isPlatformAdmin
 ) {}

@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import at.shiftcontrol.shiftservice.auth.UserType;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,5 +25,5 @@ public class AccountInfoDto {
     private String profile;
 
     @NotNull
-    private UserType userType;
+    private boolean isPlatformAdmin;
 }

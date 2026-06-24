@@ -203,7 +203,7 @@ public class LocalUserDirectoryService implements UserDirectoryService {
             firstNonBlank(userAccount.getLastName(), ""),
             firstNonBlank(userAccount.getEmail(), ""),
             userAccount.getProfile(),
-            userAccount.isPlatformAdmin() ? UserType.ADMIN : UserType.ASSIGNED
+            userAccount.isPlatformAdmin()
         );
     }
 
@@ -220,7 +220,7 @@ public class LocalUserDirectoryService implements UserDirectoryService {
             firstNonBlank(userAccount.getLastName(), ""),
             firstNonBlank(userAccount.getEmail(), ""),
             userAccount.getProfile(),
-            userAccount.isPlatformAdmin() ? UserType.ADMIN : UserType.ASSIGNED
+            userAccount.isPlatformAdmin()
         );
     }
 

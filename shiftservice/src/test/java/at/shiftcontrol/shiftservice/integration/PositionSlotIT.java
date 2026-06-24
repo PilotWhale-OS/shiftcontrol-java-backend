@@ -3,6 +3,7 @@ package at.shiftcontrol.shiftservice.integration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +71,7 @@ class PositionSlotIT extends RestITBase {
     private ShiftPlan shiftPlanA, shiftPlanB;
     private Shift shiftA, shiftB, shiftC;
 
-    private Volunteer volunteerA, volunteerB;
+    private Volunteer volunteerA, volunteerB, adminWithoutMembership;
 
     private PositionSlot positionSlotA, positionSlotB, positionSlotC;
 
@@ -256,14 +257,23 @@ class PositionSlotIT extends RestITBase {
             .build();
         volunteers.add(volunteerB);
 
+        adminWithoutMembership = Volunteer.builder()
+            .id("admin-not-in-plan")
+            .volunteeringPlans(Set.of())
+            .build();
+        volunteers.add(adminWithoutMembership);
+
         volunteerRepository.saveAll(volunteers);
         assertAll(
             () -> assertThat(volunteerA.getId()).isNotNull(),
             () -> assertThat(volunteerB.getId()).isNotNull(),
+            () -> assertThat(adminWithoutMembership.getId()).isNotNull(),
             () -> assertThat(volunteerA.getVolunteeringPlans()).contains(shiftPlanA),
             () -> assertThat(volunteerB.getVolunteeringPlans()).contains(shiftPlanA),
+            () -> assertThat(adminWithoutMembership.getVolunteeringPlans()).isEmpty(),
             () -> assertThat(volunteerRepository.existsById(volunteerA.getId())).isTrue(),
-            () -> assertThat(volunteerRepository.existsById(volunteerB.getId())).isTrue()
+            () -> assertThat(volunteerRepository.existsById(volunteerB.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.existsById(adminWithoutMembership.getId())).isTrue()
         );
     }
 
@@ -287,7 +297,7 @@ class PositionSlotIT extends RestITBase {
 
     @AfterEach
     void tearDown() {
-        userAttributeProvider.invalidateUserCaches(Set.of(volunteerA.getId(), volunteerB.getId()));
+        userAttributeProvider.invalidateUserCaches(Set.of(volunteerA.getId(), volunteerB.getId(), adminWithoutMembership.getId()));
         assignmentRepository.deleteAll();
         positionSlotRepository.deleteAll();
         eventRepository.deleteAll();
@@ -452,5 +462,58 @@ class PositionSlotIT extends RestITBase {
         );
 
         Assertions.assertFalse(assignmentRepository.findById(ConvertUtil.idToLong(resultJoin2.getId())).isPresent());
+    }
+
+    @Test
+    void adminWithoutMembershipCannotJoinPositionSlot() {
+        var positionSlotBeforeJoin = getRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotC.getId(),
+            PositionSlotDto.class,
+            volunteerB.getId()
+        );
+        var requestDto = new PositionSlotRequestDto(positionSlotBeforeJoin.getRewardPointsDto().getRewardPointsConfigHash());
+
+        doRequest(
+            Method.POST,
+            JOIN_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
+            requestDto,
+            Map.of(),
+            Map.of(
+                HDR_TEST_USER_TYPE, "ADMIN",
+                HDR_TEST_USER_ID, "admin-not-in-plan",
+                HDR_TEST_USERNAME, "admin-not-in-plan"
+            ),
+            HttpStatus.FORBIDDEN.value(),
+            null
+        );
+    }
+
+    @Test
+    void adminWithExistingVolunteerMembershipCanJoinPositionSlot() {
+        var positionSlotBeforeJoin = getRequestAsAssigned(
+            POSITIONSLOT_PATH + "/" + positionSlotC.getId(),
+            PositionSlotDto.class,
+            volunteerB.getId()
+        );
+        var requestDto = new PositionSlotRequestDto(positionSlotBeforeJoin.getRewardPointsDto().getRewardPointsConfigHash());
+
+        var result = doRequest(
+            Method.POST,
+            JOIN_POSITIONSLOT_PATH.formatted(positionSlotC.getId()),
+            requestDto,
+            Map.of(),
+            Map.of(
+                HDR_TEST_USER_TYPE, "ADMIN",
+                HDR_TEST_USER_ID, volunteerB.getId(),
+                HDR_TEST_USERNAME, "admin-" + volunteerB.getId()
+            ),
+            HttpStatus.OK.value(),
+            AssignmentDto.class
+        );
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(AssignmentStatus.ACCEPTED, result.getStatus());
+        Assertions.assertEquals(String.valueOf(positionSlotC.getId()), result.getPositionSlotId());
+        Assertions.assertEquals(volunteerB.getId(), result.getAssignedVolunteer().getId());
     }
 }

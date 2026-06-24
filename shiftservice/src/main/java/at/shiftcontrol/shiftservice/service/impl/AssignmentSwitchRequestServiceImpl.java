@@ -32,7 +32,6 @@ import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.PositionSignupState;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -205,7 +204,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
-    @IsNotAdmin
     public @NonNull Collection<TradeDto> createTrade(@NonNull TradeCreateDto tradeCreateDto, @NonNull String currentUserId) {
         // get current user (volunteer)
         Volunteer currentUser = volunteerDao.getById(currentUserId);
@@ -311,7 +309,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
 
     @Override
     @Transactional
-    @IsNotAdmin
     public @NonNull TradeDto acceptTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -353,7 +350,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     @Override
-    @IsNotAdmin
     public @NonNull TradeDto declineTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);
@@ -376,7 +372,6 @@ public class AssignmentSwitchRequestServiceImpl implements AssignmentSwitchReque
     }
 
     @Override
-    @IsNotAdmin
     public @NonNull TradeDto cancelTrade(long id, @NonNull String currentUserId) {
         // get trade
         AssignmentSwitchRequest trade = assignmentSwitchRequestDao.getById(id);

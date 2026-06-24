@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
@@ -128,6 +127,6 @@ class UserAdministrationServiceTest {
     }
 
     private static DirectoryUser user(String id, String username, String firstName, String lastName) {
-        return new DirectoryUser(id, username, firstName, lastName, username + "@example.com", "https://cdn.example.test/profiles/" + id + ".png", UserType.ASSIGNED);
+        return new DirectoryUser(id, username, firstName, lastName, username + "@example.com", "https://cdn.example.test/profiles/" + id + ".png", false);
     }
 }

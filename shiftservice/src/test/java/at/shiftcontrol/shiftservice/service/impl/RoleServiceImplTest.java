@@ -12,7 +12,6 @@ import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Role;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
 import at.shiftcontrol.shiftservice.dao.role.RoleDao;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
@@ -73,7 +72,7 @@ class RoleServiceImplTest {
             "Admin",
             "alice@example.com",
             "https://cdn.example.test/profiles/user-1.png",
-            UserType.ASSIGNED
+            false
         ));
 
         var result = roleService.createUserRoleAssignment(

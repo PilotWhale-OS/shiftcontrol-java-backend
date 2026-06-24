@@ -20,7 +20,6 @@ import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.TimeConstraint;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dto.positionslot.PositionSlotRequestDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.AccountInfoDto;
 import at.shiftcontrol.shiftservice.dto.userprofile.UserProfileDto;
@@ -147,7 +146,7 @@ public class TestEntityFactory {
             "Test Username",
             "mail@mail.com",
             "https://cdn.example.test/profiles/" + userId + ".png",
-            UserType.ASSIGNED
+            false
         );
         profile.setAccount(info);
         return profile;
@@ -161,7 +160,7 @@ public class TestEntityFactory {
             "Huttelwascher",
             id + "@example.com",
             "https://cdn.example.test/profiles/" + id + ".png",
-            UserType.ASSIGNED
+            false
         );
     }
 
@@ -173,7 +172,7 @@ public class TestEntityFactory {
             "User",
             id + "@example.com",
             "https://cdn.example.test/profiles/" + id + ".png",
-            UserType.ADMIN
+            true
         );
     }
 

@@ -16,7 +16,6 @@ import at.shiftcontrol.lib.type.NotificationType;
 import at.shiftcontrol.lib.type.UserAccountStatus;
 import at.shiftcontrol.lib.type.UserProfileSource;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.userprofile.VolunteerDao;
 import at.shiftcontrol.shiftservice.dto.userprofile.NotificationSettingsDto;
@@ -99,7 +98,7 @@ class LocalUserProfileServiceTest {
                 "https://cdn.example.test/profiles/user-1.png",
                 true,
                 "token-value",
-                UserType.ASSIGNED
+                false
             ),
             userAccount
         ));
@@ -144,7 +143,7 @@ class LocalUserProfileServiceTest {
             "User",
             "other.user@example.com",
             "https://cdn.example.test/profiles/other-user.png",
-            UserType.ASSIGNED
+            false
         );
         when(userDirectoryService.getUserById("other-user")).thenReturn(directoryUser);
 
@@ -183,7 +182,7 @@ class LocalUserProfileServiceTest {
                 "https://cdn.example.test/profiles/user-2.png",
                 true,
                 "token-value",
-                UserType.ASSIGNED
+                false
             ),
             UserAccount.builder()
                 .status(UserAccountStatus.ACTIVE)

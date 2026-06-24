@@ -15,7 +15,6 @@ import at.shiftcontrol.lib.exception.ForbiddenException;
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.lib.util.ConvertUtil;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 
@@ -222,7 +221,8 @@ public class SecurityHelper {
     }
 
     public boolean isUserAdmin(ShiftControlUser user) {
-        return user instanceof AdminUser;
+        return user.isPlatformAdmin()
+            || user.getAuthorities().stream().anyMatch(authority -> "ADMIN".equals(authority.getAuthority()));
     }
 
     public boolean isNotUserAdmin() {

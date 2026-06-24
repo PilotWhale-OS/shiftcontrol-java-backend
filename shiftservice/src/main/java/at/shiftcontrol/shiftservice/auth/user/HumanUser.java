@@ -7,12 +7,20 @@ import org.springframework.security.core.GrantedAuthority;
 
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
 
-public class AssignedUser extends ShiftControlUser {
+public class HumanUser extends ShiftControlUser {
     private final UserAttributeProvider attributeProvider;
+    private final boolean platformAdmin;
 
-    public AssignedUser(Collection<? extends GrantedAuthority> authorities, String username, String userId, UserAttributeProvider attributeProvider) {
+    public HumanUser(
+        Collection<? extends GrantedAuthority> authorities,
+        String username,
+        String userId,
+        UserAttributeProvider attributeProvider,
+        boolean platformAdmin
+    ) {
         super(authorities, username, userId);
         this.attributeProvider = attributeProvider;
+        this.platformAdmin = platformAdmin;
     }
 
     @Override
@@ -27,7 +35,12 @@ public class AssignedUser extends ShiftControlUser {
 
     @Override
     public boolean isLockedInPlan(long shiftPlanId) {
-        return getLockedPlannerPlans().contains(shiftPlanId);
+        return getLockedPlans().contains(shiftPlanId);
+    }
+
+    @Override
+    public boolean isPlatformAdmin() {
+        return platformAdmin;
     }
 
     public Set<Long> getRelevantVolunteerPlans() {
@@ -38,7 +51,7 @@ public class AssignedUser extends ShiftControlUser {
         return attributeProvider.getPlansWhereUserIsPlanner(getUserId());
     }
 
-    public Set<Long> getLockedPlannerPlans() {
+    public Set<Long> getLockedPlans() {
         return attributeProvider.getPlansWhereUserIsLocked(getUserId());
     }
 }
