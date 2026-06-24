@@ -71,7 +71,7 @@ class PositionSlotIT extends RestITBase {
     private ShiftPlan shiftPlanA, shiftPlanB;
     private Shift shiftA, shiftB, shiftC;
 
-    private Volunteer volunteerA, volunteerB;
+    private Volunteer volunteerA, volunteerB, adminWithoutMembership;
 
     private PositionSlot positionSlotA, positionSlotB, positionSlotC;
 
@@ -257,14 +257,23 @@ class PositionSlotIT extends RestITBase {
             .build();
         volunteers.add(volunteerB);
 
+        adminWithoutMembership = Volunteer.builder()
+            .id("admin-not-in-plan")
+            .volunteeringPlans(Set.of())
+            .build();
+        volunteers.add(adminWithoutMembership);
+
         volunteerRepository.saveAll(volunteers);
         assertAll(
             () -> assertThat(volunteerA.getId()).isNotNull(),
             () -> assertThat(volunteerB.getId()).isNotNull(),
+            () -> assertThat(adminWithoutMembership.getId()).isNotNull(),
             () -> assertThat(volunteerA.getVolunteeringPlans()).contains(shiftPlanA),
             () -> assertThat(volunteerB.getVolunteeringPlans()).contains(shiftPlanA),
+            () -> assertThat(adminWithoutMembership.getVolunteeringPlans()).isEmpty(),
             () -> assertThat(volunteerRepository.existsById(volunteerA.getId())).isTrue(),
-            () -> assertThat(volunteerRepository.existsById(volunteerB.getId())).isTrue()
+            () -> assertThat(volunteerRepository.existsById(volunteerB.getId())).isTrue(),
+            () -> assertThat(volunteerRepository.existsById(adminWithoutMembership.getId())).isTrue()
         );
     }
 
@@ -288,7 +297,7 @@ class PositionSlotIT extends RestITBase {
 
     @AfterEach
     void tearDown() {
-        userAttributeProvider.invalidateUserCaches(Set.of(volunteerA.getId(), volunteerB.getId()));
+        userAttributeProvider.invalidateUserCaches(Set.of(volunteerA.getId(), volunteerB.getId(), adminWithoutMembership.getId()));
         assignmentRepository.deleteAll();
         positionSlotRepository.deleteAll();
         eventRepository.deleteAll();
