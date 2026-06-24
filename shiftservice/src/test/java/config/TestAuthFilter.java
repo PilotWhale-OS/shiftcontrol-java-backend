@@ -3,8 +3,7 @@ package config;
 import java.util.List;
 
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
-import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
+import at.shiftcontrol.shiftservice.auth.user.HumanUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -37,20 +36,14 @@ public class TestAuthFilter extends org.springframework.web.filter.OncePerReques
 
             ShiftControlUser principal;
 
-            if ("ADMIN".equalsIgnoreCase(type)) {
-                principal = new AdminUser(
-                    List.of(new SimpleGrantedAuthority("ADMIN")),
-                    username,
-                    userId
-                );
-            } else {
-                principal = new AssignedUser(
-                    List.of(),
-                    username,
-                    userId,
-                    attributeProvider
-                );
-            }
+            boolean isPlatformAdmin = "ADMIN".equalsIgnoreCase(type);
+            principal = new HumanUser(
+                isPlatformAdmin ? List.of(new SimpleGrantedAuthority("ADMIN")) : List.of(),
+                username,
+                userId,
+                attributeProvider,
+                isPlatformAdmin
+            );
 
             var auth = new UsernamePasswordAuthenticationToken(
                 principal,

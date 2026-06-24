@@ -23,7 +23,6 @@ import at.shiftcontrol.lib.type.UserInviteShiftPlanAccessType;
 import at.shiftcontrol.lib.type.UserInviteStatus;
 import at.shiftcontrol.lib.type.UserProfileSource;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.repo.EventRepository;
 import at.shiftcontrol.shiftservice.repo.ShiftPlanRepository;
 import at.shiftcontrol.shiftservice.repo.VolunteerRepository;
@@ -86,7 +85,7 @@ class CurrentUserProfileSyncServiceTest {
             "https://cdn.example.test/profiles/current-user.png",
             true,
             "token-value",
-            UserType.ADMIN
+            true
         ));
 
         var result = currentUserProfileSyncService.syncCurrentSubject();
@@ -168,7 +167,7 @@ class CurrentUserProfileSyncServiceTest {
             "https://cdn.example.test/profiles/ignored-user.png",
             true,
             "token-value",
-            UserType.ASSIGNED
+            false
         ));
 
         CurrentSubjectProfileSyncResult result = currentUserProfileSyncService.syncCurrentSubjectIfStale();
@@ -211,7 +210,7 @@ class CurrentUserProfileSyncServiceTest {
             "https://cdn.example.test/profiles/admin-user.png",
             true,
             "token-value",
-            UserType.ADMIN
+            true
         ));
 
         CurrentSubjectProfileSyncResult result = currentUserProfileSyncService.syncCurrentSubject();
@@ -251,7 +250,7 @@ class CurrentUserProfileSyncServiceTest {
             "https://cdn.example.test/profiles/local-user.png",
             true,
             "token-value",
-            UserType.ASSIGNED
+            false
         ));
 
         CurrentSubjectProfileSyncResult result = currentUserProfileSyncService.syncCurrentSubject();
@@ -312,7 +311,7 @@ class CurrentUserProfileSyncServiceTest {
             "https://cdn.example.test/profiles/claim-user.png",
             true,
             "token-value",
-            UserType.ASSIGNED
+            false
         ));
 
         CurrentSubjectProfileSyncResult result = currentUserProfileSyncService.syncCurrentSubject();
@@ -350,7 +349,7 @@ class CurrentUserProfileSyncServiceTest {
             profile,
             emailVerified,
             "token-value",
-            UserType.ASSIGNED
+            false
         ));
         return currentUserProfileSyncService.syncCurrentSubject();
     }

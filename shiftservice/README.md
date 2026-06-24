@@ -63,3 +63,26 @@ The `openapi` profile uses [application-openapi.yml](./src/main/resources/applic
 - Hibernate `ddl-auto=none`
 
 That profile is intended only for OpenAPI generation, not normal app runtime.
+
+### Generate `openapi.json`
+
+From the `shiftservice` project directory run:
+
+```bash
+mvn verify -Popenapi
+```
+
+What this does:
+
+- packages the service jar, then starts it on port `18080` with the `openapi` Spring profile
+- waits until `http://127.0.0.1:18080/v3/api-docs` is reachable
+- writes the generated file to `target/openapi.json`
+- stops the temporary OpenAPI process again after generation
+
+This flow does not use the Spring Boot Maven plugin's JMX `start`/`stop` support, so it avoids the default JMX port `9001`.
+
+If you are running from the Java multimodule root instead of the `shiftservice` directory, use:
+
+```bash
+mvn verify -pl shiftservice -am -Popenapi
+```

@@ -134,26 +134,51 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.6.2</version>
                         <executions>
                             <execution>
                                 <id>start</id>
                                 <goals>
-                                    <goal>start</goal>
+                                    <goal>exec</goal>
                                 </goals>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
-                                    <profiles>openapi</profiles>
-                                    <jvmArguments>-Dserver.port=8080</jvmArguments>
+                                    <executable>sh</executable>
+                                    <arguments>
+                                        <argument>-c</argument>
+                                        <argument>rm -f '${project.build.directory}/openapi.pid' '${project.build.directory}/openapi.log' &amp;&amp; java -jar '${project.build.directory}/${project.build.finalName}.jar' --spring.profiles.active=openapi --server.port=18080 &gt; '${project.build.directory}/openapi.log' 2&gt;&amp;1 &amp; echo $! &gt; '${project.build.directory}/openapi.pid'</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>wait-for-openapi</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <executable>sh</executable>
+                                    <arguments>
+                                        <argument>-c</argument>
+                                        <argument>attempt=0; until curl --silent --fail http://127.0.0.1:18080/v3/api-docs &gt; /dev/null; do attempt=$((attempt + 1)); if [ "$attempt" -ge 60 ]; then echo "OpenAPI server did not become ready within 60 seconds."; exit 1; fi; sleep 1; done</argument>
+                                    </arguments>
                                 </configuration>
                             </execution>
                             <execution>
                                 <id>stop</id>
                                 <goals>
-                                    <goal>stop</goal>
+                                    <goal>exec</goal>
                                 </goals>
                                 <phase>post-integration-test</phase>
+                                <configuration>
+                                    <executable>sh</executable>
+                                    <arguments>
+                                        <argument>-c</argument>
+                                        <argument>if [ -f '${project.build.directory}/openapi.pid' ]; then kill "$(cat '${project.build.directory}/openapi.pid')" 2&gt;/dev/null || true; rm -f '${project.build.directory}/openapi.pid'; fi</argument>
+                                    </arguments>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -172,7 +197,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+                            <apiDocsUrl>http://127.0.0.1:18080/v3/api-docs</apiDocsUrl>
                             <outputFileName>openapi.json</outputFileName>
                             <outputDir>${project.build.directory}</outputDir>
                         </configuration>

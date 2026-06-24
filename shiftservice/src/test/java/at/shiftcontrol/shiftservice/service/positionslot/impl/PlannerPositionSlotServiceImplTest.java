@@ -12,7 +12,6 @@ import at.shiftcontrol.lib.entity.PositionSlot;
 import at.shiftcontrol.lib.entity.Shift;
 import at.shiftcontrol.lib.entity.ShiftPlan;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
 import at.shiftcontrol.shiftservice.dao.ShiftPlanDao;
@@ -90,7 +89,7 @@ class PlannerPositionSlotServiceImplTest {
         when(eligibilityService.isEligibleAndNotSignedUp(positionSlot, ineligibleVolunteer)).thenReturn(false);
         when(eligibilityService.getConflictingAssignmentsExcludingShift("user-1", positionSlot, 4L)).thenReturn(List.of());
         when(userDirectoryService.getUserByIds(List.of("user-1"))).thenReturn(List.of(
-            new DirectoryUser("user-1", "alice", "Alice", "Admin", "alice@example.com", "https://cdn.example.test/profiles/user-1.png", UserType.ASSIGNED)
+            new DirectoryUser("user-1", "alice", "Alice", "Admin", "alice@example.com", "https://cdn.example.test/profiles/user-1.png", false)
         ));
 
         var result = plannerPositionSlotService.getAssignableUsers("5");

@@ -66,6 +66,6 @@ public class TrustAlertAssemblingMapper {
     }
 
     private DirectoryUser fallbackDirectoryUser(String userId) {
-        return new DirectoryUser(userId, userId, "", "", "", null, at.shiftcontrol.shiftservice.auth.UserType.ASSIGNED);
+        return new DirectoryUser(userId, userId, "", "", "", null, false);
     }
 }

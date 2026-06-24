@@ -22,4 +22,8 @@ public abstract class ShiftControlUser extends ApplicationUser {
     public abstract boolean isPlannerInPlan(long shiftPlanId);
 
     public abstract boolean isLockedInPlan(long shiftPlanId);
+
+    public boolean isPlatformAdmin() {
+        return false;
+    }
 }

@@ -51,18 +51,16 @@ public class ApplicationUserManager {
             return getOrCreateServiceUser(userId, username, scopeAuthorities);
         }
 
-        UserType userType = hasPlatformAdminAuthority(scopeAuthorities)
-            ? UserType.ADMIN
-            : UserType.ASSIGNED;
-        log.debug("Creating human ApplicationUser of type {} for username {} and userId {}", userType, username, userId);
-        return getOrCreateHumanUser(userId, userType, username, scopeAuthorities);
+        boolean isPlatformAdmin = hasPlatformAdminAuthority(scopeAuthorities);
+        log.debug("Creating human ApplicationUser for username {} and userId {} (platformAdmin={})", username, userId, isPlatformAdmin);
+        return getOrCreateHumanUser(userId, isPlatformAdmin, username, scopeAuthorities);
     }
 
-    private ShiftControlUser getOrCreateHumanUser(String userId, UserType userType, String username, Set<String> scopeAuthorities) {
-        String cacheKey = buildHumanUserCacheKey(userId, userType, username, scopeAuthorities);
+    private ShiftControlUser getOrCreateHumanUser(String userId, boolean isPlatformAdmin, String username, Set<String> scopeAuthorities) {
+        String cacheKey = buildHumanUserCacheKey(userId, isPlatformAdmin, username, scopeAuthorities);
         var user = userCache.getIfPresent(cacheKey);
         if (user == null) {
-            user = ApplicationUserFactory.createHumanUser(userType, username, userId, scopeAuthorities, userAttributeProvider);
+            user = ApplicationUserFactory.createHumanUser(username, userId, scopeAuthorities, userAttributeProvider, isPlatformAdmin);
             userCache.put(cacheKey, user);
         }
 
@@ -136,11 +134,11 @@ public class ApplicationUserManager {
             || Authorities.LEGACY_PLATFORM_ADMIN_SCOPE.equals(authority);
     }
 
-    private String buildHumanUserCacheKey(String userId, UserType userType, String username, Set<String> scopeAuthorities) {
+    private String buildHumanUserCacheKey(String userId, boolean isPlatformAdmin, String username, Set<String> scopeAuthorities) {
         String authorityKey = scopeAuthorities.stream()
             .sorted()
             .collect(Collectors.joining(","));
-        return "human:" + userId + ":" + userType.name() + ":" + firstNonBlank(username, "") + ":" + authorityKey;
+        return "human:" + userId + ":" + isPlatformAdmin + ":" + firstNonBlank(username, "") + ":" + authorityKey;
     }
 
     private boolean isMachineToken(Jwt jwt, Set<String> scopeAuthorities) {

@@ -22,7 +22,7 @@ import org.mockito.Mockito;
 import at.shiftcontrol.lib.type.TradeStatus;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
 import at.shiftcontrol.shiftservice.auth.UserAttributeProvider;
-import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
+import at.shiftcontrol.shiftservice.auth.user.HumanUser;
 import at.shiftcontrol.shiftservice.auth.user.ShiftControlUser;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dto.trade.TradeCandidatesDto;
@@ -80,11 +80,12 @@ class AssignmentSwitchRequestServiceTest {
     }
 
     private void setDefaultNonAdminTestUser() {
-        ShiftControlUser principal = new AssignedUser(
+        ShiftControlUser principal = new HumanUser(
             List.of(),
             TestSecurityConfig.HDR_USERNAME,
             TestSecurityConfig.HDR_USERID,
-            attributeProvider
+            attributeProvider,
+            false
         );
 
         var auth = new UsernamePasswordAuthenticationToken(

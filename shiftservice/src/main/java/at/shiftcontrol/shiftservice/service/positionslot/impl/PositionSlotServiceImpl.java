@@ -27,7 +27,6 @@ import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.exception.ValidationException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.util.ConvertUtil;
-import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.AssignmentSwitchRequestDao;
 import at.shiftcontrol.shiftservice.dao.PositionSlotDao;
@@ -72,7 +71,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @Transactional
-    @IsNotAdmin
     public AssignmentDto join(@NonNull Long positionSlotId, @NonNull String currentUserId, @NonNull PositionSlotRequestDto requestDto) {
         // get position slot and volunteer
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
@@ -93,7 +91,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @Transactional
-    @IsNotAdmin
     public void leave(@NonNull Long positionSlotId, @NonNull String volunteerId) {
         // get assignment
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, volunteerId);
@@ -106,7 +103,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    @IsNotAdmin
     public AssignmentDto joinRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get position slot and volunteer
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
@@ -133,7 +129,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    @IsNotAdmin
     public void leaveRequest(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get assignment
         Optional<Assignment> existingAssignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
@@ -154,7 +149,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    @IsNotAdmin
     public void joinRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get assignment
         Optional<Assignment> existingAssignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
@@ -172,7 +166,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    @IsNotAdmin
     public void leaveRequestWithdraw(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         // get assignment
         Optional<Assignment> existingAssignment = assignmentDao.findAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
@@ -213,7 +206,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    @IsNotAdmin
     public AssignmentDto createAuction(@NonNull Long positionSlotId, @NonNull String currentUserId) {
         Assignment assignment = assignmentDao.getAssignmentForPositionSlotAndUser(positionSlotId, currentUserId);
         securityHelper.assertVolunteerIsNotLockedInPlan(assignment);
@@ -239,7 +231,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
 
     @Override
     @Transactional
-    @IsNotAdmin
     public AssignmentDto claimAuction(@NonNull Long positionSlotId, @NonNull String offeringUserId, @NonNull String currentUserId,
                                       @NonNull PositionSlotRequestDto requestDto) {
         // get auction-assignment
@@ -281,7 +272,6 @@ public class PositionSlotServiceImpl implements PositionSlotService {
     }
 
     @Override
-    @IsNotAdmin
     public void setPreference(@NonNull String currentUserId, long positionSlotId, int preference) {
         PositionSlot positionSlot = positionSlotDao.getById(positionSlotId);
         securityHelper.assertUserIsVolunteer(positionSlot, true);

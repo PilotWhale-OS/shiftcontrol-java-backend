@@ -81,8 +81,8 @@ class LocalUserDirectoryServiceTest {
         var admins = localUserDirectoryService.getAllAdmins();
 
         assertThat(admins)
-            .extracting(DirectoryUser::id, DirectoryUser::profile, DirectoryUser::userType)
-            .containsExactly(org.assertj.core.groups.Tuple.tuple("admin-1", "https://cdn.example.test/profiles/admin-1.png", UserType.ADMIN));
+            .extracting(DirectoryUser::id, DirectoryUser::profile, DirectoryUser::isPlatformAdmin)
+            .containsExactly(org.assertj.core.groups.Tuple.tuple("admin-1", "https://cdn.example.test/profiles/admin-1.png", true));
     }
 
     @Test

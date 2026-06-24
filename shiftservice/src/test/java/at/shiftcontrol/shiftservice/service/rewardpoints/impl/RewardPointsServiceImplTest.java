@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import at.shiftcontrol.lib.common.UniqueCodeGenerator;
 import at.shiftcontrol.lib.entity.Event;
 import at.shiftcontrol.lib.entity.Volunteer;
-import at.shiftcontrol.shiftservice.auth.UserType;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
@@ -90,6 +89,6 @@ class RewardPointsServiceImplTest {
     }
 
     private static DirectoryUser directoryUser(String id, String firstName, String lastName) {
-        return new DirectoryUser(id, id, firstName, lastName, id + "@example.com", "https://cdn.example.test/profiles/" + id + ".png", UserType.ASSIGNED);
+        return new DirectoryUser(id, id, firstName, lastName, id + "@example.com", "https://cdn.example.test/profiles/" + id + ".png", false);
     }
 }

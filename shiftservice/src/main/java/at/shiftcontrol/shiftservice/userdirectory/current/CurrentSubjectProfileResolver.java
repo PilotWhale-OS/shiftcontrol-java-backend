@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.exception.IllegalArgumentException;
 import at.shiftcontrol.shiftservice.auth.ApplicationUserProvider;
-import at.shiftcontrol.shiftservice.auth.UserType;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class CurrentSubjectProfileResolver {
             firstNonBlank(jwt.getClaimAsString("picture"), jwt.getClaimAsString("profile")),
             jwt.getClaims().containsKey("email_verified") ? jwt.getClaimAsBoolean("email_verified") : null,
             applicationUserProvider.getCurrentAccessToken(),
-            applicationUserProvider.currentUserHasAuthority("ADMIN") ? UserType.ADMIN : UserType.ASSIGNED
+            applicationUserProvider.currentUserHasAuthority("ADMIN")
         );
     }
 

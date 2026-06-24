@@ -24,7 +24,6 @@ import at.shiftcontrol.lib.event.events.RewardPointsShareTokenEvent;
 import at.shiftcontrol.lib.exception.BadRequestException;
 import at.shiftcontrol.lib.exception.ConflictException;
 import at.shiftcontrol.shiftservice.annotation.AdminOnly;
-import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsShareTokenDao;
 import at.shiftcontrol.shiftservice.dao.RewardPointsTransactionDao;
@@ -72,7 +71,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @Transactional
-    @IsNotAdmin
     public void onAssignmentCreated(@NonNull Assignment assignment, @NonNull String acceptedRewardPointsHash) throws ConflictException {
         PositionSlot slot = assignment.getPositionSlot();
         validateHash(slot, acceptedRewardPointsHash);
@@ -130,7 +128,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @Transactional
-    @IsNotAdmin
     public void onAssignmentReassignedAuction(@NonNull Assignment oldAssignment, @NonNull Assignment newAssignment,
                                               @NonNull String acceptedRewardPointsHash) throws ConflictException {
         PositionSlot slot = oldAssignment.getPositionSlot();
@@ -180,7 +177,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     @Transactional
-    @IsNotAdmin
     public void onAssignmentReassignedTrade(@NonNull Assignment offeringAssignment, @NonNull Assignment requestedAssignment) throws ConflictException {
         int offeringPoints = offeringAssignment.getAcceptedRewardPoints();
         int requestedPoints = requestedAssignment.getAcceptedRewardPoints();

@@ -1,7 +1,5 @@
 package at.shiftcontrol.shiftservice.userdirectory;
 
-import at.shiftcontrol.shiftservice.auth.UserType;
-
 public record DirectoryUser(
     String id,
     String username,
@@ -9,6 +7,6 @@ public record DirectoryUser(
     String lastName,
     String email,
     String profile,
-    UserType userType
+    boolean isPlatformAdmin
 ) {
 }

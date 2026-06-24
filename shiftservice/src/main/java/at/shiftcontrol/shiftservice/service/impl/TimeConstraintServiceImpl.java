@@ -14,7 +14,6 @@ import at.shiftcontrol.lib.exception.IllegalStateException;
 import at.shiftcontrol.lib.type.AssignmentStatus;
 import at.shiftcontrol.lib.type.LockStatus;
 import at.shiftcontrol.lib.type.TimeConstraintType;
-import at.shiftcontrol.shiftservice.annotation.IsNotAdmin;
 import at.shiftcontrol.shiftservice.dao.AssignmentDao;
 import at.shiftcontrol.shiftservice.dao.EventDao;
 import at.shiftcontrol.shiftservice.dao.TimeConstraintDao;
@@ -52,7 +51,6 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     @Override
-    @IsNotAdmin
     @Transactional
     public @org.jspecify.annotations.NonNull TimeConstraintDto createTimeConstraint(@NonNull TimeConstraintCreateDto createDto, @NonNull String userId, long eventId) {
         //VALIDATION: Validate date range
@@ -151,7 +149,6 @@ public class TimeConstraintServiceImpl implements TimeConstraintService {
     }
 
     @Override
-    @IsNotAdmin
     public void delete(long timeConstraintId) {
         var timeConstraint = timeConstraintDao.getById(timeConstraintId);
 

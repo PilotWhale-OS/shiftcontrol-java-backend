@@ -3,19 +3,24 @@ package at.shiftcontrol.shiftservice.auth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import at.shiftcontrol.shiftservice.auth.user.AdminUser;
-import at.shiftcontrol.shiftservice.auth.user.AssignedUser;
+import at.shiftcontrol.shiftservice.auth.user.HumanUser;
 import at.shiftcontrol.shiftservice.auth.user.ServiceUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ApplicationUserManagerTest {
     private ApplicationUserManager applicationUserManager;
+    private UserAttributeProvider attributeProvider;
 
     @BeforeEach
     void setUp() {
-        applicationUserManager = new ApplicationUserManager(mock(UserAttributeProvider.class));
+        attributeProvider = mock(UserAttributeProvider.class);
+        when(attributeProvider.getPlansWhereUserIsVolunteer("user-1")).thenReturn(java.util.Set.of());
+        when(attributeProvider.getPlansWhereUserIsPlanner("user-1")).thenReturn(java.util.Set.of());
+        when(attributeProvider.getPlansWhereUserIsLocked("user-1")).thenReturn(java.util.Set.of());
+        applicationUserManager = new ApplicationUserManager(attributeProvider);
         applicationUserManager.init();
     }
 
@@ -31,7 +36,10 @@ class ApplicationUserManagerTest {
 
         var user = applicationUserManager.getOrCreateUser(jwt);
 
-        assertThat(user).isInstanceOf(AdminUser.class);
+        assertThat(user).isInstanceOf(HumanUser.class);
+        assertThat(((HumanUser) user).isPlatformAdmin()).isTrue();
+        assertThat(((HumanUser) user).isVolunteerInPlan(99L)).isFalse();
+        assertThat(((HumanUser) user).isPlannerInPlan(99L)).isFalse();
         assertThat(user.getAuthorities())
             .extracting(org.springframework.security.core.GrantedAuthority::getAuthority)
             .contains("ADMIN", "admin");
@@ -73,8 +81,10 @@ class ApplicationUserManagerTest {
         var assignedUser = applicationUserManager.getOrCreateUser(assignedJwt);
         var adminUser = applicationUserManager.getOrCreateUser(adminJwt);
 
-        assertThat(assignedUser).isInstanceOf(AssignedUser.class);
-        assertThat(adminUser).isInstanceOf(AdminUser.class);
+        assertThat(assignedUser).isInstanceOf(HumanUser.class);
+        assertThat(adminUser).isInstanceOf(HumanUser.class);
+        assertThat(((HumanUser) assignedUser).isPlatformAdmin()).isFalse();
+        assertThat(((HumanUser) adminUser).isPlatformAdmin()).isTrue();
     }
 
     @Test
@@ -88,7 +98,8 @@ class ApplicationUserManagerTest {
 
         var user = applicationUserManager.getOrCreateUser(jwt);
 
-        assertThat(user).isInstanceOf(AdminUser.class);
+        assertThat(user).isInstanceOf(HumanUser.class);
+        assertThat(((HumanUser) user).isPlatformAdmin()).isTrue();
         assertThat(user.getAuthorities())
             .extracting(org.springframework.security.core.GrantedAuthority::getAuthority)
             .contains("ADMIN", "shiftcontrol.admin");

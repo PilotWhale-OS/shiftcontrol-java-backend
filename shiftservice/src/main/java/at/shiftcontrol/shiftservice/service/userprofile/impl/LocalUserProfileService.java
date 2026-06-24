@@ -46,7 +46,7 @@ public class LocalUserProfileService implements UserProfileService {
                 firstNonBlank(syncResult.userAccount().getLastName(), ""),
                 firstNonBlank(syncResult.userAccount().getEmail(), ""),
                 syncResult.userAccount().getProfile(),
-                syncResult.currentSubjectProfile().userType()
+                syncResult.currentSubjectProfile().isPlatformAdmin()
             );
         } else {
             user = userDirectoryService.getUserById(userId);
