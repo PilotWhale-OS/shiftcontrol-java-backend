@@ -12,7 +12,9 @@ Endpoints:
 Auth expectations:
 
 - These endpoints are for trusted internal service consumers only.
-- Use OAuth2 bearer tokens with the service-to-service authorization model already configured for internal calls.
+- Use either:
+  - OAuth2 bearer tokens with the service-to-service authorization model already configured for internal calls, or
+  - the shared `X-ShiftControl-Internal-Api-Key` header when internal API key auth is configured
 - Consumers must treat admin role decisions as `shiftservice` output, not re-derive them from the IdP.
 
 Behavior expectations:

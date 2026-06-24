@@ -18,13 +18,18 @@ public class ShiftServiceClientConfig {
     RestClient restClient(
         RestClient.Builder restClientBuilder,
         OAuthClientCredentialsTokenService tokenService,
-        @Value("${trust.shiftservice.baseUrl}") String baseUrl
+        @Value("${trust.shiftservice.baseUrl}") String baseUrl,
+        @Value("${trust.shiftservice.apiKey:}") String apiKey
     ) {
         return restClientBuilder
             .baseUrl(baseUrl)
             .requestInterceptor((request, body, execution) -> {
-                String token = tokenService.getToken();
-                request.getHeaders().setBearerAuth(token);
+                if (apiKey != null && !apiKey.isBlank()) {
+                    request.getHeaders().set("X-ShiftControl-Internal-Api-Key", apiKey.trim());
+                } else {
+                    String token = tokenService.getToken();
+                    request.getHeaders().setBearerAuth(token);
+                }
                 return execution.execute(request, body);
             })
             .build();

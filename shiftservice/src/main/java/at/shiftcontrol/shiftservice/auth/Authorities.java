@@ -1,6 +1,7 @@
 package at.shiftcontrol.shiftservice.auth;
 
 public class Authorities {
+    public static final String INTERNAL_API_KEY_HEADER = "X-ShiftControl-Internal-Api-Key";
     public static final String PLATFORM_ADMIN_ROLE = "admin";
     public static final String LEGACY_PLATFORM_ADMIN_SCOPE = "shiftcontrol.admin";
     public static final String INTERNAL_USERS_READ = "shiftservice.users.read";

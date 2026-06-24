@@ -32,6 +32,9 @@ oidc:
     allowed-issuers:
       - http://keycloak.127.0.0.1.nip.io/realms/dev
       - http://keycloak:8080/realms/dev
+shiftcontrol:
+  internal-api:
+    key:
 
 management:
   otlp:

@@ -31,7 +31,29 @@ class ShiftServiceClientConfigTest {
             .andExpect(method(HttpMethod.POST))
             .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer token-123"))
             .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
-        RestClient client = config.restClient(builder, tokenService, "https://shiftservice.example.test/");
+        RestClient client = config.restClient(builder, tokenService, "https://shiftservice.example.test/", "");
+
+        client.post()
+            .uri("/api/internal/users")
+            .retrieve()
+            .toBodilessEntity();
+
+        server.verify();
+        assertThat(client).isNotNull();
+    }
+
+    @Test
+    void restClient_prefersInternalApiKeyWhenConfigured() {
+        OAuthClientCredentialsTokenService tokenService = mock(OAuthClientCredentialsTokenService.class);
+
+        ShiftServiceClientConfig config = new ShiftServiceClientConfig();
+        RestClient.Builder builder = config.restClientBuilder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("https://shiftservice.example.test/api/internal/users"))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(header("X-ShiftControl-Internal-Api-Key", "internal-key-123"))
+            .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
+        RestClient client = config.restClient(builder, tokenService, "https://shiftservice.example.test/", "internal-key-123");
 
         client.post()
             .uri("/api/internal/users")

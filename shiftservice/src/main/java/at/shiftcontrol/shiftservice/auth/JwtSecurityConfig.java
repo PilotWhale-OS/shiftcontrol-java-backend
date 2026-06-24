@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 
 import at.shiftcontrol.lib.auth.NonDevTestCondition;
@@ -58,7 +59,10 @@ public class JwtSecurityConfig {
     }
 
     @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    protected SecurityFilterChain filterChain(
+        HttpSecurity http,
+        @org.springframework.beans.factory.annotation.Value("${shiftcontrol.internal-api.key:}") String internalApiKey
+    ) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/swagger-ui/**")
                 .permitAll()
@@ -72,6 +76,7 @@ public class JwtSecurityConfig {
                 .permitAll() // Permit all OPTIONS requests (preflight))
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+        http.addFilterBefore(new InternalApiKeyAuthenticationFilter(internalApiKey), AnonymousAuthenticationFilter.class);
         http.addFilterAfter(new CurrentUserProfileSyncFilter(currentUserProfileSyncService), BearerTokenAuthenticationFilter.class);
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
